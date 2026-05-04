@@ -1,0 +1,126 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.00146v1/fig-001.webp",
+      "caption": "Table 8: Consolidated comparison of selected benchmark results on the PASCAL VOC and GEN1 datasets, including our best SNN model alongside state-of-the-art SNNs and edge-focused ANN models. For each dataset, the lowest activation count, parameter count, and dynamic energy, as well as the highest inference rate, are highlighted.",
+      "page": 38,
+      "index": 1,
+      "width": 861,
+      "height": 266
+    },
+    {
+      "url": "assets/figures/arxiv/2605.00146v1/fig-002.webp",
+      "caption": "Figure 6: Sample images from the tunnel inspection dataset with bounding box–annotated defects",
+      "page": 21,
+      "index": 2,
+      "width": 606,
+      "height": 306
+    },
+    {
+      "url": "assets/figures/arxiv/2605.00146v1/fig-003.webp",
+      "caption": "Figure 7: (a) mAP0.5 improvements of Model-1 and Model-2 on four benchmark datasets. (b) mAP0.5:0.95 improvements of Model-1 and Model-2 on the same datasets. Error bars represent the standard deviation of detection metrics for distilled SNN models. (For each dataset, distillation-aware training was performed five times using different random seeds with Kaiming normal initialization. The bar heights for distilled SNNs indicate the mean performance across these repeated experiments.)",
+      "page": 29,
+      "index": 3,
+      "width": 800,
+      "height": 394
+    },
+    {
+      "url": "assets/figures/arxiv/2605.00146v1/fig-004.webp",
+      "caption": "Table 2: SNN Hyperparameters and Training Settings",
+      "page": 22,
+      "index": 4,
+      "width": 710,
+      "height": 300
+    },
+    {
+      "url": "assets/figures/arxiv/2605.00146v1/fig-005.webp",
+      "caption": "Figure 10: Qualitative visualization of sample detections with Model-2 SNN on UAV-based tunnel dataset",
+      "page": 34,
+      "index": 5,
+      "width": 772,
+      "height": 294
+    },
+    {
+      "url": "assets/figures/arxiv/2605.00146v1/fig-006.webp",
+      "caption": "Figure 1: Overall workflow for SNN model development, training, deployment on Loihi 2, and benchmark.",
+      "page": 10,
+      "index": 6,
+      "width": 781,
+      "height": 418
+    },
+    {
+      "url": "assets/figures/arxiv/2605.00146v1/fig-007.webp",
+      "caption": "Table 5: Detection performance of ANN and SNN models on frame-based and eventbased datasets. For each dataset set, the lowest value of each metric (the best value) is highlighted per model. All experiments on Jetson Nano devices were conducted with a batch size of 1(‘–’ indicates not applicable).",
+      "page": 33,
+      "index": 7,
+      "width": 824,
+      "height": 295
+    },
+    {
+      "url": "assets/figures/arxiv/2605.00146v1/fig-008.webp",
+      "caption": "Figure 2: Proposed SNN model backbones for (a) Model-1 (b) Model-2 (c) Model-3. Each Conv2D layer of every model is followed by BatchNorm2D layer followed by LIF neurons as the non-linear activations.",
+      "page": 13,
+      "index": 8,
+      "width": 774,
+      "height": 763
+    },
+    {
+      "url": "assets/figures/arxiv/2605.00146v1/fig-009.webp",
+      "caption": "Figure A.1: Qualitative visualization of sample detections on (a) evCIVIL-ev, (b) GEN1, (c) evCIVIL-fr, and (d) PASCAL VOC datasets. For each dataset, the first row shows the correct detections, while the second row illustrates the errors or misdetections. Different colored bounding boxes indicate detections of different object classes.",
+      "page": 51,
+      "index": 9,
+      "width": 781,
+      "height": 326
+    },
+    {
+      "url": "assets/figures/arxiv/2605.00146v1/fig-010.webp",
+      "caption": "Figure 5: ANN to SNN distillation for Model-1 for prophesee GEN1 dataset which contains two different object classes: SNN Feature maps from 3rd layer and 9th layer are convolved with learnable 1x1 convolutions and then take the average across time dimesion ’T’ ( T = 7 in our case). Then the feature map distillation loss (Lfeat−distill) is calculated together with corresponding ANN feature maps. Since GEN1 has two object classes to classify 2 channels of output layer feature maps are used to calculate classification loss (Lcls−distill). When RegMax value is 5, giving 20 (4× 5) feature maps of the output layer are used to calculate regression distillation loss (Ldfl−distill).",
+      "page": 17,
+      "index": 10,
+      "width": 795,
+      "height": 441
+    },
+    {
+      "url": "assets/figures/arxiv/2605.00146v1/fig-011.webp",
+      "caption": "Figure 8: (a) mAP0.5 vs. inference rate, and (b) mAP0.5 vs. dynamic energy per sample (mJ), comparing the single-chip Loihi 2 system on the Intel Oheo Gulch platform [34], the Jetson Nano B01 edge GPU, and the Jetson Orin Nano edge GPU (batch size = 1). Results are reported for Model-1, Model-2, and Model-3 across event-based datasets.",
+      "page": 32,
+      "index": 11,
+      "width": 800,
+      "height": 392
+    },
+    {
+      "url": "assets/figures/arxiv/2605.00146v1/fig-012.webp",
+      "caption": "Figure 9: (a) mAP0.5 vs. inference rate, and (b) mAP0.5 vs. dynamic energy per sample (mJ), comparing the single-chip Loihi 2 system on the Intel Oheo Gulch platform [34], the Jetson Nano B01 edge GPU, and the Jetson Orin Nano edge GPU (batch size = 1). Results are reported for Model-1, Model-2, and Model-3 across frame-based datasets.",
+      "page": 32,
+      "index": 12,
+      "width": 800,
+      "height": 391
+    },
+    {
+      "url": "assets/figures/arxiv/2605.00146v1/fig-013.webp",
+      "caption": "Table 3: Detection performance of directly trained SNN models vs. ANN baselines. For each test set, the highest value for each metric across all models (both ANN and SNN implementations) is highlighted.( ’–’ denotes to not applicable)",
+      "page": 27,
+      "index": 13,
+      "width": 806,
+      "height": 279
+    },
+    {
+      "url": "assets/figures/arxiv/2605.00146v1/fig-014.webp",
+      "caption": "Figure 11: (a) Number of SOP operations vs. inference rate(Throughput); (b) Number of SOP operations vs. dynamic energy consumption on a single Loihi 2 chip, evaluated using four selected datasets across three models.",
+      "page": 37,
+      "index": 14,
+      "width": 793,
+      "height": 345
+    },
+    {
+      "url": "assets/figures/arxiv/2605.00146v1/fig-015.webp",
+      "caption": "Figure 4: Event-based data encoding for event-based object detection: (a) Positive (red) and negative (blue) events triggered within a 30 ms time period. (b) A Voxel-grid representation with three bins (B0, B1, and B2) each with a temporal length of 10ms. It illustrates how the value of bin B0 is computed using weights based on temporal distances from its center (C0). (c) A 2D two-channel event histogram, where all positive events are accumulated into one bin and negative events into another. Positive events are generated when the perceived intensity at a pixel increases, while negative events are generated when the perceived intensity decreases.",
+      "page": 16,
+      "index": 15,
+      "width": 758,
+      "height": 181
+    }
+  ]
+}

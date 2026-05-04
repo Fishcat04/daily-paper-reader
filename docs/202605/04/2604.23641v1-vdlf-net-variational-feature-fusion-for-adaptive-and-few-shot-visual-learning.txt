@@ -1,0 +1,288 @@
+Title: VDLF-Net: Variational Feature Fusion for Adaptive and Few-Shot Visual Learning
+
+URL Source: https://arxiv.org/pdf/2604.23641v1
+
+Published Time: Tue, 28 Apr 2026 00:59:33 GMT
+
+Number of Pages: 12
+
+Markdown Content:
+# VDLF-Net: Variational Feature Fusion for Adaptive and Few-Shot Visual Learning 
+
+## First Jiawei Yan 1* 
+
+> 1*
+
+Department of Statistics, Shanghai Jiao Tong University, Shanghai, 200240, China. Corresponding author(s). E-mail(s): yjw1998@sjtu.edu.cn; 
+
+Abstract 
+
+This paper introduces VDLF-Net, which attaches a compact VAE to a multi-scale CNN backbone. Latent vectors and softmax-gate support the backbone feature maps, while ℓ2-normalized embeddings from the gated maps contribute toward supervised classification or episodic few-shot prediction. Under standard CIFAR-100 and Mini-ImageNet protocols, VDLF-Net demonstrates an improved performance over ResNet-50 Enhanced, VGG-16, Prototypical Networks, and Matching Networks. Extensive ablations show that removing the fine-resolution scale has the greatest impact on VDLF-Net’s performance. At the same time, KL and reconstruction at the chosen α pose a minor performance reduction, demonstrating that performance gains over classical episodic baselines mainly originate from the full VDLF-Net architecture and training strategy. 
+
+Keywords: Variational inference; Deep representation learning; Feature fusion; Few-shot learning; Probabilistic modeling; High-dimensional visual data 
+
+# 1 Introduction 
+
+This paper studies one network applicable in two standard settings: supervised CIFAR-100 classification and Mini-ImageNet few-shot episodes. The model performs input-conditioned fusion of multi-scale convolutional features through a small VAE bottleneck and shared heads for both settings. High-dimensional visual problems, from medical imaging to remote sensing, demand adaptive feature design and data-efficient adaptation (Litjens et al. 2017; Yuan et al. 2021; Hu et al. 2020; Wang et al. 2020; Pachetti and Colantonio 2024). Therefore, we benchmark on CIFAR-100 and Mini-ImageNet, where splits, budgets, 1
+
+> arXiv:2604.23641v1 [cs.CV] 26 Apr 2026
+
+and baselines are standardized, ensuring fair comparisons and claims that attach to these recognition protocols rather than specialized deployments. Despite the extensive usage of machine learning methods, these suffer from various limitations. For instance, CNNs learn strong features but underuse uncertainty in low-data regimes (Kendall and Gal 2017). VAEs regularize latent structure but are often bolted on with fixed merges (Kingma and Welling 2013). In contrast, Few-shot methods (metric (Snell et al. 2017), and optimization-based (Finn et al. 2017)) typically fuse scales by hand or freeze encoders, and adaptive fusion and episodic objectives often remain loosely coupled (Schmidhuber 2015). 
+
+VDLF-Net (one-sentence sketch). Driven by the limitations of the existing solutions, in the proposed VDLF-Net, the average-pooled multi-scale features feed a VAE, latent draws softmax-gate the same scale tensors, and the ℓ2-normalized vectors enter either a classifier or episodic prototypes. The VDLF-Net is trained with task loss, reconstruction loss, and KL divergence. Contributions of the developed VDLF-Net are: (1) unified variational–deep fusion for supervised and episodic training; (2) FAAM: latent-gated multi-scale pooling; (3) few-shot training with Monte-Carlo support draws and cosine prototypes; (4) benchmarks and ablations (Section 3, Subsection 4.3). The remainder of this paper is organized as follows. Section 2 presents VDLF-Net: multi-scale CNN–VAE coupling, the Feature-Adaptive Approximation Mechanism (FAAM), and variationally regularized few-shot inference. Section 3 describes the datasets employed, evaluation protocols, baselines, and training details. Section 4 reports main comparisons and component ablation studies. Section 5 summarizes this study and discusses the limitations. 
+
+## 1.1 Related work and positioning 
+
+Related work. CNNs, attention, and dynamic layers (Ciresan et al. 2011; He et al. 2016; Hu et al. 2020; Jia et al. 2016) are usually trained discriminatively. On the other hand, VAEs (Kingma and Welling 2013) add a latent structure but rarely drive scale-wise fusion in vision. Besides, Prototypical and Matching nets (Snell et al. 2017; Vinyals et al. 2016), relation modules (Sung et al. 2018), and MAML-style updates (Finn et al. 2017) set few-shot practice, and (Chen et al. 2019; Triantafillou et al. 2020) emphasise fair evaluation. VDLF-Net stays in the prototype family but lets latent variables set multi-scale weights instead of a fixed merge. 
+
+# 2 Variational-Deep Learning Fusion Framework 
+
+## 2.1 Intuition and modeling goal 
+
+This study seeks a single representation in which (i) multi-scale CNN evidence is com-bined in a way that depends on the input, not only on a fixed merge rule, and (ii) uncertainty about that merge is represented so that episodic decisions can average over plausible fusions. Averaging features alone answers (i) only weakly, while a stan-dalone VAE on a frozen merge answers (ii) but not (i). Therefore, VDLF-Net runs a lightweight VAE on an initial fused summary F(0) fused , draws latent codes z, and uses 2each draw to form nonnegative weights over the same scale-wise tensors that produced the summary. Reconstruction and KL terms keep the latent process identifiable, while the task loss on Fnorm ties the uncertainty to discriminative structure. 
+
+## 2.2 Overall Framework Design  
+
+> Fig. 1 Overview of the Variational-Deep Learning Fusion Network (VDLF-Net).
+
+Fig. 1 illustrates VDLF-Net, which comprises the following components: 1. Deep Representation Stream. Given an input image x, a CNN backbone extracts multi-scale feature maps {Fk}Kk=1 from selected convolutional layers of the backbone, capturing various spatial resolutions and semantic information (Ciresan et al. 2011; He et al. 2016). These multi-scale features serve as inputs to the fusion module, which produces a task-adaptive fused representation. 2. Variational Inference Stream. The initial fused feature F(0) fused is calculated using a fixed initialization rule, e.g., simple averaging, which is then passed to a VAE encoder. The encoder parameterizes an approximate posterior over the fused feature and samples a latent code z via the reparameterization process (Kingma and Welling 2013), providing uncertainty-aware latent information for adaptive feature fusion: 
+
+qϕ(z | F(0) fused ) = N (μ, diag( σ2)) . (1) 3. Bidirectional Fusion. Bottom-up, F(0) fused is encoded to z; top-down, z drives Θ( ·)to produce softmax weights w over the same {Fk}, yielding Ffused and normalized 
+
+Fnorm . Both directions are needed, as the encoder summarises cross-scale context for the gate, and the gate maps latent uncertainty into which scale matters. 4. Task heads. The model supports two training/evaluation protocols via corre-sponding task heads: 3• Standard classification head for conventional supervised learning, optimized by a supervised cross-entropy loss Lsup CE .
+
+• Few-shot prototypical head for episodic inference (Subsection 2.4), optimized by an episodic cross-entropy loss Lepi CE defined on query samples. 5. Unified Optimization Objective. VDLF-Net is optimized end-to-end using a unified objective that couples a task-specific discriminative loss with variational regularization: 
+
+Ltotal = Ltask + α (LRecon + LKL ) , (2) where Ltask ∈ {L sup CE , Lepi CE } depends on whether training follows the standard super-vised protocol or the episodic few-shot protocol. Parameter α is a balance coefficient that controls the relative importance of the variational regularization terms (recon-struction and KL divergence) in the total loss. Further to that, the reconstruction term LRecon is computed by a VAE decoder gψ (·), which reconstructs the initial fused feature from the latent vector z:ˆF(0) fused = gψ (z), LRecon = F(0) fused − ˆF(0) fused 
+
+> 22
+
+. (3) The KL divergence term LKL regularizes the posterior to match the prior: 
+
+LKL = DKL 
+
+
+
+qϕ(z | F(0) fused )∥p(z)
+
+
+
+, p(z) = N (0, I), (4) encouraging a well-structured latent space and improving generalization in both supervised and few-shot regimes. 
+
+Gating network instantiation. Θ is a two-layer MLP, i.e., a fully connected map 
+
+z → ReLU( W1z + b1) followed by W2(·) + b2 and softmax over K logits. The CIFAR-100 model uses a hidden width of 128, and the Mini-ImageNet episodic implementation uses the same depth with hidden width 64 when operating on 84 × 84 inputs. 
+
+## 2.3 Feature-Adaptive Approximation Mechanism 
+
+FAAM instantiates Fig. 1 for episodic training: latent draws z(t) produce fusion weights, then centered ℓ2 normalization yields unit-norm features for cosine matching. For each support image, sample T has the following latent samples: 
+
+z(t) = μ + σ ⊙ ϵ(t), ϵ(t) ∼ N (0, I), t = 1 , . . . , T. (5) These latent samples condition the gating network Θ, which generates T distinct fusion weights, w(t), typically via a Softmax function: 
+
+w(t) = Softmax(Θ( z(t))) , w(t) ∈ RK . (6) 4Fig. 2 Feature-Adaptive Approximation Mechanism (FAAM). 
+
+The fused feature for each sample is computed as: 
+
+F(t)fused =
+
+> K
+
+X
+
+> k=1
+
+w(t) 
+
+> k
+
+· Fk, (7) followed by centering and L2 normalization: 
+
+F(t)norm = F(t)fused − μfused 
+
+F(t)fused − μfused 2
+
++ ϵ, (8) where μfused is the batch mean and ϵ > 0 ensures numerical stability. 
+
+## 2.4 Variationally-Regularized Few-Shot Inference 
+
+Queries use a single deterministic forward pass, supporting an average of T FAAM samples per image when forming prototypes. Each episode E is an N -way K-shot task with support S = {(xc,i , y c,i = c)}N,K c=1 ,i =1 
+
+and a query set Q = {(xq , y q )}.We also generate T latent samples for each support example to improve robustness under label scarcity, yielding T embeddings F(t)norm (xc,i ) that share the same class label 
+
+c. The class prototype is computed as 
+
+Pc = 1
+
+KT 
+
+> K
+
+X
+
+> i=1
+> T
+
+X
+
+> t=1
+
+F(t)norm (xc,i ), c ∈ { 1, . . . , N }. (9) 5For each query, a deterministic embedding is used, denoted as Fnorm (xq ). The cosine similarity is formulated as sim( a, b) = a⊤b
+
+∥a∥2∥b∥2
+
+, (10) and prediction is performed using nearest-prototype matching: ˆyq = arg max   
+
+> c∈{ 1,...,N }
+
+sim( Fnorm (xq ), Pc) . (11) During episodic meta-training, the episodic task loss is defined as Ltask ≜ Lepi CE on the query set using temperature-scaled cosine-softmax logits: 
+
+p(y = c | xq , S) = exp( τ · sim( Fnorm (xq ), Pc)) 
+
+PNc′=1 exp( τ · sim( Fnorm (xq ), Pc′ )) , (12) 
+
+Lepi CE (E) = − 1
+
+|Q| 
+
+X  
+
+> (xq,y q)∈Q
+
+log p(y = yq | xq , S), (13) where τ > 0 is a fixed temperature parameter. Finally, consistent with the unified objective in Subsection 2.2, the episode-level total loss is 
+
+Ltotal (E) = Lepi CE (E) + α
+
+
+
+LRecon (E) + LKL (E)
+
+
+
+, (14) and training minimizes EE
+
+Ltotal (E), where Lepi CE (E) is averaged over query samples. In contrast, LRecon (E) and LKL (E) are computed and averaged over all samples within the episode (support and query). 
+
+## 2.5 Computational cost 
+
+Let B denote batch size (supervised) or the number of images processed in an inner loop, and Cback be the cost of the truncated ResNet-50 backbone up to multi-scale pooling. One forward pass applies Cback , pools to K tensors, averages to form F(0) fused ,and runs the VAE encoder/decoder and gating MLP with O(d d h + dhK) parameters, where d is the fused feature dimension and dh is the gate hidden width. This is negligible relative to Cback for typical K≤4. In episodic evaluation with T latent draws per support image, support processing scales linearly in T relative to a single draw, whereas query embeddings use one deterministic forward without repeated sampling. Notably, memory is dominated by activations of the backbone and by storing K scale-wise tensors until fusion. 63 Experimental Design 
+
+## 3.1 Datasets and Settings 
+
+Datasets: Two widely used benchmarks spanning standard classification and few-shot learning are used: 
+
+• CIFAR-100: 60,000 color images of size 32 ×32 evenly distributed over 100 classes. The standard train/test split for supervised evaluation is adopted. 
+
+• Mini-ImageNet: A standard few-shot benchmark constructed from ImageNet, containing 100 classes with 600 images per class. Following the conventional pro-tocol, we use 64 classes for episodic training, 16 for validation, and 20 for testing (unseen during training), consistent with Subsection 2.4. 
+
+Task Settings: 
+
+• Standard Classification: Models are trained and evaluated on the full train/test splits of CIFAR-100 under a supervised protocol. 
+
+• Few-Shot Inference: The standard episodic protocol is adopted. Each episode is an N -way K-shot task with a support set of size N × K and a query set of size 
+
+N ×Q. We set N = 5, K ∈ { 1, 5}, and Q = 15 queries per class (Table 1), consistent with common Mini-ImageNet configurations in public implementations.  
+
+> Table 1 Hyperparameters and protocol summary for the reported results (Tables 2–3) and for Mini-ImageNet ablations (Table 4).
+
+Item Value 
+
+CIFAR-100 supervised 
+
+Optimizer / schedule AdamW; cosine decay with ηmin = 0 .1× initial lr Learning rate / batch / epochs 0.002 / 128 / 180 Weight decay / α 1.5 × 10 −4 / 0 .01 Backbone / K / latent dim ResNet-50 (truncated) / 2 / 128 Gating MLP hidden width 128 
+
+Mini-ImageNet episodic 
+
+N -way / K-shot / Q 5 / {1, 5} / 15 Training / test episodes 150 / 100 
+
+T / τ / α 15 / 15 / 0 .01 Optimizer (lr, wd) AdamW (10 −4, 5 × 10 −5)Effective batch 4 (gradient accumulation) Gating MLP hidden width 64 95% CI Normal approx. on 100 test episodes 
+
+Hardware 
+
+GPU NVIDIA CUDA devices ( ≥ 12 GB) 
+
+7Preprocessing. Channel normalization, supervised training using resize/crop/flip, and episodic training adding light rotation. For the evaluation, we crop the center of the image. 
+
+## 3.2 Baseline Methods 
+
+• Supervised: ResNet-50 Enhanced (head matched to our setup) and VGG-16. 
+
+• Few-shot: Prototypical (Snell et al. 2017) and Matching (Vinyals et al. 2016) on Mini-ImageNet under Table 1. 
+
+Scope. Few-shot rows use Prototypical and Matching nets under the protocol presented in Table 1, which in future work will be extended to newer meta-learners with matched budgets (Section 4.4). 
+
+## 3.3 Evaluation Metrics 
+
+CIFAR-100: accuracy and macro precision/recall/F1. Few-shot: episode mean accu-racy with normal-approximation 95% intervals (100 test episodes). 
+
+## 3.4 Implementation Details 
+
+Architecture: VDLF-Net is implemented in PyTorch, using a truncated ResNet-50 backbone before global average pooling. Multi-scale features ( K = 2) are extracted from the final convolutional layer (layer4) using two adaptive average pooling opera-tions with spatial resolutions of 2 ×2 and 1 ×1, yielding two representations at different scales. The VAE latent dimension is set to 128, and the fusion module follows the latent-conditioned, gating-based aggregation described in Section 2, producing fused and normalized embeddings Ffused and Fnorm .
+
+Training (supervised). For standard classification on CIFAR-100, we optimize 
+
+Ltotal using AdamW with a learning rate of 0.002, a batch size of 128, and a weight decay of 0.00015 for 180 epochs. The loss-balance coefficient α is set to 0.01, selected via empirical tuning. CosineAnnealingLR scheduler is also used with ηmin = 0 .1 ×
+
+initial LR to ensure smooth learning rate decay throughout training. VGG-16 and ResNet-50 Enhanced are trained under the same data preprocessing, augmentation, and evaluation protocol with comparable optimization settings. 
+
+Few-Shot Inference: For episodic few-shot learning, each episode uses Q = 15 queries per class. We rely on meta-train with 150 sampled episodes per configuration and evaluate on 100 fresh test episodes. Reported accuracies are episode means; 95% intervals use ±1.96 ˆ σ/ √100, where ˆ σ is the empirical standard deviation of per-episode accuracies (normal approximation). For support embeddings, FAAM uses T = 15 Monte-Carlo draws and cosine-softmax temperature τ = 15 (Subsection 2.4). The variational weight in the episodic objective is α=0 .01, matching supervised CIFAR-100 and the configuration used to train the Mini-ImageNet model reported in Table 3. Optimization uses AdamW with learning rate 1 × 10 −4, weight decay 5 × 10 −5, and effective batch size 4 via gradient accumulation. 
+
+Hyperparameter rationale (few-shot). We use 150/100 train/test episodes and Q=15 following common Mini-ImageNet practice (Snell et al. 2017; Vinyals et al. 8Table 2 Classification performance on CIFAR-100. The best results are highlighted in                                      
+
+> bold . Precision, recall, and F1 score are all computed using macro averaging.
+> Model Accuracy (%) Precision (%) Recall (%) F1 (%)
+> VGG-16 49.09 50.05 49.09 48.98 ResNet-50 Enhanced 56.16 56.39 56.16 55.93
+> VDLF-Net 58.34 58.72 58.34 58.30 Table 3 Few-shot classification accuracy (%; mean ±95% confidence interval) on Mini-ImageNet. The best results are highlighted in bold .
+> Model 1-shot (%) 5-shot (%)
+> Prototypical Networks 56 .80 ±1.84 80 .09 ±1.14 Matching Networks 61 .87 ±2.02 68 .87 ±1.87
+> VDLF-Net 70.72 ±2.03 86.33 ±1.17
+
+2016). τ =15, T =15, and α=0 .01 were chosen by a small validation grid ( τ sets soft-max sharpness; T trades prototype variance for compute, Section 2.5) and to match supervised α.
+
+Reproducibility and computation. Seeds were fixed to 42 where possible; 100 test episodes per configuration mitigate variability across runs. Hardware: CUDA GPUs with ≥ 12 GB; Table 1 records training budgets. 
+
+# 4 Results and Analysis 
+
+This section reports the supervised CIFAR-100 and Mini-ImageNet few-shot baselines, along with internal ablations. 
+
+## 4.1 Performance on Standard Classification Tasks 
+
+Table 2 reports CIFAR-100. VDLF-Net improves over both CNN baselines on all four metrics; margins vs. ResNet-50 enhanced isolate fusion because the head is matched. 
+
+## 4.2 Few-Shot Inference Performance 
+
+Table 3: Mini-ImageNet N -way K-shot (100 test episodes per setting). VDLF-Net leads in 1- and 5-shot, with gains being largest against Matching at 5-shot. Table 4 reveals the internal factors leading to these results. 
+
+## 4.3 Component ablation (Mini-ImageNet 5-way 5-shot) 
+
+Table 4 lists single-factor removals trained from scratch under the Table 1 budget (150/100 episodes, T =15, τ =15, α=0 .01). The full row (86.12%) matches Table 3 within sampling noise. 9Table 4 Mini-ImageNet 5-way 5-shot ablation: accuracy (%; mean ± approximate 95% CI). “Full” uses learned gates and both KL and reconstruction in Ltotal . Other rows change one structural or loss element at a time.                       
+
+> Variant 5-shot (%)
+> Full model 86 .12 ±1.15 w/o KL term 86 .32 ±1.14 w/o reconstruction 86 .08 ±1.20 w/o KL & reconstruction 86 .27 ±1.16 Uniform scale weights (1 /K )86 .01 ±1.13 Fine scale only (1 ×1 branch) 87 .36 ±1.13 Coarse scale only (2 ×2 branch) 85 .28 ±1.19
+
+Takeaways. (i) Coarse-only pooling lags markedly, so fine-resolution evidence drives the fusion gain over Table 3. (ii) Dropping KL or reconstruction barely moves accuracy at α=0 .01; episodic CE dominates. (iii) Learned gates edge uniform mixing (86.12 vs. 86.01), implying the lift vs. Proto/Matching chiefly comes from the overall stack, not a single loss term. The fine-only branch can marginally beat the full model (87 .36% vs. 86 .12%): with few scales and 150 meta-episodes, a fixed high-res blend is easier to optimize than a gate yet to peak. This is reported for transparency; it does not erase the coarse-only failure mode nor the headline advantage over external baselines—rather, it flags where more training or regularisation could further justify adaptive fusion. 
+
+## 4.4 Limitations 
+
+Evidence is limited to CIFAR-100 and Mini-ImageNet, as domain shift and specialized modalities are out of scope. Qualitatively, Table 4 shows coarse-only fusion fails first, so fine-detail confusions remain a risk when coarse cues dominate. Furthermore, metric methods degrade when the train/test distributions differ unless the encoder is adapted. Recent few-shot methods exceed our two episodic baselines in benchmark leader-boards. Thus, we emphasize the use of matched protocols in Table 1 and highlight the fusion module as the contribution. Stronger comparisons (additional meta-learners, multi-seed means) are the main follow-up. Confidence intervals reflect 100 test episodes, highlighting that a single meta-train seed leaves small gaps among KL/Recon rows. Support-side T draws add linear inference cost for wide backbones or detection. 
+
+# 5 Conclusion 
+
+This paper addresses the dual challenges of feature-adaptive approximation and few-shot inference for high-dimensional visual data. We introduce VDLF-Net, a unified framework that integrates deep convolutional networks with variational autoencoders, utilizing a novel Feature-Adaptive Approximation Mechanism and variationally regularized few-shot inference. On CIFAR-100, VDLF-Net improves supervised clas-sification over the reported VGG-16 and ResNet-50 Enhanced baselines (Table 2); on 10 Mini-ImageNet, it exceeds the evaluated Prototypical and Matching Networks under the same episodic protocol (Table 3), with component ablations clarifying internal scale and loss contributions (Table 4). Broader claims about domains discussed in the introduction (e.g., medical imaging or satellite imagery) are not established by these benchmarks and remain directions for future empirical study. 
+
+Future work. (1) Add modern few-shot baselines and multi-seed reports under Table 1; (2) lighter gates or distillations for large-scale deployment; (3) transfer the fusion stack to detection/segmentation or vision-language backbones. 
+
+# Ethics Statement 
+
+This study uses only publicly available benchmarks (CIFAR-100 and Mini-ImageNet). No human participants were enrolled, and no proprietary clinical data were used. Ethics review for public benchmark use follows each provider’s standard terms. 
+
+# Conflict of Interest 
+
+The authors declare no known competing financial interests or personal relationships that could bias the reported work. 
+
+# Data Availability 
+
+CIFAR-100 and Mini-ImageNet are publicly available. Splits follow Section 3. Mini-ImageNet uses the usual 64/16/20 train/validation/test class partition. Source code and configs to reproduce the experiments may be shared on reasonable request or with the camera-ready version, per the target journal’s policy. 
+
+# References 
+
+Chen WY, Liu YC, Kira Z, et al (2019) A closer look at few-shot classification. In: International Conference on Learning Representations Ciresan DC, Meier U, Masci J, et al (2011) Flexible, high performance convolutional neural networks for image classification. In: Proceedings of the Twenty-Second Inter-national Joint Conference on Artificial Intelligence, pp 1237–1242, https://doi.org/ 10.5591/978-1-57735-516-8/IJCAI11-210 Finn C, Abbeel P, Levine S (2017) Model-agnostic meta-learning for fast adapta-tion of deep networks. In: Proceedings of the 34th International Conference on Machine Learning, Proceedings of Machine Learning Research, vol 70. PMLR, Sydney, Australia, pp 1126–1135 He K, Zhang X, Ren S, et al (2016) Deep residual learning for image recognition. In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, pp 770–778, https://doi.org/10.1109/CVPR.2016.90 11 Hu J, Shen L, Albanie S, et al (2020) Squeeze-and-excitation networks. IEEE Trans-actions on Pattern Analysis and Machine Intelligence 42(8):2011–2023. https://doi. org/10.1109/TPAMI.2019.2913372 Jia X, De Brabandere B, Tuytelaars T, et al (2016) Dynamic filter networks. In: Advances in Neural Information Processing Systems, pp 667–675 Kendall A, Gal Y (2017) What uncertainties do we need in bayesian deep learning for computer vision? In: Advances in Neural Information Processing Systems Kingma DP, Welling M (2013) Auto-encoding variational bayes. arXiv preprint arXiv:13126114 https://doi.org/10.48550/arXiv.1312.6114 Litjens G, Kooi T, Bejnordi BE, et al (2017) A survey on deep learning in medical image analysis. Medical Image Analysis 42:60–88. https://doi.org/10.1016/j.media. 2017.07.005 Pachetti E, Colantonio S (2024) A systematic review of few-shot learning in medical imaging. Artificial Intelligence in Medicine 156:102949. https://doi.org/10.1016/j. artmed.2024.102949 Schmidhuber J (2015) Deep learning in neural networks: An overview. Neural Networks 61:85–117. https://doi.org/10.1016/j.neunet.2014.09.003 Snell J, Swersky K, Zemel RS (2017) Prototypical networks for few-shot learning. In: Advances in Neural Information Processing Systems Sung F, Yang Y, Zhang L, et al (2018) Learning to compare: Relation network for few-shot learning. In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, pp 1199–1208, https://doi.org/10.1109/CVPR.2018.00131 Triantafillou E, Zhu T, Dumoulin V, et al (2020) Meta-Dataset: A dataset of datasets for learning to learn from few examples. In: International Conference on Learning Representations Vinyals O, Blundell C, Lillicrap T, et al (2016) Matching networks for one shot learning. In: Advances in Neural Information Processing Systems Wang Y, Yao Q, Kwok JT, et al (2020) Generalizing from a few examples: A survey on few-shot learning. ACM Computing Surveys 53(3):1–34. https://doi.org/10.1145/ 3386252 Yuan X, Shi J, Gu L (2021) A review of deep learning methods for semantic segmen-tation of remote sensing imagery. Expert Systems with Applications 169:114417. https://doi.org/10.1016/j.eswa.2020.114417 12

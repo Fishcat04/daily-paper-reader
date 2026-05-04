@@ -6,88 +6,73 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-04-05 ~ 2026-05-04
-- 运行时间：2026-05-04 14:21:35 UTC
+- 最新运行日期：2026-05-04
+- 运行时间：2026-05-04 20:54:26 UTC
 - 运行状态：成功
-- 本次总论文数：22
-- 精读区：11
+- 本次总论文数：17
+- 精读区：6
 - 速读区：11
 
 ### 今日简报（AI）
-本月精选 22 篇前沿论文，深度聚焦复杂场景下的多尺度目标检测与协同感知技术。
-重点关注 10 万级超大规模船舶检测数据集 WUTDet，以及通过可变形扩张卷积增强 Mamba 模型在多尺度交通检测中的表现。
-建议深入研究长距离协同感知与多尺度 Transformer 架构，以应对 V2X 环境下的小目标与复杂感知挑战。
-- 详情：[/20260405-20260504/README](/20260405-20260504/README)
+今日精选 17 篇视觉感知前沿论文，深度解析了从课堂行为识别到边缘端微小目标检测的技术突破。
+重点推荐改进型 YOLOv8s 在教育场景的高精度应用，以及 DenseScout 针对边缘平台微小目标筛选的软硬协同优化方案。
+建议读者关注视觉算法在医疗、教学等垂直领域的落地实践，并探索边缘计算下的模型轻量化趋势。
+- 详情：[/202605/04/README](/202605/04/README)
 
 ### 精读区论文标签
-1. [WUTDet: A 100K-Scale Ship Detection Dataset and Benchmarks with Dense Small Objects](/20260405-20260504/2604.07759v1-wutdet-a-100k-scale-ship-detection-dataset-and-benchmarks-with-dense-small-objects)  
+1. [Student Classroom Behavior Recognition Based on Improved YOLOv8s](/202605/04/2604.27293v1-student-classroom-behavior-recognition-based-on-improved-yolov8s)  
    标签：评分：10.0/10、query:sod
-   evidence：包含密集小目标的10万级船舶检测数据集与基准
-2. [Beyond Mamba: Enhancing State-space Models with Deformable Dilated Convolutions for Multi-scale Traffic Object Detection](/20260405-20260504/2604.08038v1-beyond-mamba-enhancing-state-space-models-with-deformable-dilated-convolutions-for-multi-scale-traffic-object-detection)  
-   标签：评分：10.0/10、query:sod
-   evidence：通过可变形扩张卷积增强Mamba以用于交通场景中的小目标检测
-3. [A3-FPN: Asymptotic Content-Aware Pyramid Attention Network for Dense Visual Prediction](/20260405-20260504/2604.10210v1-a3-fpn-asymptotic-content-aware-pyramid-attention-network-for-dense-visual-prediction)  
-   标签：评分：10.0/10、query:sod
-   evidence：提出A3-FPN以增强多尺度特征表示并识别小目标
-4. [FSDETR: Frequency-Spatial Feature Enhancement for Small Object Detection](/20260405-20260504/2604.14884v1-fsdetr-frequency-spatial-feature-enhancement-for-small-object-detection)  
-   标签：评分：10.0/10、query:sod
-   evidence：频率-空间特征增强和空间分层注意力用于小目标检测
-5. [Adaptive Slicing-Assisted Hyper Inference for Enhanced Small Object Detection in High-Resolution Imagery](/20260405-20260504/2604.19233v1-adaptive-slicing-assisted-hyper-inference-for-enhanced-small-object-detection-in-high-resolution-imagery)  
-   标签：评分：10.0/10、query:sod
-   evidence：自适应切片辅助超推理增强小目标检测
-6. [UHR-DETR: Efficient End-to-End Small Object Detection for Ultra-High-Resolution Remote Sensing Imagery](/20260405-20260504/2604.21435v1-uhr-detr-efficient-end-to-end-small-object-detection-for-ultra-high-resolution-remote-sensing-imagery)  
-   标签：评分：10.0/10、query:sod
-   evidence：用于超高分辨率图像中小目标的高效端到端Transformer检测器
-7. [Telescope: Learnable Hyperbolic Foveation for Ultra-Long-Range Object Detection](/20260405-20260504/2604.06332v1-telescope-learnable-hyperbolic-foveation-for-ultra-long-range-object-detection)  
-   标签：评分：9.5/10、query:sod
-   evidence：检测远距离仅占几个像素的目标
-8. [Learning Where to Embed: Noise-Aware Positional Embedding for Query Retrieval in Small-Object Detection](/20260405-20260504/2604.15065v1-learning-where-to-embed-noise-aware-positional-embedding-for-query-retrieval-in-small-object-detection)  
-   标签：评分：9.5/10、query:sod
-   evidence：用于小目标检测查询检索的热图引导嵌入学习范式
-9. [StomaD2: An All-in-One System for Intelligent Stomatal Phenotype Analysis via Diffusion-Based Restoration Detection Network](/20260405-20260504/2604.18632v1-stomad2-an-all-in-one-system-for-intelligent-stomatal-phenotype-analysis-via-diffusion-based-restoration-detection-network)  
-   标签：评分：9.5/10、query:sod
-   evidence：针对小、密、乱特征定制的专用旋转目标检测网络
-10. [ViCrop-Det: Spatial Attention Entropy Guided Cropping for Training-Free Small-Object Detection](/20260405-20260504/2604.26806v1-vicrop-det-spatial-attention-entropy-guided-cropping-for-training-free-small-object-detection)  
-   标签：评分：9.5/10、query:sod
-   evidence：空间注意力熵引导的裁剪技术用于免训练的小目标检测
-11. [Multi-Scale Contextual Attention for Robust Crop and Pest Image Classification](/20260405-20260504/biorxiv-10-64898-2026-04-24-720764-v1-multi-scale-contextual-attention-for-robust-crop-and-pest-image-classification)  
+   evidence：改进的YOLOv8s用于处理大量小目标和多尺度特征融合
+2. [DenseScout: Algorithm-System Co-design for Budgeted Tiny Object Selection on Edge Platforms](/202605/04/2604.25300v1-densescout-algorithm-system-co-design-for-budgeted-tiny-object-selection-on-edge-platforms)  
    标签：评分：9.0/10、query:sod
-   evidence：针对小型或低对比度病征和害虫的多尺度上下文注意力
+   evidence：边缘平台上的预算受限微小目标选择
+3. [ResAF-Net: An Anchor-Free Attention-Based Network for Tree Detection and Agricultural Mapping in Palestine](/202605/04/2604.23653v1-resaf-net-an-anchor-free-attention-based-network-for-tree-detection-and-agricultural-mapping-in-palestine)  
+   标签：评分：8.5/10、query:sod
+   evidence：结合特征融合和多头自注意力机制，用于卫星图像中的树木检测
+4. [Instance Awareness of Multi-class Semantic Segmentation Loss Functions](/202605/04/2604.24276v1-instance-awareness-of-multi-class-semantic-segmentation-loss-functions)  
+   标签：评分：8.0/10、query:sod
+   evidence：实例敏感损失函数确保小病灶产生与大病灶相同的梯度
+5. [Lightweight Distillation of SAM 3 and DINOv3 for Edge-Deployable Individual-Level Livestock Monitoring and Longitudinal Visual Analytics](/202605/04/2604.27128v1-lightweight-distillation-of-sam-3-and-dinov3-for-edge-deployable-individual-level-livestock-monitoring-and-longitudinal-visual-analytics)  
+   标签：评分：8.0/10、query:sod
+   evidence：用于多尺度蒸馏的特征金字塔网络(FPN)学生编码器
+6. [UHR-Net: An Uncertainty-Aware Hypergraph Refinement Network for Medical Image Segmentation](/202605/04/2604.28095v1-uhr-net-an-uncertainty-aware-hypergraph-refinement-network-for-medical-image-segmentation)  
+   标签：评分：8.0/10、query:sod
+   evidence：针对小病灶的几何感知复制粘贴增强
 
 ### 速读区论文标签
-1. [Long-SCOPE: Fully Sparse Long-Range Cooperative 3D Perception](/20260405-20260504/2604.09206v1-long-scope-fully-sparse-long-range-cooperative-3d-perception)  
-   标签：评分：8.5/10、query:sod
-   evidence：几何引导查询生成模块，用于准确检测远距离小目标
-2. [LOD-Net: Locality-Aware 3D Object Detection Using Multi-Scale Transformer Network](/20260405-20260504/2604.16696v1-lod-net-locality-aware-3d-object-detection-using-multi-scale-transformer-network)  
-   标签：评分：8.5/10、query:sod
-   evidence：用于检测3D点云中较小对象的多尺度注意力和上采样技术
-3. [Class-Adaptive Cooperative Perception for Multi-Class LiDAR-based 3D Object Detection in V2X Systems](/20260405-20260504/2604.10305v1-class-adaptive-cooperative-perception-for-multi-class-lidar-based-3d-object-detection-in-v2x-systems)  
-   标签：评分：8.0/10、query:sod
-   evidence：处理3D检测中小目标的不同几何结构和采样模式
-4. [Image-Based Malware Type Classification on MalNet-Image Tiny: Effects of Multi-Scale Fusion, Transfer Learning, Data Augmentation, and Schedule-Free Optimization](/20260405-20260504/2604.21153v1-image-based-malware-type-classification-on-malnet-image-tiny-effects-of-multi-scale-fusion-transfer-learning-data-augmentation-and-schedule-free-optimization)  
-   标签：评分：8.0/10、query:sod
-   evidence：在公共基准上评估FPN处理尺度变化和数据增强的效果
-5. [SGP-SAM: Self-Gated Prompting for Transferring 3D Segment Anything Models to Lesion Segmentation](/20260405-20260504/2604.22825v1-sgp-sam-self-gated-prompting-for-transferring-3d-segment-anything-models-to-lesion-segmentation)  
-   标签：评分：7.5/10、query:sod
-   evidence：针对3D医学影像中小型不规则目标的多尺度空间增强
-6. [Deep Learning-Based Tracking and Lineage Reconstruction of Ligament Breakup](/20260405-20260504/2604.08711v1-deep-learning-based-tracking-and-lineage-reconstruction-of-ligament-breakup)  
+1. [VDLF-Net: Variational Feature Fusion for Adaptive and Few-Shot Visual Learning](/202605/04/2604.23641v1-vdlf-net-variational-feature-fusion-for-adaptive-and-few-shot-visual-learning)  
    标签：评分：7.0/10、query:sod
-   evidence：用于液滴和韧带目标检测的深度学习框架
-7. [Adaptive Dual Residual U-Net with Attention Gate and Multiscale Spatial Attention Mechanisms (ADRUwAMS)](/20260405-20260504/2604.08893v1-adaptive-dual-residual-u-net-with-attention-gate-and-multiscale-spatial-attention-mechanisms-adruwams)  
+   evidence：带有变分特征融合的多尺度CNN骨干网络用于少样本学习
+2. [Focus on What Matters: Two-Stage ROI-Aware Refinement for Anatomy-Preserving Fetal Ultrasound Reconstruction](/202605/04/2604.23839v1-focus-on-what-matters-two-stage-roi-aware-refinement-for-anatomy-preserving-fetal-ultrasound-reconstruction)  
    标签：评分：7.0/10、query:sod
-   evidence：使用多尺度空间注意力机制来检测不同大小的肿瘤
-8. [CAM3DNet: Comprehensively mining the multi-scale features for 3D Object Detection with Multi-View Cameras](/20260405-20260504/2604.17024v1-cam3dnet-comprehensively-mining-the-multi-scale-features-for-3d-object-detection-with-multi-view-cameras)  
+   evidence：针对小解剖区域的ROI感知细化及基于梯度的损失校准
+3. [FUN: A Focal U-Net Combining Reconstruction and Object Detection for Snapshot Spectral Imaging](/202605/04/2604.27653v1-fun-a-focal-u-net-combining-reconstruction-and-object-detection-for-snapshot-spectral-imaging)  
    标签：评分：7.0/10、query:sod
-   evidence：用于3D检测的多尺度特征挖掘和混合采样
-9. [IMPA-Net: Meteorology-Aware Multi-Scale Attention and Dynamic Loss for Extreme Convective Radar Nowcasting](/20260405-20260504/2604.24224v1-impa-net-meteorology-aware-multi-scale-attention-and-dynamic-loss-for-extreme-convective-radar-nowcasting)  
+   evidence：用于快照光谱成像实时目标检测的Focal U-Net
+4. [Edge AI for Automotive Vulnerable Road User Safety: Deployable Detection via Knowledge Distillation](/202605/04/2604.26857v1-edge-ai-for-automotive-vulnerable-road-user-safety-deployable-detection-via-knowledge-distillation)  
    标签：评分：6.5/10、query:sod
-   evidence：集成多尺度预测注意力网络与动态损失
-10. [A novel attention mechanism for noise-adaptive and robust segmentation of microtubules in microscopy images](/20260405-20260504/biorxiv-10-1101-2025-10-23-684152-v3-a-novel-attention-mechanism-for-noise-adaptive-and-robust-segmentation-of-microtubules-in-microscopy-images)  
-   标签：评分：6.5/10、query:sod
-   evidence：针对细小、密集结构的注意力机制
-11. [HI-MoE: Hierarchical Instance-Conditioned Mixture-of-Experts for Object Detection](/20260405-20260504/2604.04908v1-hi-moe-hierarchical-instance-conditioned-mixture-of-experts-for-object-detection)  
+   evidence：基于YOLO的弱势道路使用者检测，这些目标在交通场景中通常表现为小目标
+5. [Image Classification via Random Dilated Convolution with Multi-Branch Feature Extraction and Context Excitation](/202605/04/2604.25188v1-image-classification-via-random-dilated-convolution-with-multi-branch-feature-extraction-and-context-excitation)  
    标签：评分：6.0/10、query:sod
-   evidence：用于实例条件目标检测的DETR风格检测架构
+   evidence：多分支随机空洞卷积用于多尺度上下文信息
+6. [Edge-Cloud Collaborative Reconstruction via Structure-Aware Latent Diffusion for Downstream Remote Sensing Perception](/202605/04/2604.25319v1-edge-cloud-collaborative-reconstruction-via-structure-aware-latent-diffusion-for-downstream-remote-sensing-perception)  
+   标签：评分：6.0/10、query:sod
+   evidence：恢复下游目标检测所需的结构细节
+7. [GateMOT: Q-Gated Attention for Dense Object Tracking](/202605/04/2604.26353v1-gatemot-q-gated-attention-for-dense-object-tracking)  
+   标签：评分：6.0/10、query:sod
+   evidence：用于拥挤场景下密集目标跟踪的Q门控注意力
+8. [Uncertainty-Aware Pedestrian Attribute Recognition via Evidential Deep Learning](/202605/04/2604.26873v1-uncertainty-aware-pedestrian-attribute-recognition-via-evidential-deep-learning)  
+   标签：评分：6.0/10、query:sod
+   evidence：交叉注意力和空间先验掩码用于捕获细粒度局部特征
+9. [Graph-based Semantic Calibration Network for Unaligned UAV RGBT Image Semantic Segmentation and A Large-scale Benchmark](/202605/04/2604.26893v1-graph-based-semantic-calibration-network-for-unaligned-uav-rgbt-image-semantic-segmentation-and-a-large-scale-benchmark)  
+   标签：评分：6.0/10、query:sod
+   evidence：针对航拍视角下细粒度地面目标的特征解耦与对齐
+10. [Real-Time Frame- and Event-based Object Detection with Spiking Neural Networks on Edge Neuromorphic Hardware: Design, Deployment and Benchmark](/202605/04/2605.00146v1-real-time-frame--and-event-based-object-detection-with-spiking-neural-networks-on-edge-neuromorphic-hardware-design-deployment-and-benchmark)  
+   标签：评分：6.0/10、query:sod
+   evidence：在帧和事件数据集上对基于SNN的目标检测进行基准测试
+11. [Unsupervised Denoising of Real Clinical Low Dose Liver CT with Perceptual Attention Networks](/202605/04/2605.00793v1-unsupervised-denoising-of-real-clinical-low-dose-liver-ct-with-perceptual-attention-networks)  
+   标签：评分：6.0/10、query:sod
+   evidence：用于多尺度特征提取的U-Net结构和用于特征融合的注意力机制
 
 
 <div class="dpr-home-promo-card">

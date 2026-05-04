@@ -1,0 +1,226 @@
+Title: Edge AI for Automotive Vulnerable Road User Safety: Deployable Detection via Knowledge Distillation
+
+URL Source: https://arxiv.org/pdf/2604.26857v1
+
+Published Time: Thu, 30 Apr 2026 01:05:46 GMT
+
+Number of Pages: 6
+
+Markdown Content:
+# Edge AI for Automotive Vulnerable Road User Safety: Deployable Detection via Knowledge Distillation 
+
+Akshay Karjol, Senior Member, IEEE, and Darrin M. Hanna, Member, IEEE 
+
+> This work has been submitted to the IEEE for possible publication. Copyright may be transferred without notice, after which this version may no longer be accessible.
+
+Abstract — Deploying accurate object detection for Vulner-able Road User (VRU) safety on edge hardware requires balancing model capacity against computational constraints. Large models achieve high accuracy but fail under INT8 quantization required for edge deployment, while small mod-els sacrifice detection performance. This paper presents aknowledge distillation (KD) framework that trains a compact YOLOv8-S student (11.2M parameters) to mimic a YOLOv8-L teacher (43.7M parameters), achieving 3.9 × compression while preserving quantization robustness. We evaluate on full-scale BDD100K (70K training images) with Post-Training Quanti-zation to INT8. The teacher suffers catastrophic degradation under INT8 (−23% mAP), while the KD student retains accuracy ( −5.6% mAP). Analysis reveals that KD transfers precision calibration rather than raw detection capacity: the KD student achieves 0.748 precision versus 0.653 for direct training at INT8, a 14.5% gain at equivalent recall, reducing false alarms by 44% versus the collapsed teacher. At INT8, the KD student exceeds the teacher’s FP32 precision (0.748 vs. 0.718) in a model 3.9 × smaller. These findings establish knowledge distillation as a requirement for deploying accurate, safety-critical VRU detection on edge hardware. 
+
+Keywords: Knowledge Distillation, INT8 Quantization, Edge AI, Vulnerable Road User Detection, Object Detec-tion, ADAS, Autonomous Vehicles, Model Compression, YOLOv8, Post-Training Quantization I. I NTRODUCTION 
+
+Road traffic crashes remain a leading cause of preventable death worldwide. The World Health Organization reports 1.19 million annual road traffic deaths, with road injuries ranking as the leading cause of death for ages 5 to 29 [1]. Vulnerable Road Users (VRUs), defined as pedestrians, cyclists, and motorcyclists, account for over half of all traffic fatalities globally [1]. In the United States, 7,314 pedestrians and 1,166 cyclists died in 2023 [2], [3]. Automated driving systems from SAE Level 2 to Level 4/5 rely on real-time perception to detect VRUs [4], [5]. Deep learning detectors, particularly the YOLO (You Only Look Once) family, achieve strong performance on driving datasets [6], [7]. However, deploying these models on edge hardware presents challenges. Edge AI accelerators such as NVIDIA Jetson impose strict constraints on model size, memory, and latency [8], [9]. A 200 ms perception delay at 60 mph equals 5.3 m of uncontrolled travel [8]. INT8 quantization reduces memory by 4 × and enables efficient integer arithmetic, making it the standard precision for edge deployment [10], [11]. 
+
+> A. Karjol and D. M. Hanna are with the Department of Electrical and Computer Engineering, Oakland University, Rochester, MI 48309 USA (e-mail: akshaykarjol@oakland.edu; hanna@oakland.edu). Manuscript received April 2026.
+
+INT8 quantization, however, creates a dilemma for VRU safety. Large models such as YOLOv8-L (43.7M parameters) achieve high accuracy but degrade under INT8 quantization. Prior studies report 3 to 7% mAP loss for YOLOv5-S and YOLOv8-S under TensorRT INT8 [11], [12]. Larger models with wider weight distributions compress poorly to 8-bit representation [13]. Small models such as YOLOv8-S (11.2M parameters) meet computational constraints but sacrifice performance on underrepresented classes [14]. Nei-ther approach alone satisfies the requirements for deployable, accurate VRU detection. Knowledge distillation (KD) trains a compact student to match the soft outputs of a larger teacher [15]. Temperature scaling softens the output distribution, encoding class simi-larity absent from one-hot labels [15]. Feature-based methods extend this by aligning intermediate representations between student and teacher [16], [17], but require additional loss terms and increase training cost [18]. FGD applies separate distillation losses to foreground and background regions [19]. PKD uses correlation-based alignment for heterogeneous architectures [20]. Vanilla KD achieves equivalent accuracy at scale without additional loss terms [21]. Prior work shows that vanilla KD transfers detection accuracy at scale [21]. Whether KD also transfers confi-dence calibration (precision versus recall) and confers INT8 quantization robustness has not been studied. Answering both determines whether a KD-trained student can replace a large teacher in edge deployment. This paper addresses this gap through systematic evalua-tion on BDD100K [22], the largest driving dataset available. We train YOLOv8-S students with and without teacher guid-ance, then quantize all models to INT8 using TensorRT Post-Training Quantization (PTQ) [23]. Our experiments show that KD transfers confidence calibration rather than raw de-tection capacity. This calibration survives INT8 quantization. The KD student achieves 44% fewer false alarms than the collapsed teacher at INT8. This improvement matters for automated driving where false alarms degrade driver trust [24]. The main contributions of this work are:  
+
+> •
+
+Empirical demonstration that KD-trained models de-grade significantly less under INT8 PTQ ( −5.6% mAP) compared to large teachers ( −23% mAP), establishing KD as essential for edge-deployable VRU detection.  
+
+> •
+
+Analysis showing KD transfers precision calibration rather than recall: KD student achieves +14.5% preci-sion gain at INT8 with equivalent recall, reducing false 
+
+> arXiv:2604.26857v1 [cs.CV] 29 Apr 2026
+
+alarms by 44% versus the collapsed teacher, critical for edge-deployed automotive safety systems.  
+
+> •
+
+Full-scale validation on BDD100K (70K training im-ages) with VRU-specific evaluation across pedestrian, cyclist, and motorcyclist classes. II. R ELATED WORK 
+
+A. VRU Detection for Autonomous Driving 
+
+Detecting VRUs (pedestrians, cyclists, motorcyclists) is a core challenge for autonomous driving safety [4], [5]. Early approaches used hand-crafted features such as Histogram of Oriented Gradients (HOG) with Support Vector Machines [25]. Deep learning transformed the field. Convolutional neu-ral networks achieve higher accuracy than classical methods [4]. The YOLO (You Only Look Once) family dominates real-time detection due to its single-stage architecture [6], [26]. YOLOv8 introduced anchor-free detection, the C2f feature fusion module, and spatial attention [7]. 
+
+B. Knowledge Distillation for Object Detection 
+
+Knowledge distillation trains a compact student to match soft outputs from a larger teacher [15]. Temperature scaling softens probability distributions, encoding class similarity absent from one-hot labels [15]. Feature-based distillation aligns intermediate representa-tions between student and teacher [16], [17]. FitNets [16] in-troduced hint layers to guide student features toward teacher features. For object detection, FGD [19] separates distillation losses for foreground and background regions. PKD uses correlation-based alignment for heterogeneous architectures, achieving 4.1 to 4.8% mAP improvement on COCO [20]. Recent work applies KD to YOLO architectures. LKD-YOLOv8 [27] combines masked generative distillation with lightweight convolution. CrossKD [28] introduces cross-head distillation to relieve contradictory supervision. Gou et al. [18] categorize KD methods into response-based, feature-based, and relation-based approaches. While advanced meth-ods achieve incremental gains, vanilla KD remains effective at scale [21]. The interaction between KD and quantization robustness remains unexplored. 
+
+C. Model Quantization for Edge Deployment 
+
+Quantization reduces model precision from 32-bit floating point to lower bit-widths [10], [11]. INT8 quantization offers 4× memory reduction and efficient integer arithmetic on hardware accelerators [10]. Post-Training Quantization (PTQ) converts pretrained models without retraining [13]. PTQ uses a calibration dataset to determine scaling factors [10], [13]. PTQ requires minutes rather than days but can degrade accuracy, par-ticularly for large models with wide weight distributions [11]. Quantization-Aware Training (QAT) maintains higher accuracy at greater computational cost [29]. NVIDIA TensorRT provides optimized inference with PTQ support [23]. 
+
+D. Confidence Calibration in Neural Networks 
+
+Modern neural networks produce overconfident predic-tions [30]. Temperature scaling learns a single parameter to scale logits, improving calibration without affecting accuracy [30]. Whether KD training with temperature-scaled soft labels transfers calibration to the student, and whether this calibration survives INT8 quantization, has not been studied. 
+
+E. False Alarm Impact on ADAS and AV Acceptance 
+
+False alarms impact ADAS and AV effectiveness and acceptance [24]. Excessive false warnings erode driver trust and lead to system deactivation [31]. For VRU detection, false alarms are particularly damaging given VRU rarity. Precision is critical for deployable systems. III. M ETHODOLOGY 
+
+To address both open questions, we design a controlled experimental framework comparing three training configura-tions: a large teacher, a compact direct student, and a compact KD student. All three are evaluated at FP32 and INT8. We formulate the detection problem, define the KD objective, and detail the INT8 quantization procedure. 
+
+A. Problem Formulation 
+
+Let fT : X → Y denote a large teacher detector and 
+
+fS : X → Y denote a compact student detector, where X
+
+represents input images and Y represents detection outputs (bounding boxes and class probabilities). The task is VRU detection in driving scenes: pedestrians, cyclists, and mo-torcyclists across the BDD100K dataset. The objective is to train fS such that quantized inference Q(fS ) preserves accuracy while meeting edge deployment constraints. We compare three training strategies:  
+
+> •
+
+Teacher: YOLOv8-L trained directly on ground truth labels  
+
+> •
+
+Direct Student: YOLOv8-S trained directly on ground truth labels  
+
+> •
+
+KD Student: YOLOv8-S trained with teacher guidance This comparison isolates the effect of knowledge distilla-tion: the direct and KD students share identical architectures, differing only in training supervision. By evaluating all three models at FP32 and INT8, we can determine whether KD-trained models exhibit superior quantization robustness. 
+
+B. Knowledge Distillation Framework 
+
+We adopt a task-dampened formulation where the KD training objective combines task loss with distillation losses: 
+
+Ltotal = α · L task + β · L logit + γ · L feat (1) where Ltask is the standard detection loss (classification + localization), Llogit is the logit-based distillation loss, Lfeat is the feature-based distillation loss, and α, β, γ ∈ [0 , 1] are scalar weights controlling the contribution of each loss term. The logit distillation loss uses KL divergence with tem-perature scaling: 
+
+Llogit = T 2 · KL 
+
+
+
+σ
+
+ zS
+
+T
+
+
+
+∥σ
+
+ zT
+
+T
+
+ 
+
+(2) where zS and zT are student and teacher logits, σ is softmax, 
+
+T is temperature, and KL denotes the Kullback-Leibler di-vergence. The T 2 factor compensates for gradient magnitude reduction at higher temperatures. Higher T produces softer distributions, encoding class similarity absent from one-hot labels. The feature distillation loss aligns intermediate represen-tations using L2 distance: 
+
+Lfeat = ∥FS − FT ∥22 (3) where FS and FT are student and teacher feature maps from the backbone. The teacher is frozen during KD training. Only the student parameters update. We set α = 0 .5, β = 0 .3, γ = 0 .02 , and 
+
+T = 10 . The task loss weight α = 0 .5 down-weights ground-truth supervision relative to teacher guidance, increasing the influence of soft distributions on student training. We validate this choice through ablation in Section V-F. The low feature loss weight ( γ = 0.02 ) limits the constraint on student intermediate representations. 
+
+C. INT8 Quantization 
+
+We apply Post-Training Quantization (PTQ) to convert FP32 models to INT8 [10]. PTQ determines scaling factors by running forward passes on a calibration dataset. We use TensorRT for quantization and inference. Calibration images are sampled from an unlabeled split separate from training and evaluation data. IV. E XPERIMENTAL SETUP 
+
+A. Dataset 
+
+We evaluate on BDD100K [22], which contains 100K driving images annotated with 10 object classes. We follow the standard split: 70K training, 10K validation, and 20K test images. Test set annotations are not publicly available, so all accuracy evaluations use the validation set. For INT8 calibration, we sample 1,024 images from the test split with a fixed random seed to prevent data leakage. The dataset exhibits severe class imbalance: cars dominate with 714K instances, while VRU classes are underrepresented (pedestrians: 91K, riders: 5K, bicycles: 7K, motorcycles: 3K), as shown in Fig. 1. We define three VRU groups: pedestrians, cyclists (rider+bicycle), and motorcyclists (rider+motorcycle). BDD100K uses overlapping bounding boxes for cyclists and motorcyclists, which we evaluate as combined groups. 
+
+B. Model Architecture 
+
+We select YOLOv8 for its mature TensorRT INT8 pipeline and deployment ecosystem [7]. Newer variants (YOLOv9, YOLOv10, YOLO11) offer 1 to 2% mAP improvements [32], but YOLOv8 remains fastest for edge deployment [33]. Generalization of KD-induced quantization robustness to other architectures remains to be validated. We use YOLOv8-L (43.7M parameters) as the teacher and YOLOv8-S (11.2M parameters) as the student, achieving 3.9 × parameter compression. Both models use identical         
+
+> Fig. 1. BDD100K class distribution showing severe imbalance. VRU classes (red) are significantly underrepresented compared to dominant classes such as cars.
+
+input resolution (640 ×640) and are initialized from COCO-pretrained weights. 
+
+C. Training Configuration 
+
+All models train for 50 epochs using AdamW with co-sine annealing and standard YOLOv8 augmentation (mosaic, mixup, HSV jitter). The teacher uses batch size 64 and learning rate 0.00283. Both students use batch size 256 and learning rate 0.004. All models use 3-epoch warmup and early stopping patience of 30 epochs. The teacher trains first and remains frozen during student training. Training uses cloud GPU infrastructure (NVIDIA RTX PRO 6000 Blackwell, 96GB VRAM). The teacher requires 7 hours, the direct student 2.7 hours, and the KD student 4.9 hours. The KD overhead reflects teacher forward passes during distillation. 
+
+D. Evaluation Metrics 
+
+We report standard detection metrics: mAP50 (mean Average Precision at IoU 0.5), mAP50-95 (averaged over IoU thresholds 0.5–0.95), precision, and recall. For safety-critical analysis, we compute False Alarm Rate (FAR = 1 − Precision) to quantify incorrect positive predictions that can erode driver trust [24]. We evaluate VRU-specific mAP50 across the three VRU groups (pedestrians, cyclists, motorcyclists) and measure inference throughput in frames per second (FPS). 
+
+E. Quantization and Deployment 
+
+We quantize models using NVIDIA TensorRT on an RTX 5070 GPU (8GB VRAM). The RTX 5070 is closer to edge deployment conditions than the training hardware. Throughput on the RTX PRO 6000 exceeds 1,500 FPS, which is not representative of deployment conditions. De-ployment on automotive-grade hardware such as NVIDIA Jetson remains future work. We evaluate three precision levels: FP32 (baseline), FP16 (half precision), and INT8 (8-bit integer). Throughput is measured as frames per second (FPS) averaged over 1,000 inference iterations. V. R ESULTS 
+
+We evaluate all three models (teacher, direct student, KD student) at FP32 and INT8. We establish FP32 performance, then analyze VRU-specific detection, quantization degrada-tion, precision at INT8, throughput, and task loss weight ablation. 
+
+A. FP32 Baseline Performance                           
+
+> TABLE I FP32 D ETECTION PERFORMANCE ON BDD100K
+> Model Params mAP50 mAP50-95 Precision Recall FAR
+> Teacher (L) 43.7M 0.595 0.345 0.718 0.554 0.282 Direct (S) 11.2M 0.533 0.300 0.633 0.480 0.367 KD (S) 11.2M 0.532 0.300 0.716 0.483 0.284
+
+Table I presents FP32 detection performance on the BDD100K validation set. The teacher achieves 0.595 mAP50, outperforming both students (0.532 to 0.533 mAP50). At FP32, KD and direct students achieve identical mAP50. The KD student achieves higher precision (0.716 vs. 0.633) at equivalent recall (0.483 vs. 0.480). The KD student matches the teacher’s FAR (0.284 vs. 0.282), while the direct student has 30% higher FAR (0.367). KD transfers confidence calibration from teacher to student. 
+
+B. VRU-Specific Performance                    
+
+> TABLE II VRU G ROUP DETECTION PERFORMANCE (MAP50, FP32)
+> Model Pedestrian Cyclist Motorcyclist VRU Avg
+> Teacher (L) 0.685 0.522 0.503 0.559 Direct (S) 0.613 0.453 0.440 0.492 KD (S) 0.613 0.450 0.440 0.491
+
+Table II presents VRU group detection performance. The teacher leads by 6.3 to 7.2 mAP50 points across all VRU groups. KD and direct students achieve equivalent VRU performance. KD does not boost recall on rare classes. The gap is architectural: 11.2M parameters cannot match 43.7M capacity for underrepresented classes. 
+
+C. Quantization Impact                    
+
+> TABLE III QUANTIZATION IMPACT : FP32 TO INT8
+> Model FP32 INT8 ∆mAP ∆%
+> Teacher (L) 0.595 0.456 −0.139 −23.4% Direct (S) 0.533 0.502 −0.031 −5.8% KD (S) 0.532 0.502 −0.030 −5.6%
+
+Table III presents the impact of INT8 quantization. The teacher degrades catastrophically under INT8 ( −23% mAP), making it unsuitable for edge deployment despite superior FP32 performance. Fig. 2 shows this comparison. Both students exhibit acceptable degradation ( −5.6% to −5.8%). The KD student achieves slightly better retention. Large models are more sensitive to INT8 due to wider weight distributions.   
+
+> Fig. 2. Quantization impact: FP32 (solid) vs INT8 (hatched). Teacher collapses ( −23% mAP, −24% precision), students retain performance. KD gains +4% precision under INT8.
+
+D. Precision Analysis at INT8                             
+
+> TABLE IV PRECISION AND FALSE ALARM RATE AT INT8
+> Model mAP50 Precision ∆Prec Recall FAR ∆FAR
+> Teacher (L) 0.456 0.546 baseline 0.416 0.454 baseline Direct (S) 0.502 0.653 +20% 0.421 0.347 −24% KD (S) 0.502 0.748 +37% 0.423 0.252 −44%
+
+Table IV compares precision, recall, and false alarm rates at INT8, using the collapsed teacher as baseline. The KD student achieves 0.748 precision ( +37% vs. teacher) and 0.252 FAR ( −44%), exceeding the teacher’s FP32 precision (0.718) in a model 3.9 × smaller. The direct student achieves 
+
++20% precision and −24% FAR. All three models pro-duce equivalent recall (0.416 to 0.423), confirming that KD transfers precision calibration rather than detection capacity. Fig. 3 summarizes the deployment comparison. 
+
+E. Throughput                   
+
+> TABLE V INFERENCE THROUGHPUT (FPS) ON RTX 5070 (8GB) AT INT8
+> Model FPS Speedup Real-time
+> Teacher (L) 196 1.0 ×✓
+> Direct (S) 497 2.54 ×✓
+> KD (S) 464 2.37 ×✓
+
+Table V presents inference throughput on RTX 5070 (8GB). All three models exceed 30 FPS at INT8. The KD student is the only configuration that combines real-time throughput, high precision, and low FAR simultaneously. The teacher achieves real-time speed but loses 23% mAP. The direct student is fastest but achieves only 24% FAR reduction versus 44% for KD. The 2.37 × speedup and 3.9 ×Fig. 3. Deployment comparison: KD INT8 achieves highest precision (0.75) and lowest FAR (0.25) among all deployable configurations. 
+
+compression indicate that the KD student meets throughput and memory requirements for automotive-grade edge hard-ware such as NVIDIA Jetson. 
+
+F. Task Loss Weight Ablation 
+
+To validate that precision transfer depends on the task loss weight α, we compare two KD formulations: Form A ( α =0.5) and Form B ( α = 1 .0), with all other hyperparameters identical.                         
+
+> TABLE VI TASK LOSS WEIGHT ABLATION AT INT8
+> Formulation αmAP50 Precision Recall FAR
+> Direct (baseline) —0.502 0.653 0.421 0.347 KD Form B 1.0 0.495 0.653 0.422 0.347 KD Form A 0.5 0.502 0.748 0.423 0.252
+
+Table VI compares two KD formulations at INT8. Form A ( α = 0 .5) achieves 0.748 precision. Form B ( α = 1 .0)achieves only 0.653, identical to direct training. Precision calibration transfer requires dampening the task loss. With 
+
+α = 1.0, KD acts as a regularizer and fails to transfer calibration. The mAP50 difference is negligible ( < 0.5%), but the precision gap is +14.5%. VI. D ISCUSSION 
+
+The teacher’s INT8 degradation ( −23.4% mAP) confirms that large models compress poorly to 8-bit representation [9], [13], answering the second open question: KD confers INT8 robustness. The KD student degrades only −5.6%. The KD student achieves 0.748 precision versus 0.653 for the direct student, answering the first open question: KD transfers precision calibration, not detection capacity. Temperature-scaled soft distributions at T = 10 produce this calibration, which survives INT8 quantization. The ablation (Table VI) identifies the mechanism. Damp-ening the task loss ( α = 0 .5) increases the influence of soft distributions on student training. With α = 1 .0, precision remains 0.653, identical to direct training. The +14.5% pre-cision gap at negligible mAP50 difference ( <0.5%) isolates task-loss dampening as the enabling condition. The equivalent recall across all models (0.416 to 0.423 at INT8) confirms that KD cannot overcome architectural capacity limits. The 11.2M student cannot match the 43.7M teacher on rare VRU classes regardless of training method. For edge-deployed automotive safety systems, the KD student reduces false alarms by 44% versus the collapsed teacher. False alarms erode driver trust and cause system de-activation [24], [31]. The 2.37 × speedup and 3.9 × compres-sion confirm the KD student meets throughput and memory requirements for automotive-grade edge hardware. The KD student is the only evaluated configuration combining real-time inference, high precision, and low FAR at INT8. 
+
+A. Limitations 
+
+This study evaluates one dataset (BDD100K) and one ar-chitecture family (YOLOv8). Generalization to other datasets (KITTI, nuScenes) and architectures requires validation. We use Post-Training Quantization. Quantization-Aware Train-ing may yield improvements. Evaluation uses desktop GPU (RTX 5070, 8GB). Automotive-grade edge hardware (Jetson) deployment is future work. VII. C ONCLUSION 
+
+This paper answers two open questions on KD for edge VRU detection. KD transfers confidence calibration (pre-cision) but not detection capacity (recall): the KD student achieves 0.748 precision versus 0.653 for direct training at INT8, with equivalent recall (0.416 to 0.423). KD confers INT8 robustness: the KD student degrades −5.6% versus 
+
+−23.4% for the teacher. Task-loss dampening ( α = 0 .5) is the enabling mechanism. The result is 3.9 × compression, 2.37 × faster inference, and 44% lower false alarm rate versus the collapsed teacher. For edge-deployed automotive safety systems, the recommended configuration is a KD-trained small model with INT8 quantization. VIII. F UTURE WORK 
+
+Deployment on automotive-grade edge hardware such as NVIDIA Jetson requires validation with power consumption and thermal profiling under continuous operation. Second, systematic ablation of distillation hyperparameters ( β, γ, T )beyond the task loss weight can identify optimal configura-tions for different model scales. Third, stratified analysis by lighting conditions (day/night), weather, and VRU size will provide operational deployment guidance. Fourth, extending the framework to newer YOLO variants and transformer-based detectors will determine whether calibration transfer is architecture-specific. Finally, Quantization-Aware Training and evaluation on additional datasets (nuScenes, Waymo) may further improve robustness and generalization. ACKNOWLEDGMENT 
+
+The authors thank Dr. Lanyu Xu for foundational instruc-tion in edge AI concepts through the CSI 5110 Foundations of Edge AI course at Oakland University. REFERENCES [1] World Health Organization, “Global status report on road safety 2023,” World Health Organization, Geneva, Switzerland, Tech. Rep., 2023, accessed: Apr. 2026. [Online]. Available: https: //www.who.int/publications/i/item/9789240086517 [2] National Highway Traffic Safety Administration, “Pedestrian traffic safety facts 2023,” U.S. Department of Transportation, Washington, DC, Report No. DOT HS 813 581, 2024, accessed: Apr. 2026. [Online]. Available: https://crashstats.nhtsa.dot.gov/ [3] ——, “Bicyclists and other cyclists traffic safety facts 2023,” U.S. Department of Transportation, Washington, DC, Report No. DOT HS 813 739, 2024, accessed: Apr. 2026. [Online]. Available: https://crashstats.nhtsa.dot.gov/ [4] L. Chen, S. Lin, X. Lu, D. Cao, H. Wu, C. Guo, C. Liu, and F.-Y. Wang, “Deep neural network based vehicle and pedestrian detection for autonomous driving: A survey,” IEEE Transactions on Intelligent Transportation Systems , vol. 22, no. 6, pp. 3234–3246, 2021. [5] L. Yue, M. Abdel-Aty, Y. Wu, and A. Farid, “The practical effec-tiveness of advanced driver assistance systems at different roadway facilities,” IEEE Transactions on Intelligent Transportation Systems ,vol. 21, no. 9, pp. 3859–3871, 2020. [6] J. Redmon, S. Divvala, R. Girshick, and A. Farhadi, “You only look once: Unified, real-time object detection,” in Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) ,2016, pp. 779–788. [7] G. Jocher, A. Chaurasia, and J. Qiu, “Ultralytics YOLOv8,” GitHub, 2023, accessed: Apr. 2026. [Online]. Available: https: //github.com/ultralytics/ultralytics [8] S. Liu, L. Liu, J. Tang, B. Yu, Y. Wang, and W. Shi, “Edge computing for autonomous driving: Opportunities and challenges,” Proceedings of the IEEE , vol. 107, no. 8, pp. 1697–1716, 2019. [9] A. Reuther, J. Kepner, C. Byber, V. Gadepally, M. Hubbell, M. Mc-Cary, J. Mullen, A. Prout, A. Rosa, C. Yee et al. , “Survey and benchmarking of machine learning accelerators,” in Proceedings of the IEEE High Performance Extreme Computing Conference (HPEC) ,2019, pp. 1–9. [10] B. Jacob, S. Kligys, B. Chen, M. Zhu, M. Tang, A. Howard, H. Adam, and D. Kalenichenko, “Quantization and training of neural networks for efficient integer-arithmetic-only inference,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 2018, pp. 2704–2713. [11] H. Wu, P. Judd, X. Zhang, M. Isaev, and P. Micikevicius, “Integer quantization for deep learning inference: Principles and empirical evaluation,” arXiv preprint arXiv:2004.09602 , 2020. [Online]. Available: https://arxiv.org/abs/2004.09602 [12] Y. Chen et al. , “INT8 quantization sensitivity analysis for object detection models,” arXiv preprint arXiv:2508.19600 , 2025. [Online]. Available: https://arxiv.org/abs/2508.19600 [13] M. Nagel, M. Fournarakis, R. A. Amjad, Y. Bondarenko, M. van Baalen, and T. Blankevoort, “A white paper on neural network quantization,” arXiv preprint arXiv:2106.08295 , 2021. [Online]. Available: https://arxiv.org/abs/2106.08295 [14] K. Oksuz, B. C. Cam, S. Kalkan, and E. Akbas, “Class imbalance in object detection: An experimental diagnosis and study of mitigation strategies,” arXiv preprint arXiv:2403.07113 , 2024. [Online]. Available: https://arxiv.org/abs/2403.07113 [15] G. Hinton, O. Vinyals, and J. Dean, “Distilling the knowledge in a neural network,” in Proceedings of the NeurIPS Deep Learning Workshop , 2015. [Online]. Available: https://arxiv.org/abs/1503.02531 [16] A. Romero, N. Ballas, S. E. Kahou, A. Chassang, C. Gatta, and Y. Bengio, “FitNets: Hints for thin deep nets,” in Proceedings of the International Conference on Learning Representations (ICLR) , 2015. [Online]. Available: https://arxiv.org/abs/1412.6550 [17] J. Yim, D. Joo, J. Bae, and J. Kim, “A gift from knowledge distillation: Fast optimization, network minimization and transfer learning,” in 
+
+Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 2017, pp. 4133–4141. [18] J. Gou, B. Yu, S. J. Maybank, and D. Tao, “Knowledge distillation: A survey,” International Journal of Computer Vision , vol. 129, no. 6, pp. 1789–1819, 2021. [19] Z. Yang, Z. Li, X. Shao, R. Shi, Z. Wan, and L. Hong, “Focal and global knowledge distillation for detectors,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 2022, pp. 4643–4652. [20] W. Cao, Y. Zhang, J. Gao, A. Cheng, K. Cheng, and J. Cheng, “PKD: General distillation framework for object detectors via pearson correlation coefficient,” in Advances in Neural Information Processing Systems (NeurIPS) , vol. 35, 2022, pp. 15 394–15 406. [21] C. Yang et al. , “VanillaKD: Revisit the power of vanilla knowledge distillation from small scale to large scale,” arXiv preprint arXiv:2305.15781 , 2023. [Online]. Available: https://arxiv.org/abs/ 2305.15781 [22] F. Yu, H. Chen, X. Wang, W. Xian, Y. Chen, F. Liu, V. Madhavan, and T. Darrell, “BDD100K: A diverse driving dataset for heterogeneous multitask learning,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 2020, pp. 2636– 2645. [23] NVIDIA Corporation, “NVIDIA TensorRT developer guide,” NVIDIA Documentation, 2024, accessed: Apr. 2026. [Online]. Available: https://docs.nvidia.com/deeplearning/tensorrt/ [24] J. D. Lee and K. A. See, “Trust in automation: Designing for appropriate reliance,” Human Factors , vol. 46, no. 1, pp. 50–80, 2004. [25] N. Dalal and B. Triggs, “Histograms of oriented gradients for human detection,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 2005, pp. 886–893. [26] C.-Y. Wang, A. Bochkovskiy, and H.-Y. M. Liao, “YOLOv7: Trainable bag-of-freebies sets new state-of-the-art for real-time object detectors,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 2023, pp. 7464–7475. [27] Y. Liu et al. , “LKD-YOLOv8: A lightweight knowledge distillation-based method for infrared object detection,” Electronics , vol. 13, no. 17, p. 3521, 2024. [28] J. Wang, Y. Luo, L. Gu, and L. Wang, “CrossKD: Cross-head knowledge distillation for object detection,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 2024, pp. 16 520–16 530. [29] S. K. Esser, J. L. McKinstry, D. Bablani, R. Appuswamy, and D. S. Modha, “Learned step size quantization,” in Proceedings of the International Conference on Learning Representations (ICLR) , 2020. [30] C. Guo, G. Pleiss, Y. Sun, and K. Q. Weinberger, “On calibration of modern neural networks,” in Proceedings of the International Conference on Machine Learning (ICML) , 2017, pp. 1321–1330. [31] S. Khastgir, H. Sivencrona, G. Dhadyalla, P. Billing, S. Birrell, and P. Jennings, “Introducing WATCHMAN: A novel framework to validate automated vehicle safety,” IEEE Transactions on Intelligent Transportation Systems , vol. 21, no. 6, pp. 2265–2276, 2020. [32] A. Jha et al. , “Comprehensive performance evaluation of YOLO architectures: YOLOv5 to YOLO11 for object detection,” Scientific Reports , vol. 15, 2025. [33] M. Zhang et al. , “Real-time object detection for autonomous driving: A comparative study of YOLOv8, YOLOv9, and YOLOv10,” Scientific Reports , vol. 15, 2025. 
+
+Akshay Karjol (Senior Member, IEEE) received the M.S. degree in automotive engineering from Clemson University–International Center for Automotive Research (CU-ICAR), SC, USA. He is currently pursuing the Ph.D. degree in electrical and computer engineering at Oakland University, MI, USA. He currently holds systems engineering and technical leadership roles at ZF Active Safety US Inc., and has held similar roles at Ford Motor Company and select automotive OEMs and Tier-1 suppliers, contributing to the development and validation of safety-critical chassis and intelligent vehicle systems, including braking, steering, suspension, advanced driver assistance systems (ADAS), and automated driving systems (ADS), for production vehicle programs. His work spans systems engineering, system architecture, embedded control, and high-performance computing for real-time, safety-critical vehicle applications. His research interests include real-time embedded systems, parallel computing, edge AI, intelligent vehicle systems, and robotics applications. 
+
+Darrin M. Hanna (Member, IEEE) received the B.S. degrees in computer engineering and mathematics, the M.S. degree in computer science and engineering, and the Ph.D. degree in systems engineering from Oakland University, Rochester, MI, USA, in 1999, 2000, and 2003, respectively. He is currently a Professor with the Department of Electrical and Computer Engineering, Oakland University. His research interests include embedded systems, embedded artificial intelligence, edge AI, cyberphysical security systems, and nanoimaging. He teaches courses in embedded systems, artificial intelligence, computer hardware design with FPGAs and micro-processors, and cybersecurity.

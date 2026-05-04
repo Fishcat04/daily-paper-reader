@@ -1,0 +1,644 @@
+Title: DenseScout: Algorithm-System Co-design for Budgeted Tiny Object Selection on Edge Platforms
+
+URL Source: https://arxiv.org/pdf/2604.25300v1
+
+Published Time: Wed, 29 Apr 2026 00:37:14 GMT
+
+Number of Pages: 19
+
+Markdown Content:
+# DenseScout: Algorithm-System Co-design for Budgeted Tiny Object Selection on Edge Platforms 
+
+Xiong Zhouzhi 1∗ Zimo Zeng 1 Yi Chen 1 Shuqi Xu 1 Yunfeng Yan 1
+
+Donglian Qi 1
+
+March 24, 2026 Revised April 7, 2026 
+
+> 1
+
+College of Electrical Engineering, Zhejiang University, Hangzhou, China 
+
+3220105776@zju.edu.cn , 2152397@tongji.edu.cn , multione@zju.edu.cn ,
+
+sqxu@zju.edu.cn , 21210004@zju.edu.cn , qidl@zju.edu.cn 
+
+Abstract 
+
+Deploying tiny object perception on edge platforms is challenging because practical systems must satisfy both strict compute budgets and end-to-end latency constraints. A common strategy is to first select a small number of candidate patches from a high-resolution image and then apply downstream processing only to the selected regions. However, existing detector-based frontends are not well aligned with this setting: strong offline detection accuracy does not necessarily yield effective low-budget patch prioritization, nor does it guarantee usable performance once transport and inference delays are considered. In this work, we study budgeted tiny object selection on edge platforms from a joint algorithm–system perspective. We present DenseScout, a lightweight dense-response selector with only 1.01M parameters, which directly ranks candidate patch locations from a high-resolution scene via a lightweight proxy input and is better aligned with low-budget tiny-object prioritization than detector-style frontends. To bridge offline selector quality and deployable utility, we further develop a transport-aware runtime realization on heterogeneous edge devices and adopt QoS-constrained recall, which counts a target as successfully perceived only if it is covered by the selected regions and the end-to-end processing finishes before the deadline. Experiments show that DenseScout consistently outperforms detector-based baselines in offline budgeted patch-selection evaluation, especially in low-budget regimes, while cross-platform results on RK3588 and Jetson Orin NX show that deployable performance depends jointly on selector quality and runtime realization efficiency. These results suggest that edge tiny object perception should be optimized as an algorithm–system co-design problem rather than as isolated model selection. 
+
+Keywords: tiny object perception, edge platforms, high-resolution images, budgeted selection, dense-response selector, QoS-constrained recall 
+
+## 1 Introduction 
+
+High-resolution visual understanding is important in aerial monitoring, remote sensing, surveillance, and infrastructure inspection [ 1 –3 ]. In such scenarios, targets may occupy only about 18 × 14 pixels 
+
+> ∗
+
+Corresponding author. Email: 3220105776@zju.edu.cn 
+
+1
+
+> arXiv:2604.25300v1 [cs.CV] 28 Apr 2026
+
+Input: 4K High-Res 
+
+## Baseline: ~51ms 
+
+## DenseScout 
+
+Target: < 0.05% area 
+
+## Late! 
+
+## On Time 
+
+Ground Truth 
+
+DenseScout (Ours) 
+
+NanoDet-Plus 
+
+YOLOv8n 
+
+Deadline: 33.3 ms Figure 1: Motivating example of deployable tiny-object perception on the edge. In a 4K high-resolution frame, the target occupies less than 0.05% of the image area and appears with weak visual saliency. Under a practical end-to-end deadline (33.3 ms), detector-based frontends may either miss the relevant region or exceed the latency budget, even if they are designed for generic object detection. In contrast, DenseScout preserves the target-containing patch under the same budget while remaining deadline-compliant. This example illustrates that offline detection or selection quality alone does not guarantee deployable utility. 
+
+in a 3840 × 2160 image, i.e., less than 0.05% of the frame. This extreme scale sparsity makes reliable perception difficult, especially under strict patch and latency budgets. A straightforward solution is to run detection on the full high-resolution image, but this is often impractical on edge platforms due to limited compute, memory bandwidth, and latency budgets [ 4–6 ]. In many deployments, the system must first prioritize a small number of candidate patches and allocate downstream processing only to those regions. This leads to a budgeted tiny-object selection 
+
+problem: under a limited patch budget, the frontend should preserve as much useful tiny-target coverage as possible while remaining compatible with real-time execution. Existing high-resolution pipelines often rely on detector-based frontends, coarse-to-fine strategies, patch-wise scanning, or tiling and offloading. Representative examples include [ 7 – 16 ]. However, these designs are not well aligned with the setting studied here. Detector-based frontends are optimized for final localization rather than low-budget region prioritization, and offline metrics say little about whether selected regions remain useful under strict end-to-end deadlines on real hardware [ 5, 17 ]. Figure 1 illustrates this gap. This mismatch motivates an algorithm–system co-design view, in which selector quality and runtime realization are optimized jointly. To address this gap, we formulate edge-side tiny-object perception as a joint selection-and-
+
+2deployment problem rather than a conventional detector design problem. We propose DenseScout ,a lightweight dense-response selector that directly ranks candidate patches from high-resolution imagery under explicit budget constraints, making it better aligned with low-budget tiny-object prioritization than detector-style frontend proposals. To preserve this advantage in practice, we further develop a transport-aware runtime realization on heterogeneous edge platforms and evaluate the selector through a QoS-oriented criterion, in which a target is counted as successfully perceived only if it is both spatially covered and completed within the application deadline. The contributions of this work are three-fold: 
+
+• Edge-side tiny-object perception is reformulated as a budgeted and deployable patch-selection problem , with the argument that strong detector accuracy alone does not guarantee effective low-budget prioritization or deadline-valid utility on real hardware. 
+
+• DenseScout , a lightweight dense-response selector with only 1.01M parameters and 0.72 
+
+GFLOPs, is presented. Candidate patches are directly ranked by DenseScout instead of relying on detector-style frontend proposals. Across VisDrone and DOTA, DenseScout consistently provides the strongest offline practical-budget recall under a unified patch-selection protocol, including 35.16/51.15/68.93% Recall@Ratio on VisDrone and 28.52/38.20/48.40% on DOTA at 1%/2%/4% budgets. 
+
+• A transport-aware edge realization and a QoS-oriented evaluation framework are developed to jointly capture coverage quality, runtime feasibility, and deadline-bounded utility. Experiments on Jetson Orin NX and RK3588 demonstrate that DenseScout remains favorable under deployment constraints, and it is the only evaluated baseline in our RK3588 study that stays deadline-compliant within the 33.3 ms budget. 
+
+## 2 Related Work 
+
+2.1 Tiny Object Detection and High-Resolution Visual Analytics 
+
+Tiny object perception is challenging in aerial imagery, remote sensing, surveillance, and infras-tructure inspection, where targets often occupy only a tiny fraction of the full image. Large-scale benchmarks such as VisDrone and DOTA have further highlighted the difficulty of high-resolution aerial perception, where objects are often tiny, densely distributed, weakly salient, and sometimes arbitrarily oriented [ 18 – 20 ]. Many studies improve detector performance through multi-scale fusion, attention mechanisms, feature enhancement, and lightweight detector design, such as PatchDetector, MDFFAM, DFE-DETR, Lino-YOLO, and SFPNet [ 21 – 25 ]. For aerial imagery, oriented-object detectors such as RoI Transformer explicitly model geometric rotation and improve localization on benchmarks like DOTA [ 26 ]. These methods are highly relevant to the tiny-object problem, but they primarily optimize the detector itself rather than an independent selector under an explicit patch budget. Another line of work addresses high-resolution visual content through region proposals, sparse processing, patch-based reasoning, and adaptive context modeling [ 27 – 34 ]. These approaches support the idea that spatial regions should not be processed uniformly, but they typically operate on detector proposals, segmentation outputs, or adaptive patch context selection rather than unified top-K tiny-object patch prioritization under a fixed budget. DPR [ 35 ] is one of the few nearby methods that explicitly performs patch-wise selective processing before downstream detection. It first classifies image patches and then refines retained regions 3for later detection. Compared with our setting, however, DPR remains a multi-stage selection– refinement pipeline rather than a lightweight standalone selector optimized for fine-grained budgeted ranking. In contrast, our work studies a lightweight selector together with a transport-aware edge realization and a QoS-oriented evaluation framework to jointly assess coverage quality, runtime feasibility, and deadline-bounded utility. 
+
+2.2 Resource-Aware Edge Visual Analytics 
+
+Edge visual analytics has been widely studied under constraints of latency, bandwidth, memory movement, and energy. Existing efforts improve deployability through lightweight model design, model compression, runtime optimization, adaptive offloading, tile-level scheduling, and transmission-aware processing [ 4– 6, 11 , 12 , 17 , 36 ]. These techniques are effective for accelerating detector or backbone inference, but they usually treat the visual model as the primary optimization target. In high-resolution edge perception, however, deployable performance depends jointly on selector behavior, patch extraction, data transport, and downstream execution. This motivates a joint view of visual frontend design and runtime realization under strict patch and deadline budgets. 
+
+2.3 QoS-Oriented Evaluation for Deployable Multimedia Perception 
+
+Most visual perception studies report accuracy and runtime separately, such as AP, FPS, or latency. While informative, these metrics are insufficient for deployable edge perception because they do not directly capture whether useful target coverage is achieved within the required response window. Prior QoS-aware inference and edge analytics studies have highlighted the importance of latency-bounded and deadline-valid outputs in practical deployments [ 5 , 6 , 12 , 17 ]. However, a unified QoS formulation tailored to budgeted tiny-object patch selection remains underexplored. In our setting, utility depends simultaneously on budget-efficient prioritization and deadline-bounded execution. This motivates the QoS-oriented formulation adopted in this work. In summary, prior studies improve detector accuracy, selective region processing, or runtime efficiency, but usually treat them in isolation. The focus of this work is distinct: budgeted tiny-object selection is framed as a deployment-oriented frontend problem, designed to jointly account for selection quality, runtime feasibility, and deadline-compliant utility. 
+
+## 3 Method 
+
+3.1 DenseScout Model 
+
+High-resolution tiny object perception is formulated as a budgeted patch selection problem. Given an input image I, the frontend does not directly output final detection boxes. Instead, it selects a limited set of candidate patches 
+
+PK = {p1, p 2, . . . , p K }, PK ⊂ C (I) (1) where C(I) is the candidate patch pool and K is the selection budget. The frontend objective is therefore to maximize tiny-target coverage under a strict budget rather than to solve the full detection task on the entire image. DenseScout is designed as a dense-response selector rather than a detector-style proposal generator. For tiny objects, detector confidence and box regression are often unstable, whereas 4MobileNetV3-Small     
+
+> Backbone
+> 𝐀 𝐀
+> 576 ×20 ×20
+> 𝐀 𝐀
+> 48 ×40 ×40
+> 𝐀 𝐀
+> 24 ×80 ×80
+> Lateral
+> 1×1 C onv
+> Lateral
+> 1×1 C onv
+> Lateral
+> 1×1 C onv
+> 𝐀 5node
+> Addition
+> 𝐀 4node
+> Addition
+> 𝐀 3node
+> UP
+> UP
+> Tiny-FPN
+> （Top-Down Fusion ）
+> 64 channels,stride-8
+> output retained at 𝐀 3
+
+DenseScout Architecture    
+
+> Heatmap Head
+> 3×3
+> Conv+BN+R eLU
+> 1×1 Conv
+> Dense
+> Response Map
+> 𝐀
+> 80 ×80
+> Local-max NMS
+> Top-K
+> Map back to
+> image coords
+> GT centers
+> Gaussian
+> Heat map
+> Supervision 𝐀
+> Focal
+> Loss
+> selected
+> patches
+> High-resolution
+> aerial inspection image
+> (3840 ×2160)
+
+Figure 2: DenseScout architecture. A 640 × 640 proxy image is first processed by a MobileNetV3-Small backbone [ 37 ], whose multi-scale features are fused by a Tiny-FPN to produce a stride-8 feature map p3 [38 ]. A lightweight heatmap head predicts an 80 × 80 dense response map. During training, ground-truth centers are converted into Gaussian heatmap supervision and optimized with a CenterNet-style focal loss. During inference, the response map is filtered by local-maximum suppression and truncated by Top-K ranking, after which the selected centers are mapped back to image coordinates to generate fixed-size backend crops. 
+
+DenseScout predicts a dense response map on a low-resolution proxy image and ranks candidate regions according to local peak intensity. Its overall architecture is shown in Fig. 2. Given an input proxy image I ∈ R640 ×640 ×3, the backbone extracts a feature hierarchy 
+
+{F1, F 2, F 3, F 4, F 5} = B(I) (2) The last three stages are employed: 
+
+c3 = F3 ∈ R24 ×80 ×80 , c4 = F4 ∈ R48 ×40 ×40 , c5 = F5 ∈ R576 ×20 ×20 (3) After lateral 1 × 1 projection and top-down Tiny-FPN fusion, we obtain 
+
+p5 = ˆ c5, p4 = ˆ c4 + Up( p5), p3 = ˆ c3 + Up( p4) (4) where ˆci denotes the 64-channel projected feature and Up (·) denotes nearest-neighbor interpola-tion. A lightweight heatmap head then predicts 
+
+Z = H(p3), S = σ(Z), S ∈ [0 , 1] 80 ×80 (5) Let G = {gm}Mm=1 be the set of ground-truth target centers. Each center is mapped to the stride-8 lattice by 
+
+um = 80 xm, vm = 80 ym (6) and a Gaussian heatmap supervision is constructed as 
+
+Y (u, v ) = max  
+
+> gm∈G
+
+exp 
+
+(
+
+− (u − um)2 + ( v − vm)2
+
+2σ2
+
+)
+
+(7) DenseScout is trained with a CenterNet-style focal loss: 
+
+Lheat = − ∑
+
+> u,v
+
+{(1 − Suv )2 log( Suv ), Yuv = 1 ,
+
+(1 − Yuv )4S2 
+
+> uv
+
+log(1 − Suv ), Yuv < 1 (8) 5Let 
+
+P = {(u, v ) | Yuv = 1 } (9) denote the positive locations. The normalized objective is 
+
+L =
+
+> 
+
+− 1
+
+|P|  
+
+> (∑
+> (u,v )∈P
+
+L+ 
+
+> uv
+
++ ∑  
+
+> (u,v )/∈P
+
+L−
+
+> uv
+> )
+
+, |P| > 0,
+
+− ∑ 
+
+> (u,v )
+
+L−
+
+> uv
+
+, |P| = 0 
+
+(10) At inference time, DenseScout first applies local-maximum filtering, 
+
+ˆS = S ⊙ 1[S = MaxPool( S; k)] (11) and then ranks the retained peaks as 
+
+{(ui, v i, s i)}Ni=1 = SortDesc( ˆS) (12) The final patch set is 
+
+PK = {(ui, v i)}Ki=1 (13) with each center mapped back to image coordinates by 
+
+xi = 8 ui + 4 , yi = 8 vi + 4 (14) Each selected center defines a fixed 64 × 64 evaluation cell for offline coverage accounting, and a target centered at (xg, y g) is counted as covered if 
+
+|xi − xg| ≤ 32 , |yi − yg| ≤ 32 (15) for at least one selected patch center. In the final training version, random horizontal flipping, HSV jitter, AdamW, and cosine annealing are additionally used to improve generalization without changing the inference graph. Overall, DenseScout removes detector-style box regression and complex decoding from the frontend, making it both more suitable for tiny-object selection and easier to deploy on edge platforms. Two spatial units are distinguished in this work. For offline selector evaluation, coverage is measured using a fixed 64 ×64 evaluation cell centered at each selected location, which enables unified Recall@K and Recall@Ratio benchmarking on the response lattice. For closure and deployment experiments, the same selected center is expanded to a larger 640 × 640 backend crop to preserve sufficient visual context for downstream patch-level detection. Unless otherwise specified, all closure and deployment results in this paper use the 640 × 640 crop, while offline selector recall is computed on the 64 × 64 evaluation cell. 
+
+3.2 System Realization on Edge Platforms 
+
+DenseScout addresses what to select, but deployable performance also depends on how the selected patches are executed on real hardware. System realization is therefore considered part of the methodological approach. Its deployment logic and QoS-oriented evaluation are summarized in Fig. 3. Given a raw 4K frame I4K , the deployment logic is illustrated in Fig. 3. A resized 640 proxy is first processed by DenseScout to produce Top-K patch centers. The selected regions are then 6Transport -aware system execution  QoS -oriented deployable utility 
+
+> Top -K patch centers
+> Spatial coverage
+
+Deployable budgeted tiny -object perception                     
+
+> avoid full -frame host staging Lower transport Edge -friendly
+> Target Hit 𝑅𝑒𝑐𝑎𝑙𝑙 (𝑟 )
+> 𝑸 𝒅𝒆𝒑𝒍𝒐𝒚 (𝒓 ;𝝀 ;𝝉 )
+> 𝑸 𝒃𝒖𝒅𝒈𝒆𝒕 (𝒓 )=𝑹𝒆𝒄𝒂𝒍𝒍 (𝒓 )−𝝀𝒓
+> Raw 4K frame
+> 640 proxy +
+> DenseScout
+> Extra memory host synchronization CPU involvement
+> Reference -based
+> patch access
+> Direct shared -
+> buffer crop
+> Backend -ready
+> transfer
+> Selected
+> patch
+> Conventional copy -heavy execution
+> Transport -aware reduced -copy execution
+> Host -
+> side crop
+> Temporary
+> buffer copy
+> Tensor
+> repack
+> Backend
+> input queue
+> Backend
+> detector
+> Cross -platform design on NVIDIA Jetson and RK3588
+> Selected
+> Patches
+> 𝑃
+> Budget
+> penalty 𝜆
+> Deadline 𝑇 ≥
+> 𝜏 +𝑇 _𝑒 2𝑒 (𝑟 )
+> 𝑸 𝒔𝒚𝒔 =𝒅𝒆𝒂𝒅𝒍𝒊𝒏𝒆 −𝒗𝒂𝒍𝒊𝒅 𝒓𝒆𝒄𝒂𝒍𝒍
+> Temporal validity
+> QoS -aware utility
+
+Same selected patches, different transport cost  Same coverage, different deployable utility  
+
+> output must finish before 𝜏
+
+Figure 3: Deployable budgeted tiny-object perception with DenseScout. Left: transport-aware system execution on edge platforms. Starting from a raw 4K frame, DenseScout first operates on a resized 640 proxy to produce Top-K patch centers, after which the selected regions are executed through either a conventional copy-heavy path or a transport-aware reduced-copy path before backend inference. Right: QoS-oriented deployable utility. Spatial coverage, temporal validity, and budget-aware utility are jointly considered, showing that the same coverage can lead to different deployable utility under deadline and budget constraints. 
+
+extracted and delivered through either a conventional copy-heavy execution path or a transport-aware reduced-copy execution path before backend inference and result aggregation. The corresponding end-to-end latency is decomposed as 
+
+Te2e = Tacq + Tpre + Tsel + Ttop K + Tcrop + Ttrans + Tdet + Tpost (16) To separate model latency from pipeline overhead, two timing boundaries are defined. Pol-icy_Only measures the interval from accelerator input submission to output retrieval under a pre-allocated contiguous 640 × 640 × 3 tensor. Full_FrontEnd further includes raw frame intake, hardware-accelerated resize/crop, DenseScout inference, and CPU-side post-processing. For the conventional transport path, the inter-stage overhead is modeled as 
+
+Ttrans = Tcopy + Tsync + Tqueue (17) where Tcopy is visible copy time, Tsync is synchronization overhead, and Tqueue is runtime blocking under contention. To reduce this cost, a copy-avoidance (zero-copy-inspired) transport path that minimizes redundant user-space memcpy and CPU-visible staging is adopted. On RK3588, DenseScout is deployed through the RKNN toolchain with platform-aware profiling. The frontend latency is further decomposed as 
+
+Tsel = TNPU + TCPU -post (18) where TNPU is the blocking accelerator inference time and TCPU -post is the local-maximum extraction and Top-K decoding time. To characterize runtime feasibility, we monitor throughput and tail behavior. For a stream of Nf frames, 
+
+FPS = Nf
+
+∑Nf
+
+n=1 T (n)e2e 
+
+, Jitter = p99 − p50 (19) Overall, the system realization is not a simple wrapper around DenseScout: its single-heatmap output makes frontend decoding lightweight, while copy-avoidance, probes, and platform-aware runtime coordination ensure that the selector’s spatial advantage can be translated into deployable utility. 73.3 QoS-Oriented Formulation and Metrics 
+
+After defining DenseScout and its edge-side realization, a unified QoS formulation for deployable utility is introduced. The core idea is that a selector is useful only if it achieves strong target coverage under limited budget consumption and if this advantage can still be realized within the system deadline. The relationship among the QoS terms is also illustrated in Fig. 3, whose right panel summarizes the deployable utility view. Let G = {g1, . . . , g M } be the set of ground-truth tiny targets and let P denote the selected patch set. The budget ratio is defined as 
+
+r(P) =  
+
+> ∣∣∣⋃
+> p∈P
+
+p
+
+> ∣∣∣
+
+HW (20) where H × W is the full image size. A target g ∈ G is counted as covered if its center lies inside at least one selected patch: 
+
+hit( g, P) = 
+
+> {
+
+1, ∃ p ∈ P s.t. g ∈ p, 
+
+0, otherwise (21) The corresponding coverage recall is 
+
+Recall( r) = 1
+
+|G| 
+
+> ∑
+> g∈G
+
+1[hit( g, P)] (22) To make the QoS formulation compact and tightly connected, the key definitions are grouped as 
+
+> 
+
+QoS budget (r; λ) = Recall( r) − λr, 
+
+QoS sys (r, τ ) = 1
+
+|G| 
+
+> ∑
+> g∈G
+
+1[hit( g, P)] · 1[Te2e (r) ≤ τ ] ,
+
+QoS deploy (r; λ, τ ) = QoS sys (r, τ ) − λr 
+
+(23) Here λ > 0 is the budget penalty coefficient and τ is the application deadline (e.g., 33.3 ms or 15 ms in deployment). In this grouped formulation, QoS budget captures budget efficiency, QoS sys 
+
+serves as the deadline-aware deployment metric, and QoS deploy unifies both views. The deadline satisfaction ratio is further defined as 
+
+DSR( τ ) = 1
+
+NfNf
+
+> ∑
+> n=1
+
+1
+
+> [
+
+T (n)e2e ≤ τ
+
+> ]
+
+(24) and the budget-normalized marginal utility as 
+
+ηK = Recall( K)
+
+K , ηQoS  
+
+> K
+
+= QoS sys (K, τ )
+
+K (25) This QoS family answers not only which method achieves higher recall, but also which one reaches its best utility at a smaller budget ratio and whether that operating point remains valid under real deployment constraints. 80.5 1.0 2.0 4.0 6.0 8.0 10.0           
+
+> Budget Ratio (%)
+> 0
+> 10
+> 20
+> 30
+> 40
+> 50
+> 60
+> 70
+> 80
+> Recall of Covered Targets (%)
+> Ultra-low
+> budget regime
+> 35.2
+> 51.1
+> VisDrone
+> 0.5 1.0 2.0 4.0 6.0 8.0 10.0
+> Budget Ratio (%)
+> Ultra-low
+> budget regime
+> 28.5
+> 38.2
+> DOTA
+> DenseScout NanoDet-Plus YOLO11n YOLOv8n RT-DETR-light
+
+Figure 4: Recall@Ratio curves on VisDrone and DOTA. DenseScout consistently provides the best target coverage under tight patch-budget constraints, with the clearest margin in the ultra-low and practical budget regime (1%–4%). 
+
+## 4 Experimental Results 
+
+4.1 Datasets 
+
+Different datasets are employed for complementary evaluation purposes. VisDrone [ 18 ] and DOTA [ 19 , 20 ] are used for the main offline evaluation of budgeted tiny-object selection, where we measure Recall@Ratio under unified patch-budget constraints. For deployment-oriented evaluation on real edge boards, we use InsPLAD [ 3], a UAV-based infrastructure inspection dataset whose high-resolution imagery, sparse tiny targets, and realistic inspection context match the targeted edge deployment scenarios. VisDrone and DOTA are used to benchmark generic budgeted tiny-object selection quality under standardized public protocols, while InsPLAD is used to evaluate runtime and QoS behavior under a realistic edge inspection workload. We therefore evaluate DenseScout from two complementary perspectives: offline coverage under strict patch budgets, and deployable utility under real hardware constraints. 
+
+4.2 Main Recall–Budget Performance 
+
+DenseScout is initially compared against detector-based and proposal-based baselines under the same budgeted patch-selection protocol, with all frontends converted to ranked patch centers using the same budget and selection rules. Figure 4 shows Recall@Ratio on VisDrone and DOTA. DenseScout consistently provides the strongest target coverage under tight budgets, with the clearest advantage in the practical low-budget regime of 1%–4%. To complement the trend plots, Table 1 summarizes conventional detector accuracy, model efficiency, and practical-budget Recall@Ratio. This view is intentionally comprehensive: some baselines have competitive full-image detector mAP, but still underperform as low-budget patch selectors. DenseScout remains the strongest method in practical-budget recall on both datasets while also being the lightest model in terms of parameters and FLOPs. To verify that better patch selection also improves end-task utility, we further add a patch-based detection closure benchmark on VisDrone-2019 val. Under a fixed budget of K=9, each frontend 9Table 1: Unified comparison of frontend selectors and full-image detectors. Full-image detector accuracy is only applicable to conventional detectors evaluated under the standard image-level detection protocol, while DenseScout and DPR are budget-aware frontend selection methods rather than standalone detectors. Efficiency and Recall@Ratio are reported under the same patch-selection setting.                                                                                  
+
+> Category Method Full-image Detector Accuracy Efficiency VisDrone Recall@Ratio (%) DOTA Recall@Ratio (%) V mAP50 V mAP50-95 Params (M) GFLOPs 1% 2% 4% 1% 2% 4% Frontend selectors DenseScout ––1.01 0.72 35.16 51.15 68.93 28.52 38.20 48.40
+> DPR ––65.17 28.34 26.47 34.29 42.74 6.64 11.14 15.67 Full-image detectors YOLO11n 0.342 0.198 2.59 3.23 9.14 18.76 36.52 12.49 18.92 27.66 YOLOv8n 0.505 0.314 3.01 4.10 9.43 18.57 38.16 10.78 17.57 25.96 NanoDet-Plus 0.240 0.140 4.18 1.85 9.35 18.44 36.21 18.39 25.79 37.92 RT-DETR-light 0.583 0.378 32.83 54.02 8.45 17.23 35.85 13.69 20.11 28.93 RetinaNet-R50 0.0653 0.0419 32.36 ∼145 11.66 21.08 40.55 16.07 22.89 32.38
+
+Table 2: Patch-based detection closure benchmark on VisDrone-2019 val with a fixed YOLOv8n backend under a strict K=9 budget. 
+
+Frontend selector Final R@9 Final AP50 mAP50 mAP50-95 DenseScout 79.4 59.2 41.75 24.43 
+
+DPR 73.4 55.4 38.62 22.21 
+
+selects nine 640 × 640 patches, which are then processed by a frozen YOLOv8n backend and merged by class-aware global NMS. As shown in Table 2, DenseScout achieves better results than DPR in both closure utility and official detection metrics. Several observations follow. First, strong full-image detector accuracy does not imply strong low-budget patch selection: for example, RT-DETR-light achieves the highest detector mAP among the generic detector baselines, yet remains clearly behind DenseScout in practical-budget recall. Second, DenseScout does not trade efficiency for coverage; it delivers both the best recall and the lowest model cost, making it a better-matched frontend for budget-constrained target coverage. 
+
+4.3 Full Recall Matrix and Low-Budget Regime Analysis 
+
+The main curves in Figure 4 are generated from a much larger set of recall measurements. To expose the full evaluation landscape rather than only a few selected operating points, Table 3 reports the complete Recall@K and Recall@Ratio matrix on both datasets. This full matrix reinforces two conclusions. On VisDrone, DenseScout dominates across nearly the entire operating range, especially in the practically important low-budget regime. On DOTA, NanoDet-Plus is competitive at the very smallest K, but DenseScout quickly overtakes it and becomes the strongest overall method as soon as the operating point shifts toward practical low-budget coverage. This pattern supports our claim that DenseScout is specifically well matched to sparse tiny-target selection rather than generic detector confidence ranking. 
+
+4.4 Qualitative Comparison 
+
+Figure 5 compares the top-ranked responses of different frontends on four challenging cases, including extremely small targets, long-range tiny target, unseen shape, and complex background clutter. DenseScout places its highest-ranked responses more consistently near the ground-truth tiny targets, whereas detector-based frontends are more easily distracted by background structures or irrelevant salient regions. 10 Table 3: Full recall matrix on VisDrone and DOTA, including Recall@K and Recall@Ratio (%). This table reports the complete coverage-oriented evaluation used to generate the main curves in the paper.                                                                                                                                                               
+
+> VisDrone DOTA Method K1 K4 K9 K16 0.5 1246810 K1 K4 K9 K16 0.5 1246810 DenseScout 2.55 5.93 10.45 15.52 23.71 35.16 51.15 68.93 79.87 86.27 90.38 1.53 5.47 9.45 14.45 19.49 28.52 38.20 48.40 55.19 59.83 63.67
+> DPR 2.99 5.81 9.20 11.67 18.75 26.47 34.29 42.74 47.72 53.74 58.28 1.36 2.30 3.51 4.76 5.94 6.64 11.14 15.67 20.01 26.60 31.12 RetinaNet-R50 2.24 2.99 3.65 4.47 6.84 11.66 21.08 40.55 57.74 71.74 81.79 1.74 3.00 4.92 6.87 9.57 16.07 22.89 32.38 41.50 47.75 53.13 NanoDet-Plus 1.71 2.30 3.09 3.75 5.55 9.35 18.44 36.21 53.19 67.62 77.97 2.93 4.52 6.72 8.23 11.32 18.39 25.79 37.92 44.20 50.12 55.84 YOLOv8n 1.54 2.07 2.75 3.59 5.46 9.43 18.57 38.16 55.51 70.82 80.80 1.34 2.19 3.04 3.79 –10.78 17.57 25.96 32.24 38.93 45.13 YOLO11n 1.49 2.03 2.75 3.38 5.07 9.14 18.76 36.52 54.38 69.45 79.20 1.56 2.30 3.25 4.43 –12.49 18.92 27.66 34.85 42.47 47.25 RT-DETR-light 1.45 1.99 2.62 3.30 4.94 8.45 17.23 35.85 53.94 69.66 81.11 1.52 2.42 3.21 4.29 6.23 13.69 20.11 28.93 35.39 42.14 47.48
+
+Table 4: Ablation study of DenseScout at K = 9 . Tiny-FPN is critical for combining semantic context and fine localization, while the final training recipe further improves generalization. 
+
+Variant Core change Coverage Recall (%) Shallow heatmap head stride-8 feature only 57.05 MobileNet tail output stride-32 tail prediction 69.16 DenseScout w/o final recipe Tiny-FPN + heatmap 74.15 DenseScout (full) + aug. + AdamW + cosine 80.02 
+
+4.5 Ablation Study 
+
+We further study the key design choices behind DenseScout under the same budget setting ( K = 9 ). Table 4 shows that both architecture and training strategy matter. Using only shallow high-resolution features is insufficient, while introducing Tiny-FPN substantially improves coverage by combining spatial detail with stronger semantics. On top of this architecture, data augmentation and improved optimization further enhance generalization without changing the inference graph. 
+
+4.6 Discussion on Practical Low-Budget Operation 
+
+The most important operating region for selective perception is not the unconstrained high-budget end, but the low-budget regime where only a small subset of patches can be retained. In this regime, DenseScout provides the steepest recall gain per unit budget on both datasets. This is exactly the regime that matters in real edge systems, where transport cost, memory overhead, and downstream throughput often restrict the usable budget to a small fraction of the full image. 
+
+## 5 Deployment and System Analysis 
+
+Beyond offline recall, we evaluate whether DenseScout preserves its advantage under realistic edge deployment constraints. Unless otherwise specified, the deployment experiments in this section are conducted on InsPLAD [ 3 ], which provides a practical UAV-based inspection workload for board-level runtime and QoS analysis. We focus on cross-platform latency–QoS trade-offs, deadline-aware recall, and runtime composition under different transport settings. As noted above, DPR is included in offline selection and closure evaluation, but not in this board-level deployment study, which focuses on lightweight frontends with a unified single-stage runtime path. 
+
+5.1 Cross-Platform QoS Trade-offs 
+
+Figure 6 summarizes the latency–quality trade-off across platforms. DenseScout remains on the best or near-best Pareto frontier, showing that its gain is not limited to offline evaluation metrics. 11 Top -2 responses of DenseScout (Ours) | YOLOv8n| NanoDet -Plus 
+
+(a): Extreme Tiny Target 
+
+(c ): Unseen shape 
+
+(b) : Long -range tiny target 
+
+> green -framed panels (Case I) demonstrate that detector -based frontends perform well on salient targets. However, acros s challenging scenarios (Cases II -IV, dark frames), they fail to distinguish tiny or unseen semantic faults
+
+(d): Complicated background Figure 5: Qualitative comparison of top-ranked responses on four challenging cases: (a) extremely small targets, (b) long-range tiny target, (c) unseen shape, and (d) complex background clutter. Yellow boxes indicate ground-truth tiny targets. Red crosses, blue circles, and green triangles denote DenseScout, YOLOv8n, and NanoDet-Plus, respectively. 
+
+Instead, the method retains a favorable operating point when end-to-end latency becomes part of the objective. To make the deployment behavior more concrete, Table 5 consolidates cross-platform runtime and QoS-aware recall at the practical budget K = 9 . Besides raw and deadline-aware recall, we also report p50 , p99 , and tail jitter. On Jetson Orin NX, DenseScout preserves its raw recall almost perfectly under both 33 ms and 15 ms deadlines, while maintaining the smallest latency and one of the lowest jitter values. On RK3588, DenseScout is the only compared method that remains usable under the 33 ms runtime budget, and it also exhibits dramatically smaller tail jitter than detector-style baselines. DenseScout is particularly robust under stricter deadlines. Competing detector-style frontends either degrade under tighter latency budgets or fall outside the feasible runtime envelope on constrained hardware. More importantly, the advantage of DenseScout is not limited to lower average latency: it also shows markedly tighter tail behavior, especially on RK3588, which is critical for deadline-bounded edge deployment. 
+
+5.2 Latency Breakdown and Copy-Avoidance Benefit 
+
+We further analyze where the end-to-end latency comes from. Figure 7 decomposes the runtime into inference time and memory/transport overhead under two transport settings: explicit copy (EC) and copy avoidance (CA). This breakdown helps distinguish pure model cost from pipeline overhead. The breakdown reveals two useful observations. First, DenseScout has the smallest inference 12 0 10 20 30 40 50 60 70  
+
+> End-to-End Latency p50 (ms)
+> 0
+> 20
+> 40
+> 60
+> 80
+> 100
+> QoS-Aware Recall@9 (%)
+> Pareto Frontier
+> Dense-J
+> Nano-J
+> YOLO-J
+> Dense-R
+> Nano-R YOLO-R
+> 15 ms Deadline
+> (Jetson Limit)
+> 33 ms Deadline
+> (RK3588 Limit)
+> Preferred Region
+> (Lower Latency, Higher Recall)
+> Jetson Orin NX
+> RK3588
+
+Figure 6: Cross-platform latency–QoS trade-off on Jetson Orin NX and RK3588 using InsPLAD-based deployment workloads. Each point shows the practical operating point of one frontend at K = 9 , measured by end-to-end latency p50 and QoS-aware Recall@9. DenseScout stays on or near the Pareto frontier and remains favorable under the 15 ms deadline constraint. 
+
+cost among all compared methods, which aligns with its low parameter count and FLOPs. Second, the method also benefits from reduced non-inference overhead, making the gain a system-level advantage rather than a backbone-only artifact. The effect of copy-avoidance is platform dependent, but DenseScout remains the best overall operating point because of its consistently low frontend cost. 
+
+5.3 Runtime Summary Across Streams and Transport Settings 
+
+To further stress the runtime behavior, Table 6 reports single-stream and three-stream Jetson Orin NX results at K = 9 . DenseScout maintains low tail latency and nearly unchanged QoS-aware recall across transport settings, whereas NanoDet-Plus exhibits clear degradation once the deadline becomes tight under three-stream concurrency. For completeness, Figure 8 reports representative physical runtime measurements on Jetson Orin NX and RK3588. DenseScout consistently achieves substantially lower end-to-end latency than NanoDet-Plus under both Copy and Zero-Copy transport, reducing runtime by 44.8%–55.1% across platforms. Additional RK3588 probes across K ∈ { 1, 4, 9, 16 } show negligible variation, confirming that runtime is effectively insensitive to the tested budget range. Overall, the deployment results are consistent with the offline findings: DenseScout is not only more effective at covering tiny targets under budget constraints, but also better aligned with real edge-system requirements in terms of latency, deadline validity, and runtime stability. 13 Table 5: Cross-platform runtime and QoS-aware recall at the practical budget K = 9 on InsPLAD-based deployment workloads. We report raw recall, deadline-aware recall, latency statistics, and tail jitter under different transport settings. Tail jitter is defined as p99 − p50 .                                                                                                      
+
+> Jetson Orin NX RK3588 Method Transport Raw R@9 QoS@33ms QoS@15ms p50 p99 Jitter Raw R@9 QoS@33ms QoS@15ms p50 p99 Jitter DenseScout Copy 78.12 78.12 77.91 3.05 3.13 0.08 76.90 76.90 0.00 24.98 26.29 1.31 DenseScout Zero-Copy 78.12 78.12 78.12 2.98 3.06 0.08 76.90 76.90 0.00 24.97 26.18 1.21
+> NanoDet-Plus Copy 40.63 40.63 40.43 6.79 6.87 0.08 44.28 0.00 0.00 49.17 71.62 22.45 NanoDet-Plus Zero-Copy 40.63 40.63 40.63 6.70 6.79 0.09 44.28 0.00 0.00 48.57 72.26 23.69 YOLOv8n Copy 59.68 59.68 59.47 6.20 6.32 0.12 –0.00 0.00 60.75 71.07 10.32 YOLOv8n Zero-Copy 59.68 59.68 59.68 6.04 6.14 0.10 –0.00 0.00 62.56 74.35 11.79 DenseScout NanoDet YOLOv8n
+> 0
+> 2
+> 4
+> 6
+> 8
+> 10
+> End-to-End Latency (ms)
+> 3.1
+> 2.6
+> 7.0
+> 6.0
+> 6.5
+> 5.7
+> 16.1%
+> EC CA EC CA EC CA
+> Jetson Orin NX (ms)
+> DenseScout NanoDet YOLOv8n
+> 0
+> 10
+> 20
+> 30
+> 40
+> 50
+> 60
+> 70
+> 80
+> 29.0
+> 25.0
+> 52.5 50.6
+> 63.5 61.3
+> 13.8%
+> EC CA EC CA EC CA
+> RK3588 (ms)
+> EC: Explicit Copy |CA: Copy-Avoidance
+> Inference Time Memory / Overhead
+
+Figure 7: Latency breakdown on Jetson Orin NX and RK3588 under explicit copy (EC) and copy avoidance (CA). DenseScout benefits from both low inference cost and low memory/transport overhead, leading to the most favorable end-to-end latency profile. 
+
+## 6 Conclusion 
+
+This paper studied budgeted tiny-object selection on edge platforms from an algorithm–system co-design perspective. We presented DenseScout, a lightweight dense-response selector that directly ranks candidate patches from high-resolution imagery instead of relying on detector-style frontend proposals. Across VisDrone and DOTA, DenseScout consistently achieved the best offline practical-budget recall under tight operating regimes, while also using the fewest parameters and FLOPs among the compared methods. The results further showed that strong generic detector accuracy does not imply strong low-budget patch selection: methods with higher full-image mAP can still perform poorly when forced to allocate only a small number of high-resolution patches. We also showed that these gains remain meaningful under deployment constraints. On Jetson Orin NX, DenseScout preserved its recall advantage under both relaxed and strict latency deadlines, and on RK3588 it was the only evaluated baseline in our deployment study that remained within the 33.3 ms runtime envelope. Additional runtime analysis showed that DenseScout combines low inference cost with favorable transport behavior, yielding stronger deadline-valid utility beyond offline results. 14 Table 6: Jetson Orin NX single-stream and three-stream QoS evaluation at K = 9 . Tail behavior is summarized by p50 /p 99 latency.                                             
+
+> Method Setting Raw R@9 QoS@15ms p50 / p99 (ms) DenseScout 1-stream Copy 78.12 77.91 3.08 / 3.16 DenseScout 1-stream Zero-Copy 78.12 78.12 3.01 / 3.09 DenseScout 3-stream Copy 78.12 78.12 3.21 / 6.96 DenseScout 3-stream Zero-Copy 78.12 78.12 3.13 / 6.50 YOLOv8n 1-stream Copy 59.68 58.97 6.20 / 6.32 YOLOv8n 1-stream Zero-Copy 59.68 59.68 6.04 / 6.14 NanoDet-Plus 1-stream Copy 40.63 40.43 6.80 / 6.88 NanoDet-Plus 1-stream Zero-Copy 40.63 40.63 6.70 / 6.77 NanoDet-Plus 3-stream Copy 40.63 33.54 10.45 / 17.46 NanoDet-Plus 3-stream Zero-Copy 40.63 32.83 10.72 / 17.43
+
+Overall, the results suggest that edge tiny-object perception should jointly consider selector design, runtime, and deadline-bounded utility, rather than detector accuracy alone. 
+
+## Declarations 
+
+Funding. This research received no external funding. 
+
+Conflict of interest. The authors declare no conflict of interest. 
+
+## References 
+
+[1] Md. Ahasan Atick Faisal, Imene Mecheter, Yazan Qiblawey, Javier Hernandez Fernandez, Muhammad E.H. Chowdhury, and Serkan Kiranyaz. Deep learning in automated power line inspection: A review. Applied Energy , 385:125507, 2025. [2] Xian-Long Lv and Hsiao-Dong Chiang. Visual clustering network-based intelligent power lines inspection system. Engineering Applications of Artificial Intelligence , 129:107572, 2024. [3] André Luiz Buarque Vieira e Silva, Heitor de Castro Felix, Francisco Paulo Magalhães Simões, Veronica Teichrieb, Michel dos Santos, Hemir Santiago, Virginia Sgotti, and Henrique Lott Neto. Insplad: A dataset and benchmark for power line asset inspection in uav images. International Journal of Remote Sensing , 44(23):1–27, 2023. doi: 10.1080/01431161.2023.2283900. URL 
+
+https://doi.org/10.1080/01431161.2023.2283900 .[4] Yishi Li, Yuhao Zhang, and Rui Lai. Tinypillarnet: Tiny pillar-based network for 3d point cloud object detection at edge. IEEE Trans. Cir. and Sys. for Video Technol. , 34(3):1772–1785, March 2024. ISSN 1051-8215. doi: 10.1109/TCSVT.2023.3297620. URL https://doi.org/10. 1109/TCSVT.2023.3297620 .[5] Seyeon Kim, Kyungmin Bin, Donggyu Yang, Sangtae Ha, Song Chong, and Kyunghan Lee. Entro: Tackling the encoding and networking trade-off in offloaded video analytics. In Pro-ceedings of the 31st ACM International Conference on Multimedia , MM ’23, page 9115–9123, New York, NY, USA, 2023. Association for Computing Machinery. ISBN 9798400701085. doi: 10.1145/3581783.3613785. URL https://doi.org/10.1145/3581783.3613785 .15 Copy Z-Copy 
+
+0
+
+2
+
+4
+
+6
+
+8
+
+> End-to-End Latency (ms)
+
+3.1 
+
+6.8 
+
+54.7% 
+
+3.0 
+
+6.7 
+
+55.1% 
+
+(a) Jetson Orin NX 
+
+Copy Z-Copy 
+
+0
+
+20 
+
+40 
+
+60 
+
+25.0 
+
+49.3 
+
+49.4% 
+
+28.4 
+
+51.4 
+
+44.8% 
+
+(b) RK3588 
+
+DenseScout NanoDet-Plus Figure 8: Representative end-to-end latency measurements on Jetson Orin NX and RK3588 at K = 9 .DenseScout consistently achieves substantially lower runtime than NanoDet-Plus under both Copy and Zero-Copy transport, reducing latency by 44.8%–55.1% across platforms. Additional RK3588 probes across      
+
+> K∈ { 1,4,9,16 }show negligible runtime variation and are omitted for clarity.
+
+[6] Yang Zhang, Hanling Wang, Qing Bai, Haifeng Liang, Peican Zhu, Gabriel-Miro Muntean, and Qing Li. Vavlm: Toward efficient edge-cloud video analytics with vision-language models. 
+
+IEEE Transactions on Broadcasting , 71(2):529–541, 2025. doi: 10.1109/TBC.2025.3549983. [7] Yinhe Liu, Sunan Shi, Junjue Wang, and Yanfei Zhong. Seeing beyond the patch: Scale-adaptive semantic segmentation of high-resolution remote sensing imagery based on reinforcement learning. In Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) , 2023. [8] Jianfeng Huang, Weiming Feng, Ying Sun, Haiying Wang, Jun Yan, Jianwen Deng, and Zhang Xinchang. Deep learning-based building change detection in off-nadir images via a pixel-wise and patch-wise fusion strategy. Transactions in GIS , 29:e70020, 2025. [9] Sudheendra Vijayanarasimhan and Kristen Grauman. Far-sighted active learning on a budget for image and video recognition. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) , pages 3035–3042, 2010. [10] Dae-Youn Lee, Jae-Young Sim, and Chang-Su Kim. Visual tracking using pertinent patch selection and masking. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) , 2014. [11] Xu Wang, Zheng Yang, Jiahang Wu, Yi Zhao, and Zimu Zhou. Edgeduet: Tiling small object detection for edge assisted autonomous mobile vision. In IEEE INFOCOM 2021 -IEEE Conference on Computer Communications , page 1–10. IEEE Press, 2021. doi: 10. 1109/INFOCOM42981.2021.9488843. URL https://doi.org/10.1109/INFOCOM42981.2021. 9488843 .16 [12] Guilherme Henrique Apostolo, Pablo Bauszat, Vinod Nigade, Henri E. Bal, and Lin Wang. Uirapuru: Timely video analytics for high-resolution steerable cameras on edge devices. In 
+
+Proceedings of the 31st Annual International Conference on Mobile Computing and Networking ,ACM MOBICOM ’25, page 1000–1014, New York, NY, USA, 2025. Association for Computing Machinery. ISBN 9798400711299. doi: 10.1145/3680207.3765260. URL https://doi.org/10. 1145/3680207.3765260 .[13] Ross Girshick. Fast r-cnn. In Proceedings of the IEEE International Conference on Computer Vision (ICCV) , December 2015. [14] Kaiming He, Georgia Gkioxari, Piotr Dollar, and Ross Girshick. Mask r-cnn. In Proceedings of the IEEE International Conference on Computer Vision (ICCV) , Oct 2017. [15] Mahyar Najibi, Bharat Singh, and Larry S. Davis. Autofocus: Efficient multi-scale inference. In 
+
+Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) , October 2019. [16] Mingfei Gao, Ruichi Yu, Ang Li, Vlad I. Morariu, and Larry S. Davis. Dynamic zoom-in network for fast object detection in large images. In 2018 IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 6926–6935, 2018. doi: 10.1109/CVPR.2018.00724. [17] Mengxi Hanyao, Yibo Jin, Zhuzhong Qian, Sheng Zhang, and Sanglu Lu. Edge-assisted online on-device object detection for real-time video analytics. In IEEE INFOCOM 2021 - IEEE Conference on Computer Communications , page 1–10. IEEE Press, 2021. doi: 10. 1109/INFOCOM42981.2021.9488741. URL https://doi.org/10.1109/INFOCOM42981.2021. 9488741 .[18] Pengfei Zhu, Longyin Wen, Dawei Du, Xiao Bian, Heng Fan, Qinghua Hu, and Haibin Ling. Detection and tracking meet drones challenge. IEEE Transactions on Pattern Analysis and Machine Intelligence , pages 1–1, 2021. doi: 10.1109/TPAMI.2021.3119563. [19] Gui-Song Xia, Xiang Bai, Jian Ding, Zhen Zhu, Serge Belongie, Jiebo Luo, Mihai Datcu, Marcello Pelillo, and Liangpei Zhang. Dota: A large-scale dataset for object detection in aerial images. In The IEEE Conference on Computer Vision and Pattern Recognition (CVPR) , June 2018. [20] Jian Ding, Nan Xue, Gui-Song Xia, Xiang Bai, Wen Yang, Michael Yang, Serge Belongie, Jiebo Luo, Mihai Datcu, Marcello Pelillo, and Liangpei Zhang. Object detection in aerial images: A large-scale benchmark and challenges. IEEE Transactions on Pattern Analysis and Machine Intelligence , pages 1–1, 2021. doi: 10.1109/TPAMI.2021.3117983. [21] Linyun Zhou, Shengxuming Zhang, Tian Qiu, Wenxiang Xu, Zunlei Feng, and Mingli Song. Patchdetector: Pluggable and non-intrusive patch for small object detection. Neurocomputing ,589:127715, 2024. ISSN 0925-2312. doi: https://doi.org/10.1016/j.neucom.2024.127715. URL 
+
+https://www.sciencedirect.com/science/article/pii/S0925231224004867 .[22] Zhoutian Xu, Yadong Xu, and Manyi Wang. An effective method for small objects detection based on MDFFAM and LKSPP. 14(1):10213. ISSN 2045-2322. doi: 10.1038/s41598-024-60745-9. URL https://doi.org/10.1038/s41598-024-60745-9 .[23] Shouluan Wu, Hui Yang, Liefa Liao, Chao Song, Qiuming Liu, Jianglong Fu, and Tan Li. Dynamic small object feature enhancement and detection for remote sensing images. 15(1): 17 37225. ISSN 2045-2322. doi: 10.1038/s41598-025-21134-y. URL https://doi.org/10.1038/ s41598-025-21134-y .[24] Youyou Li, Yuxiang Fang, Shixiong Zhou, Teng Long, Yicheng Zhang, Nuno Antunes Ribeiro, and Farid Melgani. A lightweight normalization-free architecture for object detection in high-spatial-resolution remote sensing imagery. IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing , 18:24491–24508, 2025. doi: 10.1109/JSTARS.2025.3609658. [25] Gang Wang, Zhiying Lu, and Jinyong Chen. Sfpnet: Self-learning small object detection for large-scale remote sensing images. IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing , 19:3290–3301, 2026. doi: 10.1109/JSTARS.2025.3648817. [26] Jian Ding, Nan Xue, Yang Long, Gui-Song Xia, and Qikai Lu. Learning roi transformer for detecting oriented objects in aerial images. In The IEEE Conference on Computer Vision and Pattern Recognition (CVPR) , June 2019. [27] Zhiyu Tan, Xuecheng Nie, Qi Qian, Nan Li, and Hao Li. Learning to rank proposals for object detection. In Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) , October 2019. [28] Yurong Guan, Muhammad Aamir, Zhihua Hu, Waheed Abro, Ziaur Rahman, Zaheer Dayo, and Shakeel Akram. A region-based efficient network for accurate object detection. 38:481–494. doi: 10.18280/ts.380228. [29] Lei Ding, Hao Tang, and Lorenzo Bruzzone. Improving semantic segmentation of aerial images using patch-based attention. CoRR , abs/1911.08877, 2019. URL http://arxiv.org/abs/ 1911.08877 .[30] Yinhe Liu, Sunan Shi, Junjue Wang, and Yanfei Zhong. Seeing beyond the patch: Scale-adaptive semantic segmentation of high-resolution remote sensing imagery based on reinforcement learning. arXiv preprint arXiv:2309.15372 , 2023. doi: 10.48550/arXiv.2309.15372. URL 
+
+https://doi.org/10.48550/arXiv.2309.15372 .[31] Bharat Singh, Mahyar Najibi, and Larry S. Davis. SNIPER: efficient multi-scale training. 
+
+CoRR , abs/1805.09300, 2018. URL http://arxiv.org/abs/1805.09300 .[32] Fan Yang, Heng Fan, Peng Chu, Erik Blasch, and Haibin Ling. Clustered object detection in aerial images. CoRR , abs/1904.08008, 2019. URL http://arxiv.org/abs/1904.08008 .[33] Christian Wilms and Simone Frintrop. Attentionmask: Attentive, efficient object proposal generation focusing on small objects. CoRR , abs/1811.08728, 2018. URL http://arxiv.org/ abs/1811.08728 .[34] Jingtao Xu, Yali Li, and Shengjin Wang. Adazoom: Adaptive zoom network for multi-scale object detection in large scenes. CoRR , abs/2106.10409, 2021. URL https://arxiv.org/abs/ 2106.10409 .[35] Tianyi Zhang, Kishore Kasichainula, Yaoxin Zhuo, Baoxin Li, Jae-Sun Seo, and Yu Cao. Patch-based selection and refinement for early object detection, 2023. URL https://arxiv. org/abs/2311.02274 .18 [36] Guanghua Yu, Qinyao Chang, Wenyu Lv, Chang Xu, Cheng Cui, Wei Ji, Qingqing Dang, Kaipeng Deng, Guanzhong Wang, Yuning Du, Baohua Lai, Qiwen Liu, Xiaoguang Hu, Dianhai Yu, and Yanjun Ma. Pp-picodet: A better real-time object detector on mobile devices. CoRR ,abs/2111.00902, 2021. URL https://arxiv.org/abs/2111.00902 .[37] Andrew Howard, Mark Sandler, Grace Chu, Liang-Chieh Chen, Bo Chen, Mingxing Tan, Weijun Wang, Yukun Zhu, Ruoming Pang, Vijay Vasudevan, Quoc V. Le, and Hartwig Adam. Searching for mobilenetv3. In Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) , October 2019. [38] Tsung-Yi Lin, Piotr Dollar, Ross Girshick, Kaiming He, Bharath Hariharan, and Serge Belongie. Feature pyramid networks for object detection. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) , July 2017. 19

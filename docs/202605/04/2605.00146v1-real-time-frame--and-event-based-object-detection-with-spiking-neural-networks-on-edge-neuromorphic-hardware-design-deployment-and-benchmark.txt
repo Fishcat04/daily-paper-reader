@@ -1,0 +1,1032 @@
+Title: Real-Time Frame- and Event-based Object Detection with Spiking Neural Networks on Edge Neuromorphic Hardware: Design, Deployment and Benchmark
+
+URL Source: https://arxiv.org/pdf/2605.00146v1
+
+Published Time: Mon, 04 May 2026 00:11:11 GMT
+
+Number of Pages: 54
+
+Markdown Content:
+# Accepted Manuscript 
+
+# Real-Time Frame- and Event-based Object Detection with Spiking Neural Networks on Edge Neuromorphic Hardware: Design, Deployment and Benchmark 
+
+## Authors: 
+
+## Udayanga G.W.K.N. Gamage, Yan Zeng, Cesar Cadena, Matteo Fumagalli, Silvia Tolu 
+
+Published in: Neurocomputing (Elsevier), 2026 
+
+## DOI: 10.1016/j.neucom.2026.133820 
+
+© 2026. This is the author’s accepted manuscript of an article published in 
+
+Neurocomputing (Elsevier) .The final published version is available at the DOI above. This manuscript is made available under the CC-BY-NC-ND 4.0 license. 
+
+> arXiv:2605.00146v1 [cs.CV] 30 Apr 2026
+
+# Real-Time Frame- and Event-based Object Detection with Spiking Neural Networks on Edge Neuromorphic Hardware: Design, Deployment and Benchmark 
+
+Udayanga G.W.K.N. Gamage a, ∗, Yan Zeng a, Cesar Cadena b, Matteo Fumagalli a, Silvia Tolu a
+
+> aDepartment of Electrical and Photonics Engineering, Technical University of Denmark, Anker Engelunds Vej 1, 2800 Kongens Lyngby, Denmark
+> bAutonomous Systems Lab, ETH z¨ urich, Leonhardstrasse 21, 8092 Z¨ urich, Switzerland
+
+Abstract 
+
+Real-time object detection on energy-constrained platforms is critical for applications such as UAV-based inspection, autonomous navigation, and mo-bile robotics. Spiking neural networks (SNNs) on neuromorphic hardware are believed to be significantly more energy-efficient than conventional artificial neural networks (ANNs). In this work, we present a comprehensive method-ology for designing general SNN detection architectures targeting neuromor-phic platforms, along with the engineering adaptations required to deploy them on the state-of-the-art Neuromorphic processor, Intel Loihi 2. We developed three SNN-based object detection models and benchmarked on Loihi 2 using both frame-based and event-based datasets, comparing performance with ANN-based detection on the NVIDIA Jetson Orin Nano, NVIDIA Jetson Nano B01, and the Apple M2 CPU. Our results show that SNNs on Loihi 2 can perform real-time detection while achieving the lowest per-inference dynamic energy among all platforms. Also, Loihi 2 outperforms the other platforms in terms of power consumption, though ANNs on Jetson Orin Nano achieve higher inference rates. Furthermore, our ANN-to-SNN distillation-aware SNN direct training ap-proach enables SNNs to recover 87–100% of the detection accuracy of their  
+
+> ∗Corresponding author: Email: udayangakn@eie.ruh.ac.lk Present address: Faculty of Engineering, University of Ruhuna, Hapugala,Galle 80000, Sri Lanka
+> Preprint submitted to Elsevier 23 May 2025
+
+ANN counterparts while maintaining lower inference latency than conven-tional ANN-to-SNN conversion methods.These results highlight the poten-tial of neuromorphic systems for energy-efficient, real-time object detection at the edge. 
+
+Keywords: Spiking Neural Networks (SNNs), Neuromorphic Hardware, Intel Loihi 2,Energy–Delay Product (EDP), Event-Based Vision, Object Detection, Knowledge Distillation 
+
+1. Introduction 
+
+Object detection, which involves the identification and localization of ob-jects in visual scenes, is a fundamental capability for intelligent perception systems. Applications such as autonomous driving, drones, mobile robots, and smart surveillance rely on real-time object detection to perceive their surroundings accurately and act safely [1],[2]. For instance, a self-driving car must immediately detect pedestrians, vehicles, and traffic signs to ensure safe navigation, while a drone must continuously identify obstacles to avoid collisions. Beyond navigation, real-time object detection is critical for inspec-tion activities, particularly in civil infrastructure monitoring. The ability to detect and respond to anomalies such as cracks or structural deformations immediately on-site can reduce maintenance costs, minimize downtime, and prevent catastrophic failures, thus ensuring public safety [3]. In the literature, frame-based object detection using grayscale or RGB camera images is widely used. Under extremely low lighting conditions, these frame-based cameras produce noisy, blurry, and low-contrast images. In extremely bright conditions, scenes become overexposed, causing saturated highlights, loss of texture, glare, and blooming [4]. Additionally, frame-based cameras cannot simultaneously capture dark and bright regions in high dy-namic range scenes [5]. In contrast, thanks to their high dynamic range, Dynamic Vision Sensors (DVS) also known as event-based cameras, can cap-ture scenes across a wide range of lighting conditions including extremely low light and overexposed areas, while reducing noise, motion blur, and satura-tion, resulting in objects that appear sharper and clearer than in frame-based images [5]. For frame-based and event-based real-time object detection, deep artificial neural network (ANN) detectors such as YOLO [6] and SSD [7] have proven promising, outperforming model-based or classical machine learning methods 2in terms of detection accuracy. Many of these standard deep object detectors, although highly accurate, have a large number of model parameters, making them large in size and requiring high-end computing and memory resources to run in real-time [8]. Consequently, in scenarios where these standard models are used, captured frames or events are sent to remote servers that provide the necessary computational and memory resources. However, re-lying on remote processing introduces communication latency and creates a dependency on stable network connectivity. These factors significantly hin-der real-time responsiveness, particularly in remote sensing applications or bandwidth-constrained environments. In contrast, performing edge device detection, i.e., directly on platforms such as drones, mobile devices, or embedded processors, it eliminates commu-nication delays and ensures real-time operation. This edge-based approach enhances reliability, safety, and autonomy, even in situations where network connectivity is intermittent, limited, or unavailable [9]. In addition to avoid-ing communication delays and network issues, edge device detection improves energy efficiency, since fewer data need to be transmitted, and enhances scal-ability, since each device processes its own data instead of relying on a central server [9]. To run deep learning models on the edge, energy-efficient and lightweight processing units such as NVIDIA Jetson, Google Coral, and Intel Movid-ius have been developed [10]. Energy efficiency is particularly critical for battery-powered platforms such as UAVs and mobile robots, as it directly affects mission duration and area coverage, while still maintaining real-time performance without compromising detection accuracy, a challenging bal-ance to achieve. However, compared to traditional high-end GPU platforms, these edge processors have limited resources, such as lower computing power and memory. Consequently, standard deep object detectors cannot run in real-time on these devices. To address this, the literature has proposed lightweight real-time ANN-based detection models, such as EdgeYOLO and SSD with a MobileNet backbone, specifically designed for deployment on resource-constrained edge platforms [11],[12]. In addition to traditional von Neumann load-store architectures (e.g., Jetson), neuromorphic processors have recently been successfully deployed at the edge for real-time operations, such as obstacle avoidance in drone navigation [13],[14]. Deep learning architectures can also be run on these neuromorphic platforms, but not as conventional ANNs, instead, they are implemented as spiking neural networks (SNNs). Compared to ANNs, SNNs 3on neuromorphic hardware are considered to be more energy-efficient [15]. Despite their theoretical promise, SNNs have been scarcely explored on neuromorphic hardware for high-stakes inspection tasks, and their energy ef-ficiency, latency, and real-time performance remain poorly understood. Ex-isting studies, whether on GPUs/CPUs or using ANNs, primarily focus on regular objects, leaving the detection of irregular or anomalous objects in event-driven data largely unaddressed [5]. We address these gaps through two key contributions. First, we pro-pose a comprehensive methodology for designing general SNN-based object detection architectures tailored to neuromorphic platforms, along with the necessary engineering adaptations for deployment on the state-of-the-art In-tel Loihi 2. Second, we present a systematic benchmark of SNN-based object detection on Loihi 2 using both frame-based and event-based datasets, and compare its performance against ANN-based detection on the NVIDIA Jet-son Orin Nano, NVIDIA Jetson Nano B01, and the Apple M2 CPU. Our evaluation encompasses both regular, well-defined objects and irregularly shaped structural anomalies, thereby reflecting a broad range of object de-tection scenarios. The main contributions of this paper are as follows: 
+
+• Development of three lightweight SNN architectures for Intel Loihi 2 and a complete pipeline for implementation, training, deployment, and benchmarking on neuromorphic hardware. 
+
+• Adaptation an ANN-to-SNN knowledge distillation framework to en-hance the detection accuracy of directly trained SNNs. 
+
+• Cross-platform benchmarking of SNNs on Loihi 2 versus ANN coun-terparts on Jetson Nano (edge GPU) and MacBook M2, evaluating detection performance, inference rate, energy consumption, and en-ergy–delay product (EDP). 
+
+• Introduction of a UAV-based grayscale tunnel inspection video dataset for defect detection, with cross-platform benchmarking and enabling generalization of original benchmarks to field experiments 
+
+2. Background 
+
+In this section, we provide fundamental knowledge on Dynamic Vision Sensors (DVS) (event-based cameras) and discuss how their data can be 4encoded for input into deep learning models for object detection and classi-fication. We then introduce the basics of SNNs and provide an overview of neuromorphic processors. Finally, we cover essential concepts of quantization and knowledge distillation. 
+
+2.1. Dynamic Vision Sensors(DVS) 
+
+DVS cameras operate asynchronously, generating events whenever the brightness at a pixel changes beyond a predefined threshold. Positive events indicate an increase in brightness, while negative events indicate a decrease [16]. By capturing only changes rather than full frames, DVS offer several advantages over traditional cameras, including ultra-low latency, minimal motion blur, high dynamic range, and low power consumption [5]. For downstream tasks such as classification or object detection, these raw events are typically converted into structured tensor representations. Com-mon encoding methods include 2D 2-channel event histograms [17], voxel-grids [18], and event cubes [19], which organize the sparse event data into formats suitable for deep learning models. In this work, we evaluate two dif-ferent event-based datasets for multi-object detection and localization tasks. For event-based data encoding, we employ 2D two-channel event histograms and voxel grid representations, as these approaches are widely used in ob-ject detection literature, including the works discussed in the Related work section. 
+
+2.2. Spiking Neural Networks 
+
+Spiking Neural Networks (SNNs) process information using discrete spike events inspired by biological neural communication [20]. Their sparse, event-driven operation enables high energy efficiency and low power consumption, making them well suited for neuromorphic hardware and real-time appli-cations. Unlike conventional neural networks with continuous activations, SNNs employ biologically inspired neuron models such as the leaky integrate-and-fire (LIF) neuron [21]. In SNNs, neurons such as LIF integrate incoming synaptic currents over time and emit a spike when the membrane potential exceeds a firing thresh-old, producing a binary output. Network inference is performed over a fixed number of discrete time steps. Each neuron emits at most one spike per time step, after which the membrane potential is either reset or partially re-tained [21]. We adopt SNNs with LIF neurons, as these neurons are natively 5supported by the Intel Loihi 2 chip on which our models are deployed to benchmark. SNNs can be trained using offline or online strategies, with offline ap-proaches being more common in deep learning. These include ANN-to-SNN conversion [22] and direct training using algorithms such as backpropagation through time (BPTT) [23] or Slayer [24]. Although ANN-to-SNN conversion often yields higher accuracy, it generally results in higher inference latency than direct SNN training due to the need for many time steps [25]. So in our work, we used SNN direct training to reduce time steps required for an inference inturn it reduces the nference latency. 
+
+2.3. Neuromorphic Processors and Intel Loihi 2 
+
+Neuromorphic processors are specialized hardware designed to emulate brain-like computation using arrays of artificial neurons and synapses that communicate through sparse, event-driven spikes [26]. This architecture en-ables highly parallel, low-latency, and energy-efficient processing, making neuromorphic hardware well suited for tasks such as sensory processing and pattern recognition. Notable neuromorphic platforms include Akida [27], Dynapse [28], SpiNNaker [29], Intel Loihi [30], and Loihi 2 [31]. Intel Loihi 2 integrates over one million hardware-fabricated neurons, such as leaky integrate-and-fire (LIF) neurons, enabling fully event-driven computation. As a result, traditional ANN models cannot be executed di-rectly on the chip and must instead be expressed as spiking neural network (SNN) models. Development for Loihi 2 is supported by Intel’s open-source LAVA framework [32], including lava-dl [33], which allows model simula-tion on CPUs and deployment on neuromorphic hardware. While evaluation of performance and energy efficiency requires execution on physical Loihi 2 chips, remote access is available through Intel’s Oheo Gulch cluster [34]. Loihi 2 is not yet commercially available, and several hardware features re-main under development. To evaluate our SNN models on a neuromorphic platform, we used the Intel Loihi 2 chip on the Oheo Gulch development board, accessed remotely. 
+
+2.4. Quantization 
+
+Quantization reduces the numerical precision of weights and activations typically from floating-point (FP32/FP16) to lower-bit integers (e.g., INT8) [35], decreasing model size, memory usage, and computation. While it can 6affect accuracy, techniques like quantization-aware training (QAT) help mod-els compensate for precision loss, enabling fast and energy-efficient inference on edge devices. In this work, we employ quantization-aware training (QAT) for SNNs using 8-bit weight quantization. 
+
+2.5. Knowledge Distillation 
+
+Knowledge distillation trains a smaller student model to mimic a larger teacher model by learning teacher model’s soft outputs rather than just hard labels [36]. This approach improves generalization while reducing computa-tion and memory. Distillation can transfer outputs, intermediate features, gradients, or attention maps using task-specific loss functions, enabling the student to efficiently learn both semantic and structural behaviors of the teacher, as in object detection [36]. In this work, we combine ANN-to-SNN knowledge distillation with direct SNN training to improve detection accu-racy of SNNs. 
+
+3. Related Work 
+
+Recent SNN research for DVS data has progressed from simple classifi-cation to complex vision tasks, yet achieving efficient multi-object detection on neuromorphic hardware remains an open challenge. 
+
+Spiking Neuron Dynamics and Constraints: 
+
+While biologically plausible models like LIF neurons with hard-reset mech-anisms improve temporal feature extraction over non-leaky models [37], many existing designs remain hardware-incompatible. For instance, infinite-threshold accumulators [38] or models relying on simulated event streams [39] fail to address the finite-precision constraints and ”reality gap” of physical neuro-morphic processors like Loihi 2. 
+
+SNN-based Object Detection: 
+
+Existing SNN-based object detection paradigms generally follow two main trajectories, both of which face significant deployment hurdles on neuro-morphic hardware. Conversion-based methods, while effective at preserving ANN-level precision [40], typically incur prohibitive inference latency due to the high number of timesteps required for rate-coded convergence. Con-versely, directly trained SNN detectors—such as those based on SpikeYOLO 7[41] or SSD-style architectures [19]—frequently exceed the rigid neuron and synapse budgets of a single Loihi 2 chip. Notably, even parameter-efficient backbones like MobileNetv2 [12] prove unsuitable for fully on-chip deploy-ment, as their depthwise-separable designs produce large activation volumes that inflate per-core memory demand. These challenges are further exacer-bated in hybrid ANN–SNN models [42] and recurrent spiking networks [43], where memory constraints often necessitate off-chip communication, thereby degrading the inherent energy efficiency of the neuromorphic processor. 
+
+Neuromorphic hardware targeted Deployments: 
+
+Most deep SNNs on Loihi 2 are limited to classification or segmentation (e.g., car classification [44], lane segmentation [45]). While efficient, these classification-centric models do not address the architectural complexity of bounding box regression. Recent attempts at detection using Sigma-Delta Neural Networks (SDNNs) [46] achieved 314 FPS but differ fundamentally from conventional SNNs by transmitting real-valued differences rather than binary spikes, leaving their performance on sparse, asynchronous event data unclear. 
+
+ANN-based object detection at the edge: 
+
+While ANN-based platforms such as NVIDIA Jetson remain dominant for edge object detection, ultra-low-power microcontrollers like GAP9 are emerging. For example, a YOLOv8-based model on GAP9 achieved 30% mAP@0.5:0.5 on Pascal VOC with 16.9 ms latency, 94.1 mW power, and 1.59 mJ energy per inference [47]. These results highlight the performance-efficiency trade-offs across edge platforms and underscore the critical absence of hardware-measured, fully spiking multi-object detection on Loihi 2. Based on the limitations identified in prior work, a key research gap emerges: the lack of studies on SNNs that are deployable on neuromorphic processors for both frame-based and event-based object detection. Addition-ally, there is a scarcity of on-chip benchmarking of frame-based and event-based SNNs for multi-object detection using fully spiking models. Conse-quently, real-world evaluations of latency, throughput, and energy efficiency on modern neuromorphic platforms such as Loihi 2 remain largely unex-plored. 8implementation of SNN 
+
+> models using pytorch
+> and spikingJelly
+> is Model-3
+> ?
+> Train encoder-decoder for event-to-
+> image reconstruction
+> Skip decoder, append extra detection
+> layers to the encoder
+> Initialize model with kaiming normal
+> load pre-trained encoder weights
+> Initialize the model with
+> Kaiming normal
+> distribution
+> Quantization-Aware Training
+> (QAT) using BPTT in
+> SpikingJelly
+> are Residual
+> blocks available
+> ?
+> Absorb 'std' parameter values
+> of Batchnorm layers to
+> batchnorm means and prior
+> conv layer weights
+> Apply RepVGG
+> trick to convert
+> residual blocks to
+> feedforward
+> Finetune the mean
+> only batchnorm
+> model
+> Convert SNN model in
+> Spikingjelly to lava-dl
+> compatible model
+> Export lava-dl models
+> to lava compatible .net
+> format
+> Deploy and run on the
+> Intel OheoGulch single-
+> chip Loihi 2 system and
+> perform performance
+> benchmarking
+> Yes
+> Yes
+> encode using 2D
+> histogram method or
+> voxel grid method
+> event-based or
+> frame-based
+> data
+> is event-based
+> ?
+> illumination enhancement,
+> then scaling the pixel
+> values by 1/25
+> No
+> No
+> Yes
+> No
+
+Figure 1: Overall workflow for SNN model development, training, deployment on Loihi 2, and benchmark. 
+
+4. Methods 
+
+In this section, we describe the methods used in the overall workflow il-lustrated in figure 1. These include the development methodology for the SNN and ANN object-detection models, the event-based data encoding ap-proach, the detection and distillation losses employed during training, and the evaluation metrics used for benchmarking the models. 
+
+4.1. SNN Model Development 
+
+We developed three models, each incorporating a distinct backbone ar-chitecture and a unified anchor-free coupled detection head. All models were designed to contain fewer than one million neurons to ensure that they could be deployed on a single Loihi 2 chip. During model development, we adhered to several SNN-specific design constraints, such as the removal of bias terms and the exclusion of max-pooling layers [48]. In all our proposed models, max-pooling layers were replaced with strided convolution layers (stride = 2) placed after each convolutional layer, thereby reducing the spatial resolu-tion of the feature maps without relying on non-spiking-compatible pooling operations. Additional constraints arose from ensuring compatibility with 9neuromorphic hardware. For example, each model is required to have a fixed number of neurons, which prevents inference on dynamically varying rectan-gular spatial input dimensions, a capability that is common on conventional microprocessors [49]. Hence for SNNs on Loihi 2, they require distinct com-pilations for target hardware for every resolution change and hence cannot perform multi-scale detection for different input resolutions. We also accounted for the current limitations specific to Loihi 2, as it remains a research-grade neuromorphic platform [50]. One such limitation is the lack of support for branching. Consequently, we had to avoid using multiple branches, which would have allowed multiple heads for detection at different scales [50]. For the same reason, rather than using decoupled heads where classification and regression tasks are handled by separate feature-specific heads, we had to use a single, coupled head. The latest lightweight YOLO models focus on reducing the number of pa-rameters by leveraging inverted bottleneck architectures, such as pointwise and depthwise convolutions. While these approaches decrease parameter count, they drastically increase the number of activation neurons. For exam-ple, although SOTA lightweight edge-focused YOLOv8n [51] ANN has only about 3 million parameters with a 3 × 320 × 320 input resolution, it gener-ates around 16 million activation neurons. On Loihi 2, activation neurons are pre-determined and pre-allocated as hardware units based on the model architecture and input resolution. Therefore, when designing SNN models, it is more important to reduce the number of activation neurons rather than just the model parameters. Accordingly, for our lightweight models, we use conventional 2D convolutional layers—where each kernel operates across all input channels—rather than edge-aware architectures based on pointwise or depthwise convolutions [12]. In all three models, the basic architectural block consists of a Conv2D layer followed by BatchNorm2D and LIF neurons with hard reset. Although Loihi 2 requires mean-only batch normalization for deployment, we designed SNNs using standard BatchNorm2D (mean and variance) during training to preserve expressiveness and stability. After training, we absorb the BN’s standard deviation into the preceding convolution weights and retain only the mean, yielding a mean-only BN that preserves the learned activation scaling with minimal loss of expressiveness. We employ a hard-reset mechanism within the LIF dynamics, aligning with the findings in [37] because such an approach prevents voltage stagna-tion and enhances the extraction of temporal features from event-based data. 10 In figure 2, each “Conv2D” block in the backbone networks represents this sequence: Conv2D → BatchNorm2D → LIF. The output layer, however, omits BatchNorm2D and consists solely of a Conv2D layer followed by LIF neurons with a hard reset. While LIF neu-rons in the preceding layers use a standard threshold to allow spiking, the output-layer LIF neurons are assigned a very high voltage threshold to pre-vent spiking. This design allows the membrane potentials of the output neurons to accumulate over the inference timesteps, enabling the final mem-brane potential to be interpreted directly as an analog output which is an essential requirement for bounding box regression in object detection. All residual blocks in the models were implemented as RepVGG [52] blocks, allowing the residual connections to be reparameterized into equiva-lent feedforward connections at inference time, enabling faster inference. As Intel Loihi 2 does not currently support branching in convolutional neural networks (i.e., splitting feature maps into multiple parallel heads), we are unable to employ multiple detection heads for handling different object scales. Consequently, all models in this work utilize a single detection head. To address this limitation, we adopt an anchor-free detection head, as it is better suited for handling objects across a wide range of scales and aspect ratios compared anchor-based counterparts which requires manually defined anchor boxes [53]. Our empirical evaluations further confirm that anchor-free variants consistently outperform their anchor-based counterparts across all evaluated datasets. In standard object detection architectures, an anchor-free detection head is typically decoupled into two parallel branches: one for classification logits and another for bounding box regression. However, due to the same restriction on CNN branching in Loihi 2, we instead employ a coupled head design, where classification and regression are jointly predicted within a unified head. 
+
+4.1.1. Backbone networks Model-1 backbone. The backbone of Model-1 was obtained by modifying the YOLOv3-tiny [6] architecture. As shown in figure 2.a, the backbone structure is illustrated in detail. 
+
+Model-2 backbone. The backbone of Model-2 was inspired by the TY-v1.3-Small architecture proposed in [47] and modified as shown in figure 2.b. The first two layers consist of residual blocks with a reduced number of channels, substantially decreasing the overall neuron count of the model. The residual connections in these early layers help mitigate any potential 11 Input 
+
+(T,B,C,H,W) 
+
+Backbone 
+
+output 
+
+(T,B,C,H/32,W/32) 
+
+> 3, 1
+> 16
+> 3, 1
+> 32
+> 3, 1
+> 64
+> 3, 1
+> 128
+> 3, 1
+> 256
+> 3, 1
+> 256
+> 3, 1
+> 512
+> 1, 0
+> 256
+> 3, 1
+> 512
+
+Input 
+
+(T,B,C,H,W) 
+
+> 3, 1
+> 4
+
+(a) Model - 1 
+
+> 3, 1
+> 16
+> 3, 1
+> 64
+> 3, 1
+> 128
+> 3, 256
+> 3, 1
+> 256
+> 3, 1
+> 512
+> 3, 1
+> 256
+> 3, 1
+> 128
+> 3, 1
+> 24
+
+Backbone 
+
+output 
+
+(T,B,C,H/32,W/32) 
+
+(b) Model - 2 
+
+> 5, 2
+> 32
+> 5, 2
+> 64
+> 5, 2
+> 128
+> 5, 2
+> 256
+> 3, 1
+> 256
+> 3, 1
+> 256
+> 3, 1
+> 512
+> 1, 0
+> 256
+> 3, 1
+> 512
+
+Input 
+
+(T,B,C,H,W) 
+
+Detector Backbone 
+
+output 
+
+(T,B,C,H/32,W/32) 
+
+(c) Model - 3 
+
+Encoder 
+
+Decoder  Reconstructed Image 
+
+4 x Skip Connections   
+
+> K, P
+> C
+> Conv2d
+> stride = 2
+> RepVGG block with
+> Conv2d , stride = 2
+> Conv2d
+> stride = 1
+> RepVGG block with
+> Conv2d , stride = 2
+> K, P
+> C
+> K, P
+> C
+> K, P
+> C
+> K = Kernel Size P = Padding C = Number of Output Channels
+
+Figure 2: Proposed SNN model backbones for (a) Model-1 (b) Model-2 (c) Model-3. Each Conv2D layer of every model is followed by BatchNorm2D layer followed by LIF neurons as the non-linear activations. 
+
+loss of representational capacity caused by the channel reduction, as they preserve and forward input information to deeper stages of the network. From the third layer onward, the general architectural pattern of the TY-v1.3-Small design is retained. In these deeper layers, the increased number of feature maps enables the network to extract more complex representations, effectively leveraging the information preserved by the initial residual blocks. 12 Model-3 backbone. The backbone of Model-3 was developed by leveraging the encoder of a modified event-to-image reconstructor, allowing us to reuse feature representations originally learned within an encoder–decoder recon-struction framework. To implement this, we first adapted the architecture of the event-to-image reconstructor proposed in [54], applying the following modifications. In the original reconstructor, batch normalization layers were intention-ally omitted to preserve fine-grained temporal and spatial details essential for high-fidelity image reconstruction. However, our objective is object de-tection, where stable feature representations are required across variations in object appearance and event statistics. In this context, batch normaliza-tion improves training stability, accelerates convergence, and enhances gen-eralization [55]. Therefore, we incorporated batch normalization after every convolutional layer in the encoder–decoder structure. We further modified the architecture by removing the Conv-LSTM blocks, making the model fully convolutional and thus compatible with deployment on Loihi 2. The final Model-3 backbone consists of the reused encoder from the mod-ified reconstructor, followed by three additional convolutional layers, as illus-trated in figure 2.c. In the figure, we display the decoder and its incoming skip connections solely to show how the original encoder–decoder architec-ture was organized. Model-3 uses only the encoder, and neither the decoder nor its skip connections are part of the model. 
+
+4.1.2. Anchor-free detection head 
+
+We modified YOLOv8 anchor-free decouple head [51] as a couple head and pluged it to the output of backbone networks. 
+
+Cout = Ncls + 4 × RegM ax (1) The layers which belong to Anchor-free detection head is shown in fig-ure 3. The output layer channel count ( Cout ) is defined by the number of object classes to be classified ( Ncls ) and the discretization levels for a bound-ing box coordinate regression, termed the regression maximum ( RegM ax )in the Distribution Focal Loss (DFL) [56] formulation, as expressed in equa-tion (1). 
+
+4.2. ANNs models 
+
+For the ANN models, we used the same architectures as their SNN coun-terparts, replacing LIF neurons with ReLU activations, as the non-linear ac-13 Detector Backbone output 
+
+> 3, 1
+> 128
+> 1, 0
+> Cout
+> 3, 1
+> 128  Detector
+> output
+> K, P
+> C K = Kernel Size
+> P = Padding
+> C = Number of output channels
+> Conv2d
+> stride = 1
+
+Figure 3: Anchor-free detection head. 
+
+tivation units. In the case of Model-3, in addition to the stateless fully con-volutional version, we also implemented a Conv-LSTM based architecture with added batch normalization layers to facilitate detection performance comparison . 
+
+4.3. Event input encoding 
+
+In our work, we employ two event-encoding methods, a 2D two-channel event histogram [17] and a voxel-grid [18] representation to convert raw event streams from the event-based datasets into tensor formats suitable for model evaluation. 
+
+4.3.1. 2D two-Channel event histogram 
+
+The simplest encoding strategy aggregates events within a fixed tem-poral window into a 3D tensor. The spatial dimensions correspond to the sensor resolution, while the depth dimension consists of two channels, one for positive-polarity events and one for negative-polarity events [17]. The event histogram is then formed by counting the number of events of each polarity occurring at each pixel location within the temporal window as shown in figure 4.c. 
+
+4.3.2. Voxel-grid Encoding 
+
+Alternatively, a richer temporal representation can be obtained using a voxel-grid encoding. Given N input events and B temporal bins, event times-tamps are first normalized to the range [0 , B −1]. Events are then distributed across the temporal bins using linear interpolation, producing a 3D tensor with B channels that captures both spatial and temporal event structure. 14 0 10  20  30              
+
+> w4w3
+> w1w2
+> C0C1C2
+> B1B0B2B0B1B2
+> . . . . . . +++
+> (+) channel (-) channel
+> (a) (b) (c)
+
+Figure 4: Event-based data encoding for event-based object detection: (a) Positive (red) and negative (blue) events triggered within a 30 ms time period. (b) A Voxel-grid rep-resentation with three bins ( B0, B1, and B2) each with a temporal length of 10ms. It illustrates how the value of bin B0 is computed using weights based on temporal distances from its center ( C0). (c) A 2D two-channel event histogram, where all positive events are accumulated into one bin and negative events into another. Positive events are generated when the perceived intensity at a pixel increases, while negative events are generated when the perceived intensity decreases. 
+
+This approach, described in [18], preserves temporal dynamics more effec-tively than simple histogram method. A simple graphical illustration for Voxel-grid encoding is shown in figure 4.b for events occued in a 30ms period figure 4.a. 
+
+4.4. ANN-to-SNN Knowledge Distillation 
+
+We perform ANN-to-SNN distillation using three complementary compo-nents: intermediate feature map distillation, classification output logit distil-lation, and regression output logit distillation for bounding box localization. First, feature-level distillation transfers knowledge from the ANN’s inter-mediate feature maps to the corresponding SNN representations. To align SNN feature maps FSN N with the teacher ANN maps FAN N , each FSN N is first projected into a suitable space using a learnable 1 × 1 convolution, pro-ducing FSN N proj . This projection compensates for mismatches between SNN and ANN feature spaces that arise from differences in their numerical repre-sentations, as the learnable convolution can adapt its parameters to adjust the SNN feature maps to better align with the ANN feature maps. Finally, the projected SNN feature map is averaged over the temporal dimension as ¯FSN N proj = 1
+
+T
+
+> T
+
+X
+
+> t=1
+
+FSN N proj [t].
+
+Then the intermediate feature map distillation loss is defined as in equa-tion (2). 15 Layer      
+
+> 10 and
+> 11
+> 6
+> 8
+> 20 2
+> Layer 1 to
+> Layer 3
+> Layer 4
+> to
+> Layer
+> 9
+> Model - 1
+> Backbone
+> Anchor-free
+> detection
+> head
+> x T = 7
+> x T =7
+> 1x1
+> Conv
+> 128
+> 1x1
+> Conv
+> 512 Layer
+> 10 and
+> 11
+> Layer 1 to
+> Layer 3
+> Layer 4
+> to
+> Layer
+> 9
+> ANN SNN
+> 8
+> 6
+> 20
+> 88
+> 2
+> 6
+> 6
+
+Figure 5: ANN to SNN distillation for Model-1 for prophesee GEN1 dataset which contains two different object classes: SNN Feature maps from 3rd layer and 9th layer are convolved with learnable 1x1 convolutions and then take the average across time dimesion ’T’ ( T = 7 in our case). Then the feature map distillation loss ( Lfeat −distill ) is calculated together with corresponding ANN feature maps. Since GEN1 has two object classes to classify 2 channels of output layer feature maps are used to calculate classification loss ( Lcls −distill ). When RegM ax value is 5, giving 20 (4 × 5) feature maps of the output layer are used to calculate regression distillation loss ( Ldfl −distill ). 
+
+Lfeat −distill = 1
+
+BHW C ∥FAN N − ¯FSN N proj ∥2 
+
+> F
+
+(2) Second, classification-level distillation aligns the ANN and SNN output logit feature maps associated with class prediction. When the Batch size is B and Tp is predefined constant, the classification distillation loss can be defined as in equation (3) where Ncls (defined in equation (1)) denotes the number of classification output logit feature maps, also equal to the number of target classes. In both and , DKL refers to the KL divergence loss, which is defined in equation (B.6) of Appendix B. 
+
+Lcls −distill = T p 2
+
+B
+
+X DKL(P SNN || PANN )K=Ncls 
+
+(3) Third, bounding box coordinates regression distillation loss aligns the 16 ANN and SNN output feature maps used for bounding box regression. When the batch size is B and N is the number of bounding boxes per sample, the regression distillation loss can be defined as in 4 where the number of regres-sion output logit feature maps is 4 × RegM ax also defined in equation (1). These distillation losses are graphically illustrated in figure 5 considering ANN to SNN distillation for Model-1 for prophesee GEN1 dataset which has two object classes. 
+
+Ldfl −distill = T p 2
+
+BN 
+
+> B
+
+X
+
+> b=1
+> N
+
+X
+
+> n=1
+
+DKL(P SNN || PANN )K=4 ×RegM ax (4) The total loss Ltot which is defined in equation (5) balances the YOLOv8 detection losses ( Lbox , Ldf l and Lcls -distill which are defined in equation (B.1), equation (B.2) and equation (B.3) of Appendix B respectively.) and distilla-tion loss components via hyperparameters α, β, γ, θ, and η. The coefficients 
+
+α, β, γ, θ, and η control the relative contribution of each loss component to the overall loss. 
+
+Ltot = αL box + βL cls + γL df l 
+
++ θL cls -distill + θL df l -distill + ηL f eat -distill 
+
+(5) 
+
+4.5. Evaluation Metrics 
+
+To evaluate detection performance, we adopt standard COCO metrics [57], including mAP 0.5 to assess detection accuracy at an IoU threshold of 0.5, mAP 0.5:0 .95 to capture localization performance under increasing stringency, and F1 iou @0 .5 to balance precision and recall. For neuromorphic hardware evaluation on Loihi 2, we follow established profiling methodologies [58, 46] define the inference rate (or throughput) ( R), per inference energy ( E), latency ( L), and Energy-Delay Product ( EDP ) for SNNs as: 
+
+R = 1∆t · T , E = Pavg 
+
+R , L = ∆ t · Nlayer , EDP = L × E (6) where ∆ t is the average time per simulation time step, T is the total time steps, Pavg is the power (either static, dynamic or total) from the Loihi 2 profiler, and Nlayer is the number of deployed layers. For ANNs, latency is simply 1 /R . For ANN baselines, latency is simply 1 /R which is the inverse of the inference rate. 17 Sparsity and Synaptic Operations (SOPs). For a SNN model with N neurons and T timesteps over M samples, let Si be the spikes emitted by neuron i.Sparsity ( S) and the resulting SOPs per inference are defined as: 
+
+S = 1
+
+N M 
+
+> N
+
+X
+
+> i=1
+
+Si, SOP s = S × Nspk neurons (7) where Nspk neurons is the count of LIF neurons with a spiking threshold. 
+
+5. Setup 
+
+In this section, we describe our experimental setup, including the tools, parameters, and frameworks used for implementing and training both ANN and SNN models. We also detail the datasets and preprocessing strategies, as well as the complete setup used to benchmark the performance of the SNNs and ANNs. 
+
+5.1. Datasets and data preprocessing 
+
+We primarily used two event-based datasets and two frame-based datasets to benchmark our models. In addition, we introduce a new frame-based video dataset, referred to as the UAV-based Tunnel Inspection Dataset. 
+
+5.1.1. Event-based datasets 
+
+The first event-based dataset is the event-based component of ev-CIVIL [59], which focuses on detecting two types of civil-infrastructure defects which are cracks and spalling,both of which exhibit irregular and non-uniform shapes. These defects are treated as anomaly classes. Throughout the pa-per, we refer to this event-based component as evCIVIL-ev. The dataset provides a single training set and two distinct test sets: one captured under adequate illumination and another under low-light conditions. For evaluat-ing detection accuracy, each test set was used independently. However, for benchmarking power consumption, energy, latency, and inference rate, sam-ples from both test sets were combined, as separate benchmarking yielded negligible differences. The second event-based dataset is Prophesee GEN1 [60], which contains two object classes: cars and pedestrians. Unlike evCIVIL-ev, these objects have regular and well-defined shapes, making GEN1 a complementary bench-mark for evaluating performance on structured, conventional detection tasks. 18 5.1.2. Frame-based datasets 
+
+The first frame-based dataset is the frame-based component of ev-CIVIL [59], captured simultaneously with the event stream. We refer to this com-ponent as evCIVIL-fr. As the second frame-based dataset, we used PASCAL VOC [61], a widely used benchmark consisting of 20 object classes. 
+
+5.1.3. UAV-based Tunnel Inspection Dataset 
+
+We introduce a new grayscale dataset collected via UAV during the in-spection of an abandoned tunnel in Huesca, Spain,focusing on the tunnel’s interior ceiling and side walls. A DJI Matrice 100 quadrotor equipped with two cameras was used for data acquisition: a 4 MP IDS UI-3251LE-M-G camera with a 4 mm lens, referred to as the up camera, was mounted facing upward to record the ceiling, while a 12 MP Basler acA4112-20um camera with an 8 mm lens, referred to as the right camera, was positioned to capture the side walls at an approximate distance of 3 meters. Both cameras oper-ated at 15 frames per second. To ensure consistently illuminated imagery regardless of the tunnel’s ambient lighting, the UAV was fitted with four shutter-synchronized LEDs aligned with each camera’s field of view, operat-ing at 15 Hz with an energy-efficient duty cycle of about 5%. Two manual flights were conducted along the selected tunnel , with lengths of 58.53 me-ters for flight-1 and approximately 134.5 meters for flight-2, while the tunnel itself measured around 7.4 meters in width and 4.75 meters in height. A total of 2,779 images from the up camera (1600 ×1200 resolution) and 3,308 images from the right camera (4112 ×2780 resolution) were collected. To reduce redundancy, frames were down-sampled to 5 frames per second. Tunnel defects—including concrete loss, missing wall patches, and water-leakage damage—were manually annotated as a single class labeled “defects,” using the standard YOLO [6] format. In total, 4,234 bounding boxes were annotated in the up-camera images and 5,207 in the right-camera images. Some example images with bounding box annotations for the available defects are shown in figure 6. For evaluation, 660 right-camera images and 555 up-camera images were randomly selected for the test set, while 330 right-camera and 270 up-camera images formed the validation set, with the remaining images used for training. The dataset is publicly available at the link provided earlier. 19 Figure 6: Sample images from the tunnel inspection dataset with bounding box–annotated defects 
+
+5.1.4. Data preprocessing 
+
+To evaluate detection performance,, We used the same train, validation and test sets used to evaluate ev-CIVIL [59],prophesee GEN1 [60] and PAS-CAL VOC [61] datasets. For GEN1, each sample consists of events within a period of 100ms and for evCIVIL-ev each sample consist of events within a time window whose window length is dynically determined as in [59]. The events of those samples were encoded as tensors using the simplest 2D two-channel histogram representation to evaluate the performance of Model-1 and Model-2. However, for Model-3, we employed a three-channel voxel-grid represen-tation, as we used the same voxel-grid–based dataset as [54] to pretrain the model and initialize its weights prior to fine-tuning. For fairness, we also evaluated Model-1 and Model-2 with the voxel-grid encoding; however, this configuration did not surpass their performance obtained using the 2D two-channel event-histogram representation. In contrast, Model-3 achieved higher detection accuracy with the voxel-grid representation than with the histogram encoding, which we attribute to its pretrained initialization based on the dataset used in [54]. Therefore, throughout the paper, we report results for Model-1 and Model-2 using the 2D two-channel histogram repre-sentation, and for Model-3 using the voxel-grid representation. For frame-based images preprocessing, pixel values were normalized to the [0,1] range dividing by 255. Images in evCIVIL-fr were fed as single-channel grayscale inputs, while PASCAL VOC images were provided as three-channel color images. The input resolution for GEN1, evCIVIL-ev, and evCIVIL-fr datasets 20 was set to 256 × 192 pixels to preserve the native aspect ratio and minimize spatial distortion while maintaining comparable computational complexity. For both PASCAL VOC and the UAV-based Tunnel Inspection Dataset, all images were resized to 224 × 224 pixels to match the standard input dimensions commonly used in CNN architectures. Table 1 shows the number of activation neurons and the number of parameters for the three models based on the specified input resolutions. It can be observed that the number of neurons in all models remains below 1 million, indicating that all models are deployable on a single Loihi 2 chip.                  
+
+> Table 1: Neuron and Parameter Counts for Each Model at Targeted Input Resolutions. Model Resolution: 256x192 Resolution: 224x224 # Neurons # Params # Neurons # Params Model-1 504,864 4,775,256 516,264 4,214,704 Model-2 768,748 3,845,000 787,128 3,830,440 Model-3 910,752 5,619,808 929,726 5,619,808
+
+5.2. Model Implementation and Training 
+
+The SNN models were developed and trained using PyTorch [62] with the SpikingJelly [63] library. The SpikingJelly library provides various spiking neuron models, including the Leaky Integrate and Fire(LIF) neurons that closely mimic the dynamics of the LIF neurons implemented on Intel’s Loihi 2 neuromorphic hardware.                
+
+> Table 2: SNN Hyperparameters and Training Settings Parameter Value Inference time steps ( T)7
+> Vth of output layer LIFs 2048
+> Vth of hidden layers LIFs 1.0
+> RegM ax of anchor-free head 5Batch size 8Learning rate (1st stage / Fine-tuning) 0.001 / 0.0002 Iterations (PASCAL VOC / Other datasets) 800 / 400 Finetuning iterations (mean-only) 150 Optimizer / Scheduler AdamW / CosineAnnealLR Batchnorm mean clamp range -0.98 to 1.1
+> Vth : neuron threshold voltage
+
+In our SNNs, the threshold voltage of the hidden-layer LIF neurons was set to 1, while the output-layer LIF neurons were assigned a much higher 21 threshold of 2048. This prevents the output neurons from spiking, allowing their membrane voltages to accumulate and be used directly for bounding box regression and classification logits. The RegM ax parameter (defined in equation (1)) was empirically set to 5, balancing detection accuracy with the number of output channels—higher values can improve accuracy but require more output ports. Table 2 summarizes the key hyperparameters, which were empirically chosen and applied to our SNN models and training procedures. 
+
+5.2.1. Model Initialization and Training Procedure 
+
+The overall workflow for model development, training, deployment, and benchmarking on Loihi 2 is illustrated in figure 1. We chose the SNN direct training approach over ANN-SNN conversion due to its advantage of reduced inference latency. SNN training was performed using the Back Progation Through Time (BPTT) [23] algorithm implemented in SpikingJelly [63]. For frame-based datasets, all ANNs were initialized with random weights. For event-based datasets with paired image data (e.g., ev-CIVIL), event-driven models were initialized using pretrained weights from their correspond-ing frame-based ANNs to accelerate convergence. In cases without paired data, event-based ANNs were initialized using weights acquired from general frame-based pretraining. For directly trained SNNs (Model-1 and Model-2), Kaiming normal initialization was standard, though pretrained ANN weights were used for layer-wise initialization when available. For Model-3, the first seven layers utilized pretrained weights from an event-to-image reconstructor [54], while the remaining layers followed a Kaiming normal distribution. For object detection, we employ standard YOLOv8 loss functions. The event-to-image reconstructor in Model-3 is trained using Learned Percep-tual Image Patch Similarity (LPIPS) and temporal consistency losses [54], with the latter calculated using optical flow estimated by the RAFT model [64]. All SNNs undergo 8-bit Quantization-Aware Training (QAT) via the SpikingJelly library to ensure high-fidelity deployment on Loihi 2. When leveraging knowledge distillation for Models 1 and 2, we incor-porate a teacher-student framework. Following the procedure for direct SNN training, the objective function in equation (5) augments the standard YOLOv8 loss with weighted distillation components, aligning the spiking student’s feature maps and predictions with those of the ANN teacher. In our work, for all the distillation loss functions, we set the temperature (Tp to 20, following the setting used in [65]. In equation (5), we set β = 0 .5and γ = 1 .5 following [51]. The distillation weight θ was scheduled using 22 a cosine decay from 1 to 0 over the training iterations, as in [65]. For the feature-distillation weight η, we used a value of 1 for the first 20% of itera-tions and 0.01 for the remaining iterations, based on empirical observations. The coefficient α was set to 6.0, also determined empirically. Knowledge distillation was not applied to Model-3, since its fully convolutional ANN counterpart did not exhibit a significant performance advantage compared to the directly trained SNN version. All models were trained on a workstation equipped with an NVIDIA RTX 4090 GPU with 24 GB VRAM. 
+
+5.2.2. Inference Time Steps and Reset Strategy 
+
+Since the trained SNNs are ultimately deployed on Loihi 2, their inference configuration must respect several hardware-specific constraints. In partic-ular, Loihi 2 requires periodic layer resets to maintain stable neural states. These resets must occur at intervals of the form 2 x where x is a positive integer ( x ≥ 1). Accordingly, the reset interval was set to 8, which was found empirically to offer a suitable trade-off between accuracy and runtime efficiency. During inference, the network output is decoded every 7 time steps, with the 8 th time step reserved for neuron reset and internal state maintenance (i.e., housekeeping). When the model is executed on Loihi 2, results are read out with an initial offset of N + 2 where N is the number of layers in the deployed SNN. The additional offset of 2 accounts for initial data-loading and buffering overhead. 
+
+5.2.3. Reparameterization and deployment on Loihi 2 
+
+As shown in figure 1, after quantization-aware training of the SNN models, the RepVGG [52] reparameterization technique was used to convert residual blocks into equivalent feedforward blocks. Then, the BatchNorm variances were absorbed into the preceding convolution weights and BatchNorm means, resulting in a mean-only BatchNorm form, as Loihi 2 currently supports only mean-only batch normalization [66]. Next, the models were fine-tuned for 150 iterations with an initial learning rate of 0.0002, using mean-only batch normalization. Since the batch nor-malization mean is incorporated as a negative bias in leaky integrate-and-fire (LIF) neurons, excessively low mean values can lead to unstable behavior. In particular, if the BatchNorm mean decreases to ≤ − 1, neurons may spike continuously because the LIF neuron threshold voltage is 1. To prevent this, 23 during fine-tuning we apply a lower bound constraint on the mean value by clamping it to −0.98. This ensures that the BatchNorm mean remains 
+
+≥ − 0.98, thereby avoiding continuous spiking and maintaining stable net-work dynamics. Finally, the SNNs developed on SpikingJelly were exported to Lava-DL–compatible models and then converted into Loihi 2’s ’.net’ format so that they can be run on Loihi 2. 
+
+5.3. Benchmarking process 
+
+We benchmarked the detection performance of our models on Loihi 2 and compared the results against two edge GPUs (Jetson nano) and an energy-efficient CPU (Apple M2). To ensure statistical reliability and alignment with established neuro-morphic benchmarking protocols we randomly selected 20 samples from each test dataset and executed 5 benchmarking iterations per sample [58],[46]. All reported metrics including power, energy, latency, inference rate, and Energy-Delay Product (EDP) represent the resulting average values across all samples and iterations. Consistent with existing Loihi 2 literature, we intentionally omit standard deviation reporting to maintain alignment with state-of-the-art results. By applying this 20-sample, 5-iteration procedure across all three platforms, we established a consistent baseline for our com-parisons. We used Intel Oheo Gulch [34], Loihi 2 single-chip development board based on Intel’s Loihi 2 processor, to benchmark spiking neural networks (SNNs). Access to Oheo Gulch was provided remotely. To run on Loihi 2, all data samples were converted from PyTorch tensors to NumPy arrays for evaluation on the SNN models running on Loihi 2. Each data sample was formatted with dimensions W × H × C, where the first two correspond to the spatial dimensions (width and height) and the last corresponds to the channel dimension. In profiling the SNNs on Loihi 2, We employed the Loihi 2 profiler as described in [58] to extract power consumption, latency, inference rate, and energy usage, while detection accuracy was evaluated using the Lava-dl model outputs. Following Intel’s guidance, all benchmarking results were obtained excluding I/O (Input/Output) overhead, since high-speed I/O support for Loihi 2 is still under development. We used two NVIDIA Jetson Nano devices in our experiments. First, the Jetson Nano B01 module, integrated with a Yahboom Jetson Nano Devel-opment Board [67],, was employed to benchmark artificial neural networks 24 (ANNs) on an edge GPU platform, leveraging NVIDIA TensorRT for opti-mized inference. Subsequently, we utilized the more advanced NVIDIA Jetson Orin Nano 8 GB development kit, which offers improved energy efficiency and significantly higher throughput, making it better suited for demanding edge AI workloads [68]. We used two Jetson nano devices. First, the Jetson Nano B01 module, integrated with a Yahboom development board [67], was used to benchmark ANNs on an edge GPU platform, leveraging NVIDIA TensorRT for optimized inference. Then the cutting Nvidia Jetson Orin Nano 8 GB with Development board more optimzed for energy efficiency and high throughput. On both of these devices,the benchmarking procedure followed the methodology in [46], which uses tegrastats to obtain the Jetson’s memory usage and power consumption in real time. Before deployment on Jetson Nano, the PyTorch-based ANN models were exported to the ONNX intermediate representation and underwent platform-specific optimization using NVIDIA TensorRT to run on it’s edge GPU. We utilized FP16 precision to leverage the hardware’s specialized floating-point capabilities, significantly reducing inference latency compared to standard FP32. To ensure a fair and consistent comparison between platforms, we clarify that neither Loihi 2 nor Jetson Nano evaluations were conducted in a fully end-to-end manner with external I/O pipelines. As in Loihi 2 on the Oheo Gulch development board, for the Jetson Nano also,input samples were preloaded into memory, and inference was performed directly from these in-memory data without involving external data transfer during runtime. So here first we load same randomly selected input data samples (as for Loihi 2) into NumPy array, and inference was executed directly from memory without involving external data transfer or peripheral I/O during runtime. To iso-late compute-related energy, we first measured the idle power of each system with all major components active (CPU, GPU, memory, and I/O subsys-tems) but without model execution. We then measured the total power and energy during inference over multiple runs (2048 runs over randomly selected samples). The inference rate (throughput) was measured based on the to-tal time taken to process multiple runs (2048 runs over randomly selected samples) using these preloaded inputs. The dynamic energy was computed as the difference between total energy and idle energy, ensuring that only the energy associated with model execution is considered. This methodol-ogy consistently accounts for baseline system components, including memory 25 Table 3: Detection performance of directly trained SNN models vs. ANN baselines. For each test set, the highest value for each metric across all models (both ANN and SNN implementations) is highlighted.( ’–’ denotes to not applicable)                                                                                                                                                                
+
+> evCIVIL-fr evCIVIL-ev PASCAL VOC GEN1 Day Night Day Night Model M1 M2 F1 M1 M2 F1 M1 M2 F1 M1 M2 F1 M1 M2 F1 M1 M2 F1
+> Model-1
+> ANN .43 .23 .38 .08 .07 .09 .43 .21 .41 .44 .19 .43 .45 .24 .36 .45 .24 .36 SNN .39 .20 .37 .08 .04 .07 .36 .16 .37 .37 .15 .33 .40 .23 .36 .40 .19 .36
+> Model-2
+> ANN .45 .23 .41 .11 .07 .07 .44 .22 .43 .45 .18 .47 .49 .31 .42 .45 .23 .37 SNN .40 .20 .37 .09 .07 .04 .38 .16 .38 .39 .15 .35 .42 .25 .35 .42 .22 .37
+> Model-3
+> ANN ––––––.51 .28 .48 .53 .23 .55 –––.49 .27 .44 SNN ––––––.46 .21 .45 .48 .19 .49 –––.45 .25 .44
+> Model-3-mem
+> ANN ––––––.39 .20 .38 .40 .16 .38 –––.47 .28 .36
+> M1:mAP 0.5,M2:mAP 0.5:0 .95 ,F1:F1iou @0 .5
+
+access and internal data movement, on both platforms. For CPU performance comparison, we used a MacBook Air equipped with an ARM-based Apple Silicon M2 chip [69], one of the most energy-efficient laptops available. It offers strong computational performance while consum-ing significantly less power than comparable x86-based systems, particularly for deep learning inference. Since the system relies solely on the CPU, power measurements primarily reflect CPU usage. We used the built-in powermet-rics tool on the MacBook’s to measure power consumption, inference latency, and overall energy usage. In this study, energy values calculated from the net main loop power measurements provided by the powermetrics tool were used as both dynamic and total energy. 
+
+6. Experimental Results 
+
+In this section, we present our experimental results. First, we compare the detection performance of directly trained SNN models with their ANN counterparts. Next, we demonstrate the performance gains achieved through ANN-to-SNN knowledge distillation. We then compare the static and dy-namic power consumption of Intel Loihi 2 on the Oheo Gulch development board. Subsequently, we evaluate key performance metrics including detection accuracy, inference rate, dynamic energy consumption, and energy-delay product (EDP) across four hardware platforms: Loihi 2, NVIDIA Jetson Nano B01, NVIDIA Jetson Orin Nano, and a MacBook M2 CPU. We also 26 provide a comparative analysis of power consumption across these platforms. Furthermore, we benchmark performance on the UAV-based tunnel in-spection dataset. Finally, we analyze the variation of inference rate and dynamic energy with respect to the number of synaptic operations(SOPs) of SNNs during inference. 
+
+6.1. Detection Performance of Directly Trained Spiking Neural Networks (SNNs) 
+
+In table 3, we present the results of the evaluation of models trained directly on frame and event-based datasets. According to the results with respect to frame-based datasets, Model-2 outperforms Model-1 in all three metrics for all test sets and for both the ANN and SNN implementations. Considering Model-2, the best-performing model, the ANN version consis-tently outperforms its counterpart SNN by approximately 11–15% in mAP 0.5,15–24% in mAP 0.5:0 .95 and 10–25% in F 1iou @0 .5.For event-based datasets, We evaluate Model-3-mem, an extension of the original Model-3 architecture that incorporates Conv-LSTM memory units as described in [54]. Only the ANN implementation of Model-3-m was tested, providing a baseline indication of any potential performance gap between the memory-augmented model and Model-3. As per the results in table 3, among the four ANN models, Model-3-mem achieves the highest performance on the GEN1 dataset, outperforming the other three models by at least 4.5% in terms of mAP 0.5. In contrast, for the evCIVIL event-based dataset, Model-2 performs the best, exceeding the others by at least 2.5% in mAP 0.5. For SNN-based models, Model-2 is the top performer in event-based datasets. However, it still lags behind its ANN counterpart by 13-27% in all three metrics. 
+
+6.2. Effect of ANN-to-SNN Knowledge Distillation on SNNs’ Detection Per-formance 
+
+The figure 7 compares the average detection accuracy of distilled SNN models with directly trained SNNs in terms of mAP 0.5 (figure 7a) and mAP 0.5:0 .95 
+
+(figure 7b) across both Model-1 and Model-2. The figure also presents the standard deviation of detection accuracy as error bars. To assess training stability, distillation-aware training was repeated five times for each dataset, with each run initialized using different random seeds under Kaiming normal initialization. The results demonstrate high stability, 27 evCIVIL-ev evCIVIL-img PASCAL VOC GEN1    
+
+> 0.0
+> 0.1
+> 0.2
+> 0.3
+> 0.4
+> 0.5 mAP@0.5
+> .36 .39 .40 .40 .40 .42 .44 .42 .38 .40 .44 .42 .43 .46 .48 .45
+> Model-1 (Direct) Model-1 (Distill) Model-2 (Direct) Model-2 (Distill)
+
+(a) evCIVIL-ev evCIVIL-img PASCAL VOC GEN1  
+
+> 0.00
+> 0.05
+> 0.10
+> 0.15
+> 0.20
+> 0.25
+> 0.30
+> 0.35 mAP@0.5
+> .16 .20 .23 .19 .19 .22 .25 .21 .16 .18 .25 .22 .20 .22 .29 .23
+> Model-1 (Direct) Model-1 (Distill) Model-2 (Direct) Model-2 (Distill)
+
+(b) 
+
+Figure 7: (a) mAP 0.5 improvements of Model-1 and Model-2 on four benchmark datasets. (b) mAP 0.5:0 .95 improvements of Model-1 and Model-2 on the same datasets. Error bars represent the standard deviation of detection metrics for distilled SNN models. (For each dataset, distillation-aware training was performed five times using different random seeds with Kaiming normal initialization. The bar heights for distilled SNNs indicate the mean performance across these repeated experiments.) 
+
+with standard deviations ranging from 0 .003 to 0 .012 for mAP 0.5:0 .95 , and from 0 .008 to 0 .017 for mAP 0.5 across all datasets and models. Based on the mean accuracy values of the distilled SNN models, several observations can be made. As shown in figure 7a, for frame-based datasets, distillation yields performance gains of 3–14% in mAP 0.5, while for event-based datasets, improvements range from 5–13% across both models. Simi-larly, figure 7b indicates that, in terms of mAP 0.5:0 .95 , distilled models achieve gains of 10–12% on frame-based datasets and 5–23% on event-based datasets. Among all variants, Model-2 consistently achieves the best performance. In figure 7, ‘evCIVIL-ev’ and ‘evCIVIL-fr’ correspond to the evCIVIL ev day and evCIVIL fr day subsets, respectively. Although not shown in the figure, the evCIVIL ev night subset also exhibits improvements of 8% in mAP 0.5
+
+and 13% in mAP 0.5:0 .95 .Overall, the distilled SNN models retain 87–100% of the detection per-formance of their corresponding ANN counterparts in terms of mAP 0.5:0 .95 ,and 93–98% in terms of mAP 0.5 across all evaluated datasets. Some quali-tative visualizations of the detection results obtained by the SNN variant of 28 Model-2, across both frame-based and event-based datasets, are provided in figure A.1 (see Appendix A). 
+
+6.3. Comparison of Static vs Dynamic Power consumption of Loihi 2 on Oheo Gulch                                 
+
+> Table 4: Static and dynamic power consumption (W) for a single Loihi 2 chip on Oheo Gulch development board (n/a refers to ’Not Applicable’)
+> Dataset Model-1 Model-2 Model-3
+> static dynamic static dynamic static dynamic evCIVIL-ev 1.71 0.38 1.72 0.67 1.74 0.50 evCIVIL-fr 1.81 0.35 1.74 0.82 n/a n/a PASCAL VOC 1.71 0.34 1.74 0.71 n/a n/a GEN1 1.83 0.37 1.70 0.77 1.74 0.64
+
+Table 4 presents the static and dynamic power consumption of Loihi 2. As Loihi 2 is integrated within the Oheo Gulch development board, the re-ported static power corresponds to the baseline power consumption of the board when no SNN models are running, which includes the leakage power of Loihi 2 also. The dynamic power represents the additional power consump-tion incurred during the execution of SNN models on Loihi 2 chip. Across all models and datasets, static power consumption on Loihi 2 is significantly higher than dynamic power. For example, in Model-2, static power exceeds dynamic power by more than 2 ×, whereas in Model-1, static power is ap-proximately 4.5–5.2 × higher than dynamic power. Similarly, for event-based datasets, the static power of Model-3 is observed to be 2.5–3.5 × higher than its dynamic power. A comprehensive comparison of static and dynamic power across all four datasets and three models is provided in the table 4. 
+
+6.4. Comparison of Inference Rate and Dynamic Energy consumption: Loihi 2 vs. NVIDIA Jetson nano and MacBook M2 CPU 
+
+Figure 8a and figure 9a compare the inference rates of SNNs against detection accuracy ( mAP 0.5) for event-based and frame-based datasets, re-spectively, across all three models. Similarly, Figure 8b and figure 9b com-pare dynamic energy consumption per inference against detection accuracy (mAP 0.5) for the same datasets and models per inference. In these experi-ments, SNN models are executed on Loihi 2, while ANN models are deployed on the Jetson Nano B01 and Jetson Orin Nano platforms. 29 Across all datasets, SNNs on Loihi 2 achieve real-time inference rates ranging from 62 to 170 samples/s, which are approximately 5 .8–6 .95 × higher than those of ANNs on the Jetson Nano B01 GPU. However, ANNs on the Jetson Orin Nano outperform SNN inference rates by approximately 1.34–2 .6× across all models and evaluated datasets. In terms of dynamic energy consumption, Loihi 2 is more energy-efficient than both Jetson platforms. SNNs on Loihi 2 achieve 10–35 × higher en-ergy efficiency compared to ANNs on the Jetson Nano B01, and 1 .61–3 .74 ×
+
+higher energy efficiency compared to ANNs on the Jetson Orin Nano. How-ever, SNNs in Loihi 2 shows an approximately 5–15% reduction in mAP 0.5
+
+compared to ANNs in Jetson Nano and MacBook CPU platforms. Table 5 presents the per-inference Energy–Delay Product (EDP), along with the latency (L) and total energy per inference (TE), evaluated on Loihi 2, Jetson Orin Nano, Jetson B01, and MacBook M2 CPU. In terms of total energy, SNN2 on Loihi 2 outperforms all other platforms, achieving at least 1.5 × higher energy efficiency. Regarding EDP, the Jetson Orin Nano exhibits superior performance among the platforms due to its higher inference rate and lower latency, achieving at least 1.14 × lower EDP compared to its nearest competitor, Loihi 2. Nonetheless, Loihi 2 maintains 1.5–10 × lower EDP than the Jetson B01 and MacBook M2 CPU platforms. 
+
+6.5. Comparison of Power onsumption: Loihi 2 vs. NVIDIA Jetson nano and MacBook M2 CPU 
+
+Table 6 compares the total and dynamic power consumption of Loihi 2 on the Oheo Gulch board, Jetson Orin Nano, Jetson Nano B01, and MacBook CPU. Being the lowest power consumer, SNN on Loihi 2 on the Oheo Gulch board outperforms ANNs running on all three other platforms. Compared to Jetson Orin Nano the nearest competitor, Loihi 2 achieves at least 2.5 ×
+
+higher efficiency in terms of total power consumption and at least 4.07 ×
+
+higher efficiency in dynamic power consumption. 
+
+6.6. Benchmark results on the UAV-based tunnel inspection dataset 
+
+In table 7, the detection performance of ANN and distilled SNN version of Model-2 trained and tested based on the UAV-based tunnel inspection dataset is shown. The distilled SNN could recover 94% of detection accuracy as of it’s ANN counterpart interms of mAP 0.5 and 90% of recovery compared 30 50 100 150 200 250 
+
+Inference Rate (samples/s) 
+
+0.36 
+
+0.38 
+
+0.40 
+
+0.42 
+
+0.44 
+
+> mAP@0.5  Loihi2
+> orin nano
+> nano B01
+> Model-1
+> Model-2
+> Model-3
+> evCIVIL-ev
+> GEN1
+
+(a) 10 1 10 2
+
+Dynamic energy (mJ) per sample 
+
+0.36 
+
+0.38 
+
+0.40 
+
+0.42 
+
+0.44  
+
+> mAP@0.5
+> Loihi2
+> orin nano
+> nano B01
+> Model-1
+> Model-2
+> Model-3
+> evCIVIL-ev
+> GEN1
+
+(b) 
+
+Figure 8: (a) mAP 0.5 vs. inference rate, and (b) mAP 0.5 vs. dynamic energy per sample (mJ), comparing the single-chip Loihi 2 system on the Intel Oheo Gulch platform [34], the Jetson Nano B01 edge GPU, and the Jetson Orin Nano edge GPU (batch size = 1). Results are reported for Model-1, Model-2, and Model-3 across event-based datasets. 50 100 150 200 
+
+Inference Rate (samples/s) 
+
+0.40 
+
+0.42 
+
+0.44 
+
+0.46 
+
+0.48 
+
+> mAP@0.5
+> Loihi2
+> orin nano
+> nano B01
+> Model-1
+> Model-2
+> evCIVIL-img
+> PASCAL VOC
+
+(a) 10 1 10 2
+
+Dynamic energy (mJ) per sample 
+
+0.40 
+
+0.42 
+
+0.44 
+
+0.46 
+
+0.48  
+
+> mAP@0.5
+> Loihi2
+> orin nano
+> nano B01
+> Model-1
+> Model-2
+> evCIVIL-img
+> PASCAL VOC
+
+(b) 
+
+Figure 9: (a) mAP 0.5 vs. inference rate, and (b) mAP 0.5 vs. dynamic energy per sample (mJ), comparing the single-chip Loihi 2 system on the Intel Oheo Gulch platform [34], the Jetson Nano B01 edge GPU, and the Jetson Orin Nano edge GPU (batch size = 1). Results are reported for Model-1, Model-2, and Model-3 across frame-based datasets. 
+
+31 Table 5: Detection performance of ANN and SNN models on frame-based and event-based datasets. For each dataset set, the lowest value of each metric (the best value) is highlighted per model. All experiments on Jetson Nano devices were conducted with a batch size of 1(‘–’ indicates not applicable).                                                                                                                                                                               
+
+> evCIVIL – ev evCIVIL – fr PASCAL VOC GEN1 TE LEDP TE LEDP TE LEDP TE LEDP Model Platform (mJ) (ms) (μJ) (mJ) (ms) (μJ) (mJ) (ms) (μJ) (mJ) (ms) (μJs)
+> Model-1 Loihi 2 13.05 9.37 122.3 20.06 14.02 281.2 15.01 11.03 165.6 16.50 11.36 187.5 nano B01 162.39 43.47 7060.5 170.31 45.45 7741.7 184.52 47.61 8786.9 164.04 45.45 7456.5 Orin Nano 23.79 3.80 90.47 27.62 4.22 116.56 28.84 4.52 130.48 28.91 4.65 134.47
+> CPU 76.00 7.74 588.2 117.30 6.76 792.9 114.10 6.44 734.8 149.80 11.90 1782.6 Model-2 Loihi 2 14.02 9.56 134.0 19.92 12.60 250.9 20.30 13.54 274.9 25.46 16.75 426.5 nano B01 159.21 43.48 6837.0 177.23 47.62 8440.0 167.48 43.48 7325.1 178.91 45.45 8132.2 Orin Nano 26.02 4.37 113.63 27.80 4.42 123.01 33.52 5.21 174.59 31.78 4.74 150.60
+> CPU 98.00 10.31 1010.4 148.20 8.67 1284.9 138.50 7.82 1083.1 173.20 14.69 2544.3 Model-3 Loihi 2 35.00 24.19 846.8 ------28.88 17.65 509.7 nano B01 188.65 50.00 9432.5 ------188.89 52.63 9941.8 Orin Nano 40.20 6.17 248.03 ------42.71 6.67 284.75
+> CPU 158.80 14.76 2343.9 ------242.10 17.76 4299.7
+> TE: Total energy (samples/s), L: Latency, EDP: Energy-Delay Product
+
+Table 6: Comparison of the total power and Dynamic power ( W ) in Loihi 2, CPU and nvidia-jetson across all the datasets 
+
+Loihi 2 nano B01 Orin Nano CPU Total 2.05 – 2.45 3.5 – 3.77 6.01 – 6.71 9.5 – 17.6 Dynamic 0.34 – 0.77 2.06 – 3.13 2.09 – 2.55 9.5 – 17.6 
+
+to mAP 0.5. SNN on Model-2 shows the lowest per inference dynamic energy and ANN on Jetson Orin Nano shows highest inferece rate consequently the lowest EDP. These results are consistent with the previous evaluation re-sults which obtained with event-based and frame-based datasets from the literature. Figure 10 shows a qualitative visualization of detected and local-ized defects on test set of tunnel dataset which detected by using distilled SNN version of Model-2. It can be seens that defects are detected with high localization accuracy. 
+
+6.7. Impact of Synaptic Operations(SOPs) on Inference Rate and Dynamic Energy Consumption on Loihi 2 6.7.1. Inference Rate vs. SOP 
+
+As shown in figure 11a, the inference rate generally decreases as the num-ber of SOPs increases across all three models and four datasets, regardless of model size or data modality (event-based or frame-based). For instance, 32 Table 7: Detection performance and hardware-aware benchmarks for defect detection using Model-2 on the UAV-based Tunnel Inspection Dataset. The highest values for detection metrics and inference rate, as well as the lowest values for dynamic energy, total energy, and EDP, are highlighted. Platform Detection Perf. Dyn. E Rate Total E EDP                                    
+
+> mAP .5mAP .5: .95 F1iou @.5(mJ) (Sa/s) (mJ) (μJs) Loihi 2 .82 .61 .78 6.2 122 20.5 272.86 nano B01 .87 .63 .82 97 23 172.04 7396 Orin Nano .87 .63 .82 12.03 208 32.41 155.82
+> CPU .87 .63 .82 174.0 105 174.0 1642
+> Rate: Inference Rate (samples/s), Dyn. E: Dynamic Energy, E: Energy
+> Figure 10: Qualitative visualization of sample detections with Model-2 SNN on UAV-based tunnel dataset
+
+compared to Prophesee GEN1, PASCAL VOC achieves a higher inference rate on Model-2, although PASCAL VOC is frame-based while GEN1 is event-based. Interestingly, for the evCIVIL-ev dataset, Model-2, which is approxi-mately 50% larger than Model-1, achieves a higher inference rate (170 sam-ples/s vs. 160 samples/s). This occurs because Model-2 exhibits a lower number of SOPs due to its higher sparsity. Although the general trend shows that the inference rate decreases with increasing SOPs, we observed an exception when the number of SOPs is nearly identical. Specifically, Model-1 performs approximately the same number of SOPs on both evCIVIL frame-based and event-based datasets, yet achieves a higher inference rate on the event-based version. Upon further analysis, in the event-based case, only about 70% of convolutional synapses 33 perform at least one addition operation, leaving 30% idle. In contrast, for the frame-based case, about 95% of synapses are active, with only 5% idle. Al-though some of these addition operations do not result in output spikes, they still consume computational resources. Although their impact is relatively minor compared to SOP (which account only for operations that generate spikes), such effects can become noticeable when the SOP counts are nearly identical across models or datasets. Across all datasets and all three SNN models, the inference rate in Loihi 2 ranges between 62 and 170 samples/s, confirming the feasibility of real-time inference in Loihi 2 in both event-based and frame-based detection tasks. 
+
+6.7.2. Per-Inference Dynamic Energy Consumption vs. SOP 
+
+As shown in figure 11b, the dynamic energy consumption per-inference generally increases with the number of SOPs across the three models and all four datasets, except for one case, that is evCIVIL-ev in Model-2. In this particular case, evCIVIL-ev in Model-2 shows higher dynamic energy con-sumption than in Model-1, despite having fewer SOPs. This occurs because the dynamic energy depends on both the inference rate and the dynamic power. Although Model-2 achieves a higher inference rate than Model-1, it’s higher dynamic power consumption (as shown in table 4), leads to a higher overall dynamic energy per inference. However, although Prophesee GEN1 consumes more power than evCIVIL-ev on Model-3, it shows lower per-inference dynamic energy, because of its higher inference rate compared to evCIVIL-ev. Among the three models, Model-1 demonstrates the lowest dynamic power consumption, while Model-3 shows the highest overall energy consumption. 
+
+6.8. Summary of experimental results 
+
+Our results demonstrate that ANN-SNN knowledge-distillation-aware di-rect SNN training enables SNNs to recover 87–100% of the detection perfor-mance of their ANN counterparts while requiring fewer time steps, thereby reducing latency, compared to traditional ANN-to-SNN conversion methods across both frame-based and event-based datasets. In terms of power consumption, SNNs on Loihi 2 consistently exhibited lower total and dynamic power usage compared to Jetson Orin Nano, Jetson Nano B01, and MacBook M2 CPU. Across both dataset types, Loihi 2 also 34 achieved the lowest per-inference dynamic energy consumption relative to ANNs running on other platforms. With inference rates ranging from 62 to 170 samples/s, SNNs on Loihi 2 consistently demonstrated real-time inference. These rates surpass those of Jetson Nano B01, are lower than those of Jetson Orin Nano, and are compa-rable to ANNs on the MacBook CPU. Consequently, ANNs on Jetson Orin Nano achieved the lowest per-inference EDP among all platforms, whereas SNNs on Loihi 2 achieved the lowest per-inference total energy consumption compared to ANNs on other platforms. Evaluation on the newly introduced tunnel dataset, collected via UAV field inspections, confirmed the trends which we observed on the literature datasets. In this case, the distilled SNN retained 94% of detection per-formance as of ANN counterparts in terms of mAP 0.5 while maintaining real-time inference, and exhibiting the lowest dynamic energy and power consumption on Loihi 2. Finally, we experimentally validated the impact of the number of SOP op-erations in SNNs on neuromorphic hardware (Loihi 2) for inference rate and per-inference dynamic energy consumption. Across frame-based and event-based data modalities, our findings reinforce the theoretical basis which is reducing the number of SOP operations increases inference rates and lowers dynamic energy. This highlights the advantage of leveraging sparsity during inference through sparsity-aware SNN training. However, reducing the num-ber of spikes excessively can degrade detection accuracy, indicating that a careful trade-off between sparsity and performance must be maintained. 
+
+7. Discussion 
+
+This study proposes three lightweight spiking neural network (SNN) ar-chitectures optimized for deployment on Intel Loihi 2, targeting real-time object detection. We developed three lightweight SNN models that comply with both SNN design principles and the hardware constraints of Intel Loihi 2. Additionally, we present a complete pipeline covering direct SNN train-ing, hardware-aware engineering adaptations for deployment on Loihi 2, and systematic benchmarking. The pipeline includes data preprocessing, model initialization, batch normalization mapping to Loihi hardware, distillation-and quantization-aware training, and time-step selection aligned with peri-odic resets. To enhance detection performance, an ANN-to-SNN distillation frame-work is introduced, enabling the proposed SNN models to achieve 87–100% 35 0.6 0.7 0.8 0.9 1.0           
+
+> # of SOP operations ×10 5
+> 60
+> 80
+> 100
+> 120
+> 140
+> 160
+> Inference rate (samples/s)
+> 160
+> 142
+> 136 132
+> 170
+> 128
+> 120
+> 97.4
+> 62
+> 85
+> evCIVIL-ev
+> evCIVIL-fr
+> PASCAL VOC
+> GEN1
+> Model-1
+> Model-2
+> Model-3 (a) 0.6 0.7 0.8 0.9 1.0
+> # of SOP operations ×10 5
+> 3
+> 4
+> 5
+> 6
+> 7
+> 8
+> Dynamic energy (mJ) per sample
+> 2.37
+> 2.40
+> 2.59 2.77
+> 3.92
+> 5.78
+> 5.89 6.40
+> 8.14
+> 7.5
+> evCIVIL-ev
+> evCIVIL-fr
+> PASCAL VOC
+> GEN1
+> Model-1
+> Model-2
+> Model-3 (b)
+
+Figure 11: (a) Number of SOP operations vs. inference rate(Throughput); (b) Number of SOP operations vs. dynamic energy consumption on a single Loihi 2 chip, evaluated using four selected datasets across three models. 
+
+of the detection accuracy of their ANN counterparts with just 8 time steps per inference on Loihi 2 which is significantly fewer time steps per infer-ence compared to conventional ANN-to-SNN converted models which re-quires hundreds of time steps in object detection tasks as reported in [25] and [22]. Furthermore, we observed that distillation-aware direct SNN training out-performs approaches that rely on features derived from event-to-image recon-struction which highlights the effectiveness of direct temporal supervision via distillation for event-based object detection tasks using SNNs. Benchmark comparisons demonstrate that the SNNs running on Loihi 2 outperform ANN implementations on Jetson Orin Nano, Jetson Nano B01, and a MacBook CPU in terms of power efficiency and per-inference dynamic energy consumption. Although the SNN models on Loihi 2 achieve real-time inference rates, ANN counterparts on Jetson Orin Nano exhibit higher inference rates. Using the PASCAL VOC dataset, table 8 compares our best-performing distilled SNN, Model-2, evaluated on Loihi 2 in terms of inference rate, per-inference dynamic energy, and power consumption, with the state-of-the-art SNN SpikeYOLO [41], benchmarked on an RTX 3090 GPU (24 GB VRAM). The comparison also includes the ANN-based TY-v1.3-Small model [47], de-ployed on GAP9 [47], an ultra-low-power edge processor. For fairness, the 36 GAP9 results are reported without I/O overhead to match the Loihi 2 evalu-ation conditions. As per the results, although the SOTA SNN (SpikeYOLO) achieves 2.2 × higher detection accuracy in terms of mAP 0.5:0 .95 , its inference rate on a high-end GPU is 68% lower than that of Model-2 running on Loihi 2. In terms of model size, SpikeYOLO uses 109 × more activation units/neurons than Model-2. The detection performance of Model-2 is comparable to that of the ANN model TY-v1.3-Small, while Model-2 uses 2.2 × fewer activation units. Although TY-v1.3-Small in GAP9 achieves 3.7 × lower energy con-sumption compared to Model-2 in Loihi 2, Model-2 provides approximately 2× higher inference rate. 
+
+Table 8: Consolidated comparison of selected benchmark results on the PASCAL VOC and GEN1 datasets, including our best SNN model alongside state-of-the-art SNNs and edge-focused ANN models. For each dataset, the lowest activation count, parameter count, and dynamic energy, as well as the highest inference rate, are highlighted.                                                                                                 
+
+> Dataset Model Plat. Act. Res. mAP # Act. # Params Rate Dyn. En. Unit 0.5:0.95 Units(M) (M) (Sa/s) (mJ) PASCAL SpikeYOLO[41] GPU LIF 640 ×640 0.64 84 41 38 n/a TY-v1.3-Small[47] GAP9 ReLU 256 ×256 0.30 1.7 0.4 59 1.59
+> YOLOv8n [51] Orin Nano SiLU 320 ×320 0.38 16.81 3.16 92 12.88 Model-2 (Ours) Loihi 2 LIF 224 ×224 0.29 0.768 3.83 120 5.89 GEN1 SpikeYOLO[41] GPU LIF 640 ×640 0.39 84 41 31 n/a SSD-Densenet121[19] GPU pLIF 300 ×300 0.19 52 8.2 39 n/a YOLOv8n [51] Orin Nano SiLU 300 ×300 0.29 16.81 3.16 84 15.54 Model-2 (Ours) Loihi 2 LIF 256 ×192 0.23 0.768 3.83 97 6.40
+
+Rate: Inference Rate (samples/s), Dyn. En.: Dynamic Energy. pLIF : parametric Leaky Integrate and Fire 
+
+Using the Prophesee GEN1 dataset, table 8 further compares the detec-tion performance of the SNN models SpikeYOLO [41] and SSD-DenseNet121-24 [19] with our Model-2. Although the SOTA SNN shows 1.7 × higher de-tection accuracy in terms of mAP 0.5:0 .95 , its inference rate on GPU is 68% lower than that of Model-2 on Loihi 2. Model-2 further outperforms SSD-Densenet121-24 by 17% in detection accuracy while being 67% smaller in terms of activation neurons. Compared to lightweight, edge-focused ANNs, SNNs on Loihi 2 exhibit a considerable reduction in detection accuracy. As shown in 8, with respect to YOLOv8n on Jetson Orin Nano, our best-performing SNN model shows a 24% reduction in detection accuracy on the PASCAL VOC dataset and a 21% reduction on the GEN1 dataset. However, for both datasets, SNNs on Loihi 2 achieve higher inference rates and lower dynamic energy consumption 37 compared to YOLOv8n on Jetson Orin Nano. While the reduced detection accuracy makes deploying SNNs on Loihi 2 for safety-critical tasks potentially risky, their ability to process more frames per second can mitigate the risk of missing objects that appear in multiple frames, even though localization accuracy remains lower. A key factor contributing to the observed performance gap of SNNs on Intel Loihi 2 is the current hardware limitation that supports only mean-only batch normalization, rather than the standard mean-and-variance-based normalization. Next-generation Neuromorphic hardware is expected to sup-port standard batch normalization, which will likely significantly reduce this accuracy degradation. Moreover, anticipated support for more complex ar-chitectures—such as multi-scale branching networks and ConvLSTM mod-ules—will better address the challenges posed by sparse event-based data. Additionally, rather than relying on a fixed firing threshold (e.g., 1 V), fu-ture work could explore learning optimal threshold values either globally or on a per-layer basis by leveraging concepts from parametric LIF (pLIF) neu-rons [21]. This approach may further improve accuracy, particularly if Loihi 2 evolves to support different firing thresholds for different neurons within a single model. While current benchmarking excludes I/O overhead in accordance with Intel’s guidance for the Loihi 2 platform, this factor remains critical for real-world deployment scenarios such as UAV-based inspection. In such applica-tions, sensor data transfer significantly impacts power consumption, inference rate, and overall energy efficiency. Future iterations of Loihi that incorpo-rate high-speed I/O interfaces will enable more comprehensive system-level evaluations, including end-to-end latency and dynamic power consumption that accounts for data transfer. Moreover, as the neuron capacity of Loihi scales, it will support the deployment of larger and deeper spiking neural networks (SNNs), helping to further close the performance gap with ANN counterparts. For instance, Intel has recently introduced Hala Point [70], a 1.15-billion-neuron neuromorphic system, which is expected to become ac-cessible for future research. Intel’s Sigma-Delta Neural Networks (SDNNs) [46] represent a specialized alternative to conventional spiking neural networks (SNNs). By communicat-ing through decimal-valued events and processing one frame per time step, SDNNs more effectively exploit temporal redundancy in video streams com-pared to our multi-timestep SNN approach. Reported SDNN benchmarks on an eight-chip Loihi 2 cluster demonstrate an energy consumption of approx-38 imately 8 mJ and a throughput of 314 samples/s—roughly twice the speed of our implementation. However, the operating principles of SDNNs differ fundamentally from those of standard SNNs, and they have not yet demon-strated performance surpassing that of artificial neural networks (ANNs). Consequently, this work does not explore SDNN models, as they are tightly coupled to the Loihi 2 architecture rather than representing a generalizable approach like SNNs, which are more broadly applicable across neuromorphic platforms. Our evaluation on the ev-CIVIL dataset [59] demonstrates that event-based detection consistently outperforms frame-based methods under chal-lenging lighting conditions, such as low-light and overexposed scenes, while maintaining energy efficiency and real-time inference rates. These results highlight the potential of integrating DVS cameras with Loihi 2 for in-situ, real-time inspection applications. However, the reliance of DVS sensors on relative motion introduces directionality constraints, and the absence of color information may lead to missed or ambiguous anomalies. Consequently, a hy-brid sensing approach that leverages both frame- and event-based modalities represents a promising direction for future work. By fusing the high-dynamic-range temporal precision of event cameras with the static spatial structure and color information provided by frame-based sensors, overall detection ro-bustness can be significantly enhanced for complex structural inspection sce-narios. Although SNNs running on neuromorphic processors such as Loihi 2 [27] and Akida [27] represent a promising path toward energy-efficient deep learn-ing, these chips still require substantial development in terms of computa-tional capacity, energy efficiency, and architectural support for more complex models necessary for high-accuracy detection as previously mentioned. At the same time, rapid progress is being made in improving the energy efficiency of ANNs for edge devices through techniques such as pruning [35], quantization [35], and neural architecture search [71]. Energy-efficient platforms including GPUs like the Jetson Orin Nano and Xavier [9], as well as ultra-low-power microcontrollers with neural accelerators such as GreenWaves’ GAP9 [47] are gaining significant commercial momentum. Therefore, future neuromor-phic research needs to keep up with advances in energy-optimized ANNs and emerging accelerators. However, we believe that innovation in both directions will drive important breakthroughs in energy-efficient real-time detection with improved accuracy. 39 8. Conclusion 
+
+In this work, we addressed real-time event-based and frame-based object detection covering both regularly shaped and irregularly shaped objects using Spiking Neural Networks (SNNs) which are designed to fit in state-of-the-art neuromorphic hardware called intel Loihi 2. We developed three lightweight SNN architectures that comply with both SNN design principles and the hardware constraints of Intel Loihi 2. Ad-ditionally, we present a complete pipeline covering direct SNN training, hardware-aware engineering adaptations for deployment on Loihi 2, and sys-tematic benchmarking. Comparative benchmarking shows that directly trained SNNs achieve 11–27% lower detection accuracy than ANNs. However, ANN-to-SNN knowl-edge distillation allows SNNs to retain 87–100% of the original accuracy of ANNs while performing inference while maintaining a less number of infer-ence time steps compared to as of ANN to SNN converted models. Also, Distillation-aware direct SNN training for object detection task outperforms approaches which atr based on feature maps from event-to-image reconstruc-tion architectures. We also demonstrate that increasing synaptic operations (SOPs), raises dynamic energy consumption and reduces inference rates, regardless of event-or frame-based input. Power profiling on Loihi 2 reveals that static power dominates dynamic power, ranging from 2.5 × to 5.2 × higher across all mod-els. SNNs on Loihi 2 outperform ANN implementations on Jetson Nano B01 and Apple M2 CPU in terms of inference rate, dynamic energy, and total power. Compared to the Jetson Orin Nano, Loihi 2 achieves at least 2.5 ×
+
+higher efficiency in total power and 4.07 × higher efficiency in dynamic power. Also, SNNs on Loihi 2 shows 1.61–3.74 × higher efficiency interms of per inference dynamic energy consumption than ANNs on Jetson Orin Nano, Though SNNs on Loihi 2 shows real-time inference rates range from 62 to 170 samples/s, ANNs on Orin Nano maintain 1.34–2.6 × higher inference rates as of SNNs on Loihi 2. Results of the ealuations of our newly introduced UAV-based tunnel in-spection dataset on considered hardware plarforms were consistent with the results of our developed models which were evaluated across two event-based and frameb-based data sets from the literature. Howerver, SNNs currently lag behind state-of-the-art ANNs like YOLOv8n, majorly in terms of de-40 tection accuracy, which would be further enchanced by advancing the neu-romorphic hardware to facilitate for advanced SNN architectures such as Conv-LSTMs and network branching. Despite current limitations, our results demonstrate that neuromorphic systems can perform real-time object detection while maintaining high energy efficiency. Ultimately, this work establishes a scalable baseline for the future deployment of real-time, energy-efficient, and autonomous intelligence at the edge. 
+
+Data and Code Availability 
+
+The source code and UAV tunnel data are available at 
+
+https://github.com/gwgknudayanga/Realtime-frame--and-event-based-detection-with-SNN-on-Neuromorphic-hardware and 
+
+https://drive.google.com/drive/folders/1ftKEMairrUScP5KXW6pQDhwqanxOuwxD 
+
+respectively. 
+
+Funding 
+
+This project has received funding from the European Union’s Horizon 2020 Research and Innovation Programme under the Marie Sklodowska-Curie Grant Agreement No. 953454. 
+
+Acknowledgments 
+
+Special Thanks goes to Intel Cooperation for providing Loihi 2 access for the benchmarking. 
+
+Generative AI usage 
+
+During the preparation of this work the authors used ChatGPT (OpenAI) in order to correct grammar and spelling and improve the clarity of the writing. After using this tool/service, the authors reviewed and edited the content as needed and take full responsibility for the content of the published article. 41 References 
+
+[1] A. Vicente-Sola, D. L. Manna, P. Kirkland, G. D. Caterina, T. J. Bihl, Spiking neural networks for event-based action recognition: A new task to understand their advantage, Neurocomputing 611 (2025) 128657. 
+
+doi:https://doi.org/10.1016/j.neucom.2024.128657 .[2] N. M. Alahdal, F. Abukhodair, L. H. Meftah, A. Cherif, Real-time object detection in autonomous vehicles with yolo, Procedia Computer Science 246 (2024) 2792–2801, 28th International Conference on Knowledge Based and Intelligent information and Engineering Systems (KES 2024). doi:https://doi.org/10.1016/j.procs.2024.09.392 .URL https://www.sciencedirect.com/science/article/pii/ S1877050924024293 
+
+[3] K. Luo, X. Kong, J. Zhang, J. Hu, J. Li, H. Tang, Computer vision-based bridge inspection and monitoring: A review, Sensors 23 (18) (2023). 
+
+doi:10.3390/s23187863 .[4] M. T. Rasheed, D. Shi, H. Khan, A comprehensive experiment-based review of low-light image enhancement methods and benchmarking low-light image quality assessment, Signal Processing 204 (2023) 108821. 
+
+doi:https://doi.org/10.1016/j.sigpro.2022.108821 .[5] G. Gallego, T. Delbr¨ uck, G. Orchard, C. Bartolozzi, B. Taba, A. Censi, S. Leutenegger, A. J. Davison, J. Conradt, K. Daniilidis, D. Scaramuzza, Event-based vision: A survey, IEEE Transactions on Pattern Analysis and Machine Intelligence 44 (1) (2022) 154–180. doi:10.1109/TPAMI. 2020.3008413 .[6] J. Redmon, A. Farhadi, Yolov3: An incremental improvement, arXiv preprint arXiv:1804.02767 (2018). [7] W. Liu, D. Anguelov, D. Erhan, C. Szegedy, S. Reed, C.-Y. Fu, A. C. Berg, Ssd: Single shot multibox detector, in: B. Leibe, J. Matas, N. Sebe, M. Welling (Eds.), Computer Vision – ECCV 2016, Springer International Publishing, Cham, 2016, pp. 21–37. [8] D. Ngo, H.-C. Park, B. Kang, Edge intelligence: A review of deep neural network inference in resource-limited environments, Electronics 14 (12) (2025). [9] P. Mittal, A comprehensive survey of deep learning-based lightweight object detection models for edge devices, Artificial Intelligence Review 57 (9) (2024) 242. doi:10.1007/s10462-024-10877-1 .[10] J. Chen, X. Ran, Deep learning with edge computing: A review, Pro-42 ceedings of the IEEE 107 (8) (2019) 1655–1674. doi:10.1109/JPROC. 2019.2921977 .[11] S. Liu, J. Zha, J. Sun, Z. Li, G. Wang, Edgeyolo: An edge-real-time object detector, in: Proceedings of the 2023 42nd Chinese Con-trol Conference (CCC), Tianjin, China, 2023, pp. 7507–7512. doi: 10.23919/CCC58697.2023.10239786 .[12] M. Sandler, A. Howard, M. Zhu, A. Zhmoginov, L.-C. Chen, Mo-bilenetv2: Inverted residuals and linear bottlenecks, in: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recog-nition (CVPR), 2018, pp. 4510–4520. [13] F. Paredes-Vall´ es, J. J. Hagenaars, J. Dupeyroux, S. Stroobants, Y. Xu, G. C. H. E. de Croon, Fully neuromorphic vision and control for au-tonomous drone flight, Science Robotics 9 (90) (2024) eadi0591, erra-tum: Science Robotics , vol. 9, no. 91, p. eadr0223, Jun 2024. doi: 10.1126/scirobotics.adi0591 .[14] A. Joshi, S. Sanyal, K. Roy, Real-time neuromorphic navigation: In-tegrating event-based vision and physics-driven planning on a parrot bebop2 quadrotor, ArXiv abs/2407.00931 (2024). URL https://api.semanticscholar.org/CorpusID:270870393 
+
+[15] K. Roy, A. Jaiswal, P. Panda, Towards spike-based machine intelligence with neuromorphic computing, Nature 575 (7784) (2019) 607–617. doi: 10.1038/s41586-019-1677-2 .[16] Y. Hu, S.-C. Liu, T. Delbruck, v2e: From video frames to realistic dvs events, in: Proceedings of the 2021 IEEE/CVF Conference on Computer Vision and Pattern Recognition Workshops (CVPRW), Virtual, 2021, pp. 1312–1321. doi:10.1109/CVPRW53098.2021.00144 .[17] A. Sironi, M. Brambilla, N. Bourdis, X. Lagorce, R. Benosman, HATS: Histograms of averaged time surfaces for robust event-based object clas-sification, in: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR), Salt Lake City, UT, USA, 2018, pp. 1731–1740. doi:10.1109/CVPR.2018.00186 .[18] D. Gehrig, A. Loquercio, K. G. Derpanis, D. Scaramuzza, End-to-end learning of representations for asynchronous event-based data, in: Pro-ceedings of the IEEE/CVF International Conference on Computer Vi-sion (ICCV), Seoul, South Korea, 2019, pp. 5633–5643. doi:10.1109/ ICCV.2019.00573 .[19] L. Cordone, B. Miramond, P. Thierion, Object detection with spiking neural networks on automotive event data, in: 2022 International Joint 43 Conference on Neural Networks (IJCNN), Padua, Italy, 2022, pp. 1–8. 
+
+doi:10.1109/IJCNN55064.2022.9892618 .[20] J. D. Nunes, M. Carvalho, D. Carneiro, J. S. Cardoso, Spiking neural networks: A survey, IEEE Access 10 (2022) 60738–60764. doi:10.1109/ ACCESS.2022.3179968 .[21] W. Fang, Z. Yu, Y. Chen, T. Masquelier, T. Huang, Y. Tian, In-corporating learnable membrane time constant to enhance learning of spiking neural networks, in: Proceedings of the IEEE/CVF Interna-tional Conference on Computer Vision (ICCV), 2021, pp. 2641–2651. 
+
+doi:10.1109/ICCV48922.2021.00265 .[22] K. Roy, A. R. Jaiswal, P. Panda, Towards spike-based machine intelli-gence with neuromorphic computing, Nature 575 (7784) (2019) 607–617. 
+
+doi:10.1038/s41586-019-1677-2 .[23] M. Dampfhoffer, T. Mesquida, A. Valentian, L. Anghel, Backpropagation-based learning techniques for deep spiking neural networks: A survey, IEEE Transactions on Neural Networks and Learning Systems 35 (9) (2024) 11906–11921. 
+
+doi:10.1109/TNNLS.2023.3263008 .[24] S. B. Shrestha, G. Orchard, SLAYER: Spike layer error reassign-ment in time, in: Advances in Neural Information Processing Systems (NeurIPS), Vol. 31, 2018. [25] P. Panda, Spiking neural networks, ESWEEK 2021 Tutorial, Yale Uni-versity, accessed: 2025-04-28 (2021). URL https://www.youtube.com/watch?v=7TybETlCslM 
+
+[26] IBM, What is neuromorphic computing?, accessed: 2025-05-01 (2025). URL https://www.ibm.com/think/topics/neuromorphic-computing 
+
+[27] BrainChip Inc., Akida — BrainChip neuromorphic chip overview, accessed: Dec. 7, 2025 (2025). URL https://brainchip.com/neuromorphic-chip-maker-takes-aim-at-the-edge 
+
+[28] SynSense, DYNAP-CNN — event-driven neuromorphic AI processor for vision processing, accessed: Dec. 7, 2025 (2025). URL https://open-neuromorphic.org/neuromorphic-computing/ hardware 
+
+[29] S. Furber, F. Galluppi, S. Temple, L. A. Plana, SpiNNaker: A spiking neural network architecture, Journal of Neural Engineering 11 (5) (2014) 056021. 44 [30] Intel Corporation, Loihi neuromorphic research chip, accessed: Dec. 7, 2025 (2018). URL https://open-neuromorphic.org/neuromorphic-computing/ hardware 
+
+[31] Intel Corporation, Neuromorphic computing: Loihi 2 technology brief, Tech. rep., Intel Corporation, accessed: 2025-05-01 (2025). URL https://www.intel.com/content/www/us/en/research/ neuromorphic-computing-loihi-2-technology-brief.html 
+
+[32] A. Wild, M. Richter, Lava: Open-source framework for neuro-inspired applications, Online Video, accessed: 2025-05-01 (2023). URL https://www.youtube.com/watch?v=vXZukQ6A79k 
+
+[33] Lava Neuromorphic Computing Community, lava-dl: Deep learning li-brary for lava, GitHub Repository, accessed: 2025-05-01 (2025). URL https://github.com/lava-nc/lava-dl 
+
+[34] Intel Corporation, Intel advances neuromorphic with Loihi 2, new Lava software framework and new partners, Intel Newsroom Press Release, accessed: 2025-12-08 (2021). URL https://www.intel.com/content/www/us/en/newsroom/news/ intel-advances-neuromorphic-loihi-2-lava.html 
+
+[35] MIT 6.S965, Lecture 05 - quantization (Part I), accessed: May 1, 2025 (2020). URL https://www.youtube.com/watch?v=AlASZb93rrc 
+
+[36] MIT HAN Lab, Lecture 10 - knowledge distillation — MIT 6.S965, accessed: May 1, 2025 (2020). URL https://www.youtube.com/watch?v=tT9Lnt6stwA 
+
+[37] A. Vicente-Sola, D. L. Manna, P. Kirkland, G. Di Caterina, T. J. Bihl, Spiking neural networks for event-based action recognition: A new task to understand their advantage, Neurocomputing 611 (2025) 128657. 
+
+doi:10.1016/j.neucom.2024.128657 .[38] S. Barchid, J. Mennesson, J. Eshraghian, C. Dj´ eraba, M. Bennamoun, Spiking neural networks for frame-based and event-based single ob-ject localization, Neurocomputing 559 (2023) 126805. doi:10.1016/ j.neucom.2023.126805 .[39] U. K. N. G. W. Gamage, L. Zanatta, M. Fumagalli, C. Cadena, S. Tolu, Event-based classification of defects in civil infrastructures with artificial and spiking neural networks, in: I. Rojas, G. Joya, A. Catala (Eds.), Advances in Computational Intelligence, Springer Nature Switzerland, Cham, 2023, pp. 629–640. 45 [40] S. Kim, S. Park, B. Na, S. Yoon, Spiking-yolo: Spiking neural net-work for energy-efficient object detection, in: Proceedings of the AAAI Conference on Artificial Intelligence, Vol. 34, 2020, pp. 11270–11277. 
+
+doi:10.1609/aaai.v34i07.6787 .[41] X. Luo, M. Yao, Y. Chou, B. Xu, G. Li, Integer-valued training and spike-driven inference spiking neural network for high-performance and energy-efficient object detection, in: Proceedings of the European Con-ference on Computer Vision (ECCV), 2024, best Paper Candidate. [42] A. Kugele, T. Pfeil, M. Pfeiffer, E. Chicca, Hybrid snn-ann: Energy-efficient classification and object detection for event-based vision, in: C. Bauckhage, J. Gall, A. Schwing (Eds.), Pattern Recognition, Springer International Publishing, Cham, 2021, pp. 297–312. [43] Z. Wang, Z. Wang, H. Li, L. Qin, R. Jiang, D. Ma, H. Tang, Eas-snn: End-to-end adaptive sampling and representation for event-based detec-tion with recurrent spiking neural networks, in: A. Leonardis, E. Ricci, S. Roth, O. Russakovsky, T. Sattler, G. Varol (Eds.), Computer Vision – ECCV 2024, Springer Nature Switzerland, Cham, 2025, pp. 310–328. [44] A. Viale, A. Marchisio, M. Martina, G. Masera, M. Shafique, CarSNN: An efficient spiking neural network for event-based autonomous cars on the loihi neuromorphic research processor, in: 2021 International Joint Conference on Neural Networks (IJCNN), Virtual (Shenzhen, China), 2021, pp. 1–10. doi:10.1109/IJCNN52387.2021.9533738 .[45] A. Viale, A. Marchisio, M. Martina, G. Masera, M. Shafique, LaneSNNs: Spiking neural networks for lane detection on the Loihi neuromorphic processor, in: Proceedings of the 2022 IEEE/RSJ International Confer-ence on Intelligent Robots and Systems (IROS), Kyoto, Japan, 2022, pp. 79–86. doi:10.1109/IROS47612.2022.9981034 .[46] M. Brehove, S. A. Tumpa, E. Kyubwa, N. Menon, N. Vijaykrish-nan, Sigma-delta neural network conversion on loihi 2, arXiv preprint arXiv:2505.06417 (2025). [47] J. Moosmann, P. Bonazzi, Y. Li, S. Bian, P. Mayer, L. Benini, M. Magno, Ultra-Efficient On-Device Object Detection on AI-Integrated Smart Glasses with TinyissimoYOLO, in: Proceedings of the IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), 2024. doi:10.1109/ICASSP48485.2024.10446059 .[48] B. Rueckauer, Y. Wen, K. Liu, Y. Shi, G. Cauwenberghs, Going deeper in spiking neural networks: VGG and residual architectures, Frontiers in Neuroscience 13 (2019) 95. 46 [49] A. Balaji, A. Das, Compiling spiking neural networks to mitigate neu-romorphic hardware constraints, in: Proceedings of the IEEE/ACM International Conference on Computer-Aided Design (ICCAD), 2020. 
+
+doi:10.1145/3400302.3415694 .[50] Intel Neuromorphic Research Community, Deep learning applications for Loihi 2, https://intel-ncl.atlassian.net/wiki/spaces/INRC/ pages/1969225744/ , accessed: May 1, 2025 (2023). [51] G. Jocher, A. Chaurasia, J. Qiu, YOLOv8: Ultralytics real-time object detection (2023). URL https://github.com/ultralytics/ultralytics 
+
+[52] X. Ding, X. Zhang, N. Ma, J. Han, G. Ding, J. Sun, RepVGG: Making VGG-style ConvNets great again, in: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), 2021, pp. 13733–13742. [53] T. Kong, F. Sun, H. Liu, Y. Jiang, L. Li, J. Shi, FoveaBox: Beyond anchor-based object detector, IEEE Transactions on Image Processing 29 (2020) 7389–7398. doi:10.1109/TIP.2020.3002345 .[54] H. Rebecq, R. Ranftl, V. Koltun, D. Scaramuzza, High speed and high HDR video with an event camera, IEEE Transactions on Pattern Anal-ysis and Machine Intelligence (TPAMI) 43 (6) (2021) 1964–1980. [55] S. Ioffe, C. Szegedy, Batch normalization: Accelerating deep network training by reducing internal covariate shift, in: Proceedings of the 32nd International Conference on Machine Learning (ICML), 2015, pp. 448– 456. [56] X. Li, W. Wang, L. Wu, S. Chen, X. Hu, J. Li, J. Tang, J. Yang, Gen-eralized focal loss: Learning qualified and distributed bounding boxes for dense object detection, in: Proceedings of the IEEE/CVF Confer-ence on Computer Vision and Pattern Recognition (CVPR), 2020, pp. 12839–12848. [57] T.-Y. Lin, M. Maire, S. Belongie, J. Hays, P. Perona, D. Ramanan, P. Doll´ ar, C. L. Zitnick, Microsoft COCO: Common objects in context, in: Computer Vision – ECCV 2014, Springer International Publish-ing, Cham, Switzerland, 2014, pp. 740–755. doi:10.1007/978-3-319-10602-1 \_48 .[58] lava-nc contributors, lava-dl: Deep Learning Library for Lava —PilotNet SNN Benchmark Notebook, GitHub repository, accessed: 26-Nov-2025 (2025). URL https://github.com/lava-nc/lava-dl/blob/main/ 
+
+47 tutorials/lava/lib/dl/netx/pilotnet_snn/benchmark.ipynb 
+
+[59] U. G. W. K. N. Gamage, X. Huo, L. Zanatta, T. Delbr¨ uck, C. Ca-dena, M. Fumagalli, S. Tolu, Event-based civil infrastructure visual defect detection: ev-CIVIL dataset and benchmark, arXiv preprint arXiv:2504.05679 (2025). [60] P. de Tournemire, D. Nitti, E. Perot, D. Migliore, A. Sironi, A large scale event-based detection dataset for automotive, in: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) Workshops, 2020, pp. 346–347. doi:10.1109/CVPRW50498. 2020.00173 .[61] M. Everingham, L. Van Gool, C. K. I. Williams, J. Winn, A. Zisser-man, The PASCAL visual object classes (VOC) challenge, International Journal of Computer Vision 88 (2) (2010) 303–338. [62] A. Paszke, S. Gross, F. Massa, A. Lerer, J. Bradbury, G. Chanan, T. Killeen, Z. Lin, N. Gimelshein, L. Antiga, et al., PyTorch: An im-perative style, high-performance deep learning library, in: Advances in Neural Information Processing Systems (NeurIPS), 2019. [63] W. Fang, Y. Chen, J. Ding, D. Chen, Z. Yu, T. Masquelier, Y. Chen, T. Huang, Y. Tian, SpikingJelly, https://github.com/ fangwei123456/spikingjelly , accessed: May 28, 2025 (2020). [64] Z. Teed, J. Deng, RAFT: Recurrent all-pairs field transforms for optical flow, in: Proceedings of the European Conference on Computer Vision (ECCV), Glasgow, UK (Virtual), 2020, pp. 402–419. [65] C. Li, L. Li, H. Jiang, K. Weng, Y. Geng, L. Li, Z. Ke, Q. Li, M. Cheng, W. Nie, et al., YOLOv6: A single-stage object detection framework for industrial applications, arXiv preprint arXiv:2209.02976 (2022). [66] lava-nc contributors, lava-dl: PilotNet SDNN inference tutorial, ac-cessed: Dec. 7, 2025 (2025). URL https://github.com/lava-nc/lava-dl/tree/main/ tutorials/lava/lib/dl/netx/pilotnet_sdnn 
+
+[67] Yahboom, Jetson nano 4gb b01 sub developer kit, accessed: 2025-12-07 (2025). URL https://category.yahboom.net/products/jetson-nano-sub 
+
+[68] NVIDIA Corporation, Jetson Orin Nano Super Developer Kit, 
+
+https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-orin/nano-super-developer-kit/ , accessed: 2026-03-29 (2024). [69] MacRumors, M2 chip guide, accessed: 2025-06-12 (2022). 48 URL https://www.macrumors.com/guide/m2/ 
+
+[70] D. Cooney, Intel unveils 1.15bn neuron neuromorphic system Hala Point, https://www.datacenterdynamics.com/en/news/intel-unveils-115bn-neuron-neuromorphic-system-hala-point/ , ac-cessed: 2026-03-29 (Apr 2024). [71] MIT HAN Lab, Lecture 07 – Neural Architecture Search (Part I) — MIT 6.S965, YouTube video (2020). URL https://www.youtube.com/watch?v=NQj5TkqX48Q 
+
+49 (a)  (b)  
+
+> (c) (d) Figure A.1: Qualitative visualization of sample detections on (a) evCIVIL-ev, (b) GEN1, (c) evCIVIL-fr, and (d) PASCAL VOC datasets. For each dataset, the first row shows the correct detections, while the second row illustrates the errors or misdetections. Different colored bounding boxes indicate detections of different object classes.
+
+Appendix A. Qualititative Visualization of Detection results 
+
+In figure A.1, for each of the dataset (evCIVIL-ev,evCIVIL-fr, PASCAL VOC and GEN1), first row of images shows correct detections while the sec-ond row shows detection issues such as error detections and misdetections. In the PASCAL VOC dataset, the model exhibits detection issues, such as false detections such as detecting a Coca-Cola wall painting as a car, pro-ducing duplicate detections (e.g., in cyclist images), and misdetections of objects like scooters. In GEN1, misdetections of cars and humans are more common than false positives. For the evCIVIL-fr dataset, the model shows misclassification between crack and spalling defects, along with occasional duplicate crack detections. In the evCIVIL-ev dataset,small crack clusters are sometimes incorrectly identified as spalling, and additional misdetections observed between crack and spalling defects. 
+
+Appendix B. Loss function definitions 
+
+Here we explain the loss functions used in YOLOv8 related to the detec-tion task. 50 Box Regression Loss 
+
+The bounding box regression loss( Lbox ) which measures the geometric misalignment between predicted and target boxes and defined as in the equa-tion (B.1). 
+
+Lbox = 1
+
+S
+
+X
+
+> i∈FG
+
+wi
+
+ 1 − CIoU( Bpi , B ti ) (B.1) where: 
+
+• CIOU denote the Complete Intersection-over-Union based loss define in [8] 
+
+• Bpi and Bti denote the predicted and target bounding boxes for sample 
+
+i,
+
+• wi is the confidence-based weight derived from the TTA (Task-Aligned Assigner) at foreground sample i. 
+
+• S = P 
+
+> i∈FG
+
+wi is a normalization term over all foreground samples (FG). 
+
+Distribution Focal Loss(DFL) 
+
+In anchor-free detection heads, which typically predict bounding box co-ordinates directly from feature map points without relying on predefined anchors, the Distribution Focal Loss ( Ldf l ) which is defined in equation (B.2) is used to improve bounding box regression. Here, instead of directly regress-ing continuous coordinates, DFL discretizes each bounding box coordinate into K bins and learns a probability distribution over these bins. So for a given batch the DFL loss is defined as follows. 
+
+Ldfl = 1
+
+S
+
+X
+
+> i∈FG
+
+wi · X
+
+> k∈{ l,r,t,b }
+
+LDFL  Pk(i), y k(i) (B.2) 
+
+where: S = P 
+
+> i∈FG
+
+wi is a normalization term over all foreground samples (FG). i ∈ FG: iterates over all positive (foreground) anchor points. wi: the confidence-based weight for sample i (approximately the IoU of the predicted box). k ∈ { l, r, t, b }: iterates over the four bounding box coordinates (left, right, top, bottom). LDFL( Pk(i), y k(i)): the Distribution Focal Loss for a single coordinate as define in [8] 51 Binary Cross Entrophy With Logit Loss 
+
+The classification loss in YOLOv8 is formulated using the Binary Cross-Entropy with Logits Loss ( LCLS ) is defined as in equation (B.3). 
+
+Lcls = X
+
+> i∈BC
+
+X
+
+> c=1
+
+Li,c (B.3) 
+
+Li,c = −yi,c · log  σ(xi,c ) + (1 − yi,c ) · log  1 − σ(xi,c ) (B.4) 
+
+where: 
+
+• LCLS : total classification loss. 
+
+• i ∈ B: iterates over all samples in the batch. 
+
+• c ∈ { 1, . . . , C }: iterates over all classes. 
+
+• Li,c : binary cross-entropy loss for sample i and class c.
+
+• yi,c ∈ { 0, 1}: ground truth label (1 if the class is present, otherwise 0). 
+
+• xi,c : raw (unnormalized) logit output of the model for class c.
+
+• σ(x) = 11+ e−x : the sigmoid activation function. 
+
+KL divergence loss 
+
+we provide the definitions of the softmax probability distribution and the Kullback–Leibler (KL) divergence in equation (B.5) and equation (B.6) respectively, based on which the distillation losses are defined. Given the raw logits Ze ∈ RM ×K , the softmax probability distribution pe
+
+is defined as: 
+
+pe[i, j ] = exp( Ze[i, j ]/T p )
+
+PKk=1 exp( Zt[i, k ]/T p ) (B.5) where: 
+
+i = 1 , . . . , M , j = 1 , . . . , K with M data samples and K channels 
+
+pe[i, j ] = probability of the i-th data sample belonging to class j,
+
+Ze[i, j ] = raw score (logit) for the i-th data sample and j-th class, 
+
+T p = temperature parameter controlling the sharpness of the distribution. 52 where ⊙ denotes the elementwise multiplication and K is the size of the second dimension of Pt and Ps as introduced in equation (B.5). Given the ANN teacher and SNN student softmax distributions pt, p s ∈
+
+RM ×K defined in equation (B.5), the KL divergence between the student distribution (SNN’s predicted logits) Ps and teacher distribution (ANN’s predicted logits) Pt over all data points can be expressed as: 
+
+DKL (Ps ∥ Pt) = 1
+
+M
+
+> M
+
+X
+
+> i=1
+> K
+
+X
+
+> j=1
+
+pt[i, j ] log pt[i, j ]
+
+ps[i, j ] (B.6) where: 
+
+• i = 1 , . . . , M = X ×Y where X and Y spatial dimensions of the output logit feature maps 
+
+• j = 1 , . . . , K denotes the number of feature maps/channels 
+
+• pt[i, j ] is the probability of the i-th data sample belonging to class j
+
+predicted by the teacher as defined in equation (B.5), 
+
+• ps[i, j ] is the probability predicted by the student (SNN in our case) as defined in equation (B.5). 53

@@ -1,0 +1,324 @@
+Title: Image Classification via Random Dilated Convolution with Multi-Branch Feature Extraction and Context Excitation
+
+URL Source: https://arxiv.org/pdf/2604.25188v1
+
+Published Time: Wed, 29 Apr 2026 00:27:53 GMT
+
+Number of Pages: 12
+
+Markdown Content:
+# Image Classification via Random Dilated Convolution with Multi-Branch Feature Extraction and Context Excitation 
+
+# Wentao Jiang Yuanchan Xu ∗ Heng Yuan Sichuan University 
+
+# Abstract 
+
+Image classification remains a fundamental yet chal-lenging task in computer vision, particularly when fine-grained feature extraction and background noise suppres-sion are required simultaneously. Conventional convolu-tional neural networks, despite their remarkable success in hierarchical feature learning, often struggle with cap-turing multi-scale contextual information and are suscep-tible to overfitting when confronted with noisy or irrel-evant image regions. In this paper, we propose RDC-Net (Image Classification Network with Random Dilated Convolution), a novel architecture built upon ResNet-34 that integrates three synergistic innovations to ad-dress these limitations: (1) a Multi-Branch Random Di-lated Convolution (MRDC) module that employs paral-lel branches with varying dilation rates combined with a stochastic masking mechanism to capture fine-grained features across multiple scales while enhancing robust-ness against noise and overfitting; (2) a Fine-Grained Feature Enhancement (FGFE) module embedded within MRDC that bridges global contextual information with local feature representations through adaptive pooling and bilinear interpolation, thereby amplifying sensitiv-ity to subtle visual patterns; and (3) a Context Excita-tion (CE) module that leverages softmax-based spatial at-tention and channel recalibration to dynamically empha-size task-relevant features while suppressing background interference. Extensive experiments conducted on five benchmark datasets—CIFAR-10, CIFAR-100, SVHN, Imagenette, and Imagewoof—demonstrate that RDCNet consistently achieves state-of-the-art classification accu-racy, outperforming the second-best competing methods by margins of 0.02%, 1.12%, 0.18%, 4.73%, and 3.56%, respectively, thereby validating the effectiveness and gen-eralizability of the proposed approach across diverse vi-sual recognition scenarios. 
+
+# 1 Introduction 
+
+Image classification constitutes one of the most funda-mental problems in computer vision, serving as a criti-cal building block for numerous downstream tasks such as object detection [47], scene understanding [11], and vi-sual question answering [44]. The objective is to assign a given image to one of several predefined categories based on its visual content. With the advent of deep learning, convolutional neural networks (CNNs) have revolution-ized this domain, achieving unprecedented performance on large-scale benchmarks [25, 16]. The evolution of CNN architectures for image classifi-cation has progressed through several pivotal milestones. LeNet [27] pioneered the use of multi-layer convolutional and pooling operations to extract hierarchical feature rep-resentations from raw images, substantially reducing the need for manual feature engineering. AlexNet [25] subse-quently demonstrated that increasing network depth en-ables the learning of more complex and abstract fea-ture hierarchies, catalyzing the deep learning revolution. VGGNet [37] and GoogLeNet [40] further validated the advantages of deeper architectures, with the Inception module in GoogLeNet achieving multi-scale feature ex-traction through parallel convolutions of different kernel sizes. However, these deeper networks also exposed crit-ical challenges including vanishing and exploding gradi-ents during training. The introduction of residual connections in ResNet [16] represented a watershed moment, effectively alleviating gradient degradation in very deep networks through iden-tity shortcut connections. Building upon this founda-tion, Wide Residual Networks (WRN) [58] explored the benefits of increasing channel width rather than depth, DenseNet [19] employed dense connectivity patterns to facilitate feature reuse and gradient flow, and Mo-bileNet [17] introduced depthwise separable convolutions for lightweight deployment. More recently, vision trans-formers [9, 30] have demonstrated the power of self-attention mechanisms for capturing long-range dependen-cies in visual data. Despite these advances, several funda-mental challenges persist in image classification that mo-tivate the present work. 
+
+Challenge 1: Fine-grained feature extraction. Stan-dard convolutional operations with fixed kernel sizes pri-marily capture local patterns within a constrained recep-tive field. While stacking multiple convolutional layers 1
+
+> arXiv:2604.25188v1 [cs.CV] 28 Apr 2026
+
+gradually expands the effective receptive field, this ap-proach is computationally expensive and may still fail to capture subtle discriminative features at multiple spa-tial scales simultaneously. This limitation is particularly pronounced when distinguishing between visually similar categories that differ only in fine-grained details, such as breeds of dogs or species of birds. Multi-resolution ap-proaches such as HRNet [52] and Multi-ResNet [1] have attempted to address this issue but introduce significant computational overhead. Similarly, HO-ResNet [33] en-hances feature extraction through high-order feature mod-eling but lacks precise spatial localization of discrimina-tive regions. 
+
+Challenge 2: Background noise and irrelevant re-gion interference. In real-world images, the target ob-ject often occupies only a fraction of the visual field, with the remainder consisting of cluttered backgrounds, occlu-sions, and other distracting elements. Conventional CNNs process all spatial regions with equal computational ef-fort, making them vulnerable to background noise that can mislead the classification decision. Attention mechanisms such as the Squeeze-and-Excitation (SE) module [18], CBAM [54], and Non-Local blocks [53] have been pro-posed to selectively enhance informative features while suppressing irrelevant ones. However, SE lacks spatial awareness, Non-Local modules incur prohibitive compu-tational costs due to dense pairwise similarity computa-tions, and CCNet [20] is limited in capturing full global dependencies due to its criss-cross attention pattern. 
+
+Challenge 3: Overfitting and generalization. Deep neural networks with millions of parameters are inher-ently prone to overfitting, particularly when training data is limited or noisy. Data augmentation techniques such as random erasing [63], Cutout [8], CutMix [57], and mixup [59] have been widely adopted to mitigate this issue at the data level. At the architectural level, Dropout [38] randomly deactivates neurons during train-ing to prevent co-adaptation. However, these strategies operate at relatively coarse granularities and do not di-rectly address the structural limitations of convolutional operations. Dilated (atrous) convolutions [56, 4] offer an elegant solution to the receptive field limitation by inserting gaps between kernel elements, effectively expanding the field of view without increasing the number of parame-ters. The Atrous Spatial Pyramid Pooling (ASPP) mod-ule in DeepLab [4, 5] employs parallel dilated convo-lutions at multiple rates to capture multi-scale contex-tual information. However, the fixed dilation patterns in these approaches can lead to gridding artifacts [56], where certain spatial positions are systematically ig-nored, resulting in information loss at fine-grained levels. Frequency-adaptive dilated convolution (FADC) [3] and SFHFormer [23] have attempted to enhance fine-grained feature extraction but do not fully resolve the fundamental tension between receptive field expansion and local detail preservation. To address these interrelated challenges, we propose RDCNet (Image Classification Network with Random Dilated Convolution), a novel architecture that inte-grates several complementary innovations within a unified framework built upon ResNet-34 [16]. Our key contribu-tions are as follows: 1. We propose the Multi-Branch Random Dilated Con-volution (MRDC) module, which replaces the stan-dard 3 × 3 convolution in the BasicBlock with a multi-branch structure incorporating dilated convolutions at multiple rates. By coupling dilated convolutions with a novel random masking mechanism that stochasti-cally masks both input channels and kernel weights, MRDC simultaneously expands the receptive field, mitigates the gridding effect, and provides built-in reg-ularization that enhances robustness. 2. We introduce the Fine-Grained Feature Enhance-ment (FGFE) module as a dedicated branch within MRDC that bridges global and local feature repre-sentations. By applying global average pooling fol-lowed by 1 × 1 convolution and bilinear upsampling, FGFE transforms global contextual information into spatially-aware local feature enhancements, improving the network’s sensitivity to subtle discriminative pat-terns. 3. We propose the Context Excitation (CE) mod-ule, which employs a softmax-based spatial attention mechanism combined with channel recalibration to dy-namically adjust feature importance. Unlike SE [18], CE captures both spatial and channel dependencies; unlike Non-Local [53], it achieves this with substan-tially lower computational cost through an efficient key-value mechanism. 4. Comprehensive experiments on five diverse bench-marks demonstrate that RDCNet achieves consis-tent state-of-the-art performance, with ablation studies confirming the complementary contributions of each proposed module. 
+
+# 2 Related Work 
+
+# 2.1 Convolutional Neural Networks for Im-age Classification 
+
+The trajectory of CNN-based image classification has been marked by increasingly sophisticated architec-tural designs. Early architectures such as LeNet [27] and AlexNet [25] established the fundamental paradigm 2of learning hierarchical feature representations through stacked convolutional layers. VGGNet [37] demonstrated that using small 3 × 3 kernels throughout the network achieves superior performance while reducing the param-eter count compared to larger kernels. GoogLeNet [40] introduced the Inception module for multi-scale fea-ture extraction within a single layer, while ResNet [16] solved the degradation problem in very deep networks through residual learning. Subsequent works have ex-plored various dimensions of architectural design, in-cluding wider networks (WRN [58]), dense connectiv-ity (DenseNet [19]), depthwise separable convolutions (MobileNet [17], MobileNetV2 [35]), channel shuffling (ShuffleNetV2 [34]), neural architecture search (Efficient-Net [41]), and ghost feature generation (GhostNet [15]). More recently, vision transformers [9, 30] and hybrid ar-chitectures such as Couplformer [26] and FAVOR+ [6] have emerged as powerful alternatives, though pure CNN designs remain competitive in many practical scenarios due to their inductive biases and computational efficiency. In the context of fine-grained and robust image classi-fication, several recent methods are particularly relevant. MMA-CCT [24] combines multi-manifold attention with cascaded cross-scale transformers to enhance feature dis-crimination. ATONet [55] employs automatic network pruning guided by a controller network to achieve effi-cient classification. QKFormer [64] adapts spiking trans-formers with Q-K attention for energy-efficient visual recognition. DAMSNet [22] utilizes double-branch multi-attention mechanisms with sharpness-aware optimization, while SSCNet [21] introduces spatial position correction for sparse feature classification. These methods demon-strate the ongoing need for improved feature extraction mechanisms in image classification, which our proposed RDCNet addresses through a novel combination of ran-domized dilated convolutions and context-aware feature enhancement. 
+
+# 2.2 Dilated Convolution and Multi-Scale Feature Extraction 
+
+Dilated (atrous) convolutions were first introduced by Yu and Koltun [56] for dense prediction tasks, enabling ex-ponential expansion of the receptive field without increas-ing the number of parameters or reducing spatial resolu-tion. This concept was further developed in DeepLab [4] and its successors [5], where the ASPP module employs parallel dilated convolutions at multiple rates to capture multi-scale contextual information. The key advantage of dilated convolutions over standard convolutions is their ability to aggregate information from a wider spatial ex-tent while maintaining the same computational complex-ity. However, a well-known limitation of dilated convolu-tions is the gridding effect [56], where the systematic spacing of kernel elements creates blind spots in the fea-ture sampling pattern. This issue becomes more pro-nounced at larger dilation rates, potentially leading to the loss of fine-grained spatial details. Various solutions have been proposed, including hybrid dilated convolution (HDC) patterns that alternate different dilation rates [5], deformable convolutions [7] that learn adaptive sampling positions, and frequency-adaptive dilated convolutions [3] that dynamically adjust dilation based on frequency con-tent. RFBNet [28] combines different kernel sizes with di-lated convolutions to simulate the receptive field structure of the human visual system, achieving improved multi-scale feature capture but with limited flexibility in adapt-ing to diverse input patterns. Our proposed MRDC module distinguishes itself from these approaches through the integration of a random masking mechanism with dilated convolutions. Rather than relying on fixed or learned dilation patterns, MRDC stochastically masks both input channels and kernel weights during training, effectively creating a diverse en-semble of feature extraction patterns that mitigate the gridding effect while providing built-in regularization. This approach is conceptually related to Dropout [38] but operates at the level of convolutional operations rather than individual neurons, providing finer-grained control over the regularization effect. 
+
+# 2.3 Attention Mechanisms and Feature Re-calibration 
+
+Attention mechanisms have become indispensable com-ponents in modern deep learning architectures, enabling networks to selectively focus on informative features while suppressing irrelevant ones. The Squeeze-and-Excitation (SE) network [18] pioneered channel atten-tion by adaptively recalibrating channel-wise feature re-sponses through global average pooling and fully con-nected layers. While highly effective and computationally efficient, SE operates solely in the channel dimension and lacks spatial awareness. The Non-Local module [53], inspired by the self-attention mechanism in transformers [48], captures long-range spatial dependencies by computing pairwise simi-larities between all spatial positions. While powerful, its quadratic computational complexity with respect to spa-tial resolution limits its applicability in high-resolution feature maps. Subsequent works have sought to reduce this computational burden: CCNet [20] restricts attention computation to criss-cross paths, while ANN [66] em-ploys asymmetric attention to reduce the number of pair-wise computations. GCNet [2] unifies the strengths of Non-Local and SE by computing a single global atten-tion map shared across all positions, achieving competi-3tive performance with greatly reduced cost. CBAM [54] addresses both channel and spatial atten-tion sequentially, applying channel attention followed by spatial attention refinement. However, this sequential ap-proach may not fully exploit the interdependencies be-tween channel and spatial dimensions. Our proposed CE module takes a different approach by computing spa-tial attention through a softmax-normalized key genera-tion process and subsequently performing channel recali-bration through matrix multiplication and sigmoid-gated feature modulation. This design captures both spatial inter-dependencies and channel-wise importance in an in-tegrated manner, achieving a favorable balance between computational efficiency and representational capacity. The integration of attention mechanisms with convo-lutional feature extraction has also been explored in the context of document understanding and visual text anal-ysis. Recent large multimodal models [13, 43, 60] have demonstrated the effectiveness of attention-based feature selection for text-centric visual tasks. Similarly, scene text detection methods [47, 45, 61] have shown that com-bining local convolutional features with global attention can significantly improve recognition accuracy in clut-tered visual environments, providing additional motiva-tion for our attention-enhanced classification framework. 
+
+# 3 Proposed Method 
+
+In this section, we present the detailed architecture of RDCNet, which is built upon ResNet-34 [16] and incor-porates three novel modules: the Multi-Branch Random Dilated Convolution (MRDC) module, the Fine-Grained Feature Enhancement (FGFE) module, and the Context Excitation (CE) module. The overall architecture of RD-CNet is illustrated in Figure 1 and consists of five sequen-tial stages: preprocessing, initial feature extraction, deep feature extraction with MRDC residual blocks, global fea-ture integration with the CE module, and classification. 
+
+# 3.1 Shallow Feature Extraction 
+
+The initial feature extraction stage in the original ResNet-34 employs a 7×7 convolutional layer followed by a 3×3
+
+max pooling layer for primary feature extraction. While effective for large-resolution inputs, this configuration can be overly aggressive for smaller images such as those in CIFAR-10 ( 32 × 32 pixels), where the large kernel and pooling operation dramatically reduce spatial resolution and discard fine-grained details in the early layers. To address this issue, RDCNet adaptively adjusts the initial feature extraction based on the input resolution. For small-resolution datasets (CIFAR-10, CIFAR-100, SVHN with 32 × 32 inputs), we replace the 7 × 7 convolution and max pooling with a single 3 × 3 convolution with stride 1 and padding 1: 
+
+Wout = Win + 2 p − ks + 1 (1) where Win and Wout are the input and output feature map dimensions, p is the padding size, k is the kernel size, and s is the stride. With k = 3 , s = 1 , and p = 1 ,the spatial resolution is preserved at 32 × 32 , retaining critical fine-grained information for subsequent process-ing. For larger-resolution datasets (Imagenette, Image-woof with 224 × 224 inputs), the standard 7 × 7 convolu-tion and max pooling configuration is retained to provide appropriate dimensionality reduction. 
+
+# 3.2 Multi-Branch Random Dilated Convo-lution (MRDC) 
+
+The MRDC module is the core innovation of RDCNet, de-signed to extract multi-scale fine-grained features through a combination of parallel processing branches with di-verse receptive fields, augmented by a stochastic mask-ing mechanism for enhanced robustness. It replaces the second 3 × 3 convolution in the standard BasicBlock of ResNet-34. 
+
+3.2.1 Dilated Convolution with Random Masking 
+
+Dilated convolution extends the standard convolution by introducing a dilation rate d that controls the spacing be-tween kernel elements. For a kernel of size k × k with dilation rate d, the effective receptive field expands to 
+
+(d(k − 1) + 1) × (d(k − 1) + 1) without increasing the number of parameters. The output spatial size is given by: 
+
+wout = win + 2 p − d(k − 1) − 1
+
+s + 1 (2) where d denotes the dilation rate. To maintain spatial res-olution, we set the padding p equal to the dilation rate d,ensuring that wout = win when s = 1 .While dilated convolutions effectively enlarge the re-ceptive field, their sparse sampling pattern can introduce gridding artifacts [56], causing the loss of fine-grained spatial information. To mitigate this issue and simulta-neously provide regularization, we introduce a random masking mechanism that operates at two complementary levels: channel masking and kernel masking. 
+
+Channel masking. Given an input feature map X ∈
+
+RC×H×W , we generate a binary channel mask Mc ∈{0, 1}C×1×1 where each element is independently sam-pled: 
+
+mc =
+
+(
+
+1, if rc < τ 
+
+0, if rc ≥ τ (3) 4where rc ∼ Uniform (0 , 1) is a random sample and τ ∈
+
+[0 , 1] is the retention probability threshold. The masked feature map is obtained through element-wise multiplica-tion: 
+
+Xc = X ⊗ Mc (4) 
+
+Kernel masking. Additionally, we generate a three-dimensional kernel mask Mk ∈ { 0, 1}C×H×W with ele-ments independently sampled in the same manner: 
+
+mc,h,w =
+
+(
+
+1, if rc,h,w < τ 
+
+0, if rc,h,w ≥ τ (5) The kernel-masked feature map is then: 
+
+Xk = Xc ⊗ Mk (6) The dual masking mechanism serves multiple purposes. First, by randomly suppressing channels and spatial po-sitions, it disrupts the regular spacing pattern of dilated convolutions, effectively mitigating the gridding effect. Second, the stochastic nature of the masking forces the network to learn robust feature representations that are not overly dependent on any particular subset of inputs or kernel elements, functioning as an implicit regularizer. Third, the element-wise nature of the masking operation incurs negligible additional computational overhead. We set p = d to ensure that edge regions of the feature map are properly covered even under the combined effect of dilation and masking. 
+
+3.2.2 Fine-Grained Feature Enhancement (FGFE) Module 
+
+The FGFE module constitutes the fourth branch of MRDC and is specifically designed to bridge global and local feature representations. Given the branch input F4 ∈
+
+Rc×h×w, the module first applies Global Average Pool-ing (GAP) to compress the spatial dimensions and obtain a channel descriptor: 
+
+Fp = GAP (F4) = 1
+
+H × W
+
+> H
+
+X
+
+> h=1
+> W
+
+X
+
+> w=1
+
+Fc,h,w (7) yielding Fp ∈ Rc×1×1 that encodes the global informa-tion for each channel. This global descriptor is then transformed through a 
+
+1 × 1 convolution followed by batch normalization and ReLU activation to map global information to a local fea-ture representation: 
+
+Fl = ReLU (BN (Conv 1×1(Fp))) (8) Finally, the transformed feature map is upsampled back to the original spatial resolution through bilinear interpo-lation: 
+
+F′ 
+
+> 4
+
+= δ(Fl) (9) where δ(·) denotes the bilinear interpolation opera-tion. The bilinear interpolation computes the tar-get pixel value f (P ) from the four nearest neighbors 
+
+{Q11 , Q 12 , Q 21 , Q 22 } using successive linear interpola-tion in horizontal and vertical directions: 
+
+f (P ) ≈ y2 − yy2 − y1
+
+f (R1) + y − y1
+
+y2 − y1
+
+f (R2) (10) where f (R1) and f (R2) are intermediate horizontal inter-polation results. By converting global contextual information into spatially-aware local feature enhancements, FGFE en-ables the network to amplify subtle discriminative pat-terns that might otherwise be overshadowed by dominant features, significantly improving fine-grained classifica-tion accuracy. 
+
+3.2.3 MRDC Module Architecture 
+
+The overall MRDC module architecture operates by first splitting the input feature map Fin ∈ Rc×h×w into four groups along the channel dimension: 
+
+Fin = [ F1, F2, F3, F4] (11) where each group has c/ 4 channels. Each group is pro-cessed by a dedicated branch: 
+
+Branch 1: A standard 3 × 3 convolution that preserves local feature extraction capability and ensures training sta-bility: 
+
+F′ 
+
+> 1
+
+= Conv 3×3(F1) (12) 
+
+Branch 2: Random-masked dilated convolution with dilation rate d = 2 , followed by a 3 × 3 convolution for feature refinement: 
+
+F′ 
+
+> 2
+
+= Conv 3×3(M DConv (F2)) (13) where M DConv (·) denotes the random-masked dilated convolution operation. 
+
+Branch 3: Random-masked dilated convolution with dilation rate d = 3 , followed by asymmetric 1×5 and 5×1
+
+convolutions to capture directional features efficiently: 
+
+F′ 
+
+> 3
+
+= Conv 5×1(Conv 1×5(M DConv (F3))) (14) 
+
+Branch 4: The FGFE module (described above): 
+
+F′ 
+
+> 4
+
+= FGFE (F4) (15) The outputs of all four branches are concatenated along the channel dimension and then fused through a 1×1 con-volution to restore the original channel count. The final output incorporates a scaled residual connection: 
+
+Fout = α · BN (Conv 1×1(Concat (F′
+
+> 1
+
+, F′
+
+> 2
+
+, F′
+
+> 3
+
+, F′
+
+> 4
+
+))) + Fin 
+
+(16) 5where α is a learnable scaling factor that controls the rel-ative contribution of the multi-branch features versus the residual input. As demonstrated in our experiments, the optimal value of α is approximately 0.5, providing a bal-anced integration of the original and enhanced features. 
+
+# 3.3 Context Excitation (CE) Module 
+
+Inspired by the self-attention mechanism [48] and its suc-cessful applications in both natural language processing and visual recognition [43, 32], we propose the Context Excitation (CE) module to address the limitations of lo-cal feature representations in CNNs by capturing global contextual dependencies and performing adaptive channel recalibration. Given an input feature map F ∈ RC×H×W , the CE module first generates a spatial attention map through 1 ×
+
+1 convolution and softmax normalization: 
+
+FK = Conv 1×1(F) (17) 
+
+FS = softmax (FK ) ∈ R1×H×W (18) where the softmax operation normalizes the spatial re-sponses to the range [0 , 1] , generating a probability dis-tribution that highlights the most informative spatial loca-tions. The feature map F and the attention map FS are then flattened and multiplied to aggregate spatially-weighted channel information: 
+
+Fm = matmul (flatten (F), flatten (FS )T ) ∈ RC×1 (19) The aggregated features undergo a bottleneck transfor-mation with channel reduction and expansion, followed by sigmoid activation to produce channel-wise recalibra-tion weights: 
+
+FT = σ(Conv 1×1(ReLU (Conv 1×1(Fm)))) ∈ RC×1×1
+
+(20) where σ(·) denotes the sigmoid activation function. The final output is obtained by element-wise multipli-cation of the recalibration weights with the original fea-ture map: 
+
+Fout = FT · F (21) This mechanism enables the CE module to capture spa-tial inter-dependencies through the softmax-normalized attention map while performing channel-wise feature re-calibration through the bottleneck transformation, effec-tively combining the strengths of spatial and channel attention in a computationally efficient manner. The CE module is positioned after the final MRDC layer (Mlayer4) to operate on the most semantically rich fea-tures, where contextual information is most beneficial for classification. 
+
+# 3.4 MRDC Pooling Residual Block 
+
+To integrate the MRDC module with the residual learn-ing framework, we introduce the MRDC Pooling Resid-ual Block (MRDC-block). Building upon the Average Pooling Residual Block (AP-block) that decouples the downsampling operation from convolution through aver-age pooling on the skip connection, the MRDC-block re-places the standard convolution in the main path with the MRDC module: 
+
+H(x) = M (f (x)) + g(x) (22) where f (x) represents the initial convolution and activa-tion in the residual block, M (·) denotes the MRDC mod-ule, and g(x) represents the skip connection with aver-age pooling and 1 × 1 convolution for dimension match-ing. This design preserves the gradient flow properties of residual connections while leveraging the multi-scale fea-ture extraction capabilities of MRDC. 
+
+# 3.5 Overall Architecture 
+
+The complete RDCNet architecture consists of five se-quential stages: 1. Preprocessing: Input images undergo data augmen-tation including random horizontal flipping, padding with random cropping, and random erasing [63] to en-hance sample diversity and reduce overfitting. 2. Initial feature extraction: Adaptive convolution based on input resolution (Section 3.1). 3. Deep feature extraction: Four layers of MRDC resid-ual blocks (Mlayer1–Mlayer4) with progressively in-creasing channel depth, extracting hierarchical multi-scale features. 4. Global feature integration: The CE module pro-cesses the output of Mlayer4 to perform context-aware feature recalibration, followed by global average pool-ing to produce a fixed-size feature vector. 5. Classification: A fully connected layer maps the fea-ture vector to class probabilities. 
+
+# 4 Experiments 
+
+# 4.1 Experimental Setup 
+
+Datasets. We evaluate RDCNet on five widely-used benchmark datasets covering diverse visual recognition scenarios. (1) CIFAR-10 contains 60,000 32 × 32 color images across 10 natural image categories, split into 50,000 training and 10,000 test images. (2) CIFAR-100 follows the same structure but with 100 fine-grained 6Table 1: Impact of different masking strategies on MRDC module performance (classification accuracy %).                          
+
+> Strategy C-10 C-100 SVHN Inette Iwoof null mask 96.08 79.98 96.92 90.93 83.84 k mask 96.24 80.41 97.23 91.72 84.93 c mask 96.16 80.76 97.19 91.11 85.03 c k mask 96.38 81.16 97.41 92.58 85.14
+
+categories. (3) SVHN (Street View House Numbers) con-tains over 99,000 32 × 32 digit images from real-world street scenes, with 73,257 training and 26,032 test images. (4) Imagenette is a curated 10-class subset of ImageNet with 9,469 training and 3,925 test images at 224 × 224 
+
+resolution. (5) Imagewoof is a more challenging 10-class ImageNet subset focusing on dog breeds, with 9,025 train-ing and 3,929 test images. 
+
+Implementation details. All experiments are con-ducted using PyTorch 2.3.0 on an NVIDIA RTX 3090 GPU with CUDA 11.8. We employ SGD optimization with momentum 0.9, weight decay 5 × 10 −4, and la-bel smoothing of 0.1. The initial learning rate is set to 0.1 with cosine annealing [31] scheduling over 200 epochs. Batch sizes are 128 for 32 × 32 inputs and 64 for 224 × 224 inputs. Data augmentation includes random horizontal flipping, padding with random cropping, and random erasing [63]. 
+
+Evaluation metric. Classification accuracy (top-1) on the test set is used as the primary evaluation metric across all experiments. 
+
+# 4.2 Analysis of MRDC Module Parameters 
+
+4.2.1 Impact of Masking Strategy 
+
+To investigate the contribution of different masking com-ponents within the MRDC module, we conduct a sys-tematic ablation study comparing four masking strategies: no masking (null mask), kernel masking only (k mask), channel masking only (c mask), and combined channel-kernel masking (c k mask). The results in Table 1 demon-strate that the combined masking strategy consistently achieves the best performance across all five datasets. The superiority of the combined masking strategy can be attributed to the complementary effects of channel and kernel masking. Channel masking encourages the net-work to learn robust representations across feature chan-nels, preventing over-reliance on any single channel. Ker-nel masking, on the other hand, disrupts the regular spatial sampling pattern of dilated convolutions, effectively miti-gating gridding artifacts. When applied jointly, these two masking mechanisms create a rich space of feature inter-action patterns that enhance both the diversity and robust-Table 2: Impact of scaling factor α on MRDC module performance (classification accuracy %).                                                        
+
+> αC-10 C-100 SVHN Inette Iwoof 0.1 96.09 80.30 97.23 92.25 84.35 0.2 96.16 80.78 97.25 92.15 84.19 0.3 96.22 81.09 97.26 91.90 83.76 0.4 96.27 80.95 97.41 92.23 84.91 0.5 96.38 81.16 97.39 92.58 85.09 0.6 95.89 80.84 97.34 92.48 85.14
+> 0.7 95.78 80.68 97.38 92.20 84.58 0.8 95.86 80.31 97.29 92.03 84.68 0.9 95.72 79.70 97.18 91.54 83.89 1.0 95.75 80.01 97.13 91.46 84.34
+
+ness of learned representations. 
+
+4.2.2 Impact of Scaling Factor 
+
+The scaling factor α in Equation 16 controls the relative contribution of the multi-branch features versus the resid-ual shortcut. We systematically evaluate α values ranging from 0.1 to 1.0 across all five datasets, with results pre-sented in Table 2. The results reveal that the optimal α value centers around 0.5, indicating that balanced integration of multi-branch features with the residual input yields the best clas-sification performance. When α is too small, the net-work over-relies on the original features, which are insuf-ficiently rich to capture complex contextual patterns. Con-versely, when α is too large, the network becomes overly dependent on the complex multi-branch features, increas-ing sensitivity to noise and overfitting risk. The moder-ate value of α ≈ 0.5 provides an effective equilibrium, allowing the network to leverage both low-level residual features and high-level multi-scale representations. 
+
+# 4.3 Placement and Quantity of CE Module 
+
+The positioning of the CE module within the network ar-chitecture significantly affects its effectiveness. We de-sign eight configuration variants (A–H) with CE mod-ules placed at different layers (Mlayer1–Mlayer4) and in different combinations. The results in Table 3 indicate that configuration E, which places a single CE module after Mlayer4, consistently achieves the highest accuracy across all datasets. This finding is consistent with the intuition that deeper layers contain more abstract and semantically rich fea-tures. Feature maps at Mlayer4 encode high-level seman-tic information about object categories, making them the most suitable candidates for context-aware recalibration. At shallower layers, features are predominantly low-level (edges, textures) and lack sufficient semantic content to 7Table 3: Impact of CE module placement on classification accuracy (%). Configuration E places CE after Mlayer4 only.                                              
+
+> Config C-10 C-100 SVHN Inette Iwoof A (none) 96.38 81.16 97.41 92.58 85.14 B96.58 80.15 97.64 92.18 84.39 C96.47 80.87 97.71 91.26 84.65 D96.26 80.48 97.73 92.38 85.44 E96.71 81.75 97.78 93.48 85.65
+> F96.18 81.05 97.74 91.89 85.46 G96.30 80.12 97.71 92.76 85.11 H96.40 79.81 97.57 92.25 84.98
+
+Table 4: Comparison of different attention modules within RDCNet (classification accuracy %).                               
+
+> Module C-10 C-100 SVHN Inette Iwoof + SE 96.55 81.28 97.35 93.09 85.14 + NLB 96.13 81.10 97.58 91.80 85.39 + CCA 96.00 80.15 97.26 93.07 85.11 + GCB 96.48 80.59 97.66 92.97 84.58 + CE 96.71 81.75 97.78 93.48 85.65
+
+benefit from contextual attention. Moreover, applying CE at deeper layers leverages the smaller spatial dimensions and larger channel counts of these features, providing the CE module with richer contextual information for effec-tive channel recalibration. 
+
+# 4.4 Comparison of CE with Alternative Modules 
+
+To further validate the superiority of the proposed CE module, we compare it against four established atten-tion and context modules: SE [18], Non-Local Block (NLB) [53], Criss-Cross Attention (CCA) [20], and Global Context Block (GCB) [2]. Each module is placed in the same position (after Mlayer4) within RDCNet. As shown in Table 4, the CE module achieves the highest ac-curacy on all five datasets. The CE module outperforms SE by capturing spatial dependencies in addition to channel relationships. Com-pared to NLB, CE achieves superior performance with significantly lower computational cost by avoiding dense pairwise computations. The advantage over CCA stems from CE’s ability to capture holistic global context rather than being limited to criss-cross paths. Finally, CE sur-passes GCB by dynamically balancing global and local information through its excitation mechanism, avoiding the over-globalization that can afflict purely global con-text approaches. Table 5: Comparison of different network depths on CIFAR-100.                
+
+> Network Accuracy (%) F1-Score X-Entropy RDCNet18 79.39 0.7937 0.231 RDCNet34 81.75 0.8172 0.151
+> RDCNet50 80.11 0.8009 0.234 RDCNet101 79.43 0.7940 0.230
+
+# 4.5 Impact of Network Depth and Learning Rate 
+
+We investigate the effect of network depth by comparing RDCNet configurations with 18, 34, 50, and 101 layers on CIFAR-100. As shown in Table 5, RDCNet34 achieves the best performance with 81.75% accuracy, outperform-ing RDCNet18 by 2.36%, RDCNet50 by 1.64%, and RD-CNet101 by 2.32%. The 34-layer configuration represents the optimal bal-ance between model capacity and generalization on CIFAR-100. Shallower networks (18 layers) lack suffi-cient representational capacity for the 100-class classifi-cation task, while deeper networks (50 and 101 layers) suffer from increased overfitting risk due to their larger parameter counts, which is exacerbated by the relatively small size of the CIFAR-100 training set. We also study the impact of the initial learning rate under cosine annealing scheduling, evaluating five values (0.1, 0.05, 0.01, 0.005, 0.001) on CIFAR-10, CIFAR-100, and SVHN. An initial learning rate of 0.1 consistently yields the best performance across all three datasets, en-abling rapid convergence in early training phases while the cosine annealing schedule ensures fine-grained param-eter optimization in later stages. 
+
+# 4.6 Comparison with State-of-the-Art Methods 
+
+We compare RDCNet against 14 representative classifi-cation methods spanning CNNs, transformers, and hy-brid architectures. The comprehensive results in Table 6 demonstrate that RDCNet achieves the highest classifica-tion accuracy on all five benchmark datasets. Notably, RDCNet demonstrates particularly significant improvements on the more challenging Imagenette and Imagewoof datasets, where it surpasses the second-best method by 4.73% and 3.56% respectively. These larger margins on higher-resolution datasets with more com-plex backgrounds validate the effectiveness of our multi-scale feature extraction and context-aware attention mech-anisms in handling real-world visual complexity. On the smaller-scale CIFAR and SVHN datasets, RDCNet still achieves consistent improvements, confirming its gener-8Table 6: Classification accuracy (%) comparison with state-of-the-art methods on five benchmark datasets. Best results are in bold . “–” indicates results not reported in the original paper.                                                                                 
+
+> Method CIFAR-10 CIFAR-100 SVHN Imagenette Imagewoof ResNet-34 [16] 88.87 71.49 95.51 87.72 78.04 HO-ResNet [33] 96.32 77.12 95.69 87.23 79.74 WRN-28-10 [58] 95.87 80.50 96.58 88.34 78.71 CAPR-DenseNet 94.24 78.85 94.97 87.72 80.78 Multi-ResNet [1] 94.56 78.69 94.58 87.71 81.26 EfficientNet [41] 94.02 75.98 93.34 88.06 77.95 GhostNet [15] 94.92 77.17 93.86 87.83 78.35 Couplformer [26] 93.54 73.92 94.26 87.91 77.89 FAVOR+ [6] 91.42 72.56 93.21 88.16 77.57 MMA-CCT [24] 94.74 77.51 94.29 ––ATONet [55] 94.51 78.56 95.21 86.68 80.21 QKFormer [64] 96.18 80.27 97.13 88.42 81.67 DAMSNet [22] 96.51 80.50 97.60 ––SSCNet [21] 96.69 80.63 97.43 88.75 82.09
+> RDCNet (Ours) 96.71 81.75 97.78 93.48 85.65
+
+Table 7: Ablation study results (classification accuracy %).                               
+
+> Model C-10 C-100 SVHN Inette Iwoof RDCNet 96.71 81.75 97.78 93.48 85.65
+> Net1 (w/o CE) 96.38 81.16 97.41 92.58 85.14 Net2 (w/o MRDC) 95.46 79.78 97.03 90.75 81.06 Net3 (w/o both) 95.23 78.35 96.65 ––Net4 (7 ×7 init) 88.87 71.49 95.51 87.72 78.04
+
+alizability across different data scales and visual domains. Compared with the baseline ResNet-34, RDCNet achieves remarkable improvements of 7.84%, 10.26%, 2.27%, 5.76%, and 7.61% on the five datasets respec-tively, underscoring the substantial enhancement provided by the proposed MRDC and CE modules. The consistent superiority over recent transformer-based methods (Cou-plformer, FAVOR+, QKFormer) demonstrates that well-designed convolutional architectures with attention mech-anisms can remain highly competitive against the trans-former paradigm for image classification. 
+
+# 4.7 Ablation Studies 
+
+To systematically assess the contribution of each com-ponent in RDCNet, we conduct comprehensive ablation experiments. Four ablation configurations are evaluated: (1) Net1 : RDCNet without the CE module; (2) Net2 : RD-CNet with MRDC replaced by standard 3 × 3 convolu-tions; (3) Net3 : Both CE and MRDC removed; (4) Net4 :RDCNet without the modified initial convolution (retain-ing 7 × 7 kernel and max pooling). The ablation results in Table 7 yield several important insights. First, removing the CE module (Net1) results in accuracy drops of 0.33%, 0.59%, 0.37%, 0.90%, and 0.51% across the five datasets, confirming that contextual feature recalibration contributes meaningfully to classifi-cation performance. Second, removing the MRDC mod-ule (Net2) causes more substantial degradation of 1.25%, 1.97%, 0.75%, 2.73%, and 4.59%, demonstrating that multi-scale feature extraction with random masking is the primary driver of RDCNet’s improved performance. Third, removing both modules (Net3) leads to the largest accuracy drops, indicating that MRDC and CE provide complementary and synergistic benefits. Finally, the dra-matic performance gap between RDCNet and Net4 on small-resolution datasets validates the importance of the adaptive initial convolution design. 
+
+# 5 Conclusion 
+
+We have presented RDCNet, a novel image classifica-tion architecture that addresses the long-standing chal-lenges of fine-grained feature extraction, background noise suppression, and overfitting through three syner-gistic innovations built upon the ResNet-34 backbone. The Multi-Branch Random Dilated Convolution (MRDC) module employs parallel branches with diverse dilation rates and a stochastic masking mechanism to capture multi-scale features while mitigating gridding artifacts and providing implicit regularization, enhanced by the Fine-Grained Feature Enhancement (FGFE) branch that bridges global contextual information with local feature representations to amplify subtle discriminative patterns. The Context Excitation (CE) module further strengthens the network by combining softmax-based spatial atten-9tion with channel recalibration to dynamically emphasize task-relevant features while suppressing background in-terference, achieving a favorable balance between compu-tational efficiency and representational capacity. Compre-hensive experiments on five diverse benchmark datasets demonstrate that RDCNet consistently achieves state-of-the-art classification performance, with improvements of up to 10.26% over the ResNet-34 baseline and signifi-cant margins over 14 competing methods including re-cent transformer-based architectures, while ablation stud-ies confirm the complementary contributions of each pro-posed module. Despite these encouraging results, com-putational overhead from the multi-branch architecture and the balance between local and global feature capture in heavily cluttered scenes remain areas for future im-provement, alongside extending RDCNet to other visual recognition tasks such as object detection [47, 28], scene text recognition [45, 61, 29], and document understand-ing [11, 43, 14, 50, 44, 62, 60, 32, 42, 46, 10, 51, 36, 49, 39, 13, 12, 65]. 
+
+# References 
+
+[1] Masoud Abdi and Saeid Nahavandi. Multi-residual net-works: Improving the speed and accuracy of residual net-works. arXiv preprint arXiv:1609.05672 , 2017. [2] Yue Cao, Jiarui Xu, Stephen Lin, Fangyun Wei, and Han Hu. Gcnet: Non-local networks meet squeeze-excitation networks and beyond. In Proceedings of the IEEE/CVF International Conference on Computer Vision Workshop ,pages 1971–1980, 2019. [3] Linwei Chen, Lin Gu, Dezhi Zheng, and Ying Fu. Frequency-adaptive dilated convolution for semantic seg-mentation. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 3414– 3425, 2024. [4] Liang-Chieh Chen, George Papandreou, Iasonas Kokki-nos, Kevin Murphy, and Alan L Yuille. Deeplab: Semantic image segmentation with deep convolutional nets, atrous convolution, and fully connected crfs. IEEE Transactions on Pattern Analysis and Machine Intelligence , 40(4):834– 848, 2018. [5] Liang-Chieh Chen, George Papandreou, Florian Schroff, and Hartwig Adam. Rethinking atrous convolution for se-mantic image segmentation. 2017. [6] Krzysztof Choromanski, Valerii Likhosherstov, David Do-han, Xingyou Song, Andreea Gane, Tamas Sarlos, Peter Hawkins, Jared Davis, Afroz Mohiuddin, Lukasz Kaiser, et al. Rethinking attention with performers. arXiv preprint arXiv:2009.14794 , 2020. [7] Jifeng Dai, Haozhi Qi, Yuwen Xiong, Yi Li, Guodong Zhang, Han Hu, and Yichen Wei. Deformable convolu-tional networks. In Proceedings of the IEEE International Conference on Computer Vision , pages 764–773, 2017. [8] Terrell DeVries and Graham W Taylor. Improved regular-ization of convolutional neural networks with cutout. 2017. [9] Alexey Dosovitskiy, Lucas Beyer, Alexander Kolesnikov, Dirk Weissenborn, Xiaohua Zhai, Thomas Unterthiner, Mostafa Dehghani, Matthias Minderer, Georg Heigold, Sylvain Gelly, et al. An image is worth 16x16 words: Transformers for image recognition at scale. In Interna-tional Conference on Learning Representations , 2021. [10] Xingjian Fei, Jinghui Lu, Qian Sun, Hao Feng, Yanjie Wang, Wenqiang Shi, Anlong Wang, Jingqun Tang, and Can Huang. Advancing sequential numerical prediction in autoregressive models. Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics ,2025. [11] Hao Feng, Qi Liu, Hao Liu, Jingqun Tang, Wengang Zhou, Houqiang Li, and Can Huang. Docpedia: Unleashing the power of large multimodal model in the frequency domain for versatile document understanding. Science China In-formation Sciences , 2023. [12] Hao Feng, Wenqiang Shi, Kaijie Zhang, Xingjian Fei, Lei Liao, Dingkun Yang, Yibo Du, Xiao Wu, Jingqun Tang, Yuliang Liu, et al. Dolphin-v2: Universal document parsing via scalable anchor prompting. arXiv preprint arXiv:2602.05384 , 2026. [13] Hao Feng, Zijian Wang, Jingqun Tang, Jinghui Lu, Wen-gang Zhou, Houqiang Li, and Can Huang. Unidoc: A uni-versal large multimodal model for simultaneous text de-tection, recognition, spotting and understanding. arXiv preprint arXiv:2308.11592 , 2023. [14] Hao Feng, Shuai Wei, Xingjian Fei, Wenqiang Shi, Yuechen Han, Lei Liao, Jinghui Lu, Binghong Wu, Qi Liu, Chunhui Lin, et al. Dolphin: Document image parsing via heterogeneous anchor prompting. In Findings of the As-sociation for Computational Linguistics: ACL 2025 , pages 21919–21936, 2025. [15] Kai Han, Yunhe Wang, Qi Tian, Jianyuan Guo, Chunjing Xu, and Chang Xu. Ghostnet: More features from cheap operations. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 1577– 1586, 2020. [16] Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun. Deep residual learning for image recognition. In Proceed-ings of the IEEE Conference on Computer Vision and Pat-tern Recognition , pages 770–778, 2016. [17] Andrew G Howard, Menglong Zhu, Bo Chen, Dmitry Kalenichenko, Weijun Wang, Tobias Weyand, Marco An-dreetto, and Hartwig Adam. Mobilenets: Efficient con-volutional neural networks for mobile vision applications. 
+
+arXiv preprint arXiv:1704.04861 , 2017. [18] Jie Hu, Li Shen, and Gang Sun. Squeeze-and-excitation networks. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 7132– 7141, 2018. [19] Gao Huang, Zhuang Liu, Laurens Van Der Maaten, and Kilian Q Weinberger. Densely connected convolutional networks. In Proceedings of the IEEE Conference on Com-puter Vision and Pattern Recognition , pages 2261–2269, 2017. [20] Zilong Huang, Xinggang Wang, Lichao Huang, Chang Huang, Yunchao Wei, and Wenyu Liu. Ccnet: Criss-cross 
+
+10 attention for semantic segmentation. In Proceedings of the IEEE/CVF International Conference on Computer Vision ,pages 603–612, 2019. [21] Wentao Jiang, Chen Chen, and Shengchong Zhang. Sparse feature image classification network with spatial position correction. Opto-Electronic Engineering , 51(5):240050, 2024. [22] Wentao Jiang, Linlin Zhao, and Chao Tu. Double-branch multi-attention mechanism based sharpness-aware classifi-cation network. Pattern Recognition and Artificial Intelli-gence , 36(3):252–267, 2023. [23] Xueyang Jiang, Xiaohan Zhang, Nan Gao, and Yue Deng. When fast fourier transform meets transformer for image restoration. In Proceedings of the European Conference on Computer Vision , pages 381–402. Springer, 2025. [24] Dimitrios Konstantinidis, Ilias Papastratis, Kosmas Dim-itropoulos, and Petros Daras. Multi-manifold attention for vision transformers. IEEE Access , 11:123433–123444, 2023. [25] Alex Krizhevsky, Ilya Sutskever, and Geoffrey E Hinton. Imagenet classification with deep convolutional neural net-works. Communications of the ACM , 60(6):84–90, 2017. [26] Hao Lan, Xiaohu Wang, Hao Shen, Pengda Liang, and Xian Wei. Couplformer: Rethinking vision transformer with coupling attention. In Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision ,2023. [27] Yann LeCun, L´ eon Bottou, Yoshua Bengio, and Patrick Haffner. Gradient-based learning applied to document recognition. volume 86, pages 2278–2324. IEEE, 1998. [28] Songtao Liu, Di Huang, and Yunhong Wang. Receptive field block net for accurate and fast object detection. In 
+
+Proceedings of the European Conference on Computer Vi-sion , pages 404–419. Springer, 2018. [29] Yuliang Liu, Jiaxin Zhang, Dezhi Peng, Mingxin Huang, Xinyu Wang, Jingqun Tang, Can Huang, Dahua Lin, et al. Spts v2: Single-point scene text spotting. IEEE Trans-actions on Pattern Analysis and Machine Intelligence ,45(12), 2023. [30] Ze Liu, Yutong Lin, Yue Cao, Han Hu, Yixuan Wei, Zheng Zhang, Stephen Lin, and Baining Guo. Swin transformer: Hierarchical vision transformer using shifted windows. In 
+
+Proceedings of the IEEE/CVF International Conference on Computer Vision , pages 10012–10022, 2021. [31] Ilya Loshchilov and Frank Hutter. Sgdr: Stochastic gra-dient descent with warm restarts. In International Confer-ence on Learning Representations , 2017. [32] Jinghui Lu, Haiyang Yu, Yanjie Wang, Yongjie Ye, Jingqun Tang, Ziwei Yang, Binghong Wu, Qi Liu, Hao Feng, Han Wang, et al. A bounding box is worth one token – interleaving layout and text in a large language model for document understanding. Findings of the Association for Computational Linguistics: ACL 2025 , pages 7252–7273, 2025. [33] Zhibo Luo, Zhitao Sun, Weilun Zhou, Zhengzhong Wu, and Sei-ichiro Kamata. Rethinking resnets: Improved stacking strategies with high-order schemes for image clas-sification. Complex and Intelligent Systems , 8(4):3395– 3407, 2022. [34] Ningning Ma, Xiangyu Zhang, Hai-Tao Zheng, and Jian Sun. Shufflenet v2: Practical guidelines for efficient cnn architecture design. In Proceedings of the European Con-ference on Computer Vision , pages 116–131, 2018. [35] Mark Sandler, Andrew Howard, Menglong Zhu, Andrey Zhmoginov, and Liang-Chieh Chen. Mobilenetv2: In-verted residuals and linear bottlenecks. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition , pages 4510–4520, 2018. [36] Biluo Shan, Xingjian Fei, Wenqiang Shi, Anlong Wang, Guozhi Tang, Lei Liao, Jingqun Tang, Xiang Bai, and Can Huang. Mctbench: Multimodal cognition to-wards text-rich visual scenes benchmark. arXiv preprint arXiv:2410.11538 , 2024. [37] Karen Simonyan and Andrew Zisserman. Very deep convolutional networks for large-scale image recognition. 
+
+arXiv preprint arXiv:1409.1556 , 2015. [38] Nitish Srivastava, Geoffrey Hinton, Alex Krizhevsky, Ilya Sutskever, and Ruslan Salakhutdinov. Dropout: A sim-ple way to prevent neural networks from overfitting. The Journal of Machine Learning Research , 15(1):1929–1958, 2014. [39] Wenhao Sun, Benlei Cui, Jingqun Tang, and Xue-Mei Dong. Attentive eraser: Unleashing diffusion model’s ob-ject removal potential via self-attention redirection guid-ance. In Proceedings of the AAAI Conference on Artificial Intelligence , 2024. [40] Christian Szegedy, Wei Liu, Yangqing Jia, Pierre Ser-manet, Scott Reed, Dragomir Anguelov, Dumitru Erhan, Vincent Vanhoucke, and Andrew Rabinovich. Going deeper with convolutions. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition ,pages 1–9, 2015. [41] Mingxing Tan and Quoc V Le. Efficientnet: Rethinking model scaling for convolutional neural networks. arXiv preprint arXiv:1905.11946 , 2020. [42] Jingqun Tang, Wei Du, Bo Wang, Wengang Zhou, Songlin Mei, Tian Xue, Xin Xu, and Hao Zhang. Character recog-nition competition for street view shop signs. National Sci-ence Review , 10(6):nwad141, 2023. [43] Jingqun Tang, Chunhui Lin, Zhen Zhao, Shuai Wei, Binghong Wu, Qi Liu, Yue He, Keren Lu, Hao Feng, Yu-liang Li, et al. Textsquare: Scaling up text-centric vi-sual instruction tuning. arXiv preprint arXiv:2404.12803 ,2024. [44] Jingqun Tang, Qi Liu, Yongjie Ye, Jinghui Lu, Shuai Wei, Anlong Wang, Chunhui Lin, Hao Feng, Zhen Zhao, et al. Mtvqa: Benchmarking multilingual text-centric vi-sual question answering. Findings of the Association for Computational Linguistics: ACL 2025 , pages 7748–7763, 2025. [45] Jingqun Tang, Wenming Qian, Luchuan Song, Xiena Dong, Lan Li, and Xiang Bai. Optimal boxes: Boost-ing end-to-end scene text recognition by adjusting anno-tated bounding boxes via reinforcement learning. In Pro-ceedings of the European Conference on Computer Vision ,pages 233–248. Springer, 2022. 
+
+11 [46] Jingqun Tang, Shaohua Qiao, Benlei Cui, Yuhang Ma, Sheng Zhang, and Dimitrios Kanoulas. You can even an-notate text with voice: Transcription-only-supervised text spotting. In Proceedings of the 30th ACM International Conference on Multimedia , pages 4154–4163, 2022. [47] Jingqun Tang, Wenqing Zhang, Hongye Liu, Min-Kuang Yang, Bo Jiang, Guanglong Hu, and Xiang Bai. Few could be better than all: Feature sampling and grouping for scene text detection. In Proceedings of the IEEE/CVF Confer-ence on Computer Vision and Pattern Recognition , pages 4563–4572, 2022. [48] Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N Gomez, Łukasz Kaiser, and Illia Polosukhin. Attention is all you need. In Ad-vances in Neural Information Processing Systems , pages 6000–6010, 2017. [49] Anlong Wang, Biluo Shan, Wenqiang Shi, Kun-Yu Lin, Xingjian Fei, Guozhi Tang, Lei Liao, Jingqun Tang, Can Huang, et al. Pargo: Bridging vision-language with partial and global views. In Proceedings of the AAAI Conference on Artificial Intelligence , 2024. [50] Anlong Wang, Jingqun Tang, Lei Liao, Hao Feng, Qi Liu, Xingjian Fei, Jinghui Lu, Han Wang, Hao Liu, Yuliang Liu, et al. Wilddoc: How far are we from achieving comprehensive and robust document understanding in the wild? Proceedings of the 2025 Conference on Empirical Methods in Natural Language Processing , 2025. [51] Han Wang, Yongjie Ye, Bingqi Li, Yuhang Nie, Jinghui Lu, Jingqun Tang, Yanjie Wang, and Can Huang. Vision as lora. arXiv preprint arXiv:2503.20680 , 2025. [52] Jian Wang, Qiping Yang, Shiqiang Yang, Xiuli Chai, and Wenjie Zhang. Dual-path processing network for high-resolution salient object detection. Applied Intelligence ,52(10):12034–12048, 2022. [53] Xiaolong Wang, Ross Girshick, Abhinav Gupta, and Kaiming He. Non-local neural networks. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pat-tern Recognition , 2018. [54] Sanghyun Woo, Jongchan Park, Joon-Young Lee, and In So Kweon. Cbam: Convolutional block attention mod-ule. In Proceedings of the European Conference on Com-puter Vision , pages 3–19, 2018. [55] Xidong Wu, Shangqian Gao, Zeyu Zhang, Zhenzhen Li, Runxue Bao, Yanfu Zhang, Xiaoqian Wang, and Heng Huang. Auto-train-once: Controller network guided au-tomatic network pruning from scratch. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pat-tern Recognition , pages 16163–16173, 2024. [56] Fisher Yu and Vladlen Koltun. Multi-scale context aggregation by dilated convolutions. arXiv preprint arXiv:1511.07122 , 2016. [57] Sangdoo Yun, Dongyoon Han, Seong Joon Oh, Sanghyuk Chun, Junsuk Choe, and Youngjoon Yoo. Cutmix: Reg-ularization strategy to train strong classifiers with localiz-able features. In Proceedings of the IEEE/CVF Interna-tional Conference on Computer Vision , pages 6023–6032, 2019. [58] Sergey Zagoruyko and Nikos Komodakis. Wide residual networks. arXiv preprint arXiv:1605.07146 , 2017. [59] Hongyi Zhang, Moustapha Cisse, Yann N Dauphin, and David Lopez-Paz. mixup: Beyond empirical risk mini-mization. In International Conference on Learning Repre-sentations , 2018. [60] Weichao Zhao, Hao Feng, Qi Liu, Jingqun Tang, Shuai Wei, Binghong Wu, Lei Liao, Yongjie Ye, Hao Liu, Wen-gang Zhou, et al. Tabpedia: Towards comprehensive visual table understanding with concept synergy. In Advances in Neural Information Processing Systems , 2024. [61] Zhen Zhao, Jingqun Tang, Binghong Wu, Chunhui Lin, Hao Liu, Zitao Zhang, Xin Tan, Can Huang, and Yuan Xie. Multi-modal in-context learning makes an ego-evolving scene text recognizer. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition ,2023. [62] Zhen Zhao, Jingqun Tang, Binghong Wu, Chunhui Lin, Shuai Wei, Hao Liu, Xin Tan, Zitao Zhang, Can Huang, et al. Harmonizing visual text comprehension and gener-ation. In Advances in Neural Information Processing Sys-tems , 2024. [63] Zhun Zhong, Liang Zheng, Guoliang Kang, Shaozi Li, and Yi Yang. Random erasing data augmentation. Pro-ceedings of the AAAI Conference on Artificial Intelligence ,34(7):13001–13008, 2020. [64] Chenlin Zhou, Han Zhang, Zhaokun Zhou, Liutao Yu, Li-wei Huang, Xiaopeng Fan, Li Yuan, Zhengyu Ma, Hui-hui Zhou, and Yonghong Tian. Qkformer: Hierarchical spiking transformer using q-k attention. arXiv preprint arXiv:2403.16552 , 2024. [65] Hao Zhu, Yuliang Liu, Xiao Wu, Anlong Wang, Hao Feng, Dingkun Yang, Chen Feng, Can Huang, Jingqun Tang, et al. Textpecker: Rewarding structural anomaly quantifi-cation for enhancing visual text rendering. arXiv preprint arXiv:2602.20903 , 2026. [66] Zhen Zhu, Mengde Xu, Song Bai, Tengteng Huang, and Xiang Bai. Asymmetric non-local neural networks for se-mantic segmentation. In Proceedings of the IEEE/CVF In-ternational Conference on Computer Vision , pages 593– 602, 2019. 
+
+12

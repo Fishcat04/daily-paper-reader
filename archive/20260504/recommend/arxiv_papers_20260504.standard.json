@@ -1,0 +1,667 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-05-04T20:51:21.187142+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 6,
+    "deep_cap": 6,
+    "deep_selected": 6,
+    "quick_candidates": 13,
+    "quick_skim_target": 11,
+    "quick_selected": 11
+  },
+  "deep_dive": [
+    {
+      "id": "2604.27293v1",
+      "source": "arxiv",
+      "title": "Student Classroom Behavior Recognition Based on Improved YOLOv8s",
+      "abstract": "In classroom teaching, student behavior can reflect their learning state and classroom participation, which is of great significance for teaching quality analysis. To address the problems of dense student targets, numerous small objects, frequent occlusions, and imbalanced class distribution in real classroom scenes, this paper proposes an improved student classroom behavior recognition model named ALC-YOLOv8s based on YOLOv8s. The model introduces SPPF-LSKA to enhance contextual feature extraction, employs CFC-CRB and SFC-G2 to optimize multi-scale feature fusion, and incorporates ATFLoss to improve the learning ability for minority classes and hard samples. Experimental results show that compared with the baseline model, the improved model achieves increases of 1.8% in mAP50 and 2.1% in mAP50-95. Compared with several mainstream detection methods, the proposed model can well meet the requirements of automatic student behavior recognition in complex classroom scenarios.",
+      "authors": [
+        "Xiang Gao",
+        "Shuai Hang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.CY"
+      ],
+      "published": "2026-04-30T01:13:25+00:00",
+      "link": "https://arxiv.org/pdf/2604.27293v1",
+      "tags": [
+        "keyword:SOD"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "improved YOLOv8s for numerous small objects and multi-scale feature fusion",
+      "llm_evidence_cn": "改进的YOLOv8s用于处理大量小目标和多尺度特征融合",
+      "llm_evidence": "改进的YOLOv8s用于处理大量小目标和多尺度特征融合",
+      "canonical_evidence": "改进的YOLOv8s用于处理大量小目标和多尺度特征融合",
+      "llm_tldr_en": "Enhances YOLOv8s with multi-scale fusion and specialized loss for small object detection in classrooms.",
+      "llm_tldr_cn": "通过多尺度融合和专门的损失函数改进YOLOv8s，用于教室场景下的小目标检测。",
+      "llm_tldr": "通过多尺度融合和专门的损失函数改进YOLOv8s，用于教室场景下的小目标检测。",
+      "llm_tags": [
+        "query:sod:composite"
+      ],
+      "matched_query_tag": "query:sod:composite",
+      "matched_query_text": "Papers central to 小目标检测相关论文检索, especially work that connects or combines: deep learning methods for small object detection; FPN and its variants for multi-scale object detection; oversampling and augmentation strategies for small objects; spatial and channel attention for small object feature enhancement; multi-scale feature fusion techniques in computer vision; specialized loss functions for small object localization; state of the art deep learning methods for small object detection; benchmarking small object detection on public datasets.",
+      "matched_requirement_id": "req-composite-sod",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2604.25300v1",
+      "source": "arxiv",
+      "title": "DenseScout: Algorithm-System Co-design for Budgeted Tiny Object Selection on Edge Platforms",
+      "abstract": "Deploying tiny object perception on edge platforms is challenging because practical systems must satisfy both strict compute budgets and end-to-end latency constraints. A common strategy is to first select a small number of candidate patches from a high-resolution image and then apply downstream processing only to the selected regions. However, existing detector-based frontends are not well aligned with this setting: strong offline detection accuracy does not necessarily yield effective low-budget patch prioritization, nor does it guarantee usable performance once transport and inference delays are considered. In this work, we study budgeted tiny object selection on edge platforms from a joint algorithm--system perspective. We present DenseScout, a lightweight dense-response selector with only 1.01M parameters, which directly ranks candidate patch locations from a high-resolution scene via a lightweight proxy input and is better aligned with low-budget tiny-object prioritization than detector-style frontends. To bridge offline selector quality and deployable utility, we further develop a transport-aware runtime realization on heterogeneous edge devices and adopt QoS-constrained recall, which counts a target as successfully perceived only if it is covered by the selected regions and the end-to-end processing finishes before the deadline. Experiments show that DenseScout consistently outperforms detector-based baselines in offline budgeted patch-selection evaluation, especially in low-budget regimes, while cross-platform results on RK3588 and Jetson Orin NX show that deployable performance depends jointly on selector quality and runtime realization efficiency. These results suggest that edge tiny object perception should be optimized as an algorithm--system co-design problem rather than as isolated model selection.",
+      "authors": [
+        "Xiong Zhouzhi",
+        "Zimo Zeng",
+        "Yi Chen",
+        "Shuqi Xu",
+        "Yunfeng Yan",
+        "Donglian Qi"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "eess.IV"
+      ],
+      "published": "2026-04-28T07:09:57+00:00",
+      "link": "https://arxiv.org/pdf/2604.25300v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "budgeted tiny object selection on edge platforms",
+      "llm_evidence_cn": "边缘平台上的预算受限微小目标选择",
+      "llm_evidence": "边缘平台上的预算受限微小目标选择",
+      "canonical_evidence": "边缘平台上的预算受限微小目标选择",
+      "llm_tldr_en": "DenseScout optimizes tiny object selection on edge devices through algorithm-system co-design.",
+      "llm_tldr_cn": "DenseScout通过算法-系统协同设计优化边缘设备上的微小目标选择。",
+      "llm_tldr": "DenseScout通过算法-系统协同设计优化边缘设备上的微小目标选择。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2604.23653v1",
+      "source": "arxiv",
+      "title": "ResAF-Net: An Anchor-Free Attention-Based Network for Tree Detection and Agricultural Mapping in Palestine",
+      "abstract": "Reliable agricultural data is essential for food security, land-use planning, and economic resilience, yet in Palestine, such data remains difficult to collect at scale because of fragmented landscapes, limited field access, and restrictions on aerial monitoring. This paper presents ResAF-Net, a satellite-based tree detection framework designed for large-scale agricultural monitoring in resource-constrained settings. The proposed architecture combines a ResNet-50 encoder, Atrous Spatial Pyramid Pooling (ASPP), a feature-fusion stage, a multi-head self-attention refinement module, and an anchor-free FCOS detection head to improve tree localization in dense and heterogeneous scenes. Trained on the MillionTrees benchmark, the model achieved 82% Recall, 63.03% mAP@0.50, and 35.47% mAP@0.50:0.95 on the validation split, indicating strong sensitivity to tree presence while maintaining competitive localization quality. Beyond benchmark evaluation, we implemented the model within a web-based GIS application integrated with Palestinian cadastral data from GeoMolg, enabling tree analysis at scene, parcel, and community levels. This deployment demonstrates the practical feasibility of AI-assisted agricultural inventorying in Palestine. It provides a foundation for data-driven monitoring, reporting, and future species-level analysis of Mediterranean tree crops.",
+      "authors": [
+        "Rabee Al-Qasem"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-04-26T10:47:18+00:00",
+      "link": "https://arxiv.org/pdf/2604.23653v1",
+      "tags": [
+        "keyword:SOD"
+      ],
+      "llm_score": 8.5,
+      "llm_evidence_en": "Combines feature fusion and multi-head self-attention for tree detection in satellite imagery",
+      "llm_evidence_cn": "结合特征融合和多头自注意力机制，用于卫星图像中的树木检测",
+      "llm_evidence": "结合特征融合和多头自注意力机制，用于卫星图像中的树木检测",
+      "canonical_evidence": "结合特征融合和多头自注意力机制，用于卫星图像中的树木检测",
+      "llm_tldr_en": "Proposes an anchor-free network with attention and feature fusion for detecting trees in satellite imagery.",
+      "llm_tldr_cn": "提出一种结合注意力机制和特征融合的无锚点网络，用于卫星图像中的树木检测。",
+      "llm_tldr": "提出一种结合注意力机制和特征融合的无锚点网络，用于卫星图像中的树木检测。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "spatial and channel attention for small object feature enhancement",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2604.24276v1",
+      "source": "arxiv",
+      "title": "Instance Awareness of Multi-class Semantic Segmentation Loss Functions",
+      "abstract": "Instance-sensitive losses for semantic segmentation such as blob loss and CC loss were designed to address instance imbalance, ensuring small lesions generate the same gradient as large ones, but operate only on single-class segmentation. In multi-class settings, class imbalance poses an additional problem: rare classes with few instances receive a disproportionately small share of the training signal. We show that extending instance-sensitive losses to multi-class segmentation via a one-vs-rest class decomposition repurposes them to also address class imbalance, as uniform averaging over classes ensures each class contributes equally regardless of frequency. We further show that inverse-size weighting, which destabilizes training when applied globally due to weight imbalances across rare and common classes, becomes effective when integrated within the per-component loss, confining the reweighting to each component's spatial context. On the BraTS-METS 2025 dataset (260 test cases), multi-class CC loss improves foreground Dice (0.64 +/- 0.26 vs. 0.59 +/- 0.27 baseline) and rare-class Dice, while maintaining Panoptic Quality at DSC threshold 0.5. Multi-class blob loss achieves the best Panoptic Quality at threshold 0.5 (0.40 +/- 0.24 vs. 0.38 +/- 0.25 baseline) and recognition quality (0.53 +/- 0.29 vs. 0.49 +/- 0.30). Integrating inverse-size weighting within the per-component loss increases rare-class Dice to 0.44 +/- 0.36 at the cost of reduced detection quality.",
+      "authors": [
+        "Soumya Snigdha Kundu",
+        "Florian Kofler",
+        "Marina Ivory",
+        "Hendrik Moller",
+        "Jonathan Shapey",
+        "Tom Vercauteren"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-04-27T10:10:06+00:00",
+      "link": "https://arxiv.org/pdf/2604.24276v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "instance-sensitive losses to ensure small lesions generate same gradient as large ones",
+      "llm_evidence_cn": "实例敏感损失函数确保小病灶产生与大病灶相同的梯度",
+      "llm_evidence": "实例敏感损失函数确保小病灶产生与大病灶相同的梯度",
+      "canonical_evidence": "实例敏感损失函数确保小病灶产生与大病灶相同的梯度",
+      "llm_tldr_en": "Extends instance-sensitive losses to multi-class segmentation to address size and class imbalance for small targets.",
+      "llm_tldr_cn": "将实例敏感损失扩展到多类别分割，以解决小目标的大小和类别不平衡问题。",
+      "llm_tldr": "将实例敏感损失扩展到多类别分割，以解决小目标的大小和类别不平衡问题。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "specialized loss functions for small object localization",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2604.27128v1",
+      "source": "arxiv",
+      "title": "Lightweight Distillation of SAM 3 and DINOv3 for Edge-Deployable Individual-Level Livestock Monitoring and Longitudinal Visual Analytics",
+      "abstract": "Foundation-model pipelines for individual-level livestock monitoring -- combining open-vocabulary detection, promptable video segmentation, and self-supervised visual embeddings -- have raised the accuracy ceiling of precision livestock farming (PLF), but their GPU memory budgets exceed the envelope of commodity edge accelerators. To close this gap, the 446M-parameter Perception Encoder (PE-ViT-L+) backbone of SAM 3 is distilled into a 40.66M-parameter multi-scale student through three mechanisms: a Feature Pyramid Network student encoder built on TinyViT-21M-512, a four-term direction-then-scale distillation loss, and backbone-substitution inference with sliding-window session pruning that bounds streaming GPU memory growth. The DINOv3 family includes a pre-distilled ViT-S/16 variant (21.6M parameters) released alongside a 6716M-parameter ViT-7B teacher; the ViT-S (21M) variant is adopted as the per-individual embedder. On the Edinburgh Pig dataset, the compressed pipeline reaches 92.29% MOTA and 96.15% IDF1 against the SAM 3 teacher (1.68- and 0.84-percentage-point losses), achieves a 7.77-fold reduction in system-level parameters and a 3.01-fold reduction in peak VRAM (19.52GB -> 6.49GB), and reaches 97.34% top-1 accuracy with 91.67% macro-F1 on nine-class pig behaviour classification. The pipeline fits inside an NVIDIA Jetson Orin NX 16GB envelope with 4.9GB of headroom, supporting a proposed -- but not yet empirically validated -- on-device embedding-pool re-identification mechanism whose per-individual footprint of approximately 94MB per animal per year produces a longitudinal visual record amenable to retrospective association with disease, lameness, reproductive, and growth outcome labels.",
+      "authors": [
+        "Haiyu Yang",
+        "Miel Hostens"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-04-29T19:25:22+00:00",
+      "link": "https://arxiv.org/pdf/2604.27128v1",
+      "tags": [
+        "keyword:SOD"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Feature Pyramid Network student encoder for multi-scale distillation",
+      "llm_evidence_cn": "用于多尺度蒸馏的特征金字塔网络(FPN)学生编码器",
+      "llm_evidence": "用于多尺度蒸馏的特征金字塔网络(FPN)学生编码器",
+      "canonical_evidence": "用于多尺度蒸馏的特征金字塔网络(FPN)学生编码器",
+      "llm_tldr_en": "This work distills foundation models into a multi-scale FPN-based student for edge monitoring.",
+      "llm_tldr_cn": "该研究将基础模型蒸馏至基于FPN的多尺度学生网络，用于边缘端监测。",
+      "llm_tldr": "该研究将基础模型蒸馏至基于FPN的多尺度学生网络，用于边缘端监测。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "FPN and its variants for multi-scale object detection",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2604.28095v1",
+      "source": "arxiv",
+      "title": "UHR-Net: An Uncertainty-Aware Hypergraph Refinement Network for Medical Image Segmentation",
+      "abstract": "Accurate lesion segmentation is crucial for clinical diagnosis and treatment planning. However, lesions often resemble surrounding tissues and exhibit ill-defined boundaries, leading to unstable predictions in boundary/transition regions. Moreover, small-lesion cues can be diluted by multi-scale feature extraction, causing under- or over-segmentation. To address these challenges, we propose an Uncertainty-Aware Hypergraph Refinement Network (UHR-Net). First, we introduce an Uncertainty-Oriented Instance Contrastive (UO-IC) pretraining strategy that couples geometry-aware copy-paste augmentation with hard-negative mining of lesion-like background regions to improve instance-level discrimination for small and visually ambiguous lesions. Second, we design an Uncertainty-Guided Hypergraph Refinement (UGHR) block, which derives an entropy-based uncertainty map from a coarse probability map to guide hypergraph refinement. By splitting hyperedge prototypes into foreground and background groups, UGHR decouples higher-order interactions and improves refinement in ambiguous regions. Experiments on five public benchmarks demonstrate consistent gains over strong baselines. Code is available at: https://github.com/CUGfreshman/UHR-Net.",
+      "authors": [
+        "Shuokun Cheng",
+        "Jinghao Shi",
+        "Kun Sun"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-04-30T16:38:51+00:00",
+      "link": "https://arxiv.org/pdf/2604.28095v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "geometry-aware copy-paste augmentation for small lesions",
+      "llm_evidence_cn": "针对小病灶的几何感知复制粘贴增强",
+      "llm_evidence": "针对小病灶的几何感知复制粘贴增强",
+      "canonical_evidence": "针对小病灶的几何感知复制粘贴增强",
+      "llm_tldr_en": "UHR-Net uses copy-paste augmentation and hypergraphs to improve small lesion segmentation.",
+      "llm_tldr_cn": "UHR-Net通过复制粘贴增强和超图细化提升小病灶分割精度。",
+      "llm_tldr": "UHR-Net通过复制粘贴增强和超图细化提升小病灶分割精度。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "oversampling and augmentation strategies for small objects",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2604.23641v1",
+      "source": "arxiv",
+      "title": "VDLF-Net: Variational Feature Fusion for Adaptive and Few-Shot Visual Learning",
+      "abstract": "This paper introduces VDLF-Net, which attaches a compact VAE to a multi-scale CNN backbone. Latent vectors and softmax-gate support the backbone feature maps, while $\\ell_2$-normalized embeddings from the gated maps contribute toward supervised classification or episodic few-shot prediction. Under standard CIFAR-100 and Mini-ImageNet protocols, VDLF-Net demonstrates an improved performance over ResNet-50 Enhanced, VGG-16, Prototypical Networks, and Matching Networks. Extensive ablations show that removing the fine-resolution scale has the greatest impact on VDLF-Net's performance. At the same time, KL and reconstruction at the chosen $α$ pose a minor performance reduction, demonstrating that performance gains over classical episodic baselines mainly originate from the full VDLF-Net architecture and training strategy.",
+      "authors": [
+        "Jiawei Yan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-04-26T10:15:39+00:00",
+      "link": "https://arxiv.org/pdf/2604.23641v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "multi-scale CNN backbone with variational feature fusion for few-shot learning",
+      "llm_evidence_cn": "带有变分特征融合的多尺度CNN骨干网络用于少样本学习",
+      "llm_evidence": "带有变分特征融合的多尺度CNN骨干网络用于少样本学习",
+      "canonical_evidence": "带有变分特征融合的多尺度CNN骨干网络用于少样本学习",
+      "llm_tldr_en": "Introduces a multi-scale feature fusion network for adaptive and few-shot visual learning tasks.",
+      "llm_tldr_cn": "引入一种用于自适应和少样本视觉学习任务的多尺度特征融合网络。",
+      "llm_tldr": "引入一种用于自适应和少样本视觉学习任务的多尺度特征融合网络。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2604.26857v1",
+      "source": "arxiv",
+      "title": "Edge AI for Automotive Vulnerable Road User Safety: Deployable Detection via Knowledge Distillation",
+      "abstract": "Deploying accurate object detection for Vulnerable Road User (VRU) safety on edge hardware requires balancing model capacity against computational constraints. Large models achieve high accuracy but fail under INT8 quantization required for edge deployment, while small models sacrifice detection performance. This paper presents a knowledge distillation (KD) framework that trains a compact YOLOv8-S student (11.2M parameters) to mimic a YOLOv8-L teacher (43.7M parameters), achieving 3.9x compression while preserving quantization robustness. We evaluate on full-scale BDD100K (70K training images) with Post-Training Quantization to INT8. The teacher suffers catastrophic degradation under INT8 (-23% mAP), while the KD student retains accuracy (-5.6% mAP). Analysis reveals that KD transfers precision calibration rather than raw detection capacity: the KD student achieves 0.748 precision versus 0.653 for direct training at INT8, a 14.5% gain at equivalent recall, reducing false alarms by 44% versus the collapsed teacher. At INT8, the KD student exceeds the teacher's FP32 precision (0.748 vs. 0.718) in a model 3.9x smaller. These findings establish knowledge distillation as a requirement for deploying accurate, safety-critical VRU detection on edge hardware.",
+      "authors": [
+        "Akshay Karjol",
+        "Darrin M. Hanna"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG",
+        "cs.RO",
+        "eess.IV"
+      ],
+      "published": "2026-04-29T16:24:45+00:00",
+      "link": "https://arxiv.org/pdf/2604.26857v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.5,
+      "llm_evidence_en": "YOLO-based object detection for vulnerable road users which often appear as small objects in traffic scenes",
+      "llm_evidence_cn": "基于YOLO的弱势道路使用者检测，这些目标在交通场景中通常表现为小目标",
+      "llm_evidence": "基于YOLO的弱势道路使用者检测，这些目标在交通场景中通常表现为小目标",
+      "canonical_evidence": "基于YOLO的弱势道路使用者检测，这些目标在交通场景中通常表现为小目标",
+      "llm_tldr_en": "Uses knowledge distillation to create a compact YOLOv8 model for efficient road user detection on edge devices.",
+      "llm_tldr_cn": "利用知识蒸馏技术构建紧凑的YOLOv8模型，实现边缘设备上高效的道路使用者检测。",
+      "llm_tldr": "利用知识蒸馏技术构建紧凑的YOLOv8模型，实现边缘设备上高效的道路使用者检测。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2604.23839v1",
+      "source": "arxiv",
+      "title": "Focus on What Matters: Two-Stage ROI-Aware Refinement for Anatomy-Preserving Fetal Ultrasound Reconstruction",
+      "abstract": "Measurement-critical ultrasound tasks often depend on a small anatomical region, making global reconstruction metrics an unreliable proxy for clinical fidelity. We propose an ROI-aware representation learning framework and instantiate it for first-trimester nuchal translucency (NT) screening under multi-hospital domain shift. A two-phase convolutional autoencoder (CAE) first learns a globally faithful 128-D latent code via MS-SSIM, then refines the NT ROI using intensity (L1) and normalized Sobel-edge constraints. To combine these heterogeneous objectives without manual tuning, we initialize loss weights via gradient-based calibration from per-term gradient magnitudes. Under strict hospital-wise evaluation with one hospital held out, ROI refinement improves both global and measurement-relevant quality: on the standard dev split it increases PSNR by +0.27 dB (val) and +0.29 dB (held-out test), reduces ROI MAE by 8.87% (val) and 6.43% (held-out test), and reduces ROI Edge-MAE by 11.10% on source hospitals and 4.90% on the unseen hospital. Beyond reconstruction, frozen-latent probes provide additional evidence of generalization: hospital provenance becomes less confidently predictable on the unseen site (0.556 to 0.541 max-softmax; 0.684 to 0.688 entropy) while OOD detection remains strong across site-held-out protocols (Mahalanobis AUROC up to 0.9956, with modest KNN gains in challenging splits). The same ROI-aware refinement principle is anatomy-agnostic and can be adopted for other fetal biometry targets (e.g., crown-rump length (CRL), nasal bone (NB)) and broader medical imaging settings where small ROIs dominate clinical decisions.",
+      "authors": [
+        "Ines Abbes",
+        "Mahmood Alzubaidi",
+        "Mowafa Househ",
+        "Khalid Alyafei",
+        "Marco Agus",
+        "Samir Brahim Belhaouari"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-04-26T18:47:17+00:00",
+      "link": "https://arxiv.org/pdf/2604.23839v1",
+      "tags": [
+        "keyword:SOD"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "ROI-aware refinement for small anatomical regions with gradient-based loss calibration",
+      "llm_evidence_cn": "针对小解剖区域的ROI感知细化及基于梯度的损失校准",
+      "llm_evidence": "针对小解剖区域的ROI感知细化及基于梯度的损失校准",
+      "canonical_evidence": "针对小解剖区域的ROI感知细化及基于梯度的损失校准",
+      "llm_tldr_en": "Proposes a two-stage ROI-aware refinement framework to focus on small critical regions in ultrasound images.",
+      "llm_tldr_cn": "提出一种两阶段ROI感知细化框架，专注于超声图像中的小型关键区域。",
+      "llm_tldr": "提出一种两阶段ROI感知细化框架，专注于超声图像中的小型关键区域。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "specialized loss functions for small object localization",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2604.25188v1",
+      "source": "arxiv",
+      "title": "Image Classification via Random Dilated Convolution with Multi-Branch Feature Extraction and Context Excitation",
+      "abstract": "Image classification remains a fundamental yet challenging task in computer vision, particularly when fine-grained feature extraction and background noise suppression are required simultaneously. Conventional convolutional neural networks, despite their remarkable success in hierarchical feature learning, often struggle with capturing multi-scale contextual information and are susceptible to overfitting when confronted with noisy or irrelevant image regions. In this paper, we propose RDCNet (Image Classification Network with Random Dilated Convolution), a novel architecture built upon ResNet-34 that integrates three synergistic innovations to address these limitations: (1) a Multi-Branch Random Dilated Convolution (MRDC) module that employs parallel branches with varying dilation rates combined with a stochastic masking mechanism to capture fine-grained features across multiple scales while enhancing robustness against noise and overfitting; (2) a Fine-Grained Feature Enhancement (FGFE) module embedded within MRDC that bridges global contextual information with local feature representations through adaptive pooling and bilinear interpolation, thereby amplifying sensitivity to subtle visual patterns; and (3) a Context Excitation (CE) module that leverages softmax-based spatial attention and channel recalibration to dynamically emphasize task-relevant features while suppressing background interference. Extensive experiments conducted on five benchmark datasets -- CIFAR-10, CIFAR-100, SVHN, Imagenette, and Imagewoof -- demonstrate that RDCNet consistently achieves state-of-the-art classification accuracy, outperforming the second-best competing methods by margins of 0.02\\%, 1.12\\%, 0.18\\%, 4.73\\%, and 3.56\\%, respectively, thereby validating the effectiveness and generalizability of the proposed approach across diverse visual recognition scenarios.",
+      "authors": [
+        "Wentao Jiang",
+        "Yuanchan Xu",
+        "Heng Yuan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-04-28T03:49:35+00:00",
+      "link": "https://arxiv.org/pdf/2604.25188v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Multi-Branch Random Dilated Convolution for multi-scale contextual information",
+      "llm_evidence_cn": "多分支随机空洞卷积用于多尺度上下文信息",
+      "llm_evidence": "多分支随机空洞卷积用于多尺度上下文信息",
+      "canonical_evidence": "多分支随机空洞卷积用于多尺度上下文信息",
+      "llm_tldr_en": "RDCNet uses random dilated convolutions to capture multi-scale features and suppress noise.",
+      "llm_tldr_cn": "RDCNet利用随机空洞卷积捕获多尺度特征并抑制背景噪声。",
+      "llm_tldr": "RDCNet利用随机空洞卷积捕获多尺度特征并抑制背景噪声。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2604.27653v1",
+      "source": "arxiv",
+      "title": "FUN: A Focal U-Net Combining Reconstruction and Object Detection for Snapshot Spectral Imaging",
+      "abstract": "Conventional push-broom hyperspectral imaging suffers from slow acquisition speeds, precluding real-time object detection; in contrast, snapshot spectral imaging enables instantaneous hyperspectral images (HSIs) capture, making real-time object detection feasible, yet its potential is often compromised by time-consuming post-capture reconstruction. To address this issue, we propose the Focal U-shaped Network (FUN), a novel end-to-end framework that jointly performs HSI reconstruction and object detection via multi-task learning. FUN employs a shared U-shaped backbone, where reconstruction provides underlying spectral information while detection guides semantic-aware priors learning, facilitating mutually beneficial task interaction. Crucially, we introduce focal modulation, an efficient alternative to self-attention that modulates spatial and spectral features while reducing quadratic computational complexity, enabling a self-attention-free architecture for joint reconstruction and detection. Furthermore, we contribute a new HSI object detection dataset with 8712 annotated objects across 363 HSIs to facilitate evaluation of the proposed method. Experiments demonstrate that FUN achieves state-of-the-art performance on both tasks, using 40% fewer parameters and 30% less computation than recent alternatives, making it promising for future real-time edge deployment. The code and datasets are available: https://github.com/ShawnDong98/FUN.",
+      "authors": [
+        "Dahua Gao",
+        "Yubo Dong",
+        "Anqi Li",
+        "Zhenyuan Lin",
+        "Ang Gao",
+        "Danhua Liu",
+        "Guangming Shi"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-04-30T09:48:38+00:00",
+      "link": "https://arxiv.org/pdf/2604.27653v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Focal U-Net for real-time object detection in snapshot spectral imaging",
+      "llm_evidence_cn": "用于快照光谱成像实时目标检测的Focal U-Net",
+      "llm_evidence": "用于快照光谱成像实时目标检测的Focal U-Net",
+      "canonical_evidence": "用于快照光谱成像实时目标检测的Focal U-Net",
+      "llm_tldr_en": "Proposes a Focal U-Net that jointly performs spectral reconstruction and real-time object detection.",
+      "llm_tldr_cn": "提出一种联合执行光谱重建和实时目标检测的Focal U-Net框架。",
+      "llm_tldr": "提出一种联合执行光谱重建和实时目标检测的Focal U-Net框架。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2604.25319v1",
+      "source": "arxiv",
+      "title": "Edge-Cloud Collaborative Reconstruction via Structure-Aware Latent Diffusion for Downstream Remote Sensing Perception",
+      "abstract": "The exponential surge in high-resolution remote sensing data faces a severe bottleneck in satellite-to-ground transmission. Limited downlink bandwidth forces the use of extreme high-ratio compression, which irreversibly destroys high-frequency structural details essential for downstream machine perception tasks like object detection. While current super-resolution techniques attempt to recover these details, regression-based methods often yield over-smoothed textures, and generative diffusion models frequently introduce structural hallucinations that mislead detection systems. To address this trade-off, we propose the Structure-Aware Latent Diffusion (SALD) framework, an asymmetric edge-cloud collaborative SR system. At the resource-constrained edge, the system decouples imagery into a highly compressed low-frequency payload and a lightweight soft structural prior. Transmitting this decoupled representation minimizes bandwidth consumption. On the powerful cloud side, we introduce a Structure-Gated Large Kernel (SGLK) module and a Semantic-Guidance Engine (SGE) within the diffusion backbone. These modules leverage the transmitted structural priors to gate large-kernel convolutions, effectively capturing long-range dependencies inherent in aerial scenes while actively suppressing generative hallucinations. Extensive experiments on both the MSCM and UCMerced datasets demonstrate that, even under extreme bandwidth constraints, SALD achieves superior perceptual quality (LPIPS) and significantly enhances downstream performance in both scene classification and small-target detection.",
+      "authors": [
+        "Yun Li",
+        "Xianju Li"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-04-28T07:28:39+00:00",
+      "link": "https://arxiv.org/pdf/2604.25319v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "recovering structural details for downstream object detection",
+      "llm_evidence_cn": "恢复下游目标检测所需的结构细节",
+      "llm_evidence": "恢复下游目标检测所需的结构细节",
+      "canonical_evidence": "恢复下游目标检测所需的结构细节",
+      "llm_tldr_en": "SALD recovers high-frequency details in compressed remote sensing data to aid object detection.",
+      "llm_tldr_cn": "SALD恢复压缩遥感数据中的高频细节，以辅助下游目标检测任务。",
+      "llm_tldr": "SALD恢复压缩遥感数据中的高频细节，以辅助下游目标检测任务。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2604.26353v1",
+      "source": "arxiv",
+      "title": "GateMOT: Q-Gated Attention for Dense Object Tracking",
+      "abstract": "While large models demonstrate the strong representational power of vanilla attention, this core mechanism cannot be directly applied to Dense Object Tracking: its quadratic all-to-all interactions are computationally prohibitive for dense motion estimation on high-resolution features. This mismatch prevents Dense Object Tracking from fully leveraging attention-based modeling in crowded and occlusion-heavy scenes. To address this challenge, we introduce GateMOT, an online tracking framework centered on Q-Gated Attention (Q-Attention), an efficient and spatially aware attention variant. Our key idea is to repurpose the Query from a similarity-conditioning term into a learnable gating unit. This Gating-Query (Gating-Q) produces a probabilistic gate that modulates Key features in an element-wise manner, enabling explicit relevance selection instead of costly global aggregation. Built on this mechanism, parallel Q-Attention heads transform one shared feature map into task-specific yet consistent representations for detection, motion, and re-identification, yielding a tightly coupled multi-task decoder with linear-complexity gating operations. GateMOT achieves state-of-the-art HOTA of 48.4, MOTA of 67.8, and IDF1 of 64.5 on BEE24, and demonstrates strong performance on additional Dense Object Tracking benchmarks. These results show that Q-Attention is a simple, effective, and transferable building block for attention-based tracking in dense tracking scenarios.",
+      "authors": [
+        "Mingjin Lv",
+        "Zelin Liu",
+        "Feifei Shao",
+        "Yi-Ping Phoebe Chen",
+        "Junqing Yu",
+        "Wei Yang",
+        "Zikai Song"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-04-29T07:04:29+00:00",
+      "link": "https://arxiv.org/pdf/2604.26353v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Q-Gated Attention for dense object tracking in crowded scenes",
+      "llm_evidence_cn": "用于拥挤场景下密集目标跟踪的Q门控注意力",
+      "llm_evidence": "用于拥挤场景下密集目标跟踪的Q门控注意力",
+      "canonical_evidence": "用于拥挤场景下密集目标跟踪的Q门控注意力",
+      "llm_tldr_en": "GateMOT introduces efficient Q-Gated Attention for dense object tracking in complex scenes.",
+      "llm_tldr_cn": "GateMOT引入高效的Q门控注意力机制，用于复杂场景下的密集目标跟踪。",
+      "llm_tldr": "GateMOT引入高效的Q门控注意力机制，用于复杂场景下的密集目标跟踪。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "spatial and channel attention for small object feature enhancement",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2604.26873v1",
+      "source": "arxiv",
+      "title": "Uncertainty-Aware Pedestrian Attribute Recognition via Evidential Deep Learning",
+      "abstract": "We propose UAPAR, an Uncertainty-Aware Pedestrian Attribute Recognition framework. To the best of our knowledge, this is the first EDL-based uncertainty-aware framework for pedestrian attribute recognition (PAR). Unlike conventional deterministic methods, which fail to assess prediction reliability on low-quality samples, UAPAR effectively identifies unreliable predictions and thus enhances system robustness in complex real-world scenarios. To achieve this, UAPAR incorporates Evidential Deep Learning (EDL) into a CLIP-based architecture. Specifically, a Region-Aware Evidence Reasoning module employs cross-attention and spatial prior masks to capture fine-grained local features, which are further processed by an evidence head to estimate attribute-wise epistemic uncertainty. To further enhance training robustness, we develop an uncertainty-guided dual-stage curriculum learning strategy to alleviate the adverse effects of severe label noise during training. Extensive experiments on the PA100K, PETA, RAPv1, and RAPv2 datasets demonstrate that UAPAR achieves competitive or superior performance. Furthermore, qualitative results confirm that the proposed framework generates uncertainty estimates that are predictive of challenging or erroneous samples.",
+      "authors": [
+        "Zhuofan Lou",
+        "Shihang Zhang",
+        "Fangle Zhu",
+        "Shengjie Ye",
+        "Pingyu Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-04-29T16:41:21+00:00",
+      "link": "https://arxiv.org/pdf/2604.26873v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "cross-attention and spatial prior masks to capture fine-grained local features",
+      "llm_evidence_cn": "交叉注意力和空间先验掩码用于捕获细粒度局部特征",
+      "llm_evidence": "交叉注意力和空间先验掩码用于捕获细粒度局部特征",
+      "canonical_evidence": "交叉注意力和空间先验掩码用于捕获细粒度局部特征",
+      "llm_tldr_en": "Introduces an uncertainty-aware framework using spatial attention to capture fine-grained pedestrian attributes.",
+      "llm_tldr_cn": "引入一种利用空间注意力捕获细粒度行人属性的不确定性感知框架。",
+      "llm_tldr": "引入一种利用空间注意力捕获细粒度行人属性的不确定性感知框架。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "spatial and channel attention for small object feature enhancement",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2604.26893v1",
+      "source": "arxiv",
+      "title": "Graph-based Semantic Calibration Network for Unaligned UAV RGBT Image Semantic Segmentation and A Large-scale Benchmark",
+      "abstract": "Fine-grained RGBT image semantic segmentation is crucial for all-weather unmanned aerial vehicle (UAV) scene understanding. However, UAV RGBT semantic segmentation faces two coupled challenges: cross-modal spatial misalignment caused by sensor parallax and platform vibration, and severe semantic confusion among fine-grained ground objects under top-down aerial views. To address these issues, we propose a Graph-based Semantic Calibration Network (GSCNet) for unaligned UAV RGBT image semantic segmentation. Specifically, we design a Feature Decoupling and Alignment Module (FDAM) that decouples each modality into shared structural and private perceptual components and performs deformable alignment in the shared subspace, enabling robust spatial correction with reduced modality appearance interference. Moreover, we propose a Semantic Graph Calibration Module (SGCM) that explicitly encodes the hierarchical taxonomy and co-occurrence regularities among ground-object categories in UAV scenes into a structured category graph, and incorporates these priors into graph-attention reasoning to calibrate predictions of visually similar and rare categories.In addition, we construct the Unaligned RGB-Thermal Fine-grained (URTF) benchmark, to the best of our knowledge, the largest and most fine-grained benchmark for unaligned UAV RGBT image semantic segmentation, containing over 25,000 image pairs across 61 categories with realistic cross-modal misalignment. Extensive experiments on URTF demonstrate that GSCNet significantly outperforms state-of-the-art methods, with notable gains on fine-grained categories. The dataset is available at https://github.com/mmic-lcl/Datasets-and-benchmark-code.",
+      "authors": [
+        "Fangqiang Fan",
+        "Zhicheng Zhao",
+        "Xiaoliang Ma",
+        "Chenglong Li",
+        "Jin Tang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-04-29T17:01:38+00:00",
+      "link": "https://arxiv.org/pdf/2604.26893v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "feature decoupling and alignment for fine-grained ground objects in aerial views",
+      "llm_evidence_cn": "针对航拍视角下细粒度地面目标的特征解耦与对齐",
+      "llm_evidence": "针对航拍视角下细粒度地面目标的特征解耦与对齐",
+      "canonical_evidence": "针对航拍视角下细粒度地面目标的特征解耦与对齐",
+      "llm_tldr_en": "Proposes GSCNet for UAV RGBT segmentation to handle spatial misalignment and fine-grained semantic confusion.",
+      "llm_tldr_cn": "提出用于无人机RGBT分割的GSCNet，解决空间失配和细粒度语义混淆问题。",
+      "llm_tldr": "提出用于无人机RGBT分割的GSCNet，解决空间失配和细粒度语义混淆问题。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.00146v1",
+      "source": "arxiv",
+      "title": "Real-Time Frame- and Event-based Object Detection with Spiking Neural Networks on Edge Neuromorphic Hardware: Design, Deployment and Benchmark",
+      "abstract": "Real-time object detection on energy-constrained platforms is critical for applications such as UAV-based inspection, autonomous navigation, and mobile robotics. Spiking neural networks (SNNs) on neuromorphic hardware are believed to be significantly more energy-efficient than conventional artificial neural networks (ANNs). In this work, we present a comprehensive methodology for designing general SNN detection architectures targeting neuromorphic platforms, along with the engineering adaptations required to deploy them on the state-of-the-art Neuromorphic processor, Intel Loihi 2. We benchmark SNN-based object detection on Loihi 2 using both frame-based and event-based datasets, comparing performance with ANN-based detection on the NVIDIA Jetson Orin Nano, NVIDIA Jetson Nano B01, and the Apple M2 CPU. Our results show that SNNs on Loihi 2 can perform real-time detection while achieving the lowest per-inference dynamic energy among all platforms. Also, Loihi 2 outperforms the other platforms in terms of power consumption, though ANNs on Jetson Orin Nano achieve higher inference rates. Furthermore, our ANN-to-SNN distillation-aware training enables SNNs to recover 87-100% of the detection accuracy of their ANN counterparts while maintaining lower inference latency; without distillation, SNNs exhibit an 11-27% accuracy drop. These results highlight the potential of neuromorphic systems for energy-efficient, real-time object detection at the edge.",
+      "authors": [
+        "Udayanga G. W. K. N. Gamage",
+        "Yan Zeng",
+        "Cesar Cadena",
+        "Matteo Fumagalli",
+        "Silvia Tolu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-04-30T19:07:36+00:00",
+      "link": "https://arxiv.org/pdf/2605.00146v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "benchmarking SNN-based object detection on frame-based and event-based datasets",
+      "llm_evidence_cn": "在帧和事件数据集上对基于SNN的目标检测进行基准测试",
+      "llm_evidence": "在帧和事件数据集上对基于SNN的目标检测进行基准测试",
+      "canonical_evidence": "在帧和事件数据集上对基于SNN的目标检测进行基准测试",
+      "llm_tldr_en": "Presents a methodology and benchmark for real-time object detection using Spiking Neural Networks.",
+      "llm_tldr_cn": "提出了一种使用脉冲神经网络进行实时目标检测的方法论和基准测试。",
+      "llm_tldr": "提出了一种使用脉冲神经网络进行实时目标检测的方法论和基准测试。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "benchmarking small object detection on public datasets",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.00793v1",
+      "source": "arxiv",
+      "title": "Unsupervised Denoising of Real Clinical Low Dose Liver CT with Perceptual Attention Networks",
+      "abstract": "With the development of deep learning, medical image processing has been widely used to assist clinical research. This paper focuses on the denoising problem of low-dose computed tomography using deep learning. Although low-dose computed tomography reduces radiation exposure to patients, it also introduces more noise, which may interfere with visual interpretation by physicians and affect diagnostic results. To address this problem, inspired by Cycle-GAN for unsupervised learning, this paper proposes an end-to-end unsupervised low-dose computed tomography denoising framework. The proposed framework combines a U-Net structure for multi-scale feature extraction, an attention mechanism for feature fusion, and a residual network for feature transformation. It also introduces perceptual loss to improve the network for the characteristics of medical images. In addition, we construct a real low-dose computed tomography dataset and design a large number of comparative experiments to validate the proposed method, using both image-based evaluation metrics and medical evaluation criteria. Compared with classical methods, the main advantage of this paper is that it addresses the limitation that real clinical data cannot be directly used for supervised learning, while still achieving excellent performance. The experimental results are also professionally evaluated by imaging physicians and meet clinical needs.",
+      "authors": [
+        "Jingxi Pu",
+        "Tonghua Liu",
+        "Zhilin Guan",
+        "Siqiao Li",
+        "Yang Ming",
+        "Zheng Cong",
+        "Wei Zhang",
+        "Fangwei Li"
+      ],
+      "primary_category": "eess.IV",
+      "categories": [
+        "eess.IV",
+        "cs.AI",
+        "cs.CV"
+      ],
+      "published": "2026-05-01T17:19:15+00:00",
+      "link": "https://arxiv.org/pdf/2605.00793v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "U-Net structure for multi-scale feature extraction and attention for feature fusion",
+      "llm_evidence_cn": "用于多尺度特征提取的U-Net结构和用于特征融合的注意力机制",
+      "llm_evidence": "用于多尺度特征提取的U-Net结构和用于特征融合的注意力机制",
+      "canonical_evidence": "用于多尺度特征提取的U-Net结构和用于特征融合的注意力机制",
+      "llm_tldr_en": "Proposes an unsupervised denoising framework using multi-scale features and attention for low-dose CT images.",
+      "llm_tldr_cn": "提出一种利用多尺度特征和注意力机制的低剂量CT图像无监督去噪框架。",
+      "llm_tldr": "提出一种利用多尺度特征和注意力机制的低剂量CT图像无监督去噪框架。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.23653v1/fig-001.webp",
+      "caption": "Fig. 9: Training loss curves for the detection model over time. The charts illustrate the steady convergence of individual components—Regression (GIoU), Classification (Focal Loss), and Centerness (BCE)—as well as the total combined loss.",
+      "page": 6,
+      "index": 1,
+      "width": 529,
+      "height": 439
+    },
+    {
+      "url": "assets/figures/arxiv/2604.23653v1/fig-002.webp",
+      "caption": "Fig. 10: Visual results from the validation dataset of Model Detections. The images display ground-truth labels (green) and our model’s predictions (purple). The high Recall (82%) is evident as the purple boxes successfully intersect with the vast majority of green boxes.",
+      "page": 6,
+      "index": 2,
+      "width": 324,
+      "height": 709
+    },
+    {
+      "url": "assets/figures/arxiv/2604.23653v1/fig-003.webp",
+      "caption": "Fig. 12: Visual representation of the 384 trees detected by the model on a parcel containing approximately 410 trees total. The model maintained accuracy despite the presence of stone chains, where each yellow point represents a bounding box identified with a confidence threshold of 1%",
+      "page": 7,
+      "index": 3,
+      "width": 529,
+      "height": 279
+    },
+    {
+      "url": "assets/figures/arxiv/2604.23653v1/fig-004.webp",
+      "caption": "Fig. 13: Visual representation of the 6,641 trees detected by the model in Al Zawiya using a confidence threshold of 1%",
+      "page": 7,
+      "index": 4,
+      "width": 529,
+      "height": 279
+    },
+    {
+      "url": "assets/figures/arxiv/2604.23653v1/fig-005.webp",
+      "caption": "Fig. 11: Visual representation of the 6,184 trees detected by the model, where each yellow point represents a bounding box for a tree identified with a confidence threshold of 1%",
+      "page": 7,
+      "index": 5,
+      "width": 529,
+      "height": 279
+    },
+    {
+      "url": "assets/figures/arxiv/2604.23653v1/fig-006.webp",
+      "caption": "Fig. 1: Sample Image with its annotations from different datasets",
+      "page": 3,
+      "index": 6,
+      "width": 529,
+      "height": 245
+    },
+    {
+      "url": "assets/figures/arxiv/2604.23653v1/fig-007.webp",
+      "caption": "Fig. 2: The distribution of aspect ratio between different datasets",
+      "page": 3,
+      "index": 7,
+      "width": 420,
+      "height": 477
+    },
+    {
+      "url": "assets/figures/arxiv/2604.23653v1/fig-008.webp",
+      "caption": "Fig. 3: Box Area distribution across datasets",
+      "page": 3,
+      "index": 8,
+      "width": 474,
+      "height": 477
+    },
+    {
+      "url": "assets/figures/arxiv/2604.23653v1/fig-009.webp",
+      "caption": "Fig. 8: Architecture of the Anchor-Free Detection Head. Refined multi-scale features are processed to simultaneously predict classification scores, regression offsets, and centerness values for each pixel.",
+      "page": 5,
+      "index": 9,
+      "width": 424,
+      "height": 297
+    }
+  ]
+}

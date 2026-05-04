@@ -1,0 +1,70 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.27653v1/fig-001.webp",
+      "caption": "Fig. 1. Comparison of different object detection approaches on the CASSI system. (a) The first approach directly applies object detection to the measurement. (b) The second approach reconstructs the measurement into the HSI, then performs object detection on the reconstructed HSI. (c) Our method employs a U-shaped neural network to extract multi-scale features and leverages them to simultaneously perform HSI reconstruction and object detection.",
+      "page": 1,
+      "index": 1,
+      "width": 485,
+      "height": 319
+    },
+    {
+      "url": "assets/figures/arxiv/2604.27653v1/fig-002.webp",
+      "caption": "TABLE I COMPARISONS BETWEEN FUN AND DIFFERENT METHODS ARE PRESENTED. THE REPORTED RESULTS INCLUDE PARAMS, GFLOPS, PSNR, SSIM, SAM, AND MAP, WITH MAP CALCULATED USING IOU OF 0.5.",
+      "page": 6,
+      "index": 2,
+      "width": 1070,
+      "height": 500
+    },
+    {
+      "url": "assets/figures/arxiv/2604.27653v1/fig-003.webp",
+      "caption": "Fig. 7. Comparisons of reconstructed HSIs across various wavelengths (533 nm, 565 nm, 579 nm, and 609 nm). The bottom-left shows the spectral curves corresponding to the green boxes in the measurement. The right side displays the reconstructed HSIs using different methods, with the enlarged patches corresponding to the green boxes shown in the bottom-right corner of the reconstructed HSIs. Zoom in for a better view.",
+      "page": 7,
+      "index": 3,
+      "width": 1072,
+      "height": 582
+    },
+    {
+      "url": "assets/figures/arxiv/2604.27653v1/fig-004.webp",
+      "caption": "Fig. 3. The overall architecture of FUN. FUN is a six-level U-shaped network with a lightweight detection head. Each level consists of Ni SSMBs. The SSMB consists of an FSM, an LRSM, and an FFN, with residual connections and layer normalization between each pair of modules.",
+      "page": 3,
+      "index": 4,
+      "width": 524,
+      "height": 365
+    },
+    {
+      "url": "assets/figures/arxiv/2604.27653v1/fig-005.webp",
+      "caption": "Fig. 8. Detection results by various methods on three different scenes. The proposed FUN not only detects more objects with higher confidence, but also disentangles and identifies densely packed objects, maintaining high accuracy and minimizing overlap among bounding boxes.",
+      "page": 8,
+      "index": 5,
+      "width": 1074,
+      "height": 598
+    },
+    {
+      "url": "assets/figures/arxiv/2604.27653v1/fig-006.webp",
+      "caption": "Fig. 4. Comparison of Self-Attention and Focal Modulation. SelfAttention adopts a late aggregation approach, while Focal Modulation employs an early aggregation approach in representation learning.",
+      "page": 4,
+      "index": 6,
+      "width": 524,
+      "height": 306
+    },
+    {
+      "url": "assets/figures/arxiv/2604.27653v1/fig-007.webp",
+      "caption": "Fig. 5. Diagram of the Focal Spatial Modulation (FSM). The FSM consists of two key components: Hierarchical Contextualization and Gated Aggregation. Hierarchical Contextualization extracts contextual information at various levels of detail, ranging from local to global. Gated Aggregation then integrates these extracted contextual features into the modulator for further processing.",
+      "page": 4,
+      "index": 7,
+      "width": 514,
+      "height": 458
+    },
+    {
+      "url": "assets/figures/arxiv/2604.27653v1/fig-008.webp",
+      "caption": "Fig. 6. Diagram of the Low-Rank Spectral Modulation (LRSM). The LRSM projects the latent representation into a subspace to obtain a low-rank spectral vector and aggregates global spectral information from a low-rank memory to obtain an enhanced low-rank spectral vector.",
+      "page": 5,
+      "index": 8,
+      "width": 434,
+      "height": 465
+    }
+  ]
+}

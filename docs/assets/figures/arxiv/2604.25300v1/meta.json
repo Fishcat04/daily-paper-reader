@@ -1,0 +1,94 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.25300v1/fig-001.webp",
+      "caption": "Table 6: Jetson Orin NX single-stream and three-stream QoS evaluation at K = 9. Tail behavior is summarized by p50/p99 latency.",
+      "page": 15,
+      "index": 1,
+      "width": 664,
+      "height": 321
+    },
+    {
+      "url": "assets/figures/arxiv/2604.25300v1/fig-002.webp",
+      "caption": "Figure 1: Motivating example of deployable tiny-object perception on the edge. In a 4K high-resolution frame, the target occupies less than 0.05% of the image area and appears with weak visual saliency. Under a practical end-to-end deadline (33.3 ms), detector-based frontends may either miss the relevant region or exceed the latency budget, even if they are designed for generic object detection. In contrast, DenseScout preserves the target-containing patch under the same budget while remaining deadline-compliant. This example illustrates that offline detection or selection quality alone does not guarantee deployable utility.",
+      "page": 2,
+      "index": 2,
+      "width": 927,
+      "height": 700
+    },
+    {
+      "url": "assets/figures/arxiv/2604.25300v1/fig-003.webp",
+      "caption": "Figure 3: Deployable budgeted tiny-object perception with DenseScout. Left: transport-aware system execution on edge platforms. Starting from a raw 4K frame, DenseScout first operates on a resized 640 proxy to produce Top-K patch centers, after which the selected regions are executed through either a conventional copy-heavy path or a transport-aware reduced-copy path before backend inference. Right: QoS-oriented deployable utility. Spatial coverage, temporal validity, and budget-aware utility are jointly considered, showing that the same coverage can lead to different deployable utility under deadline and budget constraints.",
+      "page": 7,
+      "index": 3,
+      "width": 932,
+      "height": 292
+    },
+    {
+      "url": "assets/figures/arxiv/2604.25300v1/fig-004.webp",
+      "caption": "Table 1: Unified comparison of frontend selectors and full-image detectors. Full-image detector accuracy is only applicable to conventional detectors evaluated under the standard image-level detection protocol, while DenseScout and DPR are budget-aware frontend selection methods rather than standalone detectors. Efficiency and Recall@Ratio are reported under the same patch-selection setting.",
+      "page": 10,
+      "index": 4,
+      "width": 973,
+      "height": 201
+    },
+    {
+      "url": "assets/figures/arxiv/2604.25300v1/fig-005.webp",
+      "caption": "Table 5: Cross-platform runtime and QoS-aware recall at the practical budget K = 9 on InsPLAD-based deployment workloads. We report raw recall, deadline-aware recall, latency statistics, and tail jitter under different transport settings. Tail jitter is defined as p99 − p50.",
+      "page": 14,
+      "index": 5,
+      "width": 973,
+      "height": 249
+    },
+    {
+      "url": "assets/figures/arxiv/2604.25300v1/fig-006.webp",
+      "caption": "Figure 7: Latency breakdown on Jetson Orin NX and RK3588 under explicit copy (EC) and copy avoidance (CA). DenseScout benefits from both low inference cost and low memory/transport overhead, leading to the most favorable end-to-end latency profile.",
+      "page": 14,
+      "index": 6,
+      "width": 846,
+      "height": 361
+    },
+    {
+      "url": "assets/figures/arxiv/2604.25300v1/fig-007.webp",
+      "caption": "Figure 6: Cross-platform latency–QoS trade-off on Jetson Orin NX and RK3588 using InsPLAD-based deployment workloads. Each point shows the practical operating point of one frontend at K = 9, measured by end-to-end latency p50 and QoS-aware Recall@9. DenseScout stays on or near the Pareto frontier and remains favorable under the 15 ms deadline constraint.",
+      "page": 13,
+      "index": 7,
+      "width": 840,
+      "height": 528
+    },
+    {
+      "url": "assets/figures/arxiv/2604.25300v1/fig-008.webp",
+      "caption": "Figure 5: Qualitative comparison of top-ranked responses on four challenging cases: (a) extremely small targets, (b) long-range tiny target, (c) unseen shape, and (d) complex background clutter. Yellow boxes indicate ground-truth tiny targets. Red crosses, blue circles, and green triangles denote DenseScout, YOLOv8n, and NanoDet-Plus, respectively.",
+      "page": 12,
+      "index": 8,
+      "width": 860,
+      "height": 582
+    },
+    {
+      "url": "assets/figures/arxiv/2604.25300v1/fig-009.webp",
+      "caption": "Figure 4: Recall@Ratio curves on VisDrone and DOTA. DenseScout consistently provides the best target coverage under tight patch-budget constraints, with the clearest margin in the ultra-low and practical budget regime (1%–4%).",
+      "page": 9,
+      "index": 9,
+      "width": 846,
+      "height": 376
+    },
+    {
+      "url": "assets/figures/arxiv/2604.25300v1/fig-010.webp",
+      "caption": "Figure 2: DenseScout architecture. A 640 × 640 proxy image is first processed by a MobileNetV3-Small backbone [37], whose multi-scale features are fused by a Tiny-FPN to produce a stride-8 feature map p3 [38]. A lightweight heatmap head predicts an 80 × 80 dense response map. During training, ground-truth centers are converted into Gaussian heatmap supervision and optimized with a CenterNet-style focal loss. During inference, the response map is filtered by local-maximum suppression and truncated by Top-K ranking, after which the selected centers are mapped back to image coordinates to generate fixed-size backend crops.",
+      "page": 5,
+      "index": 10,
+      "width": 926,
+      "height": 283
+    },
+    {
+      "url": "assets/figures/arxiv/2604.25300v1/fig-011.webp",
+      "caption": "Figure 8: Representative end-to-end latency measurements on Jetson Orin NX and RK3588 at K = 9. DenseScout consistently achieves substantially lower runtime than NanoDet-Plus under both Copy and Zero-Copy transport, reducing latency by 44.8%–55.1% across platforms. Additional RK3588 probes across K ∈ {1, 4, 9, 16} show negligible runtime variation and are omitted for clarity.",
+      "page": 16,
+      "index": 11,
+      "width": 946,
+      "height": 508
+    }
+  ]
+}
