@@ -1,0 +1,70 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.14884v1/fig-001.webp",
+      "caption": "Fig. 1: Comparison of different object detection models on VisDrone2019. FSDETR achieves the highest APs among models with comparable parameter sizes.",
+      "page": 1,
+      "index": 1,
+      "width": 491,
+      "height": 324
+    },
+    {
+      "url": "assets/figures/arxiv/2604.14884v1/fig-002.webp",
+      "caption": "Fig. 2: The overall architecture of FSDETR. The framework comprises a hierarchical Backbone with SHAB and C2f blocks, followed by an Efficient Hybrid Encoder. The encoder employs DA-AIFI for intra-scale interaction and FSFPN with SPDConv and RepC3 blocks for cross-scale fusion. Uncertainty-minimal Query Selection initializes object queries for the Decoder & Head. Bottom panels illustrate detailed re-parameterized blocks (RepC3 and RepConv).",
+      "page": 2,
+      "index": 2,
+      "width": 1022,
+      "height": 537
+    },
+    {
+      "url": "assets/figures/arxiv/2604.14884v1/fig-003.webp",
+      "caption": "Fig. 4: The structure of Cross-domain Frequency-Spatial Block.",
+      "page": 3,
+      "index": 3,
+      "width": 346,
+      "height": 418
+    },
+    {
+      "url": "assets/figures/arxiv/2604.14884v1/fig-004.webp",
+      "caption": "Fig. 3: The structure of Spatial Hierarchical Attention Block.",
+      "page": 3,
+      "index": 4,
+      "width": 420,
+      "height": 541
+    },
+    {
+      "url": "assets/figures/arxiv/2604.14884v1/fig-005.webp",
+      "caption": "TABLE I: Comparison results on VisDrone 2019 dataset",
+      "page": 4,
+      "index": 5,
+      "width": 968,
+      "height": 318
+    },
+    {
+      "url": "assets/figures/arxiv/2604.14884v1/fig-006.webp",
+      "caption": "TABLE II: Comparison results on TinyPerson dataset",
+      "page": 4,
+      "index": 6,
+      "width": 966,
+      "height": 253
+    },
+    {
+      "url": "assets/figures/arxiv/2604.14884v1/fig-007.webp",
+      "caption": "Fig. 5: Visual error analysis on the VisDrone 2019 dataset across two typical traffic scenes. FSDETR (Ours) effectively reduces blue FN boxes in high-density areas through enhanced frequency-spatial modeling. Legend: TP (Green), FP (Red), FN (Blue).",
+      "page": 5,
+      "index": 7,
+      "width": 1052,
+      "height": 312
+    },
+    {
+      "url": "assets/figures/arxiv/2604.14884v1/fig-008.webp",
+      "caption": "Fig. 6: Visual error analysis on the TinyPerson dataset. In these low-contrast seaside environments, FSDETR demonstrates superior target localization and lower false alarm rates (red boxes) for extremely small objects. Legend: TP (Green), FP (Red), FN (Blue).",
+      "page": 5,
+      "index": 8,
+      "width": 1052,
+      "height": 324
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.18632v1/fig-001.webp",
+      "caption": "Table 4 Objective Evaluation of StomaD² on Public Benchmark Datasets",
+      "page": 11,
+      "index": 1,
+      "width": 871,
+      "height": 221
+    },
+    {
+      "url": "assets/figures/arxiv/2604.18632v1/fig-002.webp",
+      "caption": "Table 3 summarizes the detection performance before and after image restoration under various",
+      "page": 11,
+      "index": 2,
+      "width": 871,
+      "height": 418
+    },
+    {
+      "url": "assets/figures/arxiv/2604.18632v1/fig-003.webp",
+      "caption": "Table 8 Quantitative detection metrics in generalization experiments",
+      "page": 15,
+      "index": 3,
+      "width": 871,
+      "height": 595
+    },
+    {
+      "url": "assets/figures/arxiv/2604.18632v1/fig-004.webp",
+      "caption": "Fig. 1 Stomata of maize and peanut. Maize images were captured at 2736 × 1824 pixel resolution, and peanut images were captured at 640 × 640 pixel resolution with handheld microscope. Components of maize and peanut stomata (c) that are rotated and magnified from original images (a) and (b) (indicated by red bounding box) are highlighted in pseudo-color and labelled; scale bars, 100 µm.",
+      "page": 2,
+      "index": 4,
+      "width": 698,
+      "height": 471
+    },
+    {
+      "url": "assets/figures/arxiv/2604.18632v1/fig-005.webp",
+      "caption": "Fig. 4 The architecture of content-aware feature fusion and content-aware feature filter. (a) represents the contentaware feature fusion with refined sampling (b) represents the content-aware feature filter.",
+      "page": 7,
+      "index": 5,
+      "width": 865,
+      "height": 291
+    },
+    {
+      "url": "assets/figures/arxiv/2604.18632v1/fig-006.webp",
+      "caption": "Table 7 Accuracy of length and width of stoma and aperture tests",
+      "page": 14,
+      "index": 6,
+      "width": 871,
+      "height": 219
+    },
+    {
+      "url": "assets/figures/arxiv/2604.18632v1/fig-007.webp",
+      "caption": "Fig. 7 Comparison of manual and predicted values for peanut and maize. (a) Regression results for peanut stomatal length, stomatal width, aperture length, aperture width, and maize stomata length and width. (b) Relative errors for the corresponding traits.",
+      "page": 14,
+      "index": 7,
+      "width": 860,
+      "height": 1113
+    },
+    {
+      "url": "assets/figures/arxiv/2604.18632v1/fig-008.webp",
+      "caption": "Fig. 11 StomaD2 system demonstration. To further benchmark its performance against the SOTA, StomaD² was compared with multiple leading rotated object detection models. The results indicate that StomaD² exhibits superior performance, achieving a top-tier F1-score of 0.989 and a mAP of 0.973, outperforming prominent models such as Oriented Former (F1: 0.961) and YOLOv12 (F1: 0.982). Furthermore, on public maize and wheat datasets, the framework achieved accuracies of 0.994 and 0.992, respectively, consistently surpassing existing benchmarks like StomataHub. This quantitative evidence substantiates the superiority of the proposed network architecture for the specific challenges of detecting small, dense, and cluttered stomatal targets.",
+      "page": 18,
+      "index": 8,
+      "width": 841,
+      "height": 539
+    },
+    {
+      "url": "assets/figures/arxiv/2604.18632v1/fig-009.webp",
+      "caption": "Fig. 6 Statistic analysis. Violin plot-comparison of manually labeled data and StomaD2 prediction data of peanut and maize. (a) density (b) width–length value (c) area (d) aspect ratio. The p-value represents the significance test between the two groups. A t-test is performed if the data follow a normal distribution; otherwise, the Wilcoxon ranksum test is used. No significant differences are observed between manual annotations and prediction results.",
+      "page": 13,
+      "index": 9,
+      "width": 875,
+      "height": 1073
+    },
+    {
+      "url": "assets/figures/arxiv/2604.18632v1/fig-010.webp",
+      "caption": "Table 1 The plant species and their quantities used for training and testing",
+      "page": 4,
+      "index": 10,
+      "width": 871,
+      "height": 279
+    },
+    {
+      "url": "assets/figures/arxiv/2604.18632v1/fig-011.webp",
+      "caption": "Fig. 10 Time-course analysis of stomatal responses induced by exogenous CaCl₂ and H₂O₂ within 30 minutes. (a) Microscopic images of stomata treated with CaCl₂ and H₂O₂ at different time points. (b) Time-dependent curves showing changes in stomatal width, stomatal aperture area, stomatal conductance, and the ratio of opening stomata number (OSN) to total stomata number (TSN) under the two treatments.",
+      "page": 17,
+      "index": 11,
+      "width": 869,
+      "height": 538
+    },
+    {
+      "url": "assets/figures/arxiv/2604.18632v1/fig-012.webp",
+      "caption": "Fig. 8 General Results. Stomatal and apertures detection results for different plants.",
+      "page": 16,
+      "index": 12,
+      "width": 663,
+      "height": 506
+    },
+    {
+      "url": "assets/figures/arxiv/2604.18632v1/fig-013.webp",
+      "caption": "Fig. 9 Robustness detection results. The first column shows data with added noise, the second column shows data with translation, and the third column shows data with rotation. (a) represents the processed data of peanuts, (b) represents the corresponding detection results of peanuts, (c) represents the processed data of maize, and (d) represents the corresponding detection results of maize.",
+      "page": 16,
+      "index": 13,
+      "width": 825,
+      "height": 808
+    }
+  ]
+}

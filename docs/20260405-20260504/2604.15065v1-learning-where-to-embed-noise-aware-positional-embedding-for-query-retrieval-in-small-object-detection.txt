@@ -1,0 +1,321 @@
+Title: Learning Where to Embed: Noise-Aware Positional Embedding for Query Retrieval in Small-Object Detection
+
+URL Source: https://arxiv.org/pdf/2604.15065v1
+
+Published Time: Fri, 17 Apr 2026 01:18:55 GMT
+
+Number of Pages: 14
+
+Markdown Content:
+# LEARNING WHERE TO EMBED : N OISE -A WARE POSITIONAL 
+
+# EMBEDDING FOR QUERY RETRIEVAL IN SMALL -O BJECT 
+
+# DETECTION 
+
+Yangchen Zeng 1,† Zhenyu Yu 2,† Dongming Jiang 3 Wenbo Zhang 4
+
+Yifan Hong 5 Zhanhua Hu 6 Jiao Luo 7 Kangning Cui 8,9,∗
+
+> 1
+
+Southeast University 2Fudan University 3The University of Texas at Dallas 4Zhejiang Normal University 
+
+> 5
+
+Data Space Research Institute, Hefei Comprehensive National Science Center 6Rice University 
+
+> 7
+
+Huazhong Agricultural University 8City University of Hong Kong (Dongguan) 9Wake Forest University 
+
+## ABSTRACT 
+
+Transformer-based detectors have advanced small-object detection, but they often remain inefficient and vulnerable to background-induced query noise, which motivates deep decoders to refine low-quality queries. We present HELP ( Heatmap-guided Embedding Learning Paradigm), a noise-aware positional-semantic fusion framework that studies where to embed positional information by selec-tively preserving positional encodings in foreground-salient regions while suppressing background clutter. Within HELP, we introduce Heatmap-guided Positional Embedding (HPE) as the core em-bedding mechanism and visualize it with a heatbar for interpretable diagnosis and fine-tuning. HPE is integrated into both the encoder and decoder: it guides noise-suppressed feature encoding by injecting heatmap-aware positional encoding, and it enables high-quality query retrieval by filtering background-dominant embeddings via a gradient-based mask filter before decoding. To address feature sparsity in complex small targets, we integrate Linear-Snake Convolution to enrich retrieval-relevant representations. The gradient-based heatmap supervision is used during training only, incurring no additional gradient computation at inference. As a result, our design reduces decoder lay-ers from eight to three and achieves a 59.4% parameter reduction (66.3M vs. 163M) while maintaining consistent accuracy gains under a reduced compute budget across benchmarks. Code Repository :
+
+https://github.com/yidimopozhibai/Noise-Suppressed-Query-Retrieval .
+
+Keywords Query retrieval, Positional embedding, Small object detection 
+
+## 1 Introduction 
+
+Small-object detection remains a challenging and fundamental task in computer vision, especially in aerial and remote sensing imagery where targets occupy few pixels and are easily obscured by cluttered backgrounds. These settings often involve extreme scale variation, dense object layouts, and a large portion of background, all of which degrade localization and recognition performance [ 1 , 2, 3 , 4, 5, 6 ]. The growing demand for reliable detection in large-scale aerial scenes further highlights the need for methods that generalize across diverse imaging conditions and object densities [7, 8, 9, 10]. Transformer-based detectors have attracted increasing attention for small-object detection because their global context modeling and set-based objective reduce reliance on dense proposals and heuristic post-processing [ 11 , 12 , 13 , 14 ]. However, their performance in cluttered aerial scenes is often limited by query qualities used for decoding. In particular, many query generation pipelines do not fully exploit readily available detection cues, including spatial position, class confidence, and bounding box regression signals, especially under limited training data. This leads to weak alignment between positional encodings and detection semantics, as positional information is not selectively emphasized in regions that are truly informative for small-object localization [15, 16, 17]. 
+
+> *
+
+Corresponding author: cuij@wfu.edu . † Equal contribution. 
+
+> arXiv:2604.15065v1 [cs.CV] 16 Apr 2026
+
+Running Title for Header A second limitation is that queries are easily polluted by background responses when the background portion is high. Low-quality background regions can still introduce nontrivial embeddings, yet most detectors lack an explicit mechanism to suppress such background induced query noise before decoding, which degrades both localization and classification performance [ 12 , 16 , 18 , 19 , 20 ]. This also creates an efficiency issue, since the decoder often requires multiple layers to repeatedly correct and refine suboptimal queries, increasing training and inference cost as attention complexity grows with token length and decoder depth [ 11 , 21 ]. Small-object detection further intensifies these issues because informative features are sparse and fine-grained. Without dedicated feature engineering to strengthen sparse discriminative patterns, the representations supporting query retrieval remain fragile in cluttered scenes, which limit robustness and generalization [1, 22, 23]. To address these challenges, we propose HELP (Heatmap-guided Embedding Learning Paradigm), an efficient positional and semantic fusion framework that learns where to embed positional information. Instead of uniformly injecting positional encodings across all spatial locations, HELP uses Heatmap-guided adaptive learning to selectively preserve positional encodings in foreground-salient regions and suppress them in background-dominant regions. In doing so, HELP couples positional cues with category and bounding box information, which improves the quality of representations used for query decoding and enhances robustness to background noise. Within HELP, we introduce 
+
+Heatmap-guided Positional Embedding (HPE) mechanism, as well as a heatbar-based visualization of HPE that provides an interpretable view of embedding allocation and practical guidance for fine-tuning. Building on HPE, we develop MOHFE (Multi-Scale ObjectBox-Heatmap Fusion Encoder) and HQ-Retrieval (High-Quality Query Retrieval). MOHFE performs noise-suppressed feature encoding by integrating class and bounding box semantics into multi-scale Heatmap-guided Positional Embeddings to strength the encoder-side alignment between po-sitional cues and detection semantics. HQ-Retrieval generates discriminative queries and filters low-quality background queries, which reduces repeated queries and enables a much shallower decoder. This design substantially accelerates both training and inference. To address feature sparsity in complex small targets, we propose LSConv (Linear-Snake Convolution) to capture sparse discriminative patterns and improve query generation. Our main contributions are summarized as follows: • We propose HPE with heatbar visualization for interpretable analysis and fine-tuning of selective positional embedding to enable noise-robust query decoding. • We design MOHFE and HQ-Retrieval for noise-suppressed encoding and discriminative query retrieval via a gradient-based filter, which reduce decoder depth from eight to three. • We integrate LSConv to strengthen sparse feature extraction, achieving a 59.4% parameter reduction (66.3M vs. 163M) while accelerating training and inference. • We validate our approach on five benchmarks and show consistent gains and good scalability. 
+
+## 2 Related Work 
+
+2.1 CNN-based Small Object Detection 
+
+CNN-based detectors have long been the dominant paradigm in object detection, benefiting from hierarchical feature extraction and multi-scale representations [ 24 , 25 ]. Representative one-stage methods [ 26 , 27 , 28 , 29 , 30 , 31 ] prioritize efficiency, while two-stage approaches [ 32 , 33 ] leverage region proposal mechanisms for improved localization. These designs have been extended to aeriel and remote sensing imagery, where small objects are common and multi-scale cues are crucial [ 34 , 35 ]. For example, SuperYOLO [ 36 ] enhances small-object representations via super-resolution, and PCNet [ 37 ] improves discrimination through comparative feature learning. Despite their strong performance, most CNN-based pipelines rely on dense candidate generation and subsequent post-processing with non maximum suppression (NMS) [ 38 ]. NMS introduces thresholding and greedy selection, which can be sensitive to scene statistics and may reduce cross-dataset generalization [ 39 , 40 , 32 , 34 ]. Moreover, dense candidate processing can incur substantial redundancy in high-resolution aerial imagery, where numerous small targets and large background regions significantly increase both training and inference cost. 
+
+2.2 Transformer-based Small Object Detection 
+
+Detectors with transformer backbones (DETRs) provide an alternative by adopting set prediction objectives and query-driven decoding, which replace NMS with global context modeling [ 41 ]. DETR-style frameworks and their variants [ 42 , 15 , 12 , 11 ] often combine convolutional backbones for feature extraction, Transformer encoders for context aggregation, and learnable queries for parallel decoding. Concurrently, efficiency-oriented Transformer designs such as 2Running Title for Header 
+
+Figure 1: Overview of HELP. Backbone: LSConv is integrated into the backbone to enhance sparse features before transformer encoding. Encoder: MOHFE (green) fuses heatmap information with class and bounding box information to form heatmap-enhanced embeddings. Decoder: HQ-Retrieval (blue) selects informative embeddings for decoding while suppressing background-dominant ones. Bottom-right: HPE in action, where heatmap activation is used to select high-quality embeddings and filter out background-dominant ones. DynamicViT [ 43 ] reduce attention cost through dynamic token pruning and allocation. Several works improve small-object detection by using strategies such as focal loss with class activation map to mitigate class imbalance and improve localization, as well as sparse attention over target-relevant windows to accelerate detection [ 44 , 45 , 46 ]. Nevertheless, the computational burden of vanilla self-attention on high-resolution inputs remains prohibitive. Prior adaptations include window-based attention [ 47 ], hierarchical or downsampling designs [ 48 , 49 ], and low-rank approximations [ 50 ]. Complementary sparsification strategies have also been applied at the level of tokens, attention heads, and Transformer blocks [ 43 , 51 , 52 ]. While these approaches reduce computation, they may weaken fine-grained localization or introduce additional optimization complexity for small and densely distributed targets. 
+
+## 3 Heatmap-guided Embedding Learning 
+
+This section presents the Heatmap-guided Embedding Learning Paradigm (HELP). We first introduce Heatmap-guided Positional Embedding (HPE), which learns where to preserve or suppress positional information based on heatmap-derived saliency. We then describe how HPE is used in both the encoder and decoder for noise-suppressed feature encoding and high-quality query retrieval. Finally, we present Linear-Snake Convolution (LSConv) as a complementary module that enriches sparse, retrieval-relevant representations for complex small-object scenarios. 
+
+3.1 Heatmap-guided Positional Embedding 
+
+Within the proposed framework HELP, we introduce Heatmap-guided Positional Embedding (HPE) as the core embedding mechanism for noise-suppressed query retrieval. As illustrated in Figure 1, HPE learns where to embed 
+
+positional information by preserving positional cues in foreground-salient regions while suppressing background-dominant regions through the below steps: 
+
+Step 1. We extract intermediate feature tensors A ∈ RK×H×W , where Ak(i, j ) denotes the activation of the k-th channel at spatial coordinate (i, j ). For a detection class c, the gradient weighting coefficients αcijk are derived by computing second- and third-order partial derivatives of the classification confidence yc with respect to A:
+
+αcijk = ∂2yc
+
+∂A k(i, j )2 + ∂3yc
+
+∂A k(i, j )3 (1) The channel-wise importance weight βck is computed via spatial aggregation with ReLU-based gradient filtering: 
+
+βck =
+
+> H
+
+X
+
+> i=1
+> W
+
+X
+
+> j=1
+
+αcijk · ReLU 
+
+ ∂y c
+
+∂A k(i, j )
+
+
+
+(2) 3Running Title for Header Here, ReLU suppresses negative gradients to retain only activations positively correlated with class c, while αcijk 
+
+amplifies regions with higher-order nonlinear contributions to discrimination. 
+
+Step 2. Using the channel-wise importance weights βck, we compute the class-discriminative heatmap by: 
+
+Hclass (i, j ) = ReLU 
+
+> K
+
+X
+
+> k=1
+
+βck · Ak(i, j )
+
+!
+
+. (3) Analogous to Hclass , we replace the classification confidence yc with the bounding box regression loss Lreg , and obtain activation weights through Huber loss to compute a geometry-aware heatmap Hbbox via gradient backpropagation. Finally, we combine the semantic and geometric information into a mixed heatmap: 
+
+Hmixed = λ · Hclass + (1 − λ) · Hbbox . (4) 
+
+Step 3. We introduce a dynamic masking mechanism that converts the heatmap into a binary spatial mask and uses it to modulate positional encodings. Specifically, locations with low heatmap responses ( Hmap ≤ τ ) are treated as background-dominant and their positional encodings are suppressed, while locations with high responses ( Hmap > τ )preserve positional cues for accurate geometric correspondence. The masked positional encodings are then injected into the encoder–decoder pipeline, reducing background-induced positional clutter and improving query retrieval in cluttered scenes. We formalize the mask filter by thresholding the heatmap: Mask (i, j ) = 
+
+1, Hmap (i, j ) > τ, 
+
+0, otherwise , (5) and use it to modulate the standard sinusoidal positional encoding: PE (i, j, d ) = Mask (i, j ) ⊙
+
+
+
+sin 
+
+ iτd
+
+
+
++ cos 
+
+ jτd
+
+ 
+
+, (6) where τd = 10000 2d/D and ⊙ denotes element-wise multiplication. The gradient-based heatmap generation (including the second- and third-order derivatives in Eq. 1–2) is used only during training . During training, Hclass and Hbbox are computed via backpropagation with ground-truth supervision. After convergence, the model retains the learned heatmap-driven embedding behavior in its parameters. At inference time, the detector runs with a standard forward pass without any gradient computation , thus incurring no additional runtime overhead beyond conventional transformer inference. This design ensures that the computational cost of higher-order derivatives does not affect deployment efficiency. HPE uses heatmaps to control positional information: positional encodings are suppressed in background-dominant regions and preserved in foreground-salient regions. As shown in Figure 2, the heatbar visualization highlights this selective embedding pattern, where hot regions concentrate on detection-relevant areas while cold regions correspond to suppressed background regions. This selective embedding reduces background-induced positional noise and encourages better alignment between positional information and detection semantics. We adopt hard binarization rather than soft gating (e.g., sigmoid) to enforce a clear foreground/background separation. In aerial imagery, targets are often sparse and the background is large; soft masks may leave residual positional signals in background regions. The binary mask therefore offers a more direct and effective suppression of background positional clutter. Figure 3 summarizes how the masked positional embeddings are used by the encoder and decoder for query retrieval. 
+
+3.2 Heatmap-Guided Encoding and Retrieval 
+
+This subsection describes how the proposed framework turns the learned positional embeddings into (i) encoder features that are better aligned with detection semantics and (ii) decoder queries that are more discriminative for final prediction. We implement this with two components: MOHFE, which fuses heatmap information into multi-scale encoding and produces the encoder keys/values, and HQ-Retrieval, which converts the mixed-heatmap embedding into a compact set of decoder queries and feeds them into deformable attention for decoding. 
+
+3.2.1 MOHFE: Multi-Scale ObjectBox-Heatmap Fusion Encoder 
+
+MOHFE is an encoder-side fusion module that turns heatmap-derived positional embeddings into encoder features that are ready for decoder retrieval. Its input consists of two heatmap-conditioned embeddings: a class-driven embedding 4Running Title for Header 
+
+Figure 2: HPE shows where to embed. Top: the encoder fuses heatmap information into embeddings. Middle: the decoder retrieves informative embeddings for decoding. Bottom: the heatbar visualizes HPE activation (higher = red, lower = blue). 
+
+Figure 3: Heatmap-guided query retrieval in an encoder-decoder detector. HPE produces a binary mask from heatmaps and uses it to suppress background-dominant positional embeddings while preserving foreground-salient ones. The masked embeddings are used for noise-suppressed encoding in the encoder and for selecting high-quality queries before decoding. 
+
+Eclass and a box-driven embedding Ebbox . Intuitively, Eclass emphasizes category-discriminative regions, while Ebbox 
+
+emphasizes geometry-related regions; MOHFE combines them so that the encoder feature space carries both semantic and localization cues. Concretely, we first project these two embeddings and concatenate them into a unified representation [Eclass ∥Ebbox ]. We then use separate linear layers to construct the Query/Key/Value tensors for multi-head self-attention in the encoder: 
+
+Qenc = WQ[Eclass ∥Ebbox ],Kenc = WK [Eclass ∥Ebbox ],Venc = WV [Eclass ∥Ebbox ].
+
+(7) 5Running Title for Header 1iK
+
+> 1iKij K
+> y
+
+：  
+
+> 4j
+> 4j~
+> x
+
+： 4i ~4i 
+
+> y axis conv
+> x axis conv
+> Bilinear
+> interpolation ...
+> x
+
+： 4i  ~ 4i   
+
+> 1jK0
+> 1
+> 1
+> 2jKy
+
+：   
+
+> 4j
+> 4j~
+> j
+> K
+> jK
+> 1jK
+> iK
+> 1iK2iK
+> 1iK
+> iK
+> 01-1
+> ...
+
+)1,1()1,1(    ciiicicici yycxyxX
+
+)1,1()1,1(    cyxxyxY jcjjcjcjcj 
+
+> 1iK
+> 2iK3iK
+> 4iK
+> 1iK
+> 2iK
+> 3iK4iK
+> 4jK
+> 3jK
+> 2jK
+> 1jK
+> 1jK
+> 2jK
+> 3jK
+> 4jK
+
+Figure 4: Dual-path axis-wise sampling in LSConv. Left: x-/y-axis convolution samples on a 9 × 9 grid with linear (blue) and snake (green) paths centered at the red cell. Right: axis-wise offset accumulation and bilinear interpolation used to obtain deformed sampling locations for the two paths. The encoder attention is performed over these heatmap conditioned features, producing a representation in which foreground-salient locations are more informative for downstream decoding. When forming the encoder inputs, we use the masked positional encoding defined in Eq. (5) so that background-dominant positions contribute less positional signal. As a result, the encoder outputs ( Kenc , V enc ) provide cleaner memory for the decoder-side query retrieval module described next. 
+
+3.2.2 HQ-Retrieval: Heatmap Induced High-Quality Query Retrieval for Decoder 
+
+HQ-Retrieval is a decoder-side module that converts the heatmap conditioned embedding from the mixed heatmap Hmixed 
+
+into a compact set of discriminative decoder queries. Intuitively, Hmixed highlights locations that are simultaneously category-relevant and geometry-consistent; using it as the query source helps avoid decoding from background-dominant embeddings. Concretely, we first apply a linear projection to obtain the initial query vectors: Q DeNoise = W ′
+
+> Q
+
+Emixed . These queries then attend to the encoder memory through deformable attention: 
+
+DeformAttn (QDeNoise , K enc , V enc ). (8) Because QDeNoise is derived from heatmap-guided embeddings that encode both semantics and location, it prioritizes foreground-salient positions and suppresses background-driven responses before decoding. This yields cleaner query-memory interactions, improving both localization and classification while reducing the reliance on repeatedly refining noisy queries with deep decoders. 
+
+3.3 Linear-Snake Convolution 
+
+Small-object detection often suffers from extreme feature sparsity: useful evidence may appear as thin, fragmented responses, and a single fixed receptive field can easily miss these weak but structured cues. To strengthen the retrieval-relevant representation before decoding, we introduce Linear-Snake Convolution (LSConv), a lightweight operator that enriches local features with geometry-aware sampling while keeping the sampling behavior stable. Given an input feature map, LSConv outputs an enhanced feature map of the same resolution, which provides a stronger basis for subsequent heatmap-aligned query retrieval. As shown in Figure 4, LSConv adopts a dual-path design: (i) a snake branch that follows irregular or curvilinear structures using learnable offsets, and (ii) a linear branch that enforces straight-line continuity using constrained sampling. This complementarity lets LSConv capture both “non-rigid” local evidence (useful for tiny, cluttered objects) and “rigid” linear context (useful for consistent structures), which produces denser and more reliable features for subsequent query retrieval. LSConv predicts deformation offsets ∆ using a small convolutional predictor. To avoid unstable receptive-field drifting, we constrain the offsets by a continuity regularization so that neighboring sampling locations change smoothly, 6Running Title for Header 
+
+Figure 5: Sampling patterns comparison on a 9 × 9 grid. We contrast standard, dilated, deformable [ 53 ], and DSC [ 54 ]convolutions with two LSConv variants. LSConv combines a constrained linear path and a deformable snake-like path to cover both straight and curved structures, while other operators follow their fixed or unconstrained sampling layouts. preventing excessive deformation that could harm alignment. For clarity, consider a 3 × 3 kernel operating on a 9 × 9
+
+neighborhood. Along the horizontal direction, LSConv uses a 3 × 1 strip to aggregate features while keeping the orthogonal direction stable; the deformed sampling coordinates are: 
+
+Xi±c =
+
+(xi+c + 1 , y i+c + 1) = ( xi + c + 1 , y i + P ∆yi+c + 1) ,
+
+(xi−c − 1, y i−c − 1) = ( xi − c − 1, y i + P ∆yi−c − 1) , (9) where c ∈ { 0, 1, 2, 3, 4} indexes the distance to the center (Figure 4, right). We sample feature values at these (generally fractional) locations via bilinear interpolation, which keeps LSConv differentiable and stable. The vertical direction is defined analogously (Figure 4, right): 
+
+Yj±c =
+
+(xj+c + 1 , y j+c + 1) = ( xj + P ∆xj+c + 1 , y j + c + 1) ,
+
+(xj−c − 1, y j−c − 1) = ( xj + P ∆xj−c − 1, y j + c − 1) . (10) The snake branch dominates when evidence is fragmented or curved (e.g., small objects under clutter), because flexible offsets can “trace” the local response and recover missing context. The linear branch dominates when the scene contains stable straight structures, because constrained sampling preserves consistent geometry and avoids over-deformation. Figure 5 further contrasts LSConv with standard, dilated, deformable, and DSC operators: LSConv explicitly couples a constrained linear sampler with a deformable snake sampler, rather than relying on a single sampling rule. In practice, we insert LSConv into the backbone to enhance feature maps before they are passed to the subsequent HPE-driven encoding and query retrieval modules. Overall, LSConv provides a simple but effective way to densify sparse information and improve geometric consistency, which makes the features more suitable for heatmap-aligned query retrieval in small-object scenarios. 
+
+## 4 Experimental Results and Analysis 
+
+4.1 Datasets and Experimental Protocol 
+
+We evaluate our method on five public benchmark datasets covering generic and aerial object detection: NWPU VHR-10 [ 55 ] (aerial imagery with small and densely distributed objects), PASCAL VOC [ 56 ] (generic object detection), and three large-scale aerial datasets (DOTA, DIOR, and VisDrone) [ 57 , 58 , 59 , 60 ] to assess scalability across data types and scene complexity. For all datasets, we follow the official training/testing splits and strictly adopt the evaluation protocol in [ 11 ]. Unless otherwise stated, all hyperparameters are kept identical across datasets. In particular, we set λ = 0 .5 in Eq. (4) to balance semantic and geometric priors, and use τ = 0 .5 in Eq. (5) to binarize the heatmap for subsequent query 7Running Title for Header Table 1: Comparison performance on PASCAL VOC and NWPU VHR-10. Compared with RT-DETR, our method achieves consistently higher accuracy on both datasets while markedly reducing computational and model complexity. The best and second-best results are highlighted in red and blue. Method Date Backbone Datasets Epoch GFLOPs Params (M) PASCAL VOC NWPU mAP@0.5 mAP mAP@0.5 mAP CNN SSD 2016ECCV RestNet18 51.01 22.98 40.34 16.01 75 353 26.29 FCOS 2019ICCV ResNet18 67.41 43.64 84.35 55.68 75 32 31.8 RetinaNet 2018CVPR ResNet18 58.21 44.50 87.78 57.89 75 39 36.1 Faster R-CNN 2017ICCV VGG16 65.97 38.63 89.15 61.23 75 63 41.1 CenterNet 2019ICCV ResNet34 57.64 30.90 81.28 48.76 75 130 41.7 MobilenetV3 2019ICCV MBNV3 52.40 30.12 62.97 40.56 75 14 8.86 YOLOv3 2018CVPR ResNet18 64.08 43.76 84.50 52.34 75 112 43.1 YOLOv4 2020CVPR Darknet-53 62.70 49.90 87.80 60.89 75 101 44.9 YOLOv5 2020ArXiv CSPDarknet53 67.10 49.73 89.11 65.43 75 109 46 YOLOv6 2022ArXiv CSPDarknet53 67.16 54.28 89.78 52.10 75 150 59 YOLOv7 2023CVPR CSPRep53 67.80 44.30 91.03 63.12 75 104 36 Transformer YOLOv8 2023Arxiv CSPDarknet18 53.01 36.66 90.43 60.80 75 32 16.1 YOLOv11 2025ArXiv CSPRep53 71.70 47.3 92.68 68.89 75 105 38.8 DETR 2020ECCV ResNet18 62.40 42.00 81.28 35.9 125 101 36.74 Deformable DETR 2021ICLR ResNet50 60.56 51.92 79.30 40.50 125 179 39.83 Conditional-DETR 2021ICCV ResNet50 68.35 48.72 91.45 64.38 100 98 240.2 DINO 2023ICLR ResNet50 67.92 45.16 90.87 62.95 12 112 247.5 PR-Deformable DETR* 2025GRSL ResNet50 / / 88.30 43.20 125 151 46.07 RT-DETR 2024CVPR HGNetv1 69.41 50.59 92.60 60.26 100 136 163 Ours 2026 HPE-Bone 70.60 51.59 94.51 67.20 100 57 66.3 Table 2: Ablation study of our design components on NWPU VHR-10 and PASCAL VOC. Each component contributes incremental improvements, and the full configuration consistently achieves the best performance on both datasets. Dataset DSconv Linear-Snake Heatmap-guided Positional Embedding Precision(%) Recall(%) mAP(%) mAP@95(%) MOHFE HQ-Retrieval NWPU VHR-10 - - - - 88.9 89.9 92.6 60.2                                                                
+
+> ✓---89.0 ↑0.10 90.10 ↑0.20 92.71 ↑0.11 62.32 ↑2.12
+> ✓✓--90.74 ↑1.84 90.62 ↑0.72 93.91 ↑1.31 63.69 ↑3.49
+> ✓✓✓-90.75 ↑1.85 90.51 ↑0.61 94.18 ↑1.58 63.94 ↑3.74
+> ✓✓✓✓93.17 ↑4.97 90.40 ↑0.50 94.51 ↑1.91 67.20 ↑6.90
+> PASCAL VOC ----76.7 62.9 69.4 50.5
+> ✓---77.20 ↑0.50 62.93 ↑0.03 70.29 ↑0.89 51.17 ↑0.67
+> ✓✓--78.41 ↑1.71 63.10 ↑0.20 70.19 ↑0.79 51.41 ↑0.91
+> ✓✓✓-78.52 ↑1.82 63.55 ↑0.65 70.47 ↑1.07 51.33 ↑0.83
+> ✓✓✓✓78.80 ↑2.10 63.72 ↑0.82 70.60 ↑1.20 51.59 ↑1.09
+
+retrieval. Both λ and τ are selected on the validation set and then fixed for all benchmarks. We report mAP@50 and mAP as detection accuracy metrics, and use GFLOPs and Params (M) to measure computational cost and model size, respectively. 
+
+4.2 Result Analysis 4.2.1 Quantitative Results 
+
+We compare with representative CNN-based detectors, including FCOS [ 61 ], RetinaNet [ 31 ], Faster R-CNN [ 32 ], CenterNet [ 62 ], MobileNet-V3 [ 63 ], and the YOLO series [ 27 , 64 , 65 , 66 , 67 , 68 ]. We also include state-of-the-art Transformer detectors (DETR, Deformable DETR, PR-Deformable DETR*, and RT-DETR) to benchmark against encoder-decoder paradigms most closely related to our design. For fairness, CNN baselines are trained with standardized hyperparameters [ 69 , 70 , 71 , 72 , 73 ], while Transformer-based baselines are configured to match our experimental setting and their commonly used training schedules. Table 1 summarizes the results on PASCAL VOC and NWPU VHR-10. CNN detectors typically reach convergence within shorter schedules (e.g., 75 epochs), whereas Transformer detectors often require longer training (100–125 epochs) to stabilize optimization and reach competitive performance. This behavior is particularly pronounced on NWPU VHR-10, where small objects and limited training data make query learning more challenging for Transformer-based detectors (e.g., DETR yields 35.9% mAP). 8Running Title for Header 
+
+Figure 6: Visualization of HPE heatbars under cluttered versus clean scenes. The heatmap guidance provides more object-aware spatial information, leading to tighter and more stable localization under background distractions and scale variations. Our method achieves 94.51% mAP@0.5 and 67.20% mAP on NWPU VHR-10. Relative to the strongest real-time Transformer baseline RT-DETR, we improve both accuracy and efficiency: +1.91 mAP@0.5 and +6.94 mAP, while reducing computation from 136 to 57 GFLOPs and parameters from 163M to 66.3M (59.4% fewer parameters). These results indicate that our heatmap-guided positional embedding effectively stabilizes high-quality query retrieval in encoder-decoder detection and yields a better accuracy-efficiency trade-off under small-object and sparse-data regimes. 
+
+4.2.2 Qualitative Visualization 
+
+Figure 6 provides example visualizations of the learned HPE patterns for denoised query retrieval on PASCAL VOC and NWPU VHR-10. The figure is arranged in four rows: the odd rows show the input images, and the even rows overlay the corresponding HPE heatbars on the original resolution. These examples consistently exhibit a “hot-center, cold-ends” profile, which confirms the core design of HPE: injecting positional information that emphasize object-relevant regions while suppressing background responses, thereby reducing noisy query proposals at initialization. Moreover, the visualizations suggest that HPE is not merely a saliency-like highlight; rather, it induces a structured spatial prior that favors compact, unimodal activations and sharper spatial contrast. This property is particularly aligned with high-IoU evaluation, as it promotes more stable query anchoring and tighter localization under cluttered scenes or scale variations. Minor spatial offsets may appear due to padding and resizing in the downsampling/upsampling path; however, they do not change the qualitative activation reminder that HPE concentrates on object-centric regions. 
+
+4.3 Ablation Studies and Additional Evaluation 4.3.1 Component-wise ablation 
+
+Table 2 reports a component-wise ablation of our framework on NWPU VHR-10 and PASCAL VOC. Overall, enabling modules progressively improves both datasets, and the full configuration consistently achieves the best performance, suggesting that the proposed components contribute complementary gains rather than redundant modifications. 9Running Title for Header Table 3: Decoder multi-head ablation under different training regimes. Det k denotes using k decoder layers for detection, while Det 3–7 aggregates outputs from layers 3 to 7, where performance saturates. Results show that increasing decoder depth consistently improves AP under limited training budgets, but exhibits diminishing returns beyond two layers under sufficient training. Epoch AP(%) GFLOPs Det 0 Det 1 Det 2 Det 3–7 0 1 2 3–7 100 66.7 69.9 70.5 70.5 53.7 55.4 56.2 57.0 50 62.4 65.6 63.1 66.8 25 40.7 41.3 43.2 47.9 Early-stop 38.9 42.9 43.8 43.9 Table 4: Generalization to large-scale aerial benchmarks. We report AP at IoU thresholds 0.50 and 0.75 (AP 50 / AP 75 ). “Ours” consistently improves over the DETR across all datasets. Method DOTA DIOR VisDrone AP 50 AP 75 AP 50 AP 75 AP 50 AP 75             
+
+> DETR 33.7 15.4 56.2 25.8 42.1 19.7 Ours 40.1 ↑6.419.3 ↑3.963.8 ↑7.631.2 ↑5.449.6 ↑7.524.1 ↑4.4
+
+NWPU VHR-10. The baseline model achieves 92.6% mAP@0.5 and 60.2% mAP. Adding DSconv yields modest but consistent gains (+0.11 mAP@0.5 and +2.12 mAP), indicating improved feature stability for small and densely distributed objects. Introducing Linear-Snake further enhances geometric modeling, improving performance to 93.91% mAP@0.5 and 63.69% mAP, which suggests better sensitivity to object boundaries and shape information. With MOHFE enabled, mAP@0.5 increases to 94.18% and mAP to 63.94%, validating that heatmap-guided positional encoding provides a cleaner spatial prior. Finally, integrating HQ-Retrieval leads to the most significant improvement, boosting mAP@0.5 to 94.51% and mAP to 67.20% (+6.9 over the baseline). Notably, the gain is substantially larger on mAP than on mAP@0.5, confirming that these components primarily improve high-IoU localization quality by refining decoder queries toward geometrically consistent regions. 
+
+PASCAL VOC. A similar trend is observed on PASCAL VOC. The full model improves mAP@0.5 from 69.4% to 70.6% and mAP from 50.5% to 51.6%. Although the absolute gains are smaller than those on NWPU VHR-10, the consistent improvements across both metrics indicate that these components generalize beyond aerial imagery and remain effective under generic object detection settings. 
+
+4.3.2 Ablation on DETR decoder depth 
+
+Table 3 analyzes the effect of decoder depth in a DETR-style architecture under different training regimes. All configurations employ the same HPE-driven query augmentation, and only the number of decoder layers used for detection varies. When sufficient training is available (100 epochs), Det 2 already reaches peak performance (70.5% AP), and deeper configurations (Det 3–7) do not yield further improvement, indicating clear performance saturation. Under limited training budgets, however, deeper decoders are beneficial: at 25 epochs and in the early-stop regime, Det 3–7 consistently outperforms shallower variants. Here, “early-stop” denotes a setting ( < 10 epochs) that terminates once the training dynamics stabilize. These results suggest that HPE improves query quality, thereby reducing the reliance on deep decoder stacks. In practice, two decoder layers are sufficient under full supervision, while three layers provide a favorable trade-off in data-scarce regimes. The corresponding GFLOPs increase across decoder depths is modest (53.7 →57.0), reflecting the encoder-dominated computation pattern of DETR-like architectures; as a result, depth reduction tends to yield more noticeable savings in parameters and latency than in raw FLOPs. Finally, the encoder–decoder parameter split (3.01 MB vs. 16.8 MB) indicates a design that allocates more capacity to query refinement than to feature extraction, which aligns with our objective of precise localization via high-quality retrieval. 
+
+4.3.3 Additional Evaluation on Benchmarks 
+
+We further examine the generalizability of our method on three large-scale aerial detection benchmarks (DOTA, DIOR, and VisDrone) by comparing against a DETR baseline. Table 4 shows that our method consistently outperforms DETR on all three benchmarks at both AP 50 and AP 75 . The improvements are +6.4/+3.9 on DOTA, +7.6/+5.4 on DIOR, and 10 Running Title for Header +7.5/+4.4 on VisDrone (AP 50 /AP 75 ), indicating that the HPE-based query retrieval mechanism transfers reliably to large-scale aerial datasets with different object densities and scale distributions. 
+
+## 5 Conclusion 
+
+We study a simple but under-explored question for query-based small-object detection: where to embed positional information. In cluttered aerial scenes, uniformly injecting positional embeddings lets background-dominant regions carry distracting signals, which degrades retrieval and shifts the burden to deeper decoders for repeated refinement. By making positional embedding selective and preserving it in foreground-salient regions while suppressing it elsewhere, our method yields cleaner and more stable decoder inputs, improves high-IoU localization, and reduces the reliance on deep decoder stacks. This leads to a practical accuracy and efficiency gain, where the decoder can be substantially lightened without sacrificing performance. Overall, the key takeaway is that where positional embedding is applied matters as much as having it, and viewing embedding placement as a noise-aware allocation problem provides a simple route to both stronger accuracy and a more efficient detector. Future work includes studying prediction-driven alternatives to gradient-based saliency for positional allocation and examining how selective positional embedding generalizes to other query-based detection architectures and datasets. 
+
+## References 
+
+[1] Wei Wei, Yu Cheng, Jiafeng He, and Xiyue Zhu. A review of small object detection based on deep learning. 
+
+Neural Comput. Appl. , 36(12):6283–6303, 2024. [2] Xue Yang, Junchi Yan, Wenlong Liao, Xiaokang Yang, Jin Tang, and Tao He. Scrdet++: Detecting small, cluttered and rotated objects via instance-level feature denoising and rotation loss smoothing. IEEE TPAMI , 2022. [3] Yihong Li, Ting Wang, Zhe Cao, Haonan Xin, and Rong Wang. Efficient unsupervised clustering of hyperspectral images via flexible multi-anchor graphs. Remote Sens. , 17(15):2647, 2025. [4] Yuchao Hou, Ting Xu, Hongping Hu, Peng Wang, Hongxin Xue, and Yanping Bai. Mdpcaps-csl for sar image target recognition with limited labeled training data. IEEE Access , 8:176217–176231, 2020. [5] Kangning Cui, Zishan Shao, Gregory Larsen, Victor Pauca, Sarra Alqahtani, David Segurado, João Pinheiro, Manqi Wang, David Lutz, Robert Plemmons, et al. Palmprobnet: A probabilistic approach to understanding palm distributions in ecuadorian tropical forest via transfer learning. In Proceedings of the 2024 ACM Southeast Conference , pages 272–277, 2024. [6] Kangning Cui, Ruoning Li, Sam L Polk, Yinyi Lin, Hongsheng Zhang, James M Murphy, Robert J Plemmons, and Raymond H Chan. Superpixel-based and spatially regularized diffusion learning for unsupervised hyperspectral image clustering. IEEE Transactions on Geoscience and Remote Sensing , 62:1–18, 2024. [7] Gong Cheng, Xiang Yuan, Xiwen Yao, Kebing Yan, Qinghua Zeng, Xingxing Xie, and Junwei Han. Towards large-scale small object detection: Survey and benchmarks. IEEE TPAMI , 45(11):13467–13488, 2023. [8] Kangning Cui, Wei Tang, Rongkun Zhu, Manqi Wang, Gregory D Larsen, Victor P Pauca, Sarra Alqahtani, Fan Yang, David Segurado, Paul Fine, et al. Efficient localization and spatial distribution modeling of canopy palms using uav imagery. IEEE TGRS , 2025. [9] Fatih Cagatay Akyon, Sinan Onur Altinuc, and Alptekin Temizel. Slicing aided hyper inference and fine-tuning for small object detection. In ICIP , pages 966–970. IEEE, 2022. [10] Dongming Jiang, Yi Li, Guanpeng Li, and Bingzhe Li. Magma: A multi-graph based agentic memory architecture for ai agents. arXiv preprint arXiv:2601.03236 , 2026. [11] Yian Zhao, Wenyu Lv, Shangliang Xu, Jinman Wei, Guanzhong Wang, Qingqing Dang, Yi Liu, and Jie Chen. Detrs beat yolos on real-time object detection. In CVPR , pages 16965–16974, 2024. [12] Hao Zhang, Feng Li, Shilong Liu, Lei Zhang, Hang Su, Jun Zhu, Lionel Ni, and Harry Shum. Dino: Detr with improved denoising anchor boxes for end-to-end object detection. In ICLR , 2023. [13] Rui-Feng Wang, Daniel Petti, Yue Chen, and Changying Li. Dinov3 visual representations for blueberry perception toward robotic harvesting. arXiv preprint arXiv:2603.02419 , 2026. [14] Rongkun Zhu, Kangning Cui, Wei Tang, Rui-Feng Wang, Sarra Alqahtani, David Lutz, Fan Yang, Paul Fine, Jordan Karubian, Robert Plemmons, et al. From orthomosaics to raw uav imagery: Enhancing palm detection and crown-center localization. arXiv preprint arXiv:2509.12400 , 2025. 11 Running Title for Header [15] Depu Meng, Xiaokang Chen, Zejia Fan, Gang Zeng, Houqiang Li, Yuhui Yuan, Lei Sun, and Jingdong Wang. Conditional for fast training convergence. In ICCV , pages 3651–3660, 2021. [16] Feng Li, Hao Zhang, Shilong Liu, Jian Guo, Lionel M Ni, and Lei Zhang. Dn-detr: Accelerate detr training by introducing query denoising. In CVPR , pages 13619–13627, 2022. [17] Dongming Jiang, Yi Li, Songtao Wei, Jinxin Yang, Ayushi Kishore, Alysa Zhao, Dingyi Kang, Xu Hu, Feng Chen, Qiannan Li, et al. Anatomy of agentic memory: Taxonomy and empirical analysis of evaluation and system limitations. arXiv preprint arXiv:2602.19320 , 2026. [18] Wei Zhang, Qin Huang, Mengting Ma, Yizhen Jiang, Yun Chen, Zhenhua Huang, Wangyu Wu, Kangning Cui, Rongrong Lian, Zhenkai Wu, and Xiaowen Ma. Center-guided classifier for semantic segmentation of remote sensing images. IEEE TGRS , 2026. [19] Chu Chen, Yang Liu, Se Weon Park, Jizhou Li, Kannie WY Chan, and Raymond HF Chan. Implicit regression in subspace for high-sensitivity cest imaging. In 2024 IEEE International Symposium on Biomedical Imaging (ISBI) ,pages 1–5. IEEE, 2024. [20] Chu Chen, Aitor Artola, Yang Liu, Se Weon Park, Raymond H Chan, Jean-Michel Morel, and Kannie WY Chan. Blind adaptive local denoising for cest imaging. arXiv preprint arXiv:2511.20081 , 2025. [21] Ting Jiang, Yixiao Wang, Hancheng Ye, Zishan Shao, Jingwei Sun, Jingyang Zhang, Zekai Chen, Jianyi Zhang, Yiran Chen, and Hai Li. Sada: Stability-guided adaptive diffusion acceleration. In Forty-second International Conference on Machine Learning , 2025. [22] Xingyu Di, Kangning Cui, and Rui-Feng Wang. Toward efficient uav-based small object detection: A lightweight network with enhanced feature fusion. Remote Sens. , 17(13):2235, 2025. [23] Yu-Shan Han, Sheng-Lun Zhao, Chu Chen, Kangning Cui, Pingfan Hu, and Rui-Feng Wang. Seaf-net: A sustainable and lightweight attention-enhanced detection network for underwater fish species recognition. Journal of Marine Science and Engineering , 14(4):351, 2026. [24] Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun. Deep residual learning for image recognition. In 
+
+CVPR , 2016. [25] Fei Pan, Yutong Wu, Kangning Cui, Shuxun Chen, Yanfang Li, Yaofang Liu, Adnan Shakoor, Han Zhao, Beijia Lu, Shaohua Zhi, et al. Accurate detection and instance segmentation of unstained living adherent cells in differential interference contrast images. Computers in Biology and Medicine , 182:109151, 2024. [26] Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy, Scott Reed, Cheng-Yang Fu, and Alexander C Berg. Ssd: Single shot multibox detector. In ECCV , 2016. [27] Ali Farhadi, Joseph Redmon, et al. Yolov3: An incremental improvement. In CVPR , volume 1804, pages 1–6. Springer Berlin/Heidelberg, Germany, 2018. [28] Shuqin Tu, Yunjie Tang, Chengjie Li, Yun Liang, Yangchen Zeng, and Xiaolong Liu. Behavior recognition and tracking of group-housed pigs based on improved bytetrack algorithm. Trans. Chin. Soc. Agric. Mach. ,53(12):264–272, 2022. [29] Huihui Sun and Rui-Feng Wang. Bmdnet-yolo: A lightweight and robust model for high-precision real-time recognition of blueberry maturity. Horticulturae , 11(10):1202, 2025. [30] Rui-Feng Wang, Mingrui Xu, Matthew Bauer, Iago Schardong, Xiaowen Ma, Peng Chee, and Kangning Cui. Cott-adnet: Lightweight real-time cotton boll and flower detection under field conditions. In Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision , pages 500–509, 2026. [31] Tsung-Yi Lin, Priya Goyal, Ross Girshick, Kaiming He, and Piotr Dollár. Focal loss for dense object detection. In 
+
+ICCV , 2017. [32] Shaoqing Ren, Kaiming He, Ross Girshick, and Jian Sun. Faster r-cnn: Towards real-time object detection with region proposal networks. In NeurIPS , 2015. [33] Kaiming He, Georgia Gkioxari, Piotr Dollár, and Ross Girshick. Mask r-cnn. In ICCV , 2017. [34] Yuchao Hou, Shuai Zhao, Xiaoyu Xia, Minghui Liwang, Zijian Li, Nan Xu, Di Wu, Youliang Tian, and Tony QS Quek. Fedc-dac: A federated clustering with dynamic aggregation and calibration method for sar image target recognition. IEEE JSTAR , 2025. [35] Yuhang Han, Bingchen Duan, Renxiang Guan, Guang Yang, and Zhen Zhen. Luffd-yolo: A lightweight model for uav remote sensing forest fire detection based on attention mechanism and multi-level feature fusion. Remote Sens. , 16(12):2177, 2024. 12 Running Title for Header [36] Jiaqing Zhang, Jie Lei, Weiying Xie, Zhenman Fang, Yunsong Li, and Qian Du. Superyolo: Super resolution assisted object detection in multimodal remote sensing imagery. IEEE TGRS , 61:1–15, 2023. [37] Si-Yuan Cao, Beinan Yu, Lun Luo, Runmin Zhang, Shu-Jie Chen, Chunguang Li, and Hui-Liang Shen. Pcnet: A structure similarity enhancement method for multispectral and multimodal image registration. Inf. Fusion ,94:200–214, 2023. [38] Jan Hosang, Rodrigo Benenson, and Bernt Schiele. Learning non-maximum suppression. In CVPR , pages 4507–4515, 2017. [39] Zhaowei Cai and Nuno Vasconcelos. Cascade r-cnn: Delving into high quality object detection. In CVPR , 2018. [40] Kangning Cui, Rongkun Zhu, Manqi Wang, Wei Tang, Gregory D. Larsen, Victor P. Pauca, Sarra Alqahtani, Fan Yang, David Segurado, David A. Lutz, Jean-Michel Morel, and Miles R. Silman. Detection and geographic localization of natural objects in the wild: A case study on palms. In IJCAI , pages 9601–9609. International Joint Conferences on Artificial Intelligence Organization, 8 2025. AI and Social Good. [41] Nicolas Carion, Francisco Massa, Gabriel Synnaeve, Nicolas Usunier, Alexander Kirillov, and Sergey Zagoruyko. End-to-end object detection with transformers. In ECCV , pages 213–229. Springer, 2020. [42] Xizhou Zhu, Weijie Su, Lewei Lu, Bin Li, Xiaogang Wang, and Jifeng Dai. Deformable detr: Deformable transformers for end-to-end object detection. arXiv preprint arXiv:2010.04159 , 2020. [43] Yongming Rao, Wenliang Zhao, Benlin Liu, Jiwen Lu, Jie Zhou, and Cho-Jui Hsieh. Dynamicvit: Efficient vision transformers with dynamic token sparsification. In NeurIPS , 2021. [44] Chunjie Ma, Lina Du, Zan Gao, Li Zhuo, and Meng Wang. A coarse to fine detection method for prohibited object in x-ray images based on progressive transformer decoder. In ACM MM , pages 2700–2708, 2024. [45] Wenxi Li, Yuchen Guo, Jilai Zheng, Haozhe Lin, Chao Ma, Lu Fang, and Xiaokang Yang. Sparseformer: Detecting objects in hrw shots via sparse vision transformer. In ACM MM , pages 4851–4860, 2024. [46] Wei Tang, Kangning Cui, and Raymond H Chan. Optimized hard exudate detection with supervised contrastive learning. In 2024 IEEE International Symposium on Biomedical Imaging (ISBI) , pages 1–5. IEEE, 2024. [47] Ze Liu, Yutong Lin, Yue Cao, Han Hu, Yixuan Wei, Zheng Zhang, Stephen Lin, and Baining Guo. Swin transformer: Hierarchical vision transformer using shifted windows. In ICCV , 2021. [48] Wenhai Wang, Enze Xie, Xiang Li, Deng-Ping Fan, Kaitao Song, Ding Liang, Tong Lu, Ping Luo, and Ling Shao. Pyramid vision transformer: A versatile backbone for dense prediction without convolutions. In ICCV , 2021. [49] Haiping Wu, Bin Xiao, Noel Codella, Mengchen Liu, Xiyang Dai, Lu Yuan, and Lei Zhang. Cvt: Introducing convolutions to vision transformers. In ICCV , 2021. [50] Yunyang Xiong, Zhanpeng Zeng, Rudrasis Chakraborty, Mingxing Tan, Glenn Fung, Yin Li, and Vikas Singh. Nyströmformer: A nyström-based algorithm for approximating self-attention. In AAAI , 2021. [51] Zishan Shao, Yixiao Wang, Qinsi Wang, Ting Jiang, Zhixu Du, Hancheng Ye, Danyang Zhuo, Yiran Chen, et al. Flashsvd: Memory-efficient inference with streaming for low-rank models. In Proceedings of the AAAI Conference on Artificial Intelligence , volume 40, pages 25278–25285, 2026. [52] Maolin He, Rena Gao, Mike Conway, and Brian E Chapman. Query pipeline optimization for cancer patient question answering systems. arXiv preprint arXiv:2412.14751 , 2024. [53] Xizhou Zhu, Han Hu, Stephen Lin, and Jifeng Dai. Deformable convnets v2: More deformable, better results. In 
+
+CVPR , pages 9308–9316, 2019. [54] Yaolei Qi, Yuting He, Xiaoming Qi, Yuan Zhang, and Guanyu Yang. Dynamic snake convolution based on topological geometric constraints for tubular structure segmentation. In ICCV , pages 6070–6079, 2023. [55] Gong Cheng, Peicheng Zhou, and Junwei Han. Learning rotation-invariant convolutional neural networks for object detection in vhr optical remote sensing images. IEEE TGRS , 54(12):7405–7415, 2016. [56] Mark Everingham, Luc Van Gool, Christopher KI Williams, John Winn, and Andrew Zisserman. The pascal visual object classes (voc) challenge. IJCV , 2010. [57] Zhenyu Yu, Mohd Yamani Idna Idris, and Pei Wang. Visualizing our changing earth: A creative ai framework for democratizing environmental storytelling through satellite imagery. In NeurIPS 2025 , 2025. [58] Zhenyu Yu, Jinnian Wang, and Mohd Yamani Idna Idris. Iidm: Improved implicit diffusion model with knowledge distillation to estimate the spatial distribution density of carbon stock in remote sensing imagery. KBS , page 115131, 2025. 13 Running Title for Header [59] Zhenyu Yu, Mohd Yamani Idna Idris, Pei Wang, and Rizwan Qureshi. Dinov3-powered multi-task foundation model for quantitative remote sensing estimation. AAAI 2026 , 40(48):41455–41456, 2026. [60] Zhenyu Yu, Haoran Jiang, Pei Wang, Zizhen Lin, and Yong Xiang. Spatiotemporal alignment for remote sensing image recovery via terrain-aware diffusion. ICASSP 2026 , 2026. [61] Zhi Tian, Chunhua Shen, Hao Chen, and Tong He. Fcos: Fully convolutional one-stage object detection. In ICCV ,pages 9627–9636, 2019. [62] Kaiwen Duan, Song Bai, Lingxi Xie, Honggang Qi, Qingming Huang, and Qi Tian. Centernet: Keypoint triplets for object detection. In ICCV , pages 6569–6578, 2019. [63] Andrew Howard, Mark Sandler, Grace Chu, Liang-Chieh Chen, Bo Chen, Mingxing Tan, Weijun Wang, Yukun Zhu, Ruoming Pang, Vijay Vasudevan, et al. Searching for mobilenetv3. In ICCV , pages 1314–1324, 2019. [64] Alexey Bochkovskiy, Chien-Yao Wang, and Hong-Yuan Mark Liao. Yolov4: Optimal speed and accuracy of object detection. arXiv preprint arXiv:2004.10934 , 2020. [65] Aduen Benjumea, Izzeddin Teeti, Fabio Cuzzolin, and Andrew Bradley. Yolo-z: Improving small object detection in yolov5 for autonomous vehicles. arXiv preprint arXiv:2112.11798 , 2021. [66] Chuyi Li, Lulu Li, Hongliang Jiang, Kaiheng Weng, Yifei Geng, Liang Li, Zaidan Ke, Qingyuan Li, Meng Cheng, Weiqiang Nie, et al. Yolov6: A single-stage object detection framework for industrial applications. arXiv preprint arXiv:2209.02976 , 2022. [67] Chien-Yao Wang, Alexey Bochkovskiy, and Hong-Yuan Mark Liao. Yolov7: Trainable bag-of-freebies sets new state-of-the-art for real-time object detectors. In CVPR , pages 7464–7475, 2023. [68] Rahima Khanam and Muhammad Hussain. Yolov11: An overview of the key architectural enhancements. arXiv preprint arXiv:2410.17725 , 2024. [69] Jinze Wang, Yongli Ren, Jie Li, and Ke Deng. The footprint of factorization models and their applications in collaborative filtering. ACM Transactions on Information Systems (TOIS) , 40(4):1–32, 2021. [70] Zhenyu Yu, Chunlei Meng, Yangchen Zeng, Mohd Yamani Idna Idris, and Shuigeng Zhou. Ads-poi: Agentic spatiotemporal state decomposition for next point-of-interest recommendation. ACM ISBN , pages 978–1, 2026. [71] Zhenyu Yu, Chunlei Meng, Yangchen Zeng, Mohd Yamani Idna Idris, and Shuigeng Zhou. Cast-poi: Candidate-conditioned spatiotemporal modeling for next poi recommendation. ACM ISBN , pages 978–1, 2026. [72] YangChen Zeng. Hmpe: Heatmap embedding for efficient transformer-based small object detection. arXiv preprint arXiv:2504.13469 , 2025. [73] Yangchen Zeng. Deepinterestgr: Mining deep multi-interest using multi-modal llms for generative recommenda-tion. arXiv preprint arXiv:2602.18907 , 2026. 14

@@ -1,0 +1,46 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.26806v1/fig-001.webp",
+      "caption": "Figure 3: The RT-DETR-R50 model applies ViCrop-Det effect comparison diagram on the VisDrone dataset (Original image; no-ViCrop-Det; ViCrop-Det).",
+      "page": 6,
+      "index": 1,
+      "width": 1068,
+      "height": 269
+    },
+    {
+      "url": "assets/figures/arxiv/2604.26806v1/fig-002.webp",
+      "caption": "Table 2: Comparison on VisDrone and DOTA-v1.5.",
+      "page": 5,
+      "index": 2,
+      "width": 975,
+      "height": 321
+    },
+    {
+      "url": "assets/figures/arxiv/2604.26806v1/fig-003.webp",
+      "caption": "Figure 2: The RT-DETR-R50 model applies ViCrop-Det effect comparison diagram on the DOTA dataset (Original image; no-ViCrop-Det; ViCrop-Det).",
+      "page": 5,
+      "index": 3,
+      "width": 1068,
+      "height": 348
+    },
+    {
+      "url": "assets/figures/arxiv/2604.26806v1/fig-004.webp",
+      "caption": "Table 1: Default settings used for all models and datasets.",
+      "page": 4,
+      "index": 4,
+      "width": 522,
+      "height": 279
+    },
+    {
+      "url": "assets/figures/arxiv/2604.26806v1/fig-005.webp",
+      "caption": "Figure 1: ViCrop-Det processing pipeline.",
+      "page": 3,
+      "index": 5,
+      "width": 1068,
+      "height": 340
+    }
+  ]
+}

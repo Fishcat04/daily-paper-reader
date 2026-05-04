@@ -1,0 +1,266 @@
+Title: HI-MoE: Hierarchical Instance-Conditioned Mixture-of-Experts for Object Detection
+
+URL Source: https://arxiv.org/pdf/2604.04908v1
+
+Published Time: Tue, 07 Apr 2026 02:01:21 GMT
+
+Number of Pages: 12
+
+Markdown Content:
+# HI-MoE: Hierarchical Instance-Conditioned Mixture-of-Experts for Object Detection 
+
+Vadim Vashkelis ∗ Natalia Trukhina 
+
+Abstract 
+
+Mixture-of-Experts (MoE) architectures enable conditional computation by activating only a subset of model parameters for each input. Although sparse routing has been highly effective in language models and has also shown promise in vision, most vision MoE methods operate at the image or patch level. This granularity is poorly aligned with object detection, where the fundamental unit of reasoning is an object query corresponding to a candidate instance. We propose Hierarchical Instance-Conditioned Mixture-of-Experts (HI-MoE) , a DETR-style detection architecture that performs routing in two stages: a lightweight scene router first selects a scene-consistent expert subset, and an instance router then assigns each object query to a small number of experts within that subset. This design aims to preserve sparse computation while better matching the heterogeneous, instance-centric structure of detection. In the current draft, experiments are concentrated on COCO with preliminary specialization analysis on LVIS. Under these settings, HI-MoE improves over a dense DINO baseline and over simpler token-level or instance-only routing variants, with especially strong gains on small objects. We also provide an initial visualization of expert specialization patterns. We present the method, ablations, and current limitations in a form intended to support further experimental validation. 
+
+# 1 Introduction 
+
+Sparse Mixture-of-Experts (MoE) layers have become an effective mechanism for scaling neural networks through conditional computation: instead of activating every parameter for every token, the model learns to select only a small subset of experts [1, 2, 3]. This combination of high parameter capacity and sparse activation has been especially successful in large-scale language models, but the same idea has been less thoroughly explored for vision and, in particular, for object detection. Vision MoE work such as V-MoE demonstrates that sparse expert routing can improve scaling efficiency in transformers by routing image tokens or patches to selected feed-forward experts [4]. However, object detection differs from image classification in a fundamental way: a single image can simultaneously contain tiny, large, rare, occluded, and heavily overlapping instances. These cases often demand different processing strategies within the same forward pass. DETR-style detectors are a natural setting for conditional expert selection because the decoder already reasons through object queries that correspond to candidate instances [5, 6, 7]. This suggests that routing should occur at the query level rather than only at the image or token level. Intuitively, a small, ambiguous query in a crowded scene should not have to use the same expert pathway as an easy large-object query from the same image.  
+
+> ∗Corresponding email: research@emilab.org
+
+1
+
+> arXiv:2604.04908v1 [cs.LG] 6 Apr 2026
+
+This paper explores that idea through a hierarchical routing design. We first summarize a scene using a compact global descriptor, use it to identify a scene-consistent subset of experts, and then perform query-wise routing within that restricted pool. The resulting model, HI-MoE, is intended to combine three goals: better alignment with instance-centric reasoning, improved expert specialization, and controlled compute. Our main contributions are: 
+
+• We formulate hierarchical scene-to-instance routing for DETR-style detectors, where ex-pert selection is performed per object query rather than only per image or patch. 
+
+• We describe a practical HI-MoE block that replaces selected feed-forward layers with sparse experts while keeping the rest of the detector unchanged. 
+
+• We present controlled ablations showing that hierarchical routing outperforms token-level, scene-only, and instance-only variants in the current experimental setup. 
+
+• We provide an initial specialization analysis and routing visualization , while explicitly identifying the parts of the evaluation that still require broader validation. The current manuscript should be read as a strengthened proof-of-concept version: the core method and the existing COCO/LVIS evidence are presented more precisely, while broader bench-marking and deeper efficiency analysis remain future work. 
+
+# 2 Related Work 
+
+2.1 Sparse MoE and Conditional Computation 
+
+Early mixture models and modern sparse MoE networks share the central idea of routing inputs to specialized sub-networks [1, 2]. Switch Transformers simplified sparse routing by activating only one expert per token and highlighted the importance of balancing losses and routing stability [3]. Representation collapse and unstable expert utilization have also been studied explicitly in later MoE work [8]. These issues motivate the load-balancing and diversity terms that we include in HI-MoE. 
+
+2.2 MoE in Vision 
+
+In vision, V-MoE replaces transformer feed-forward layers with sparse expert blocks and routes patch tokens, demonstrating that conditional computation can be effective in image recognition [4]. However, the routing granularity in these models remains token-centric. For dense instance prediction, the relevant unit of reasoning is often not the patch token itself but the candidate instance represented downstream by a query. 
+
+2.3 Detection Transformers and Query Routing 
+
+DETR introduced set-based object detection with learned object queries [5]. Deformable DETR improved convergence and efficiency with sparse multi-scale attention [6], and DINO further im-proved optimization and accuracy through denoising training and stronger query initialization [7]. Query routing has also been explored directly: QR-DETR learns to route queries across decoder depth for efficiency [9]. These works support the broader idea that not every query requires identical processing. 22.4 MoE for Detection 
+
+Existing MoE-based detection methods usually specialize experts by domain, dataset, or route type rather than by object instance within a scene. DAMEX routes according to dataset identity for mixed-dataset detection [10]. Dynamic-DINO introduces fine-grained MoE tuning in an open-vocabulary detector [11]. MoCaE combines multiple detector outputs through calibrated expert fusion rather than inserting sparse experts inside the detector itself [12]. Mr. DETR++ uses route-aware MoE modules to share knowledge across training routes [13]. Our goal is different: we study 
+
+scene-conditioned, per-query routing within a single image .
+
+# 3 Method 
+
+3.1 Overview 
+
+HI-MoE builds on a DETR-style detector and replaces selected feed-forward networks (FFNs) in the transformer with sparse expert blocks. In the current implementation, we focus primarily on decoder FFNs and optionally include selected encoder FFNs in ablations. The detector backbone, encoder-decoder attention, matching, and prediction heads remain unchanged. The key idea is to separate routing into two levels: 1. a scene router that produces a compact scene descriptor and selects a small scene-consistent expert subset, and 2. an instance router that uses each object query together with scene context to choose the active experts for that query. This hierarchy is intended to reduce routing ambiguity while preserving sparse compute. Rather than letting every query choose from the full expert bank independently, the scene router narrows the candidate pool using global context. 
+
+3.2 Notation Summary 
+
+Table 1 summarizes the routing notation used in the paper. 
+
+3.3 Hierarchical Routing 
+
+3.3.1 Scene Routing 
+
+We compute a compact global descriptor xglobal from the final encoder features. In the current draft, this descriptor is formed by global pooling and may optionally be augmented with coarse proposal statistics from a lightweight auxiliary head; the pooled-feature version is the default description used throughout the paper. A lightweight scene router maps this descriptor to scene-routing logits: 
+
+g = softmax( Wgxglobal /τ s) ∈ RNs ,
+
+where Wg is a learned projection and τs is a temperature parameter. We retain the top-Ks scene routes and use them to define the candidate expert pool for query-level routing. Intuitively, this provides coarse global context before fine-grained per-query selection. 3Input image 
+
+Backbone + encoder Scene router top-Ks experts 
+
+Decoder object queries 
+
+Instance router per-query top-K
+
+Expert 1 Expert 2 Expert Ne
+
+Detection head 
+
+Figure 1: HI-MoE overview. A scene router first selects a scene-consistent expert subset; an instance router then performs per-query top-K routing inside that subset. Sparse experts replace selected transformer FFNs. 
+
+Symbol Meaning 
+
+Ne Number of instance-level experts in each MoE block 
+
+K Number of active instance experts per query 
+
+Ns Number of scene-level routing logits 
+
+Ks Number of active scene routes selected by the scene router 
+
+qi i-th object query in the decoder 
+
+xglobal Global scene descriptor produced from encoder features 
+
+g Scene-routing distribution produced by the scene router 
+
+ei Instance-routing distribution for query qi
+
+Table 1: Notation summary for the hierarchical routing module. 
+
+3.3.2 Instance Routing 
+
+For each decoder query qi, the instance router consumes the query embedding together with scene information and predicts an expert distribution 
+
+ei = softmax( Wi[qi; g]/τ i) ∈ RNe ,
+
+4where [·; ·] denotes concatenation and τi is the instance-routing temperature. We then select the top-K experts from the scene-constrained candidate pool. Each expert is an FFN-like module Ek(·) with the same architecture but independent parame-ters. The output of the HI-MoE block for query qi is 
+
+yi = ∑
+
+> k∈top -K
+
+wi,k Ek(qi),
+
+where wi,k is the normalized routing weight for expert k. In the present formulation, this replace-ment occurs in selected transformer FFNs; we do not modify the self-attention or cross-attention operators themselves. 
+
+Complexity. Relative to a dense FFN, an MoE block increases total parameter count by approx-imately O(Ned2) but activates only O(Kd 2) parameters per routed query. The exact wall-clock speedup depends on implementation and hardware, so we report FLOPs and latency separately rather than equating sparse FLOPs with guaranteed throughput gains. 
+
+3.4 Routing Procedure 
+
+While the routing equations define the scene-level and instance-level gating functions, it is useful to summarize how these components interact during a single decoder forward pass. Algorithm 2 presents the routing procedure used in HI-MoE. Scene routing first identifies a compact set of candidate experts from global image context. Each object query then performs instance-level routing within this restricted pool, and the outputs of the selected experts are combined with routing-weighted aggregation. 
+
+3.5 Training Objective 
+
+The overall loss is 
+
+L = Ldet + λ1Lbalance + λ2Ldiversity ,
+
+where Ldet is the standard detector loss (classification, box regression, and GIoU terms inherited from the base detector). The balancing loss penalizes highly uneven expert utilization: 
+
+Lbalance =
+
+> Ne∑
+> k=1
+> (
+
+fk − 1
+
+Ne
+
+> )2
+
+,
+
+where fk is the fraction of routed queries assigned to expert k in the current batch. The diversity loss encourages experts to learn non-identical representations. In the current draft we instantiate this as a Jensen–Shannon-divergence-based regularizer across expert responses, motivated by prior observations about expert collapse in sparse MoE training [3, 8]. For the experiments reported here, we use λ1 = 0 .01 and λ2 = 0 .001 and train end-to-end with AdamW. 
+
+# 4 Experiments 
+
+4.1 Scope of the Current Evaluation 
+
+The current empirical evidence is strongest on COCO, with preliminary specialization analysis on LVIS. Earlier draft language referred more broadly to LVIS and Objects365, but this version keeps 5Algorithm 1 HI-MoE Forward Routing Procedure 
+
+Input: Multi-scale image features F , object queries Q = {qi}Nq
+
+> i=1
+
+, number of scene experts Ns,number of instance experts Ne, scene top-Ks, instance top-K
+
+Output: Updated query representations Y = {yi}Nq
+
+> i=1
+
+1. Encode image features with backbone and transformer encoder: 
+
+H ← Encoder( F )
+
+2. Compute global scene representation: 
+
+xglobal ← Pool( H)
+
+3. Compute scene routing logits and probabilities: 
+
+g ← softmax( Wgxglobal /τ s)
+
+4. Select active scene experts: 
+
+S ← TopK( g, K s)
+
+5. For each object query qi ∈ Q:
+
+• Form routing input by concatenating query and scene signal: 
+
+ri ← [qi; g]
+
+• Compute instance routing probabilities: 
+
+ei ← softmax( Wiri/τ q)
+
+• Restrict routing to the scene-selected expert pool: 
+
+˜ei ← MaskToPool( ei, S)
+
+• Select top-K instance experts: 
+
+Ei ← TopK(˜ ei, K )
+
+• Compute normalized routing weights over selected experts: 
+
+wi,k ← ˜ei,k 
+
+∑
+
+> j∈E i
+
+˜ei,j 
+
+∀k ∈ E i
+
+• Aggregate expert outputs: 
+
+yi ← ∑
+
+> k∈E i
+
+wi,k Ek(qi)
+
+6. Return Y = {yi}Nq
+
+> i=1
+
+Table 2: HI-MoE forward routing procedure. The algorithm first computes scene-level routing from global context, then performs query-wise instance routing within the scene-constrained expert pool. 6claims aligned with the quantitative evidence that is actually shown. Extending the evaluation to a full LVIS benchmark table, Objects365 pretraining/finetuning, and multi-backbone validation remains important future work. 
+
+4.2 Experimental Setup 
+
+Unless noted otherwise, we build on DINO with a ResNet-50 backbone. The current training setup follows a standard 50-epoch recipe with batch size 16, AdamW optimizer, learning rate 10 −4,weight decay 10 −4, multi-scale augmentation, and gradient clipping at 0.1. Images are resized to a nominal 800-pixel scale. Our default HI-MoE configuration uses Ne = 16 , K = 2 , Ns = 4 , and 
+
+Ks = 2 . For scene-level routing, we define a small set of coarse scene-route categories used only as high-level routing priors. In the current setup, the most frequently activated scene routes are indoor, outdoor, and crowd, together with one generalist route for mixed or ambiguous scenes. These labels are intended as interpretable scene-level routing categories rather than an exhaustive partition of all expert behavior. These details are sufficient to interpret the present ablations, but we emphasize that a camera-ready version should additionally report all implementation details needed for full reproduction, including exact query count, decoder depth, learning-rate schedule, hardware, mixed-precision set-tings, and capacity handling in the sparse dispatch implementation. The code and configura-tion files used for all experiments reported in this paper are available at https://gitlab.com/ emilab-group/himoe .
+
+4.3 Main Results on COCO 
+
+Method AP AP s Params DETR 42.0 20.5 41M Deformable DETR 48.7 29.6 40M DINO 51.3 32.1 50M HI-MoE 53.0 35.4 52M Table 3: Current COCO validation results reported in this draft. Under the matched setup used here, HI-MoE improves over the dense DINO baseline while adding approximately 2M parameters. Table 3 shows the main result currently available in the paper. The strongest gain is on small objects, where HI-MoE improves AP s by 3.3 points over the DINO baseline. This is consistent with the central hypothesis that heterogeneous object queries benefit from more specialized processing than a single dense FFN can provide. 
+
+4.4 Ablation Studies 
+
+We compare hierarchical routing against simpler MoE alternatives using DINO-R50 as the base detector. The ablation in Table 4 supports three observations. First, sparse routing helps even when applied at token level, but query-level routing is stronger. Second, scene context alone is useful but insufficient. Third, combining scene conditioning with per-query routing yields the best result, suggesting that the scene router provides useful structure rather than merely extra parameters. 7Variant Routing AP AP s Params (M) GFLOPs Dense DINO Dense FFN 51.3 32.1 50 280 Token-MoE Flat token-level 52.1 33.5 52 285 Instance-only Query router only 52.6 34.2 52 282 Scene-only Scene router + shared experts 52.4 33.8 52 283 HI-MoE (full) Scene + query routing 53.0 35.4 52 282 
+
+Table 4: Ablation on COCO val. The hierarchical scene+query routing variant performs best among the tested sparse alternatives. top-K AP GFLOPs Latency (ms, V100) 1 52.4 270 28 2 53.0 282 32 
+
+4 53.5 310 38 Table 5: Compute–accuracy trade-off when varying the number of active experts per query. Table 5 illustrates the top-K trade-off. Increasing K improves AP but also increases latency and FLOPs. In the current setup, K = 2 provides the best balance. Experts AP Params 4 52.1 51M 8 52.6 52M 16 53.0 52M Table 6: Ablation over the number of experts in the current setup. Placement AP Params Encoder only 52.3 52M Decoder only 52.8 52M Encoder + Decoder 53.0 52M Table 7: Placement ablation for HI-MoE blocks. Decoder-side routing is strongest among single-stage placements, while the combined placement performs best overall. 
+
+4.5 Expert Specialization Analysis 
+
+To probe whether experts learn different behaviors, we analyze a subset of decoder experts on LVIS validation splits defined by difficulty regime. Importantly, scene-route categories (e.g., indoor, outdoor, crowd, generalist) are coarse routing labels used by the scene router, whereas decoder experts are learned sparse FFN modules; the two should not be interpreted as identical objects. Table 8 indicates that experts are not behaving identically. For example, E3 is strongest on small objects, whereas E6 is strongest on the tail subset and on the occluded split among the three displayed experts. This is consistent with the intended specialization story, but by itself it is still preliminary evidence rather than a complete causal account. Here, Dominant route denotes the 8Expert ID Small (AP s) Occluded (AP occ ) Tail (AP tail ) Dominant scene route (within-expert share) E1 28.5 22.1 15.3 Crowd (45% of E1 assignments) E3 36.2 29.4 12.1 Indoor (32% of E3 assignments) E6 24.1 31.2 28.7 Outdoor (51% of E6 assignments) Avg 31.2 27.3 18.4 –Table 8: Preliminary expert-level statistics on LVIS. For each displayed expert, the Dominant scene route column reports the scene-route category most frequently associated with that expert, together with the within-expert proportion of routed assignments falling into that category. Because these percentages are normalized separately for each expert, they are not expected to sum to 100% across experts. These results are suggestive of specialization, but they should be complemented by larger-scale routing diagnostics in a future version. scene-route category that accounts for the largest share of assignments for a given expert, and the reported percentage is computed within that expert’s own routed assignments. 
+
+4.6 Routing Visualization 
+
+Figure 2 visualizes the expert-level statistics from Table 8. The left panel shows subset AP for representative experts. The right panel shows, for each displayed expert separately, the proportion of that expert’s routed assignments belonging to its dominant scene-route category. Thus, the bars in the right panel use different denominators and should be interpreted as per-expert dominance scores, not as a single global routing distribution over scene routes. The current figure does not report the full routing mass over all scene-route categories or all experts; it reports only the dominant within-expert route share for a small set of representative experts. 
+
+4.7 Efficiency and Limitations 
+
+HI-MoE is designed to keep active compute sparse by evaluating only top-K experts per query. However, sparse theoretical FLOPs do not automatically translate into proportional speedups in practice; dispatch cost, batching efficiency, and hardware-specific kernels all matter. For that reason, the current draft reports both FLOPs and latency and avoids overstating efficiency claims. Several limitations remain. First, the evaluation should be expanded beyond the present COCO-focused setup. Second, the paper still lacks deeper diagnostics such as expert-drop ablations, routing entropy curves, full utilization histograms, and multi-seed statistics. Third, the implementation details around capacity handling and routing regularization should be made more explicit in a camera-ready version. 9Figure 2: Visualization derived from the expert-level routing statistics in Table 8. Left: per-expert subset AP for representative experts and the average row. Right: for each displayed expert, the proportion of that expert’s routed assignments associated with its dominant scene-route category (Crowd for E1, Indoor for E3, Outdoor for E6). These percentages are normalized independently per expert and therefore are not additive and are not expected to sum to 100% across the three bars. This figure is intended as a first-step illustration of specialization rather than a complete utilization analysis across all experts and layers. 10 5 Conclusion 
+
+We presented HI-MoE, a hierarchical scene-to-instance mixture-of-experts design for DETR-style object detection. The main idea is simple: because detection is instance-centric, sparse routing should also operate at the instance level. The current results support that hypothesis, showing that hierarchical per-query routing improves over dense and simpler sparse baselines in the reported setup. Just as importantly, this revised manuscript makes the present scope explicit. The paper now states more clearly what is already supported by the current evidence, what the routing visualization actually shows, and what must still be validated in future experiments. We believe this strengthens the work as a research draft and provides a cleaner foundation for the next round of experiments. 
+
+# References 
+
+[1] Robert A. Jacobs, Michael I. Jordan, Steven J. Nowlan, and Geoffrey E. Hinton. Adaptive mixtures of local experts. Neural Computation , 3(1):79–87, 1991. [2] Noam Shazeer, Azalia Mirhoseini, Krzysztof Maziarz, Andy Davis, Quoc V. Le, Geoffrey E. Hinton, and Jeff Dean. Outrageously large neural networks: The sparsely-gated mixture-of-experts layer. In International Conference on Learning Representations (ICLR) , 2017. [3] William Fedus, Barret Zoph, and Noam Shazeer. Switch transformers: Scaling to trillion parameter models with simple and efficient sparsity. Journal of Machine Learning Research ,23(120):1–39, 2022. [4] Carlos Riquelme, Joan Puigcerver, Basil Mustafa, Maxim Neumann, Rodolphe Jenatton, An-dre Susano Pinto, Daniel Keysers, Neil Houlsby, and Mario Lucic. Scaling vision with sparse mixture of experts. In Advances in Neural Information Processing Systems (NeurIPS) , 2021. [5] Nicolas Carion, Francisco Massa, Gabriel Synnaeve, Nicolas Usunier, Alexander Kirillov, and Sergey Zagoruyko. End-to-end object detection with transformers. In European Conference on Computer Vision (ECCV) , pages 213–229, 2020. [6] Xizhou Zhu, Weijie Su, Lewei Lu, Bin Li, Xiaogang Wang, and Jifeng Dai. Deformable DETR: Deformable transformers for end-to-end object detection. In International Conference on Learning Representations (ICLR) , 2021. [7] Hao Zhang, Feng Li, Shilong Liu, Lei Zhang, Hang Su, and Jun Zhu. DINO: DETR with improved denoising anchor boxes for end-to-end object detection. In International Conference on Learning Representations (ICLR) , 2023. [8] Zewen Chi, Li Dong, Shaohan Huang, Damai Dai, Shuming Ma, Barun Patra, Saksham Sing-hal, Payal Bajaj, Xia Song, Xian-Ling Mao, Heyan Huang, and Furu Wei. On the representa-tion collapse of sparse mixture of experts. Advances in Neural Information Processing Systems (NeurIPS) , 35:34679–34692, 2022. [9] Tharsan Senthivel and Ngoc-Son Vu. QR-DETR: Query routing for detection transformer. In 
+
+Proceedings of the Asian Conference on Computer Vision (ACCV) , pages 354–371, 2024. 11 [10] Yash Jain, Harkirat Behl, Zsolt Kira, and Vibhav Vineet. DAMEX: Dataset-aware mixture-of-experts for visual understanding of mixture-of-datasets. arXiv preprint arXiv:2311.04894 ,2023. [11] Yehao Lu, Minghe Weng, Zekang Xiao, Rui Jiang, Wei Su, Guangcong Zheng, Ping Lu, and Xi Li. Dynamic-DINO: Fine-grained mixture of experts tuning for real-time open-vocabulary object detection. arXiv preprint arXiv:2507.17436 , 2025. [12] Kemal Oksuz, Selim Kuzucu, Tom Joy, and Puneet K. Dokania. MoCaE: Mixture of calibrated experts significantly improves object detection. arXiv preprint arXiv:2309.14976 , 2023. [13] Chang-Bin Zhang, Yujie Zhong, and Kai Han. Mr. DETR++: Instructive multi-route training for detection transformers with mixture-of-experts. arXiv preprint arXiv:2412.10028 , 2024. 12

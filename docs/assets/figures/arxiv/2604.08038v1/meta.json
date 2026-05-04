@@ -1,0 +1,142 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.08038v1/fig-001.webp",
+      "caption": "Table 1",
+      "page": 6,
+      "index": 1,
+      "width": 967,
+      "height": 280
+    },
+    {
+      "url": "assets/figures/arxiv/2604.08038v1/fig-002.webp",
+      "caption": "Figure 2: Illustration of the hybrid backbone network consisting of successive MSDDC and Mamba blocks.",
+      "page": 6,
+      "index": 2,
+      "width": 966,
+      "height": 536
+    },
+    {
+      "url": "assets/figures/arxiv/2604.08038v1/fig-003.webp",
+      "caption": "Figure 6: Statistics of our RTOD dataset in traffic object categories (a) and scale distributions (b).",
+      "page": 11,
+      "index": 3,
+      "width": 977,
+      "height": 500
+    },
+    {
+      "url": "assets/figures/arxiv/2604.08038v1/fig-004.webp",
+      "caption": "Figure 7: Example images in RTOD dataset.",
+      "page": 11,
+      "index": 4,
+      "width": 977,
+      "height": 186
+    },
+    {
+      "url": "assets/figures/arxiv/2604.08038v1/fig-005.webp",
+      "caption": "Table 5",
+      "page": 15,
+      "index": 5,
+      "width": 969,
+      "height": 301
+    },
+    {
+      "url": "assets/figures/arxiv/2604.08038v1/fig-006.webp",
+      "caption": "Figure 9: PR curves of YOLOv8n (a), YOLOv13n (b), MambaYOLO-T (c), and our MDDCNet-T (d) on the RTOD",
+      "page": 15,
+      "index": 6,
+      "width": 977,
+      "height": 693
+    },
+    {
+      "url": "assets/figures/arxiv/2604.08038v1/fig-007.webp",
+      "caption": "Figure 5: Statistics of KITTI dataset in traffic object categories (a) and scale distributions (b).",
+      "page": 10,
+      "index": 7,
+      "width": 977,
+      "height": 510
+    },
+    {
+      "url": "assets/figures/arxiv/2604.08038v1/fig-008.webp",
+      "caption": "Table 4",
+      "page": 14,
+      "index": 8,
+      "width": 967,
+      "height": 412
+    },
+    {
+      "url": "assets/figures/arxiv/2604.08038v1/fig-009.webp",
+      "caption": "Figure 10: Qualitative comparison of YOLOv13n and our MDDCNet on the KITTI dataset. Our MDDCNet demonstrates",
+      "page": 18,
+      "index": 9,
+      "width": 977,
+      "height": 500
+    },
+    {
+      "url": "assets/figures/arxiv/2604.08038v1/fig-010.webp",
+      "caption": "Figure 8: PR curves of YOLOv8n (a), YOLOv10n (b), YOLOv11n (c), YOLOv12n (d), YOLOv13n (e) and our MDDCNet-T",
+      "page": 13,
+      "index": 10,
+      "width": 977,
+      "height": 1041
+    },
+    {
+      "url": "assets/figures/arxiv/2604.08038v1/fig-011.webp",
+      "caption": "Figure 3: Comparison of our proposed CE-FFN (c) and the vanilla FFN (a) and FFN with CA-Block (b).",
+      "page": 8,
+      "index": 11,
+      "width": 940,
+      "height": 526
+    },
+    {
+      "url": "assets/figures/arxiv/2604.08038v1/fig-012.webp",
+      "caption": "Figure 11: Qualitative comparison of YOLOv13n and our MDDCNet on the RTOD dataset. It can be observed that our",
+      "page": 19,
+      "index": 12,
+      "width": 977,
+      "height": 862
+    },
+    {
+      "url": "assets/figures/arxiv/2604.08038v1/fig-013.webp",
+      "caption": "Table 10",
+      "page": 17,
+      "index": 13,
+      "width": 969,
+      "height": 225
+    },
+    {
+      "url": "assets/figures/arxiv/2604.08038v1/fig-014.webp",
+      "caption": "Table 3",
+      "page": 12,
+      "index": 14,
+      "width": 967,
+      "height": 539
+    },
+    {
+      "url": "assets/figures/arxiv/2604.08038v1/fig-015.webp",
+      "caption": "Table 2",
+      "page": 12,
+      "index": 15,
+      "width": 969,
+      "height": 416
+    },
+    {
+      "url": "assets/figures/arxiv/2604.08038v1/fig-016.webp",
+      "caption": "Figure 4: Our proposed Contextual-Spatial-Channel Attention (CSCA) synergy module. Comprising three complementary",
+      "page": 9,
+      "index": 16,
+      "width": 973,
+      "height": 705
+    },
+    {
+      "url": "assets/figures/arxiv/2604.08038v1/fig-017.webp",
+      "caption": "Figure 1: The model architecture of our proposed MDDCNet which comprises Hybrid Backbone (a), Attention-Aggregating Feature Pyramid Network (𝐴2FPN) (b) and Detection Head (c).",
+      "page": 5,
+      "index": 17,
+      "width": 963,
+      "height": 805
+    }
+  ]
+}

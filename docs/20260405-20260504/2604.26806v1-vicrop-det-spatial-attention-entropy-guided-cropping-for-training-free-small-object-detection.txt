@@ -1,0 +1,525 @@
+Title: ViCrop-Det: Spatial Attention Entropy Guided Cropping for Training-Free Small-Object Detection
+
+URL Source: https://arxiv.org/pdf/2604.26806v1
+
+Published Time: Thu, 30 Apr 2026 01:11:46 GMT
+
+Number of Pages: 14
+
+Markdown Content:
+# ViCrop -D et : S patial Attention Entropy Guided Cropping for 
+
+# Training -F ree Small -O bject Detection 
+
+Preprint , compiled April 30, 2026 
+
+Hui Wang 1 Hongze Li 1 Wei Chen 2 Xiaojin Zhang 1,* 
+
+> 1
+
+School of Computer Science and Technology, Huazhong University of Science and Technology 
+
+> 2
+
+School of Software Engineering, Huazhong University of Science and Technology Wuhan 430074, China 
+
+chuxiatianyi@gmail.com lhz13012608937@outlook.com lemuria_chen@hust.edu.cn xiaojinzhang@hust.edu.cn 
+
+> *
+
+Corresponding author 
+
+# Abstract 
+
+Transformer-based architectures have established a dominant paradigm in global semantic perception; however, they remain fundamentally constrained by the profound spatial heterogeneity inherent in natural images. Specifically, the imposition of a uniform global receptive field across regions of varying information density inevitably leads to local feature degradation, particularly in dense conflict zones populated by microscopic targets. To address this mechanistic limitation, we propose ViCrop-Det, a training-free inference framework that introduces adaptive spatial trust region shrinkage. Inspired by the use of attention entropy in anomaly segmentation, ViCrop-Det leverages the detection decoder’s cross-attention distribution as an endogenous probe. By utilizing Spatial Attention Entropy (SAE) to heuristically evaluate local spatial ambiguity, the framework executes dynamic spatial routing, allocating a fixed computational budget exclusively to regions exhibiting both high target saliency and high cognitive uncertainty. By shrinking the spatial trust region and injecting high-frequency localized observations, ViCrop-Det actively resolves spatial ambiguity and recovers fine-grained features without requiring architectural modifications. Extensive evaluations on VisDrone and DOTA-v1.5 demonstrate that ViCrop-Det yields competitive performance enhancements, consistently adding +1-3 mAP@50 to RT-DETR-R50 and Deformable DETR with a marginal 20-23% latency overhead. On MS COCO, AP S
+
+improves while AP M /AP L remains stable, indicating precise fine-scale refinement without compromising the global spatial prior. Under compute-matched settings, our adaptive routing strategy comprehensively surpasses uniform slicing baselines, achieving a highly optimized accuracy-speed trade-o ff .
+
+# 1 Introduction 
+
+Despite their robust performance across standard benchmarks, global Transformer architectures continue to face a funda-mental bottleneck in localizing microscopic targets within unconstrained, dense environments. This limitation is typi-cally diagnosed empirically as "attention dilution," wherein the global receptive field disproportionately distributes softmax-normalized weights across expansive, low-information back-ground patches [ 1, 2]. When a model encounters heavily down-sampled, texture-degraded targets, the query embeddings fail to extract definitive localized spatial evidence. Consequently, the cross-attention probability mass di ff uses, approaching a flat, uniform distribution across the spatial parameter space. This uniform spatial distribution inherently possesses a high Shannon entropy [ 3], serving as a strong empirical indicator of the net-work’s cognitive ambiguity and local spatial uncertainty. Forcing a definitive bounding box prediction from such a high-entropy state inevitably leads to persistent category confusion and ex-treme localization drift. While training-free uniform slicing methodologies (e.g., SAHI) attempt to recover these targets by artificially enlarging the pixel area [ 4], they operate on an assumption of spatial homogeneity. By blindly allocating com-putational resources to low-uncertainty, smooth background re-gions, these brute-force approaches incur severe computational overhead and fail to exploit the intrinsic spatial heterogeneity of natural images. To address this mechanistic gap, we propose a training-free inference framework rooted in entropy-guided adaptive spatial routing. Inspired by recent findings demonstrating that spatial attention entropy can successfully segment unknown objects by measuring attention dispersion [ 5], we adapt and expand this principle to bounding-box detection by analyzing the endoge-nous cross-attention distribution of the Transformer decoder [ 1]. Rather than relying on brute-force spatial slicing, our frame-work uses Spatial Attention Entropy (SAE) combined with at-tention intensity to create a joint ambiguity-saliency heuristic score. This allows the model to dynamically isolate localized conflict zones that su ff er from peak spatial uncertainty but con-tain potential target evidence. Treating the inference process as a constrained computational resource allocation problem, our method executes entropy-guided adaptive spatial routing : it actively redirects a strict computational budget exclusively to these heuristically identified ambiguous regions. By extract-ing localized, high-resolution observations strictly from these high-entropy patches and re-evaluating them, the network ac-tively breaks the uniform spatial prior. This targeted injection of high-frequency visual evidence rectifies local feature repre-sentation and instantly resolves spatial ambiguity. Our primary contributions are summarized as follows: 
+
+> arXiv:2604.26806v1 [cs.CV] 29 Apr 2026
+
+Preprint – V iCrop -D et 2
+
+• We transition the challenge of small object detection from heuristic spatial scaling to entropy-guided uncer-tainty estimation. Building upon insights from anomaly segmentation [ 5], we introduce Spatial Attention En-tropy (SAE) over aggregated decoder cross-attention as an e ff ective empirical proxy for spatial cognitive ambiguity in Transformer detectors. 
+
+• We design a training-free adaptive spatial routing mech-anism. By utilizing a joint ambiguity-saliency heuristic to dynamically allocate high-resolution computational budgets strictly to evidence-rich yet highly uncertain regions, the framework systematically bypasses the the-oretical blindness and computational redundancy of uniform slicing paradigms. 
+
+• Optimized Accuracy-E ffi ciency Trade-o ff : Exten-sive evaluations on VisDrone [ 6] and DOTA-v1.5 [ 7 ]demonstrate that our uncertainty-driven approach yields consistent, scale-invariant performance gains over robust baseline architectures (RT-DETR [ 8], De-formable DETR [ 9]). Furthermore, under compute-matched settings, it comprehensively surpasses uni-form slicing baselines, validating the superiority of targeted, ambiguity-driven refinement. 
+
+# 2 Related Work 
+
+Attention-based Inference Strategies in Vision Transformers. 
+
+A range of vision transformer approaches leverage attention mechanisms for adaptive inference. AdaViT [ 10 ] dynamically adjusts the number of tokens during inference but requires re-training. DVT [ 11 ] prunes redundant tokens using attention scores, and DynamicViT [ 12 ] adopts learnable token selection policies. Unlike ViCrop-Det’s training-free approach, these methods require architectural modifications and retraining. PS-ViT [ 13 ] uses patch slimming to enhance e ffi ciency, not accuracy. TokenLearner [ 14 ] learns spatial token aggregation, but is in-compatible with fixed pre-trained models. Crucially, none of these methods leverage cross-attention from detection decoders to guide high-resolution region selection. 
+
+Training-free Multi-scale Inference and Adaptive ROI Methods. Existing training-free strategies can be grouped into three main categories. (1) Uniform slicing: methods like SAHI [ 4] and ASAHI [ 15 ] divide the image into fixed-size grids, treating all regions equally. This wastes computation on background regions while failing to focus on attention-dense areas. (2) Saliency-based selection: approaches such as CAM-based cropping [ 16 ] and GradCAM-guided inference [ 17 ] rely on classification backbones, which do not align well with lo-calization needs and often highlight object centers instead of boundaries. (3) Feature-level refinement: methods like Fea-tUp [ 18 ] and LIIF [ 19 ] upsample features post hoc but do not resolve attention dilution from the original forward pass. In contrast, ViCrop-Det uniquely utilizes decoder cross-attention entropy to identify ambiguous regions and selectively repro-cess them at high resolution. Unlike ClusDet [ 20 ], SNIP [ 21 ], SNIPER [ 22 ], LSKNet [ 23 ], and BAFNet [ 24 ], which require training or focus on CNNs, our method is Transformer-specific and training-free. 
+
+Attention Mechanisms for Object Detection. While at-tention visualization has been explored in tools like Token-Cut [ 25 ] and LOST [ 26 ], few methods incorporate attention information directly into inference. QueryInst [ 27 ] conditions queries on instance features, but requires training. Cascade R-CNN [ 28 ] refines detection proposals across stages but lacks attention awareness. Dynamic Head [ 29 ] adapts computation based on proposals yet still demands architectural modifica-tion. In contrast, ViCrop-Det extracts actionable signals from decoder attention: low entropy indicates confident localization needing no refinement, while high entropy reveals uncertainty— prompting selective high-resolution refinement without modify-ing the base model. Our approach is orthogonal to token sparsification and dynamic-query training [ 30 , 31 ]: they reallocate computation by re-designing and training the detector, whereas ViCrop-Det is an inference-time, model-agnostic router and can be combined with them in practice. 
+
+# 3 Method 
+
+The overall pipeline is illustrated in Fig. 1. In this section, we first formulate the spatial attention entropy as a metric to quantify spatial ambiguity (Sec. 3.1). Subsequently, we introduce the joint ambiguity-saliency heuristic scoring mechanism (Sec. 3.2). Finally, we detail the entropy-guided adaptive spatial routing and the corresponding variance reduction process (Sec. 3.3 to 3.7). 
+
+3.1 Spatial Attention Entropy as an Ambiguity Indicator 
+
+Standard Vision Transformers impose a uniform global recep-tive field across the spatial parameter space. While e ff ective for macroscopic structures or homogeneous backgrounds, this global prior becomes critically sub-optimal in dense, heteroge-neous conflict zones containing microscopic targets. To evalu-ate the resulting spatial ambiguity without introducing external heuristic modules, we analyze the decoder cross-attention distri-bution. Let the aggregated, normalized cross-attention map over the spatial grid P be denoted as a probability distribution pi, where 
+
+i ∈ P . This distribution essentially represents the network’s posterior spatial hypothesis regarding the target’s location. In a theoretically optimal, high-confidence regime, pi approaches a Dirac delta distribution centered precisely on the target, max-imizing the semantic signal. However, in regions a ffl icted by heavy feature downsampling and severe object entanglement, the probability mass disperses. We quantify this spatial dispersion by computing the Spatial Attention Entropy (SAE). Specifically, we first aggregate the attention across layers, heads, and queries to obtain a single attention score per key: 
+
+A[i] = 1
+
+L N h NqLX
+
+> l=1
+> Nh
+
+X
+
+> h=1
+> Nq
+
+X
+
+> q=1
+
+ Al,h
+
+q,i, i ∈ P . (1) We then normalize it to a probability distribution: 
+
+pi = A[i] + ε
+
+P j∈P 
+
+ A[ j] + ε , ε = 10 −8, (2) Preprint – V iCrop -D et 3
+
+Figure 1: ViCrop-Det processing pipeline. and calculate the normalized Shannon entropy: ˆHs = − 1log Nk
+
+X
+
+> i∈P
+
+pi log pi (3) where Nk is the total number of spatial keys. In this formula-tion, ˆHs ∈ [0 , 1] serves as an e ff ective, endogenous indicator of the model’s spatial cognitive ambiguity . A highly dispersed attention map yields a high ˆHs, indicating that the local fea-ture representation is severely entangled or lacks discriminative power, rendering the model incapable of definitively resolving target boundaries amid dense background interference. We re-shape A to the key grid ( Hk, Wk) and bilinearly upsample to (H, W), yielding a high-resolution attention map H ∈ [0 , 1] H×W ,followed by min–max normalization. 
+
+Thresholds. We distinguish two entropy thresholds: a global 
+
+threshold τg applied to the image-level entropy bHs (for early-exit gating), and a window-level threshold τw applied to the per-window entropy bHs(w) (for candidate selection). We also denote by μ the attention-intensity threshold applied to m(w). Unless otherwise stated, we use τg = τw = 0.7 and μ = 0.3by default, selected by a small grid search on the validation splits of DOTA-v1.5 and VisDrone, and then frozen across all detectors /datasets to balance accuracy and overhead. 
+
+Early-exit gating. To avoid unnecessary refinement on easy images, we apply a global gate: proceed =
+
+(1,   bHs ≥ τg
+
+ ∧  mean( H) ≥ μ,
+
+0, otherwise . (4) Intuitively, low entropy indicates sharply focused attention (little ambiguity), while very low mean attention suggests insu ffi cient evidence; both cases are unlikely to benefit from re-detection. 
+
+3.2 Heuristic Scoring for Routing Priority 
+
+To optimally route our limited high-resolution computational budget, the framework must accurately isolate specific regions of peak ambiguity across the heterogeneous spatial landscape. For a given multi-scale sliding window w, we compute the attention intensity m(w) = mean (Hw) and the localized spatial attention entropy ˆHs(w). Rather than utilizing complex spatial intersection rules, we score each window by computing a joint 
+
+ambiguity-saliency score :
+
+σ(w) = m(w) · ˆHs(w) (5) This multiplicative formulation acts as a simple yet highly e ff ec-tive soft-AND gate for spatial routing. The term m(w) functions as the semantic Saliency indicator, confirming that the network detects the probable existence of an object and is actively at-tempting to route information to this spatial neighborhood. Con-versely, ˆHs(w) quantifies the spatial Ambiguity , indicating severe structural entanglement. Therefore, a high σ(w) score e ff ectively isolates a critical region: an area where potential target evidence exists ( m(w) is high) but is currently overwhelmed by extreme spatial confusion ( ˆ Hs(w) is high). 
+
+3.3 Entropy-Guided Adaptive Spatial Routing 
+
+Windows exhibiting a high ambiguity-saliency score represent highly suitable candidates for targeted computational resource allocation. We filter candidate windows using empirically vali-dated thresholds m(w) ≥ μ and ˆHs(w) ≥ τw, apply class-agnostic non-maximum suppression (NMS) to eliminate spatial redun-dancy, and strictly select the top-K highly ambiguous regions to bound the computational overhead. For these specific, self-identified conflict zones, the frame-work executes entropy-guided adaptive spatial routing . By ex-tracting a high-resolution observation exclusively from the win-dow w and re-processing it, the system forcibly restricts the spatial prior. This dynamic routing mechanism directly injects localized, high-frequency visual evidence into the network’s most ambiguous decision zones. By constraining the softmax normalization strictly to these localized features, the routing mechanism performs active variance reduction . This instantly resolves the spatial ambiguity, facilitating the recovery of mi-croscopic semantic entities without fundamentally altering the underlying base network weights. 
+
+3.4 Multi-Scale Window Generation and Scoring 
+
+We slide windows of relative scales s ∈ { 0.25 , 0.5, 0.75 } over 
+
+H with stride 0 .5 of the window size. We omit s=1.0 because Preprint – V iCrop -D et 4the full image is already processed by the base detector; adding it would duplicate compute without adding spatial detail. The minimum 64 ×64 crop avoids pathological tiny windows that degrade detector normalization and remove essential context for small objects. For a window w with top-left ( x, y), width 
+
+ww=sW and height wh=sH , the sub-heatmap is 
+
+Hw = H[y : y + wh, x : x + ww]. (6) We define the attention intensity m(w) = mean( Hw), (7) normalize Hw to a distribution to obtain a window-level nor-malized entropy bHs(w) ∈ [0 , 1], and score each window by a soft-AND: 
+
+σ(w) = m(w) · bHs(w). (8) We retain windows satisfying m(w) ≥ μ and bHs(w) ≥ τw, apply class-agnostic non-maximum suppression (NMS, IoU = 0.5), and keep the top-K windows (default K=5), each with minimum size 64 ×64 pixels. 
+
+Why mean × entropy? m(w) promotes regions already re-ceiving non-trivial attention (presence of evidence), whereas 
+
+bHs(w) favors dispersed attention (ambiguity). Their product focuses computation on regions that are both informative and uncertain—precisely where higher resolution is most likely to recover fine details and correct confusions. 
+
+Alternative scoring variants. For completeness, we consider: (i) mean-only σmean (w)=m(w); (ii) entropy-only σent (w)= bHs(w); (iii) γ-sharpened mean σγ(w)=m(w)γ bHs(w) with γ> 1; and (iv) a soft-gated variant 
+
+σsoft (w) = ϕ m(w) bHs(w),ϕ(t) =  1 + exp[ −k(t − μ)] −1, (9) with k=10 by default. Empirically, Eq. (8) provides a favorable recall–precision–cost balance. 
+
+3.5 Crop Re-Detection and Fusion 
+
+For each selected window w=[x1, y1, x2, y2], we crop Iw,resize to the detector’s input size, and run the base de-tector to obtain refined detections ( br, sr, cr). For DETR-like models, normalized centers and sizes are converted to (xmin , ymin , xmax , ymax ), scaled to the crop, and translated by (x1, y1) back to image coordinates. We apply a mild entropy-aware score boost 
+
+sr ← sr
+
+1 + 0.2  bHs(w) − 0.7 , (10) then merge refined detections with the initial full-image de-tections using class-wise non-maximum suppression (NMS, IoU = 0.5) and a confidence threshold of 0 .3. For overlapping boxes of the same class, we fuse scores by 
+
+s f = α so + (1 − α) sr, α = 0.7, (11) keeping the box with the higher score. This preserves precision of confident original detections while allowing refined crops to recover missed or under-confident tiny objects. 
+
+3.6 Complexity and Runtime 
+
+Let Cdet be the cost of one full-image forward pass. ViCrop-Det adds: (i) attention extraction and heatmap construction, negligible relative to Cdet in modern implementations; and (ii) at most K additional forwards on resized crops. Let r be the compute ratio between a crop and the full image ( r<1). The worst-case cost is thus 
+
+Ctotal ≈  1 + K r  Cdet . (12) The global gate in Eq. (4) and the cap K bound the overhead. Empirically, many images either skip refinement or select K′ < K
+
+windows, yielding modest average slowdowns. In addition, we report the mean number of selected windows K′ and the average crop-to-image compute ratio ¯r per dataset in the appendix, which empirically confirms a modest overhead consistent with Eq. (12) .
+
+3.7 Implementation Details and Hyperparameters 
+
+Our goal is a single robust configuration that transfers across detectors and datasets. Hyperparameters were selected by a light grid search on the validation splits of DOTA-v1.5 and VisDrone, then frozen for all results. Table 1: Default settings used for all models and datasets.                                                            
+
+> Component Setting /Rationale
+> Attention aggregation Mean over layers /heads /queries; stable across models. Probability smoothing ε=10 −8in Eq. (2). SAE (global) Eq. (3); bHs∈[0 ,1]. Global gate bHs≥τg(=0.7) and mean( H)≥μ(=0.3). Scales /stride s∈ { 0.25 ,0.5,0.75 }; stride 0 .5. Min window size 64 ×64 px. Window score σ(w)=m(w)·bHs(w) (Eq. (8)). Candidate thresholds m(w)≥μ(=0.3) and bHs(w)≥τw(=0.7); class-agnostic non-maximum suppression (NMS, IoU =0.5). Top-KK=5 (accuracy–e ffi ciency trade-o ff ). Score boost Eq. (10). Score fusion Eq. (11) with α=0.7. Final filtering Class-wise non-maximum suppression (NMS, IoU =0.5); confidence ≥0.3.
+
+Design rationale. (1) Global gate. (τg, μ ) = (0 .7, 0.3) sup-presses images that are already well-focused or lack su ffi cient evidence. (2) Multiplicative score. σ(w) = m · bHs acts as a soft-AND; additive forms admitted more false positives in pre-liminary checks. (3) Scales & stride. {0.25 , 0.5, 0.75 } covers small-to-medium structures with manageable candidates; stride 0.5 balances coverage and cost. (4) Top- K = 5. Provides a good accuracy–e ffi ciency trade-o ff ; K = 3 further reduces latency with a small AP drop. (5) Fusion with α = 0.7. Retains the precision of strong originals while allowing refined detections to correct misses. (6) Averaging across layers /heads /queries. Per-layer or per-head entropies are noisier and model-dependent; averaging yields a smoother, transferable spatial distribution that supports fixed thresholds with fewer false triggers. Across all tested DETR-style backbones and both datasets, the same 
+
+(τg, τ w, μ ), K=5, and α=0.7 remained e ff ective without per-model retuning. Preprint – V iCrop -D et 5Table 2: Comparison on VisDrone and DOTA-v1.5. Dataset Method RT-DETR-R50 Deformable DETR DINO-DETR mAP 50 AP S FPS mAP 50 AP S FPS mAP 50 AP S FPS VisDrone No 37.0 31.4 47.5 36.4 30.6 42.4 37.9 32.1 43.0 
+
++ViCrop-Det 38.9 35.2 38.6 39.0 35.4 33.9 39.6 36.2 34.2 
+
++SAHI 38.0 32.5 24.2 37.8 31.2 22.5 38.8 33.5 23.3 
+
++ASAHI 38.2 34.3 27.5 38.1 33.9 26.7 39.4 35.8 26.5 DOTA-v1.5 No 50.1 43.6 43.2 49.1 42.2 39.6 51.2 44.5 39.4 
+
++ViCrop-Det 51.5 48.1 34.6 50.5 47.0 31.7 52.5 48.9 31.5 
+
++SAHI 50.9 43.3 22.3 49.5 42.6 20.4 51.8 45.7 19.8 
+
++ASAHI 51.2 45.0 28.5 49.8 44.5 26.6 52.1 46.6 26.3 
+
+Figure 2: The RT-DETR-R50 model applies ViCrop-Det e ff ect comparison diagram on the DOTA dataset (Original image; no-ViCrop-Det; ViCrop-Det). Table 3: MS COCO results with /without ViCrop–Det. AP S /M /L
+
+are computed on small ( a < 32 2), medium (32 2 ≤ a < 96 2), and large ( a ≥ 96 2) objects, where a is the GT box area (pixels 2).                      
+
+> Metric RT–DETR–R50 Deformable DETR no-ViCrop–Det ViCrop–Det no-ViCrop–Det ViCrop–Det
+> mAP 50 71.3 72.1 62.6 63.8 AP S34.8 36.9 26.4 29.0 AP M58.0 58.2 47.1 47.4 AP L70.0 70.0 58.0 58.0
+
+Table 4: Ablation study on RT-DETR-R50 showing the impact of entropy-guided region selection versus random selection. 
+
+Dataset Random-selection Entropy-selection 
+
+VisDrone 37.5 38.9 DOTA-v1.5 50.6 51.5 
+
+# 4 Experiment 
+
+4.1 Datasets 
+
+We evaluate ViCrop-Det on two challenging object detection benchmarks: DOTA-v1.5 and VisDrone-DET2019. Table 5: Varying K on VisDrone. K=5 o ff ers the best trade-o ff .
+
+K 1 3 5 7mAP 50 37.9 38.2 38.9 34.1 FPS 42.5 40.2 38.6 31.5 
+
+Table 6: E ff ect of entropy threshold on VisDrone. Best at τ=0.7. 
+
+τ 0.5 0.6 0.7 0.8 mAP 50 37.5 38.2 38.9 38.4 AP S 33.4 34.0 35.2 33.9 
+
+DOTA-v1.5 [ 7] is a large-scale remote sensing dataset comprising 2,806 high-resolution aerial images (ranging from 800 × 800 up to 20 ,000 × 20 ,000 pixels) captured by various airborne sensors. Compared to v1.0, v1.5 introduces exhaustive annotations for extremely small objects (smaller than 10 pixels) and adds a new category container crane , resulting in a total of 16 object categories and 403,318 oriented bounding box instances. However, due to poor annotation quality of the newly added class, we exclude it in our experiments, e ff ectively using 15 classes. The dataset is o ffi cially split into training, validation, and test subsets in a 1 /2, 1 /6, and 1 /3 ratio, respectively. Preprint – V iCrop -D et 6
+
+Figure 3: The RT-DETR-R50 model applies ViCrop-Det e ff ect comparison diagram on the VisDrone dataset (Original image; no-ViCrop-Det; ViCrop-Det). 
+
+VisDrone-DET2019 [6] is a drone-view dataset captured over 14 cities in China under diverse lighting, weather, and altitude conditions. It includes 10,209 static images and 288 video sequences (261,908 frames) from UAV platforms. The object detection track provides axis-aligned bounding box anno-tations covering more than 2.6 million object instances across 10 categories. We use the image subset with an o ffi cial split of 6,471 /548 /5,240 images for training, validation, and test-dev sets, respectively. An additional test-challenge set exists but is not used due to withheld annotations. 
+
+MS COCO 2017 [ 32 ] is a general-purpose detection bench-mark with 80 everyday categories and diverse, cluttered scenes. We follow the standard splits, using train2017 (≈118k images) and val2017 (5k) with the o ffi cial COCO evaluation protocol to assess the cross-domain generalization of ViCrop–Det . Note that COCO is not a primary evaluation dataset in this paper; it is mainly used to verify that our inference framework improves small-object detection without degrading the base model’s per-formance on medium /large objects. 
+
+4.2 Comparative Experiments 
+
+Overall comparison. Across all three backbones (RT–DETR– R50, Deformable DETR, DINO–DETR) and both benchmarks (VisDrone, DOTA-v1.5), ViCrop–Det off ers the strongest accuracy–throughput trade-o ff (Table 2). On VisDrone , mAP 50 
+
+increases by +1.7–2.6 pp and AP S by +3.8–4.8 pp, while sus-taining 33.9–38.6 FPS (vs. 42.4–47.5 baseline). On DOTA-v1.5 , gains are +1.3–1.4 pp mAP 50 and +4.4–4.8 pp AP S at 
+
+31.5–34.6 FPS (vs. 39.4–43.2 baseline). Notably, the improve-ments are dominated by AP S , indicating that routing compu-tation to high-attention, high-entropy regions preferentially re-covers small objects while preserving overall detection quality. Per-class results are provided in the supplementary. 
+
+Against slicing baselines. Under the same backbone, 
+
+SAHI /ASAHI deliver smaller accuracy gains with substantially lower throughput. For example on VisDrone (RT–DETR–R50), SAHI reaches 38.0 /32.5 at 24.2 FPS and ASAHI 38.2 /34.3 at 
+
+27.5 FPS , whereas ViCrop–Det achieves 38.9 /35.2 at 38.6 FPS .Similar gaps hold for Deformable DETR and DINO–DETR as well as DOTA-v1.5 : ViCrop–Det is consistently 1.47–1.60 ×
+
+faster than SAHI and 1.19–1.40 × faster than ASAHI, while also yielding higher AP S (+2.7–4.8 pp vs. SAHI; +0.4–3.1 pp vs. ASAHI). This validates that entropy-guided, selective refine-ment is more e ffi cient than uniform or coarse adaptive slicing. 
+
+Effi ciency Overhead. ViCrop-Det acts purely as an inference– time post–processing module. Let Cdet denote the computational cost of a single full-image forward pass. In the worst case the additional cost introduced by ViCrop-Det is bounded by K r C det ,where K = 5 is the maximum number of high-entropy windows re-inspected per image and r<1 is the crop–to–image cost ratio (r ≈ 0.25 in our implementation). Because most images either 
+
+(i) select fewer than five windows or (ii) are skipped entirely by the entropy gate, the observed throughput drop is only about 
+
+20–25% in practice. A complete timing breakdown for each dataset is provided in the supplementary material. 
+
+Generalization experiment To validate the generality of our method, we evaluate ViCrop-Det on the large-scale and diverse MS COCO dataset, which contains a wide distribution of object sizes across 80 categories. As shown in Table 3, ViCrop-Det con-sistently improves the mAP@50 for both RT-DETR-R50 and Deformable DETR baselines. Notably, AP S —which reflects performance on small objects ( a<32 2 pixels)—improves signifi-cantly: from 34.8% to 36.9% on RT-DETR-R50 and from 26.4% to 29.0% on Deformable DETR. Meanwhile, performance on medium and large objects (AP M , AP L) remains unchanged or slightly improved, indicating that our refinement selectively en-hances detection of small, ambiguous regions without degrading the detector’s original strengths on larger objects. These results confirm the universality of ViCrop-Det as a plug-and-play test-time enhancement for Transformer detectors across domains and object scales. 
+
+Take-Away. ViCrop-Det o ff ers a training-free, model-agnostic route to stronger small-object detection: one pass of the base detector, followed by entropy-guided high-resolution refinement, yields uniform per-class improvements—especially on tiny or long-tail categories—with manageable compute and zero archi-tectural changes. 
+
+4.3 Ablation experiment 
+
+Entropy-Guided Window Selection (Equal-Budget Ablation) 
+
+Crucially, both variants use exactly the same crop budget (iden-tical K, window scales and stride), ensuring that improvements Preprint – V iCrop -D et 7stem from where computation is routed rather than how much 
+
+computation is used. A key hypothesis of ViCrop-Det is that the spatial attention entropy computed from the aggregated de-coder cross-attention distribution, when coupled with attention intensity , is an e ff ective proxy for routing limited high-resolution computation to regions that are both salient and ambiguous. Con-cretely, all our ablations in this section use the window score 
+
+σ(w) = m(w) · bHs(w), where m(w) is the mean attention in the window and bHs(w) is the normalized spatial attention entropy. To isolate the e ff ect of entropy-guided selection, we com-pare our Entropy-selection against a Random-selection baseline that samples the same number of windows uniformly at random while keeping every other component identical : window scales 0.25 , 0.5, 0.75 , stride 0 .5, thresholds m ≥ 0.3 and bHs ≥ 0.7, class-agnostic NMS with IoU = 0.5, Top-K = 5, confidence threshold 0.3, and score fusion s f = αso + (1 − α)sr with α = 0.7. On VisDrone , entropy guidance yields a +1.4 pp absolute gain, and on the more challenging DOTA-v1.5 it delivers +0.9 pp (Table 4). These improvements are obtained without increas-ing the number of crops or the inference budget, indicating that high-entropy, high-attention regions concentrate the detector’s ambiguity more e ff ectively than randomly chosen windows. In contrast, random cropping spends additional passes on back-ground or already-confident areas, diluting gains. Based on these results, we adopt entropy-guided selection in all subse-quent experiments. 
+
+Eff ect of the number of crops ( K). As shown in Table 5, in-creasing K monotonically reduces throughput (38 /33 /30 /24 FPS for K=1/3/5/7), matching the near-linear compute overhead of additional forward passes. Accuracy improves from K=1 to K=5(mAP 50 : 37.9 → 38.2 → 38.9 ), indicating that multiple, targeted refinements are needed to recover fine details in cluttered scenes. Pushing to K=7 degrades performance (34.1 mAP 50 ), suggest-ing diminishing returns and over-refinement: more overlapping crops introduce redundant hypotheses, exacerbate NMS /fusion conflicts, and allocate budget to lower-entropy regions that am-plify false positives or score dilution. We therefore adopt K=5 as the default, which yields the best accuracy–e ffi ciency trade-o ff 
+
+(38.6 FPS). For latency-sensitive deployments, K=3 provides a reasonable alternative (40.2 FPS with minor accuracy loss). Note that the global gate often skips easy images, so the realized average number of crops K′ is typically below the upper bound 
+
+K, further reducing the amortized overhead. 
+
+Eff ect of the Entropy Threshold τ We ablate the per - window entropy threshold τ used to filter candidate crops (Sec. 3), while keeping all other components fixed: the attention - intensity threshold m(w) ≥ 0.3, window scales {0.25 , 0.5, 0.75 } with stride 0.5, top-K = 5, class - agnostic NMS (IoU = 0.5), and the fusion strategy. As shown in Table 6, performance follows a clear concave trend and peaks at τ=0.7: mAP 50 improves from 37 .5(τ=0.5) to 38.9 (+1.4 pp), and AP S rises from 33 .4 to 35.2 
+
+(+1.8 pp). We attribute this behavior to the role of τ in balancing cov-erage and selectivity . A low threshold (e.g., τ=0.5) is overly per-missive, admitting many low -uncertainty windows; this spreads the crop budget onto background or already confident regions, diluting small -object gains. Conversely, a high threshold (e.g., 
+
+τ=0.8) becomes too strict, suppressing ambiguous yet informa-tive windows; accuracy drops to 38.4 mAP 50 and 33.9 AP S .The sweet spot at τ=0.7 best aligns with our routing principle— allocating limited high -resolution compute to regions that are 
+
+both salient (high attention) and ambiguous (high entropy). We therefore fix τ=0.7 for all subsequent experiments. 
+
+4.4 Visual analysis 
+
+Setup and visuals. Fig. 2 and Fig. 3 juxtapose detections from the base RT–DETR–R50 against the same model augmented with ViCrop-Det on DOTA-v1.5 and VisDrone , respectively, revealing clearer boundaries, fewer false positives, and improved recall on tiny, cluttered targets. 
+
+DOTA-v1.5: structural complexity under clutter. On high-resolution aerial scenes, ViCrop-Det consistently strengthens categories that are structurally complex or appear at small scales. For RT–DETR–R50, BRIDGE improves 14.2 →16.3 (+2.1), ROUNDABOUT 15.5 →18.1 (+2.6), and SOCCER BALL FIELD 36.1 →38.2 (+2.1); strong classes such as PLANE , LARGE VEHICLE , and TENNIS COURT retain or slightly increase accu-racy. The overall mAP50 rises from 0.501 →51.5. 
+
+VisDrone: gains on small and long-tail classes. In dense UAV imagery, the largest absolute gains concentrate on low-baseline or long-tail categories. With RT–DETR–R50, BICYCLE 
+
+improves 12.5 →17.2 (+4.7), AWNING-TRICYCLE 8.8 →12.9 (+4.1), TRICYCLE 21.3 →25.4 (+4.1), and PEOPLE 30.3 →31.2 ;the overall mAP50 increases 37.0 →38.9 . Deformable DETR exhibits the same trend, e.g., overall 36.4 →39.0. 
+
+Uniform, class-wise improvements. A salient property is uni-versality: across two detectors and two datasets, every reported class improves after integrating ViCrop-Det, ruling out the possi-bility that overall gains are driven by a few dominant categories. For fairness on DOTA-v1.5, the low-quality Container Crane 
+
+category is excluded, and the gains cover the remaining 15 classes. 
+
+Why the visuals improve. ViCrop-Det extracts decoder cross-attention, computes a normalized spatial attention entropy , and scores each multi-scale window by σ = mean × entropy to prioritize regions that are both highly attended and highly uncer-tain; only the top-K windows (default K=5) are re-detected at high resolution. This selective routing prevents wasted computa-tion on background, and the final fusion uses class-wise NMS (IoU 0.5) with a confidence threshold of 0.3 and a weighted score merge s f = αso + (1 − α)sr (α=0.7), coupled with a mild entropy-aware score boost for refined boxes. 
+
+# 5 Limitations 
+
+ViCrop-Det relies on fixed thresholds, which may not adapt per-dataset, and misses zero-attention objects (future: integrate saliency). Compute overhead (20-25% throughput drop) is bounded but higher for dense scenes. Broader datasets reveal less gain on large objects, emphasizing small-object focus. Preprint – V iCrop -D et 8
+
+# 6 Conclusion 
+
+In this paper, we introduced ViCrop-Det, a novel training-free inference framework designed to enhance small object detection in Transformer-based architectures. Moving away from rigid uniform slicing strategies, we demonstrated that the decoder’s endogenous cross-attention distribution can serve as a powerful tool for localized refinement. By proposing a joint ambiguity-saliency heuristic scoring mechanism based on Spatial Attention Entropy (SAE), our method e ff ectively isolates dense, conflict-prone regions. This allows ViCrop-Det to perform targeted, high-resolution adaptive spatial routing exclusively on areas su ff ering from severe cognitive ambiguity, without requiring model retraining or architectural modifications. Experimental evaluations on challenging benchmarks like VisDrone and DOTA-v1.5 demonstrate that this entropy-guided approach consistently improves performance across diverse base-line detectors, including RT-DETR-R50 and Deformable DETR. It yields significant mAP gains particularly for small and heav-ily occluded objects, achieving a highly optimized accuracy-effi ciency trade-o ff compared to conventional brute-force slic-ing methods. While ViCrop-Det introduces a bounded compu-tational overhead and inherently relies on the base detector’s initial attention quality, its plug-and-play versatility highlights a highly pragmatic direction for deploying robust perception models in high-resolution, cluttered real-world environments. Future work will explore dynamic thresholding mechanisms for domain-specific optimization and extensions to video-level spatial-temporal routing. 
+
+# References 
+
+[1] Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N Gomez, Łukasz Kaiser, and Illia Polosukhin. Attention is all you need. Advances in neural information pro-cessing systems , 30, 2017. [2] Nicolas Carion, Francisco Massa, Gabriel Synnaeve, Nicolas Usunier, Alexander Kirillov, and Sergey Zagoruyko. End-to-end object detection with transformers. In European conference on computer vision , pages 213–229. Springer, 2020. [3] Claude Elwood Shannon. A mathematical theory of communica-tion. The Bell system technical journal , 27(3):379–423, 1948. [4] Fatih Cagatay Akyon, Sinan Onur Altinuc, and Alptekin Temizel. Slicing aided hyper inference and fine-tuning for small object detection. In 2022 IEEE international conference on image pro-cessing (ICIP) , pages 966–970. IEEE, 2022. [5] Krzysztof Baron-Lis, Matthias Rottmann, Annika Mütze, Sina Honari, Pascal Fua, and Mathieu Salzmann. Attentropy: On the generalization ability of supervised semantic segmentation transformers to new objects in new domains. In 35th British Machine Vision Conference 2024, BMVC 2024, Glasgow, UK, November 25-28, 2024 . BMVA, 2024. URL https://papers. bmvc2024.org/0215.pdf .[6] Pengfei Zhu, Longyin Wen, Dawei Du, Xiao Bian, Haibin Ling, Qinghua Hu, Qinqin Nie, Hao Cheng, Chenfeng Liu, Xiaoyu Liu, et al. Visdrone-det2018: The vision meets drone object detec-tion in image challenge results. In Proceedings of the European Conference on Computer Vision (ECCV) Workshops , pages 0–0, 2018. [7] Gui-Song Xia, Xiang Bai, Jian Ding, Zhen Zhu, Serge Belongie, Jiebo Luo, Mihai Datcu, Marcello Pelillo, and Liangpei Zhang. Dota: A large-scale dataset for object detection in aerial images. In Proceedings of the IEEE conference on computer vision and pattern recognition , pages 3974–3983, 2018. [8] Yian Zhao, Wenyu Lv, Shangliang Xu, Jinman Wei, Guanzhong Wang, Qingqing Dang, Yi Liu, and Jie Chen. Detrs beat yolos on real-time object detection. In Proceedings of the IEEE /CVF conference on computer vision and pattern recognition , pages 16965–16974, 2024. [9] Xizhou Zhu, Weijie Su, Lewei Lu, Bin Li, Xiaogang Wang, and Jifeng Dai. Deformable detr: Deformable transformers for end-to-end object detection. arXiv preprint arXiv:2010.04159 , 2020. [10] Lingchen Meng, Hengduo Li, Bor-Chun Chen, Shiyi Lan, Zuxuan Wu, Yu-Gang Jiang, and Ser-Nam Lim. Adavit: Adaptive vision transformers for e ffi cient image recognition. In Proceedings of the IEEE /CVF conference on computer vision and pattern recognition ,pages 12309–12318, 2022. [11] Yulin Wang, Rui Huang, Shiji Song, Zeyi Huang, and Gao Huang. Not all images are worth 16x16 words: Dynamic transformers for e ffi cient image recognition. Advances in neural information processing systems , 34:11960–11973, 2021. [12] Yongming Rao, Wenliang Zhao, Benlin Liu, Jiwen Lu, Jie Zhou, and Cho-Jui Hsieh. Dynamicvit: E ffi cient vision transformers with dynamic token sparsification. Advances in neural informa-tion processing systems , 34:13937–13949, 2021. [13] Yehui Tang, Kai Han, Yunhe Wang, Chang Xu, Jianyuan Guo, Chao Xu, and Dacheng Tao. Patch slimming for e ffi cient vision transformers. In Proceedings of the IEEE /CVF Conference on Computer Vision and Pattern Recognition , pages 12165–12174, 2022. [14] Michael Ryoo, AJ Piergiovanni, Anurag Arnab, Mostafa De-hghani, and Anelia Angelova. Tokenlearner: Adaptive space-time tokenization for videos. Advances in neural information process-ing systems , 34:12786–12797, 2021. [15] Hao Zhang, Chuanyan Hao, Wanru Song, Bo Jiang, and Baozhu Li. Adaptive slicing-aided hyper inference for small object detec-tion in high-resolution remote sensing images. Remote Sensing ,15(5):1249, 2023. [16] Soufiane Belharbi, Jérôme Rony, Jose Dolz, Ismail Ben Ayed, Luke McCa ff rey, and Eric Granger. Deep interpretable classifica-tion and weakly-supervised segmentation of histology images via max-min uncertainty. IEEE Transactions on Medical Imaging , 41 (3):702–714, 2021. [17] Quanshi Zhang, Yu Yang, Haotian Ma, and Ying Nian Wu. Inter-preting cnns via decision trees. In Proceedings of the IEEE /CVF conference on computer vision and pattern recognition , pages 6261–6270, 2019. [18] Stephanie Fu, Mark Hamilton, Laura Brandt, Axel Feldman, Zhoutong Zhang, and William T Freeman. Featup: A model-agnostic framework for features at any resolution. arXiv preprint arXiv:2403.10516 , 2024. [19] Yinbo Chen, Sifei Liu, and Xiaolong Wang. Learning continu-ous image representation with local implicit image function. In 
+
+Proceedings of the IEEE /CVF conference on computer vision and pattern recognition , pages 8628–8638, 2021. [20] Fan Yang, Heng Fan, Peng Chu, Erik Blasch, and Haibin Ling. Clustered object detection in aerial images. In Proceedings of the IEEE /CVF international conference on computer vision , pages 8311–8320, 2019. [21] Bharat Singh and Larry S Davis. An analysis of scale invariance in object detection snip. In Proceedings of the IEEE conference on computer vision and pattern recognition , pages 3578–3587, 2018. Preprint – V iCrop -D et 9
+
+[22] Bharat Singh, Mahyar Najibi, and Larry S Davis. Sniper: E ffi cient multi-scale training. Advances in neural information processing systems , 31, 2018. [23] Yuxuan Li, Xiang Li, Yimain Dai, Qibin Hou, Li Liu, Yongxiang Liu, Ming-Ming Cheng, and Jian Yang. Lsknet: A foundation lightweight backbone for remote sensing: Y. li et al. International Journal of Computer Vision , 133(3):1410–1431, 2025. [24] Jingnan Song, Mingliang Zhou, Jun Luo, Huayan Pu, Yong Feng, Xuekai Wei, and Weijia Jia. Boundary-aware feature fusion with dual-stream attention for remote sensing small object detection. 
+
+IEEE Transactions on Geoscience and Remote Sensing , 2024. [25] Yangtao Wang, Xi Shen, Yuan Yuan, Yuming Du, Maomao Li, Shell Xu Hu, James L Crowley, and Dominique Vaufreydaz. Tokencut: Segmenting objects in images and videos with self-supervised transformer and normalized cut. IEEE transactions on pattern analysis and machine intelligence , 45(12):15790–15801, 2023. [26] Oriane Siméoni, Gilles Puy, Huy V Vo, Simon Roburin, Spyros Gidaris, Andrei Bursuc, Patrick Pérez, Renaud Marlet, and Jean Ponce. Localizing objects with self-supervised transformers and no labels. arXiv preprint arXiv:2109.14279 , 2021. [27] Yuxin Fang, Shusheng Yang, Xinggang Wang, Yu Li, Chen Fang, Ying Shan, Bin Feng, and Wenyu Liu. Instances as queries. In Proceedings of the IEEE /CVF international conference on computer vision , pages 6910–6919, 2021. [28] Zhaowei Cai and Nuno Vasconcelos. Cascade r-cnn: Delving into high quality object detection. In Proceedings of the IEEE conference on computer vision and pattern recognition , pages 6154–6162, 2018. [29] Xiyang Dai, Yinpeng Chen, Bin Xiao, Dongdong Chen, Mengchen Liu, Lu Yuan, and Lei Zhang. Dynamic head: Unify-ing object detection heads with attentions. In Proceedings of the IEEE /CVF conference on computer vision and pattern recognition ,pages 7373–7382, 2021. [30] Dehua Zheng, Wenhui Dong, Hailin Hu, Xinghao Chen, and Yunhe Wang. Less is more: Focus attention for e ffi cient detr. In Proceedings of the IEEE /CVF international conference on computer vision , pages 6674–6683, 2023. [31] Yi-Xin Huang, Hou-I Liu, Hong-Han Shuai, and Wen-Huang Cheng. Dq-detr: Detr with dynamic query for tiny object de-tection. In European Conference on Computer Vision , pages 290–305. Springer, 2024. [32] Tsung-Yi Lin, Michael Maire, Serge Belongie, James Hays, Pietro Perona, Deva Ramanan, Piotr Dollár, and C Lawrence Zitnick. Microsoft coco: Common objects in context. In European confer-ence on computer vision , pages 740–755. Springer, 2014. Preprint – V iCrop -D et 10 
+
+# Supplementary Material 
+
+# Abstract 
+
+This supplementary material provides addi-tional details on the experimental settings, the throughput measurement protocol, runtime overhead analysis, extended ablation studies, and supplementary explanation of the method section presented in the main paper. 
+
+# A Experimental Settings 
+
+Hardware /Software. All experiments were performed us-ing an RTX 4090 (24GB), an i7–13700KF processor, and 32GB DDR5@6400 memory. The software stack includes Python 3.10.12, PyTorch 2.0.1 (CUDA 11.8), cuDNN 8.9, NCCL 2.17, and OpenCV 4.8. 
+
+Datasets. We evaluate ViCrop-Det across four object detection benchmarks: 
+
+DOTA-v1.5 (2,806 images, 16 classes, 403,318 instances) 
+
+VisDrone-DET2019 (10,209 images, 10 classes, over 2.6M boxes) 
+
+VOC 2012 (20,000 images, 20 classes, 11,530 instances) 
+
+MS COCO (123,287 images, 80 classes, over 2.5M in-stances) The datasets are used with their o ffi cial splits, and we re-port results on the validation sets unless otherwise specified. The datasets were pre-processed using standard augmentation techniques, such as random flipping, scaling, and color jittering, to ensure robustness across di ff erent conditions. 
+
+Hyperparameters (frozen). The key hyperparameters used in our experiments are: Entropy threshold: 0 .7Mean-attention threshold: 0 .3Scales for cropping: 0 .25 , 0.5, 0.75 Stride for windowing: 0 .5Crop budget: K = 5Minimum crop size: 64 px NMS IoU threshold for crop selection: 0 .5Confidence threshold: 0 .3Fusion weight: α = 0.7The hyperparameters were selected through a light grid search on the validation splits of DOTA-v1.5 and VisDrone. The chosen values strike a balance between detection accuracy and computational e ffi ciency for small object detection tasks. 
+
+# B Throughput Measurement Protocol 
+
+We measure throughput using end-to-end wall-clock time on validation images. The batch size is set to B = 1, and the Table S1: Comparison on VOC 2012. Dataset Method RT-DETR-R50 Deformable DETR mAP 50 AP S FPS mAP 50 AP S FPS VOC 2012 No 81.6 75.4 84.5 79.7 72.3 81.2                   
+
+> +ViCrop-Det 82.1 77.6 67.2 80.1 74.8 65.3
+> +SAHI 81.8 75.5 43.2 79.8 72.5 42.0
+> +ASAHI 81.9 76.1 47.3 79.8 72.6 44.1
+
+first W = 20 iterations are considered warm-up, with the next 
+
+N = 200 iterations being timed. The protocol includes synchro-nization before and after each forward pass to ensure accurate timing. 
+
+Algorithm 1 FPS Benchmark Routine (End-to-End Mode)  
+
+> 1:
+
+for j ← 1 to W do  
+
+> 2:
+
+M(I j) ▷ warm-up, untimed  
+
+> 3:
+
+end for  
+
+> 4:
+
+t ← 0 
+
+> 5:
+
+for i ← 1 to N do  
+
+> 6:
+
+cuda.synchronize()  
+
+> 7:
+
+s ← time.time()  
+
+> 8:
+
+M(Ii) 
+
+> 9:
+
+cuda.synchronize()  
+
+> 10:
+
+t ← t + (time.time() − s) 
+
+> 11:
+
+end for  
+
+> 12:
+
+return (FPS = N/t, ms /img = 1000 /FPS) 
+
+Effi ciency Optimizations. Throughput was measured across various batch sizes, and we optimized the code for single-image processing to minimize the impact of batch size on throughput. ViCrop-Det achieves a significant speedup over traditional slic-ing methods, as seen in the comparison to SAHI and ASAHI. The procedure outlined in Algorithm 1 ensures that throughput is measured accurately by excluding warm-up iterations and focusing on the final 200 iterations for timing. 
+
+# C Runtime Overhead Analysis 
+
+On RT–DETR–R50, the ViCrop-Det framework reduces throughput by approximately 20–23%, while still maintaining real-time speed, validating its practicality in real-world applica-tions. This overhead is minimized through selective refinement based on entropy, which avoids unnecessary computation on already well-focused regions. 
+
+# D Extended Comparative Experiment 
+
+The results from Table S1 highlight that ViCrop-Det consistently outperforms both SAHI and ASAHI in terms of small-object detection (AP S ), showing a significant improvement in the de-tection of small and hard-to-detect objects. While ViCrop-Det introduces some computational overhead, as evidenced by the drop in FPS, it provides a clear advantage in terms of detection accuracy, particularly for small-object categories. The slicing methods, while o ff ering some gains in small-object detection, fall short in terms of both detection precision Preprint – V iCrop -D et 11 (AP S ) and runtime e ffi ciency, making ViCrop-Det a more e ffi -cient and e ff ective solution for improving small-object detection in real-time applications. The modest increase in runtime for ViCrop-Det is justified by its enhanced detection performance, particularly in the context of applications where small-object de-tection is crucial, such as surveillance, robotics, and autonomous driving. 
+
+# E Extended Ablation Studies 
+
+We provide additional ablation studies conducted using the Vis-Drone validation set, leveraging the RT–DETR–R50 model. 
+
+E.1 Confidence Score Fusion 
+
+Table S2: E ff ect of confidence score fusion on VisDrone.    
+
+> Strategy mAP 50
+> Without fusion 38.6 With fusion 38.9
+
+In this ablation study, we investigate the e ff ect of confi-dence score fusion on the detection performance of ViCrop-Det using the VisDrone dataset. The primary goal of confidence score fusion is to combine the original detections from the model with the refined predictions obtained through high-resolution re-detection of ambiguous regions, as guided by the spatial at-tention entropy (SAE). In Table S2, we compare the performance of the model with and without the confidence score fusion. The results show that the inclusion of confidence score fusion leads to a slight improvement in the mean average precision at 50% Intersection over Union (mAP 50 ), from 38.6 to 38.9, representing an absolute gain of 0.3 points. This improvement is indicative of the benefit of fusing refined predictions with the original detections. The refined predictions focus on the high-entropy, ambiguous regions of the image where the model’s confidence is lower, particularly for small or cluttered objects. By incorporating these refined detections, the model can recover missed or under-confident small objects, thus boosting overall detection accuracy. The increase in mAP 50 is modest, yet significant, highlight-ing that the method does not introduce substantial noise or false positives but instead refines the model’s performance in chal-lenging regions, particularly small and occluded objects. This confirms that confidence score fusion is an e ff ective strategy for enhancing the precision of small-object detection in ViCrop-Det without causing degradation in the overall performance. 
+
+E.2 Per-Class Results on VisDrone and DOTA-v1.5 
+
+Tables S3 and S4 provide a detailed comparison of per-class mAP 50 scores with and without ViCrop-Det. Results show significant improvements across both RT–DETR–R50 and De-formable DETR on both datasets, particularly for small object categories. 
+
+# F Additional Explanation of the Method Section 
+
+In the main paper, we introduced ViCrop-Det, a training-free, plug-and-play framework designed to improve the detection of small objects in Transformer-based detectors, such as RT– DETR–R50 and Deformable DETR. Here, we provide a deeper explanation of key components of the method, including the motivation behind spatial attention entropy (SAE), the selec-tion of ambiguous regions, and the e ffi ciency of the multi-scale cropping process. 
+
+F.1 Spatial Attention Entropy (SAE) 
+
+The core idea behind ViCrop-Det is to leverage internal decoder cross-attention statistics from a single forward pass to guide the detection refinement process. By aggregating cross-attention from multiple layers and heads, we generate a high-resolution spatial attention map. From this map, we compute the Shannon entropy (SAE), which serves as an uncertainty measure for the regions in the image. High entropy regions correspond to areas of ambiguity, where the model is uncertain and likely to benefit from higher-resolution reprocessing. This entropy-guided mechanism ensures that computation is directed toward the most uncertain yet potentially informative regions. In Transformer-based detectors, the attention mechanism computes interactions between the query tokens and key tokens, allowing the model to focus on relevant regions in the image. For 
+
+ViCrop-Det , we aggregate the cross-attention maps produced by multiple layers and heads in the decoder. This aggregation provides a high-resolution spatial attention map , which cap-tures the focus of the model across the image, highlighting areas of varying importance during the detection process. To better understand the attention map, we average across the layers, heads, and queries, reducing noise and retaining the most significant information about the model’s focus. This aggregated attention map indicates where the model places its most significant focus. Importantly, areas with high attention intensity reflect regions where the model believes there is strong evidence for detection, while regions with low attention intensity might indicate less confident detections. 
+
+Computing Spatial Attention Entropy (SAE) Once we have the aggregated spatial attention map, we compute the Shannon entropy (SAE) , which quantifies the uncertainty in the model’s attention distribution. The entropy is calculated as follows: 
+
+Hs = −
+
+X
+
+> i∈P
+
+pi log pi (S1) where pi is the normalized attention score for the i-th spatial lo-cation. High entropy values indicate regions where the model’s attention is spread out, meaning it is uncertain about which part of the image to focus on. On the other hand, low entropy values 
+
+signify focused attention, where the model is confident about the regions it is attending to. The entropy map provides a clear indication of the areas where the model’s focus is most ambiguous and could potentially benefit from higher resolution or reprocessing. High entropy regions are typically small or occluded objects, which are often harder to detect due to issues such as scale reduction, occlusions, Preprint – V iCrop -D et 12 Table S3: Per-class mAP 50 on VisDrone with and without ViCrop-Det , comparing RT–DETR–R50 and Deformable DETR .Parentheses show absolute improvement (ViCrop-Det − no-ViCrop-Det).                                                  
+
+> Class RT–DETR–R50 Deformable DETR no-ViCrop-Det ViCrop-Det no-ViCrop-Det ViCrop-Det
+> ALL 37.0 38.9 ( +1.9) 36.4 39.0 ( +2.6) PEDESTRIAN 41.6 42.5 ( +0.9) 40.4 42.6 ( +2.2) PEOPLE 30.3 31.2 ( +0.9) 30.6 34.7 ( +4.1) BICYCLE 12.5 17.2 ( +4.7) 11.9 15.4 ( +3.5) CAR 79.7 80.3 ( +0.6) 79.4 82.1 ( +2.7) VAN 43.7 43.9 ( +0.2) 43.2 45.8 ( +2.6) TRUCK 36.0 38.1 ( +2.1) 37.1 39.6 ( +2.5) TRICYCLE 21.3 25.4 ( +4.1) 20.4 23.5 ( +3.1) AWNING-TRICYCLE 8.8 12.9 ( +4.1) 9.2 10.9 ( +1.7) BUS 52.6 53.4 ( +0.8) 50.3 51.7 ( +1.4) MOTOR 43.1 43.6 ( +0.5) 41.2 43.3 ( +2.1)
+
+Table S4: Per-class mAP 50 on DOTA-v1.5 with and without ViCrop-Det , comparing RT–DETR–R50 and Deformable DETR .Parentheses show absolute improvement (ViCrop-Det − no-ViCrop-Det).                                                                      
+
+> Class RT–DETR–R50 Deformable DETR no-ViCrop-Det ViCrop-Det no-ViCrop-Det ViCrop-Det
+> ALL 50.1 51.5 ( +1.4) 49.1 50.5 ( +1.4) PLANE 74.0 75.2 ( +1.2) 72.1 73.5 ( +1.4) SHIP 61.4 62.4 ( +1.0) 56.5 58.2 ( +1.7) STORAGE TANK 34.7 36.1 ( +1.4) 31.4 34.1 ( +2.7) BASEBALL DIAMOND 52.3 54.4 ( +2.1) 51.8 52.5 ( +0.7) TENNIS COURT 92.3 92.5 ( +0.2) 89.9 91.2 ( +1.3) BASKETBALL COURT 38.6 39.2 ( +0.6) 38.2 39.4 ( +1.2) GROUND TRACK FIELD 35.1 36.8 ( +1.7) 37.1 37.8 ( +0.7) HARBOR 72.5 74.1 ( +1.6) 71.6 72.1 ( +0.5) BRIDGE 14.2 16.3 ( +2.1) 16.2 18.5 ( +2.3) LARGE VEHICLE 79.8 80.6 ( +0.8) 78.4 79.3 ( +0.9) SMALL VEHICLE 57.2 58.5 ( +1.3) 55.0 56.2 ( +1.2) HELICOPTER 42.7 43.5 ( +0.8) 43.5 45.0 ( +1.5) ROUNDABOUT 15.5 18.1 ( +2.6) 14.7 16.3 ( +1.6) SOCCER BALL FIELD 36.1 38.2 ( +2.1) 35.4 38.5 ( +3.1) SWIMMING POOL 45.6 47.0 ( +1.4) 44.6 45.9 ( +1.3)
+
+or background clutter. The computation of SAE enables us to pinpoint these regions, allowing for targeted re-detection and refinement. 
+
+Role of SAE in Guiding Computation The key benefit of us-ing SAE is that it provides an uncertainty measure for di ff erent regions in the image. By computing the entropy of the attention map, we can e ff ectively direct computational resources to the areas that need it most, specifically the regions where the model is uncertain. These high-entropy areas often correspond to small objects , occluded objects , or ambiguous regions where atten-tion is diluted due to overlapping background features. The primary role of SAE is to guide the computational budget of ViCrop-Det to regions that are more likely to benefit from higher resolution processing. These areas are typically the ones that require more detailed analysis, such as small objects that were downsampled during the initial processing or regions that overlap with background clutter, causing misclassification. The selective refinement based on SAE ensures that ViCrop-Det 
+
+focuses computational power on uncertain regions where the model is likely to improve its detection performance. In practice, regions with high entropy are the ones where the model needs further refinement. By applying multi-scale cropping to these areas, we can perform high-resolution re-detection, enabling the model to recover fine details that are otherwise lost due to downsampling or attention dilution. This targeted refinement strategy enhances the model’s ability to detect small objects and ambiguous cases , improving detection accuracy while minimizing unnecessary computations. 
+
+Benefits of SAE-Based Refinement The primary advantage of using SAE to guide the refinement process is that it ensures computational e ffi ciency. Instead of performing exhaustive re-processing over the entire image, ViCrop-Det only focuses on high-entropy regions, reducing the computational cost while still improving detection accuracy. This selective attention to 
+
+uncertain areas leads to significant performance improvements, particularly in the detection of small or cluttered objects. Preprint – V iCrop -D et 13 Moreover, by selectively refining high-entropy regions, 
+
+ViCrop-Det maintains a balance between accuracy and effi -ciency . The model achieves better performance in detecting small and ambiguous objects without wasting computational resources on well-detected, low-entropy regions. This makes 
+
+ViCrop-Det suitable for real-time applications, where computa-tional overhead must be minimized. 
+
+F.2 Targeted Region Selection and Cropping 
+
+Using the computed Spatial Attention Entropy (SAE), we priori-tize regions that exhibit both high attention intensity and high entropy for further refinement. This dual focus ensures that computational resources are applied to areas where the model is uncertain, particularly small or occluded objects, and where high-resolution reprocessing is most beneficial. 
+
+Multi-Scale Sliding Windows We apply multi-scale sliding windows at scales 0.25 , 0.5, 0.75 to focus on regions of di ff erent sizes in the image. These scales are chosen to capture a broad range of object sizes, from very small objects (scale 0 .25) to medium-sized objects (scale 0 .75). This multi-scale approach is critical for addressing the challenge of small-object detection, where the size of the object significantly impacts its detectability. The sliding windows move across the attention map with a 
+
+stride of 0.5, meaning that the windows overlap with each other by 50 
+
+Scoring Mechanism Each window is scored based on a mul-tiplicative combination of attention intensity and SAE . The attention intensity m(w) is computed as the mean attention 
+
+across the pixels within the window w, and SAE Hs(w) is the spatial entropy within the window. This score, defined as: 
+
+σ(w) = m(w) × Hs(w) (S2) combines two critical components: 1. Attention Intensity (m(w)): This quantifies the strength of the model’s focus on the window. A higher mean attention indicates that the model is already placing significant emphasis on the region. 2. Spatial Attention Entropy ( Hs(w)): This quantifies the uncertainty in the model’s attention. High entropy indicates regions where the model’s attention is spread out, signaling uncertainty or ambiguity in detection. This multiplicative combination allows us to prioritize re-gions that are both highly attended (indicating importance) and 
+
+highly uncertain (indicating areas where refinement could pro-vide substantial improvement). The regions that exhibit both high attention intensity and high entropy are often small, clut-tered, or occluded objects where the model is uncertain but still focused on potential features. 
+
+Selection of Top-K Windows Once all candidate regions are scored, we select the top-K windows (default K = 5) for re-detection. The number K controls the computational budget, ensuring that only the most informative regions are processed further. The number of selected windows is capped to avoid excessive computation on non-ambiguous regions, thus main-taining the e ffi ciency of the process. In practice, the value of K
+
+ensures that we can focus on regions with the highest potential for improving detection without overwhelming the system with too many redundant candidates. 
+
+Effi cient Resource Allocation The selective routing of com-putation to high-entropy, high-attention regions ensures that 
+
+ViCrop-Det operates e ffi ciently, focusing computational re-sources on the most challenging parts of the image. This targeted refinement allows the model to devote more attention to small or occluded objects that are likely to benefit from re-detection at a higher resolution, without wasting resources on regions that are already well-identified. By prioritizing the most uncertain and informative regions , ViCrop-Det improves the model’s accuracy in small-object detection without incurring prohibitive computational costs. In addition, by focusing only on a small set of candidate windows, we maintain the model’s real-time performance. The computational overhead is further minimized because the global gating mechanism described in the main paper often skips im-ages that do not need refinement. As a result, only images with significant uncertainty or ambiguity undergo the additional re-detection process, reducing the number of times the top-K windows are selected. 
+
+F.3 Score Fusion and Final Prediction 
+
+After performing high-resolution re-detection on the selected windows, we combine the refined predictions with the origi-nal model outputs to produce the final detection results. This step is crucial for ensuring that the model benefits from the high-resolution reprocessing without compromising the accu-racy of the initial detection. The process of fusing these pre-dictions is achieved through two main components: class-wise non-maximum suppression (NMS) and a weighted score com-bination .
+
+Class-wise Non-Maximum Suppression (NMS) To begin the fusion process, we first apply class-wise NMS to remove any redundant detections. NMS is a standard technique in object detection that eliminates overlapping bounding boxes based on a threshold for the intersection-over-union (IoU) metric. How-ever, in ViCrop-Det , we apply NMS separately for each class ,ensuring that we do not suppress valuable detections of di ff erent object categories that might overlap in spatial locations. For each object class, NMS operates on the candidate bounding boxes and removes those that overlap with others above a certain IoU threshold (usually 0 .5). This step ensures that only the most confident predictions are retained, helping to reduce false positives while preserving the integrity of the original detections, especially for smaller or ambiguous objects. 
+
+Weighted Score Fusion Once we have the refined predic-tions from the high-resolution re-detection and the original model’s predictions, we combine them to form the final pre-diction. The combination is performed using a weighted score fusion method, where the final score for each detection is com-puted as a weighted average of the initial model score so and the refined detection score sr:Preprint – V iCrop -D et 14 
+
+s f = αso + (1 − α)sr (S3) Here, s f is the final fused score, so is the original detec-tion score, sr is the score of the refined detection, and α is a weight parameter that controls the contribution of each score to the final prediction. In our experiments, we empirically set 
+
+α = 0.7, which allows the final prediction to primarily rely on the original detection’s confidence while also incorporating the refined detection’s score to correct missed or under-confident small objects. The choice of α = 0.7 ensures that the fusion process does not overly rely on the re-detected crops, which are intended to correct errors in small-object detection, but instead maintains the precision of the original model detections. This careful balance prevents introducing too much noise from the refined detections while still leveraging the information that comes from focusing on high-entropy regions. 
+
+Rationale Behind the Weighted Fusion The fusion of origi-nal and refined predictions is critical in ViCrop-Det , as it com-bines the best of both worlds: the initial model’s ability to make confident predictions for well-detected objects and the high-resolution refinement to capture fine details of small or ambiguous objects. This strategy ensures that the detection re-sults are both precise and robust , particularly for challenging small-object detection tasks. By using a weighted score fusion mechanism, ViCrop-Det 
+
+ensures that small objects , which often lack enough discrim-inative features for reliable detection, are not completely dis-regarded. Instead, the model corrects its confidence for these small or occluded objects based on the refined detections, which are targeted at high-entropy regions where the model was un-certain. This process significantly improves recall for small objects without significantly sacrificing the precision of larger objects. 
+
+F.4 Computational E ffi ciency 
+
+ViCrop-Det introduces minimal additional computation over-head, primarily due to the targeted reprocessing of high-entropy regions. Unlike traditional methods, which might require re-processing the entire image or large portions of it, ViCrop-Det 
+
+focuses only on regions where the model is uncertain—i.e., re-gions with high spatial attention entropy (SAE). This selective re-detection ensures that computational resources are utilized only where necessary, preventing unnecessary computation on well-detected or confident regions. The overall complexity of the approach is e ff ectively con-trolled by two main factors: 
+
+• Global Gate Mechanism: The global gate in ViCrop-Det serves as a filter to determine whether an image requires additional refinement. If the model’s initial detection pass is already confident, the gate prevents any further processing. The decision to proceed with further re-detection is based on a combination of the 
+
+global entropy threshold (τg) and the mean attention threshold (μ) across the entire image. If the entropy value of the image is low and the model’s attention is well-focused (i.e., high certainty), the image is skipped entirely, saving computational resources. This early-exit mechanism ensures that the approach incurs over-head only on images that truly benefit from reprocess-ing, improving both speed and e ffi ciency. 
+
+• Cap on the Number of Selected Windows: Another crucial factor controlling the complexity is the limit on the number of selected windows (K) for re-detection. As discussed in the Targeted Region Selection and Cropping section, only the top-K high-entropy win-dows are selected for further reprocessing. The value of 
+
+K is typically set to K = 5, ensuring that no more than 5 candidate regions are re-detected at a higher resolu-tion. By limiting the number of windows, ViCrop-Det 
+
+avoids excessive computation on small, less informa-tive regions. The selection of a small, fixed number of regions strikes a balance between computational e ffi -ciency and detection improvement, ensuring that only the most ambiguous parts of the image are reprocessed. 
+
+Effi ciency vs. Performance Trade-o ff Despite the added com-plexity of the high-entropy region selection and high-resolution re-detection, ViCrop-Det introduces only a modest increase in runtime. This is due to the targeted nature of the refinement process, where computation is focused on the most uncertain areas. Since the majority of images (particularly those with well-focused regions) do not require re-detection, the global gate often skips these images entirely, further minimizing com-putational overhead. The use of multi-scale cropping to refine high-entropy regions (with scales of 0 .25, 0 .5, and 0 .75) allows ViCrop-Det 
+
+to e ffi ciently capture small objects at di ff erent scales without the need for exhaustive reprocessing at every scale. Only the top-K windows (default K = 5) are selected for re-detection, ensuring that the approach maintains both high accuracy for small objects and effi ciency by limiting the number of addi-tional high-resolution forward passes. 
+
+Real-time Applicability The computational e ffi ciency of 
+
+ViCrop-Det makes it suitable for real-time applications, such as autonomous driving, surveillance, or remote sensing, where both accuracy and speed are critical. The ability to selectively re-process regions of the image without re-running the entire model or overloading the system with redundant computations ensures that ViCrop-Det can be deployed in time-sensitive environments while maintaining high detection performance. In practical terms, the framework demonstrates only a 20– 23% overhead in throughput compared to the baseline models, as shown in the experimental results. This overhead is primarily due to the multi-scale cropping and re-detection of high-entropy regions, but the performance gains in small-object detection far outweigh the modest increase in runtime.

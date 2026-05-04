@@ -1,0 +1,142 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.10210v1/fig-001.webp",
+      "caption": "Table 6: Ablation study for different feature fusion frameworks. APbox and APmask are evaluated on MS COCO val2017, while mIoU is calculated on Cityscapes.",
+      "page": 25,
+      "index": 1,
+      "width": 591,
+      "height": 298
+    },
+    {
+      "url": "assets/figures/arxiv/2604.10210v1/fig-002.webp",
+      "caption": "Fig. 7. Visualization of detection results, the corresponding feature maps and heatmaps. Resampler refines coarsely sampled features and diminishes object displacement. The context weight generator learns the significance relationship of different feature patterns, decreasing the misclassifications and missed detections. ICAtten further enhances the discriminative features and alleviates complex background interference.",
+      "page": 15,
+      "index": 2,
+      "width": 719,
+      "height": 414
+    },
+    {
+      "url": "assets/figures/arxiv/2604.10210v1/fig-003.webp",
+      "caption": "Table 3: Performance comparison between state-of-the-art detectors with and without incorporating A3-FPN on MS COCO dataset. CNN detectors are evaluated on COCO test-dev, while vision transformer detectors are tested on COCO val2017.",
+      "page": 21,
+      "index": 3,
+      "width": 791,
+      "height": 543
+    },
+    {
+      "url": "assets/figures/arxiv/2604.10210v1/fig-004.webp",
+      "caption": "Fig. 3. Overall architecture of A3-FPN. (a) The bottom-up asymptotically disentangled fusion framework consisting of m columns; (b) Multi-scale Context-aware Attention module for feature fusion; (c) Intra-scale Content-aware Attention module for feature reassembly.",
+      "page": 7,
+      "index": 4,
+      "width": 677,
+      "height": 367
+    },
+    {
+      "url": "assets/figures/arxiv/2604.10210v1/fig-005.webp",
+      "caption": "Table 4: Mask AP comparison of different instance segmentation models on COCO val2017. CNN methods adopt Mask R-CNN [5] as the baseline architecture. * denotes mask AP is evaluated on instance ground truths derived from panoptic annotations [32] and † indicates re-implementation results.",
+      "page": 22,
+      "index": 5,
+      "width": 791,
+      "height": 492
+    },
+    {
+      "url": "assets/figures/arxiv/2604.10210v1/fig-006.webp",
+      "caption": "Fig. 6. In first row, H/8 ×W/8 feature maps are upsampled to H/4 ×W/4 by bilinesar interpolation, DySample [12] and Cotext-aware Resampler (ours); In second row, we downsample H/4 ×W/4 feature maps to H/8 ×W/8 through strided convolution, CARAFE++ [13] and Cotext-aware Resampler (ours).",
+      "page": 14,
+      "index": 6,
+      "width": 795,
+      "height": 250
+    },
+    {
+      "url": "assets/figures/arxiv/2604.10210v1/fig-007.webp",
+      "caption": "Fig. 1. Illustration of FPN [9] and PAFPN [10]. (a) Top-down multi-scale feature fusion path in FPN. (b) Extra bottomup path aggregation in PAFPN. Both methods have some defects: (1) information loss, (2) context-agnostic sampling, (3) pattern inconsistency.",
+      "page": 3,
+      "index": 7,
+      "width": 632,
+      "height": 359
+    },
+    {
+      "url": "assets/figures/arxiv/2604.10210v1/fig-008.webp",
+      "caption": "Fig. 9. Qualitative evaluation. (a) Instance segmentation results of Mask RCNN [5] with different feature fusion approaches, including FPN [9], FPT [48], DySample [12], CARAFE [13] and our A3-FPN; (b) and (d) are comparison between some unified transformer-based models (Mask2Former [31] and Mask DINO [8]) with and without integrating A3-FPN on the instance and semantic segmentation task respectively; (c) Semantic segmentation visualization on Cityscapes validation set using different semantic segmentors, which are UperNet [21], SegNext [23], SegFormer [25], SETR [24], and our A3-FPN. Additional qualitative results are presented in Appendix E and F.",
+      "page": 23,
+      "index": 8,
+      "width": 799,
+      "height": 534
+    },
+    {
+      "url": "assets/figures/arxiv/2604.10210v1/fig-009.webp",
+      "caption": "Fig. B.10. Illustration of A3-FPN with the top-down asymptotic disentangled framework.",
+      "page": 36,
+      "index": 9,
+      "width": 600,
+      "height": 312
+    },
+    {
+      "url": "assets/figures/arxiv/2604.10210v1/fig-010.webp",
+      "caption": "Fig. C.11. (a) Visualization of coordinate offsets and the corresponding attention weight in the offset generator. (b) Fusion process visualization in MCAtten.",
+      "page": 36,
+      "index": 10,
+      "width": 561,
+      "height": 433
+    },
+    {
+      "url": "assets/figures/arxiv/2604.10210v1/fig-011.webp",
+      "caption": "Table 2: Small object detection performance with different feature pyramid networks on the VisDrone2019-DET dataset. The baseline model is RetinaNet [52].",
+      "page": 19,
+      "index": 11,
+      "width": 633,
+      "height": 248
+    },
+    {
+      "url": "assets/figures/arxiv/2604.10210v1/fig-012.webp",
+      "caption": "Table 1: Performance of Faster RCNN [26] with different feature pyramid networks on MS COCO val2017. † indicates model performance referred from other works.",
+      "page": 17,
+      "index": 12,
+      "width": 754,
+      "height": 317
+    },
+    {
+      "url": "assets/figures/arxiv/2604.10210v1/fig-013.webp",
+      "caption": "Table 5: Comparison with recent state-of-the-art semantic segmentation methods on Cityscapes [18] validation set. We calculate mIoU to assess the model performance and intra-category consistency of the final predictions. †† indicates our re-implementation results, while s.s. and m.s. denotes single-scale and multi-scale training, respectively.",
+      "page": 24,
+      "index": 13,
+      "width": 791,
+      "height": 629
+    },
+    {
+      "url": "assets/figures/arxiv/2604.10210v1/fig-014.webp",
+      "caption": "Fig. 5. Comparison of different multi-scale designs, including (a) FPN [9] (layer-wise framework), (b) Gold-YOLO [33] (global convolutional framework), (c) Deformable Attention [40] (global attention framework), (d) A3-FPN (asymptotically disentangled framework).",
+      "page": 9,
+      "index": 14,
+      "width": 718,
+      "height": 239
+    },
+    {
+      "url": "assets/figures/arxiv/2604.10210v1/fig-015.webp",
+      "caption": "Fig. D.12. (a) Instance segmentation results of Mask RCNN[5] with different feature fusion approaches, including FPN[9], FPT[48], DySample[12], CARAFE[66] and our A3-FPN. (b) Qualitative comparison between some unified transformer-based models (Mask2Former[31] and Mask DINO[8]) with and without integrating A3-FPN on the instance segmentation task.",
+      "page": 37,
+      "index": 15,
+      "width": 513,
+      "height": 331
+    },
+    {
+      "url": "assets/figures/arxiv/2604.10210v1/fig-016.webp",
+      "caption": "Fig. 8. Qualitative evaluation of various feature pyramid networks for object detection on MS COCO validation set, including FPN [9], PAFPN [10], NAS-FPN [34], AFPN [15] and our A3-FPN. Odd rows are the detection results, and the others are the corresponding AblationCAM [56] visualization. The object category in the images is sheep.",
+      "page": 20,
+      "index": 16,
+      "width": 721,
+      "height": 454
+    },
+    {
+      "url": "assets/figures/arxiv/2604.10210v1/fig-017.webp",
+      "caption": "Fig. 2. (a) Average precision, parameters, and FLOPs of various feature pyramid networks evaluated on COCO val2017 [17]. Bubble area scales with model GFLOPs; (b) Inference latency vs. performance on COCO val2017 for feature pyramid models. All models are trained for 12 epochs using Faster R-CNN with ResNet-50 as the baseline. Inference latency is measured on a single NVIDIA RTX 4090 GPU.",
+      "page": 5,
+      "index": 17,
+      "width": 717,
+      "height": 366
+    }
+  ]
+}

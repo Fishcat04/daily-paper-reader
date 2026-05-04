@@ -1,0 +1,1682 @@
+Title: Multi-Scale Contextual Attention for Robust Crop and Pest Image Classification
+
+URL Source: https://www.biorxiv.org/content/10.64898/2026.04.24.720764v1.full.pdf
+
+Number of Pages: 32
+
+Markdown Content:
+# Multi-Scale Contextual Attention for Robust Crop and Pest Image Classification 
+
+Muhammad Majid 1Y, Hassan Tariq * 1Y, Imran Mumtaz 1Y, Hanan Aljuaid 2Y,
+
+1 Department of Computer Science, University of Agriculture, Faisalabad, PK 
+
+2Department of Statistics and Mathematics, University of Agriculture, Faisalabad, PK 
+
+YThese authors contributed equally to this work. * hassan@uaf.edu.pk 
+
+# Abstract 
+
+Image-based crop and pest recognition is considered useful for reducing the delay and cost of manual field scouting, therefore supporting timely intervention in precision-agriculture workflows. However, the real field imagery remains challenging due to the cluttered backgrounds, occlusions, illumination changes, and strong scale variation that are frequently observed across crops. The symptoms are often small or low-contrast, and pests may be partially hidden, which reduces the reliability when the setting is outside controlled environments. A unified multi-class crop–pest/condition recognition framework is presented, where a ResNet-50 backbone is utilized and enhanced with a Multi-Scale Contextual Attention (MSCA) module. The novelty is mainly considered to be achieved through the integration of explicit multi-scale contextual aggregation with lightweight joint channel and spatial attention by means of residual fusion, while the empirical evaluation was kept controlled under a fixed and reproducible protocol. A curated dataset of 21,404 field-style images covering 15 crop and pest/condition classes was compiled, and a leakage-aware fixed split with a held-out test set was adopted to support reproducibility. Augmentation was applied only to the training subset to improve robustness, although the validation data was not augmented in the same manner. On the held-out test set, balanced performance was achieved by the proposed approach, with about 0.93 accuracy and a macro-F1 score close to 0.94 being obtained, while established baselines such as EfficientNet, Vision Transformer, and attention-based CNN models were outperformed under identical evaluation settings. Controlled ablations were used to isolate the contribution of MSCA and augmentation under the same training configuration. These results indicate that lightweight multi-scale contextual attention is effective for crop and pest recognition under realistic field conditions, although some visually similar classes remained difficult. 
+
+# Introduction 1
+
+Crop pests and diseases reduce crop quality and yields worldwide, yet routine field 2
+
+scouting is still largely manual in many regions. The process is slow and costly and 3
+
+early symptoms are sometimes missed, especially when weather conditions change 4
+
+quickly and expert support is limited for smallholder farms [1]. Scalable monitoring is 5
+
+therefore considered essential for meeting rising food demand. Recent advances in 6
+
+computer vision and deep learning have made automated visual analysis more feasible 7
+
+than before. When deployed on smartphones, drones, or fixed cameras, such systems 8
+
+April 23, 2026 1/25 
+
+> .CC-BY 4.0 International license available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is made The copyright holder for this preprint this version posted April 28, 2026. ;https://doi.org/10.64898/2026.04.24.720764 doi: bioRxiv preprint
+
+can support earlier intervention, more precise pesticide use, and improved traceability 9
+
+across the supply chain [2]. 10 
+
+Developments in visual recognition have been propelled by deep learning, with 11 
+
+convolutional neural networks (CNNs) being central to them, though architecture 12 
+
+directions have changed regularly over time. During various epochs, the models that 13 
+
+were proposed and developed include LeNet -5, AlexNet, VGG, Inception/GoogLeNet, 14 
+
+DenseNet, and ResNet. ResNet-50 became one of the most popular architectures due to 15 
+
+the fact that it provided a compromise between representational and optimization 16 
+
+stability. The residual learning method enabled the training of the network to stabilize 17 
+
+training and refine image classification with hierarchical representations of features 18 
+
+compared to the previous deep architectures, which had problems with optimization. 19 
+
+The success of this architecture did not have a direct equivalent when the imagery is 20 
+
+liberated. 21 
+
+In field conditions, fined grained patterns became hard to identify. Samples had 22 
+
+cluttered backgrounds, overlapping leaves, uneven illumination and often changed scale. 23 
+
+Discriminative cues often took up a small and irregularly placed part of the image and 24 
+
+added confusion between classes that were visually similar and biased the model toward 25 
+
+irrelevant parts. These challenges were also compounded by the imbalance of classes 26 
+
+and noisy labels, which were the factors that dictated studies and which are seldom 27 
+
+highlighted. 28 
+
+The problem is similar to the fine-grained classification in the background clutter 29 
+
+and large scale difference with a computer vision point of view. Modern architectures 30 
+
+have obtained strong results in laboratory settings, and the robustness in real settings 31 
+
+hinged on the aggregateation of contextual information, the direction of attention 32 
+
+mechanisms and the inhibition of the background responses. The task was decomposed 33 
+
+by some pipelines into crop identification followed by pest or disease recognition, 34 
+
+whereas narrow datasets were relied upon by others. When deployed in the field, 35 
+
+robustness was reduced by such staged designs, unlike unified approaches that avoided 36 
+
+this separation [3]. 37 
+
+A unified multi-class classification framework was proposed to address this gap, with 38 
+
+crop and condition patterns being jointly modeled within a single network. Better 39 
+
+alignment with deployment constraints was achieved by this approach, and error 40 
+
+propagation across stages was avoided, although additional optimization challenges were 41 
+
+introduced under limited hardware and noisy supervision [4]. Augmented with a 42 
+
+lightweight Multi-Scale Contextual Attention (MSCA) module was a ResNet-50 43 
+
+backbone, where contextual information was aggregated across multiple receptive-field 44 
+
+scales and features were refined through joint channel–spatial attention with residual 45 
+
+fusion. Stable optimization behavior was preserved, while diagnostically relevant regions 46 
+
+were being emphasized through this design. Instead of introducing a new backbone 47 
+
+family, the novelty was mainly considered in the integration of multi-scale contextual 48 
+
+attention within a standard CNN architecture, and a controlled empirical evaluation 49 
+
+was conducted under a fixed and reproducible protocol, with efficiency being 50 
+
+maintained for deployment-oriented use cases. 51 
+
+Evaluation was being carried out on an in-house dataset of 21,404 annotated images, 52 
+
+spanning the 15 crop and condition labels. A fixed and reproducible splitting protocol 53 
+
+was being utilized, including the held-out test set, for preventing data leakage during 54 
+
+training and tuning. Preprocessing was being kept consistent across all splits, and 55 
+
+targeted augmentation was being applied only on the training subset, mainly for 56 
+
+improving generalization, while avoiding inflating the evaluation performance in an 57 
+
+unintended way. Although the experiments focus on agricultural imagery, the proposed 58 
+
+attention refinement and evaluation methodology is task-agnostic and can be applied to 59 
+
+other fine-grained image classification problems involving background clutter, and scale 60 
+
+April 23, 2026 2/25 
+
+> .CC-BY 4.0 International license available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is made The copyright holder for this preprint this version posted April 28, 2026. ;https://doi.org/10.64898/2026.04.24.720764 doi: bioRxiv preprint
+
+variation. 61 
+
+The main contributions of this work are summarized as follows: 62 
+
+• A unified 15-class crop and pest/condition recognition framework is proposed for 63 
+
+realistic field imagery, avoiding laboratory-style constraints and staged 64 
+
+crop–disease pipelines. 65 
+
+• A lightweight Multi-Scale Contextual Attention (MSCA) module is introduced, 66 
+
+combining parallel multi-scale contextual aggregation, joint channel–spatial 67 
+
+refinement and residual fusion within a standard ResNet-50 backbone. The design 68 
+
+is considered to be improving feature focus under scale variation and background 69 
+
+clutter without introducing heavy architectural complexity. 70 
+
+• Controlled component-level ablation experiments are conducted under a fixed and 71 
+
+reproducible protocol. Consistent performance gains of the MSCA module over 72 
+
+the non-attention baseline are demonstrated across multiple seeds, with 73 
+
+statistically significant improvements, in macro-F1. 74 
+
+• Deployment-oriented profiling is provided, reporting parameter count, FLOPs, 75 
+
+and inference latency alongside recognition performance to support practical 76 
+
+decision-support use cases in precision agriculture. 77 
+
+The remainder of this paper has been organized as follows. In Section ?? , related 78 
+
+work on deep learning for crop and condition recognition is reviewed. In Section ?? , the 79 
+
+dataset, preprocessing and augmentation steps, the proposed ResNet-50 + MSCA 80 
+
+architecture, and the training and evaluation protocols are described. Section ?? is used 81 
+
+to report experimental results ablation studies, and comparative analyses. In Section ?? , 82 
+
+key findings, limitations and possible directions for future work are summarized. 83 
+
+# Literature Review 84 
+
+This section is focused on image-based crop pest and disease recognition under real field 85 
+
+conditions. Early control and yield protection are dependent on timely identification in 86 
+
+practice. Manual diagnosis was often slow and subjective. Scaling across farms was 87 
+
+difficult. Recent computer-vision approaches were developed to automate recognition 88 
+
+from leaf and field imagery. Field deployment was remaining challenging, with cluttered 89 
+
+backgrounds, varying illumination, frequent occlusion, and subtle symptoms being 90 
+
+observed across scenes [2, 3]. Key directions in the literature were being summarized. 91 
+
+Methodological gaps were being identified, motivating the unified multi-class 92 
+
+formulation, and supporting the controlled study of attention mechanisms, under 93 
+
+realistic field conditions. 94 
+
+## 0.1 Classification using CNN and the transfer learning 95 
+
+## Technique 96 
+
+Hierarchical feature learning has proven to be more successful in term capturing 97 
+
+relevant information and thereby commencing the universal use of Convolutional Neural 98 
+
+Networks (CNNs) in plant and crop identification when compared to hand-crafted 99 
+
+descriptors, textures, edges, and lesion patterns. Initial studies have shown that deep 100 
+
+models can generalise effectively in case of sufficient data and the right regularisation 101 
+
+are in place [5]. Subsequently, the method of transfer learning had become the norm in 102 
+
+agriculture settings, in which pre-trained backbones are fine-tuned on farm or pathology 103 
+
+data, and frequently achieve high-quality performance even with small quantities of 104 
+
+April 23, 2026 3/25 
+
+> .CC-BY 4.0 International license available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is made The copyright holder for this preprint this version posted April 28, 2026. ;https://doi.org/10.64898/2026.04.24.720764 doi: bioRxiv preprint
+
+labelled samples. Multiple reports indicated that multi-crop and multi-disease 105 
+
+classification tasks are highly accurate when performed using this methodology [6]. 106 
+
+However, the loss in performance was still seen in comparative studies of AlexNet, VGG, 107 
+
+and GoogLeNet-style designs when the symptoms were small, low-contrast, or visually 108 
+
+ambiguous, although deeper hierarchies were used. 109 
+
+There was one critical limitation, however. Many pipelines often trained and 110 
+
+evaluated on small datasets with narrow scope or control over these datasets, which 111 
+
+overestimated real-world performance and limited generalisation across farms, seasons 112 
+
+and imaging devices [3]. Many pipelines often trained and evaluated on small datasets 113 
+
+that had narrow scope, or constraint, over such datasets, and this led to overestimation 114 
+
+of the real world performance, and constrained extrapolation between farms, seasons 115 
+
+and imaging devices [ ?]human—¿Many pipelines were also trained and evaluated on 116 
+
+small datasets with narrow scope or control over such datasets, which overestimated 117 
+
+real-world performance Though these limitations prompted an emphasis on 118 
+
+diagnostically relevant cues with visual variability, this emphasis was not always 119 
+
+obtained, and the difference between the reported accuracy and field reliability still 120 
+
+persisted. 121 
+
+## 0.2 Attention mechanisms for the fine-grained recognition 122 
+
+Field imagery task did not only solve the assignment of a label as a class but 123 
+
+localisation of discriminative evidence in the scene as well. The distractors often 124 
+
+included soil texture, shadows and the vegetation at the back of the models leading to 125 
+
+the drift of attention to irrelevant parts. As a control to this effect, attention 126 
+
+mechanisms were added to re-weight features and focus on informative regions including 127 
+
+lesion clusters, pest presence, and discoloration patterns. The formulations of residual 128 
+
+attention were incorporated in CNN backbones, where the feature refinement did not 129 
+
+destabilise the optimisation. As a result, the response to minor symptoms was more 130 
+
+sensitive, but the rejection of irrelevant texture was not always similar in all cases. 131 
+
+Multi-scale processing was considered critical for fine-grained recognition. Target 132 
+
+size and visibility were varied. The same condition was observed to appear differently 133 
+
+across growth stages. Pyramid-style designs with adaptive feature fusion were explored 134 
+
+to capture small or crowded targets across scales [7]. Related fusion modules were 135 
+
+proposed for dense prediction tasks. For example TBSFF-style mechanisms were 136 
+
+designed to combine multi-scale context with fine detail to improve segmentation 137 
+
+quality [8]. In recognition settings discriminative feature responses were emphasized by 138 
+
+channel attention. Background noise was reduced and localization of symptom patterns 139 
+
+was improved by spatial or coordinate attention. A SqueezeNext variant using 140 
+
+multi-scale kernels with coordinate attention was reported to produce fewer false 141 
+
+positives and sharper delineation of affected regions [9]. Collectively attention 142 
+
+mechanisms were shown to improve feature focus and robustness to scale variation. 143 
+
+However, the individual contribution of these components was often difficult to assess as 144 
+
+the datasets splits and training protocols were varied across studies. 145 
+
+## 0.3 Edge friendly models and the evaluation benchmarks 146 
+
+Limited compute resources, unstable power availability, and constrained memory 147 
+
+capacity often restricted practical use in real field deployments. To cope with these 148 
+
+constraints, lightweight and efficiency-focused designs were explored, aiming to reduce 149 
+
+inference time while maintaining accuracy. For real-time inference on embedded 150 
+
+platforms, mobile-oriented backbones—particularly MobileNet-style models—were 151 
+
+therefore adopted [10]. Through pruning, quantization, and knowledge distillation, 152 
+
+additional efficiency gains were achieved, enabling deployment on drones, tractors, and 153 
+
+April 23, 2026 4/25 
+
+> .CC-BY 4.0 International license available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is made The copyright holder for this preprint this version posted April 28, 2026. ;https://doi.org/10.64898/2026.04.24.720764 doi: bioRxiv preprint
+
+greenhouse cameras, although the resulting trade-offs were not always fully accounted 154 
+
+for. 155 
+
+Steadily, progress in this area continued, shaped by stronger datasets and 156 
+
+increasingly rigorous evaluation protocols, even if direct translation to real-world 157 
+
+reliability did not always occur. For broader comparison and protocol standardization, 158 
+
+large-scale benchmarks such as the AI Challenger 2018 Crop Disease Detection dataset 159 
+
+were utilized. Using a dual-branch model with efficient channel attention, competitive 160 
+
+benchmark performance was reported [11]. Label quality and dataset splitting strategies 161 
+
+were revisited in later studies, where external images were incorporated and lightweight 162 
+
+training schemes were adopted to improve balance and generalization [12]. Greater 163 
+
+emphasis was placed on leakage-free splits, cross-domain evaluation (e.g., cross-farm or 164 
+
+cross-season testing), and module-level ablations to isolate architectural effects. Still, 165 
+
+key challenges remained: long-tail imbalance persisted, small or densely clustered 166 
+
+targets were difficult to recognize, and the trade-off between accuracy and real-time 167 
+
+constraints continued as a practical limitation [13]. 168 
+
+## 0.4 Summary of gaps and motivation 169 
+
+As observed in literature, two gaps are repeatedly observed in practical field settings. 170 
+
+First, controlled comparisons under identical data splits and training protocols are often 171 
+
+not reported. Because of this, performance gains are sometimes attributed to 172 
+
+architectural components even when the protocol was different. Second, 173 
+
+deployment-oriented claims are frequently made without reporting model size or 174 
+
+parameter count or inference latency. As a result, reproducibility is claimed while 175 
+
+practical justification is not fully supported. 176 
+
+A unified multi-class formulation is emphasized in the present work. A lightweight 177 
+
+multi-scale contextual attention refinement is also emphasized. A controlled empirical 178 
+
+evaluation is conducted to isolate the effects of attention design and data augmentation. 179 
+
+However, these effects are isolated under a fixed and reproducible protocol, which may 180 
+
+still vary across experiments. 181 
+
+# Methodology 182 
+
+This section describes the pipeline that was utilized for building and evaluating the 183 
+
+proposed crop–condition recognition system. A curated dataset of 21,404 field-style 184 
+
+images spanning 15 labels was assembled and was quality-checked during preprocessing. 185 
+
+Reproducibility was treated as a first-class requirement while designing the workflow. 186 
+
+For that reason, the dataset was split into training, validation, and a held-out test set 187 
+
+before any augmentation, using a fixed random seed and stratified sampling [14]. At the 188 
+
+outset, before any training was carried out, resizing and normalization of images were 189 
+
+performed. Only on the training split was augmentation applied, with field variability 190 
+
+being emulated, while evaluation performance was not being inflated. 191 
+
+In the core design, a ResNet-50 feature extractor was being used, augmented with 192 
+
+the Multi-Scale Contextual Attention (MSCA) module, and followed by a lightweight 193 
+
+classification head, producing 15-way predictions. Based on validation performance, 194 
+
+hyperparameters were selected. Once on the frozen test set, final performance was 195 
+
+reported, using accuracy, macro-precision, macro-recall, macro-F1, and Matthews 196 
+
+Correlation Coefficient (MCC) [15]. In Figure 1, the end-to-end workflow was 197 
+
+summarized, while the overall processing stages were being illustrated. 198 
+
+April 23, 2026 5/25 
+
+> .CC-BY 4.0 International license available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is made The copyright holder for this preprint this version posted April 28, 2026. ;https://doi.org/10.64898/2026.04.24.720764 doi: bioRxiv preprint
+
+Fig 1. Overview of the proposed pipeline: dataset curation and split, training-only augmentation, ResNet-50 + MSCA feature learning, and 15-class prediction with reproducible evaluation. 
+
+## 0.5 The Data acquisition, labeling, and the split protocol 199 
+
+0.5.1 Dataset source and final 15-label taxonomy 200 
+
+Images in this study have been chosen based on the dataset that has been cited in the 201 
+
+article of [16] that contains the images of agricultural fields under natural conditions. 202 
+
+The acquisition was done on handheld devices as well as field cameras. 203 
+
+In the gathered images, there was observed diversity in terms of illumination, 204 
+
+background clutter hence real deployment conditions instead of controlled laboratory 205 
+
+environments. As a result, there were differences in the viewing angles and the visibility 206 
+
+of symptoms that were occasionally very high. 207 
+
+Based on this source, a single 15-label taxonomy was built with various crops and 208 
+
+pest or disease states. To reduce ambiguity and balance in the classes, visually similar 209 
+
+and low-frequency classes were combined; however, there were still some controversial 210 
+
+points of label boundaries. Table 15 labels were administered consistently and its spread 211 
+
+is reported in Table 1. 212 
+
+Each image was given only one image-level label which was the dominant crop and 213 
+
+condition. Ambiguous and poor quality samples were eliminated, thus improving label 214 
+
+reliability, but maintaining field variability. Overall, the dataset included 21,404 images, 215 
+
+and when partitioning the 70-15-15 splits were considered as target proportions not as 216 
+
+constraints. 217 
+
+Representative examples for the 15 labels are shown in Figure 2. The figure 218 
+
+illustrates visual diversity, symptom subtlety, and background complexity under field 219 
+
+imagery. 220 
+
+0.5.2 Labeling procedure for image-level classification 221 
+
+This work considered image-level multi-class classification, where-by the label of one 222 
+
+element in Table 1 to each image, so that the learning task was single-label 223 
+
+classification, as opposed to multi- instances interpretation. 224 
+
+The problem was not stated as object detection, and bounding boxes were not used 225 
+
+nor predicted by the model in the training process. This explanation was added to 226 
+
+April 23, 2026 6/25 
+
+> .CC-BY 4.0 International license available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is made The copyright holder for this preprint this version posted April 28, 2026. ;https://doi.org/10.64898/2026.04.24.720764 doi: bioRxiv preprint
+
+Table 1. Final 15-label taxonomy and class distribution used in this study (stratified 70–15–15 split). 
+
+ID Label name Total Train Val Test 
+
+0 Corn Common Rust 1,400 980 210 210 1 Corn Gray Leaf Spot 1,300 910 195 195 2 Healthy Corn 2,000 1,400 300 300 3 Corn Pest (Aphids/others) 1,500 1,050 225 225 4 Corn Leaf Blight 1,300 910 195 195 5 Maize Ear Rot 900 630 135 135 6 Maize Stem Borer 900 630 135 135 7 Healthy Maize 1,200 840 180 180 8 Rice Pest/Condition 2,800 1,960 420 420 9 Wheat Healthy 1,500 1,050 225 225 10 Wheat Pest/Condition 1,400 980 210 210 11 Wheat Yellow Rust 1,400 980 210 210 12 Cotton Pest/Condition 1,400 980 210 210 13 Sugarcane Pest/Condition 1,300 910 195 195 14 Millet Pest/Condition 1,104 773 166 165 
+
+- Total 21,404 14,983 3,211 3,210 
+
+Fig 2. Representative examples for the final 15 labels used in this study (label names and counts are defined in Table 1). avoid the possibility of confusing the detection style annotation tools and the desired 227 
+
+classification goal, but the visual look of the annotation interface might still give a hint 228 
+
+of a detection rig to the reader, especially when the experimental setup is being 229 
+
+surveyed in a hurry. 230 
+
+0.5.3 The Splitting protocol and leakage prevention 231 
+
+Through the experimental design, leakage prevention was addressed, as dataset splitting 232 
+
+was performed before any augmentation to enforce early separation. A 70–15–15 233 
+
+stratified protocol was applied to preserve per-class proportions [14], and reproducibility 234 
+
+was ensured by using a fixed random seed. Using perceptual similarity checks, 235 
+
+near-duplicate screening was carried out; duplicates were removed or confined to a 236 
+
+single split, although a few borderline cases still remain debatable. 237 
+
+Only the training set underwent augmentation. Apart from resizing and 238 
+
+normalization, which were applied uniformly, validation and test sets were kept 239 
+
+unchanged and were not treated as a source of leakage. Class imbalance was handled 240 
+
+mainly through training-only augmentation, and when helpful, class weighting in the 241 
+
+loss [17]. The test set was frozen for all experiments. Model selection relied only on 242 
+
+April 23, 2026 7/25 
+
+> .CC-BY 4.0 International license available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is made The copyright holder for this preprint this version posted April 28, 2026. ;https://doi.org/10.64898/2026.04.24.720764 doi: bioRxiv preprint
+
+Table 2. Training-time augmentation configuration (applied only on the training split). 
+
+Augmentation Setting / range 
+
+Random rotation ±25 ◦
+
+Random zoom [0 .90 , 1.10] Width/height shift ±10% of image size Horizontal flip Enabled (probability 0.5) Brightness jitter ±15% Contrast jitter ±15% Gaussian noise σ ∈ [0 , 0.02] (applied with prob. 0.3) validation performance. 243 
+
+For transparency, the file lists for training, validation, and test were actively saved as 244 
+
+CSV files containing image paths and label IDs. Where permitted, the split CSV files 245 
+
+and the training configuration, such as random seeds and key hyperparameters, will be 246 
+
+released to support reproducibility. Redistribution of the raw images may be restricted 247 
+
+due to licensing constraints of the original source dataset, but the split CSV files, label 248 
+
+taxonomy, and training configuration will be made available to enable reproducibility 249 
+
+and fair comparison. 250 
+
+## 0.6 Preprocessing and the augmentation 251 
+
+All images were resized to 256 × 256 RGB, and were normalized using the ImageNet 252 
+
+channel-wise mean and standard deviation [18, 19]. The same preprocessing was being 253 
+
+applied during training and during inference, thereby keeping processing behavior 254 
+
+consistent. By maintaining this consistency across splits, the input distribution was 255 
+
+being kept stable, therefore reducing the likelihood of evaluation being affected by 256 
+
+preprocessing drift or unintended variation. 257 
+
+0.6.1 Training-only augmentation (with explicit ranges) 258 
+
+Field images were observed to vary strongly in pose, scale, and lighting. Augmentation 259 
+
+was therefore utilized to improve robustness, and was applied only on the training split. 260 
+
+Augmentation was generated on-the-fly, so that the underlying split sizes remained 261 
+
+exactly as reported in Table 1. The configuration was summarized in Table 2, with 262 
+
+ranges being selected to mimic plausible field variation, while avoiding unrealistic 263 
+
+distortions, although some rotations were still considered slightly unnatural in certain 264 
+
+crop layouts. 265 
+
+The split-before-augment workflow is visualized in the given Figure 3. While the 266 
+
+representative augmented samples are shown to illustrate the type of variability 267 
+
+presented during training. However, the augmented examples are not intended to 268 
+
+represent the full range. 269 
+
+0.6.2 Optional image-mixing augmentation (feature fusion) 270 
+
+In addition to standard transforms, optional image-mixing was evaluated as a 271 
+
+regularizer. It was enabled only when validation macro-F1 improved. Unless stated 272 
+
+otherwise, the primary results correspond to the standard augmentation setting, and 273 
+
+image-mixing is treated as an ablation variant. 274 
+
+Let ( xi, y i) and ( xj , y j ) be two training samples with one-hot labels. A MixUp-style 275 
+
+fusion is defined as: 276 
+
+˜x = λx i + (1 − λ)xj , ˜y = λy i + (1 − λ)yj , (1) April 23, 2026 8/25 
+
+> .CC-BY 4.0 International license available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is made The copyright holder for this preprint this version posted April 28, 2026. ;https://doi.org/10.64898/2026.04.24.720764 doi: bioRxiv preprint
+
+Fig 3. Dataset preparation: split-before-augment to prevent leakage; augmentation applied only to training images; validation/test kept unchanged except resize/normalization. where λ ∼ Beta( α, α ) with α = 0 .2 in our implementation. For a CutMix-style variant, 277 
+
+a rectangular region is replaced and λ is proportional to the retained area. These 278 
+
+fusions are applied only within the training split [20, 21]. They are never applied to 279 
+
+validation or test data. 280 
+
+## 0.7 Model architecture 281 
+
+The proposed architecture contains three components. First is a ResNet-50 backbone. 282 
+
+Second is the MSCA attention module. Third is a lightweight classification head that 283 
+
+produces logits for 15 classes. The ordering is simple, although the attention block is 284 
+
+placed inside the backbone feature stream. 285 
+
+0.7.1 Backbone: ResNet-50 feature extractor 286 
+
+ResNet-50 was adopted to extract discriminative features while keeping computational 287 
+
+cost moderate [22]. ImageNet-pretrained weights were used for transferring generic 288 
+
+visual structure, and the network was then fine-tuned for adapting to field conditions 289 
+
+such as clutter illumination shifts, and partial occlusion [23]. Inputs were resized to 290 
+
+256 × 256 and were normalized using ImageNet statistics [18, 19]. 291 
+
+The canonical ResNet-50 topology was retained throughout the experiments. A 7 × 7 292 
+
+convolution with stride 2, followed by a 3 × 3 max-pooling operation, was used for 293 
+
+forming the stem [24]. Four residual stages were then used for producing progressively 294 
+
+lower-resolution feature maps. Intermediate features at 16 × 16 resolution were 295 
+
+forwarded to the MSCA module, which was considered effective for preserving spatial 296 
+
+detail. This stage was selected as providing a practical balance between spatial 297 
+
+resolution and semantic richness, whereas earlier layers were considered too low-level, 298 
+
+and later layers were observed to lose fine details due to repeated downsampling. Final 299 
+
+8 × 8 features were globally pooled for obtaining a 2048-dimensional representation [25]. 300 
+
+In a few preliminary runs, features from earlier stages were considered, but were not 301 
+
+retained due to unstable behavior being observed. 302 
+
+Fine-tuning was performed in two stages. First, the backbone was frozen and only 303 
+
+the head was trained. Second, upper stages were unfrozen gradually with a smaller 304 
+
+learning rate than the head. Weight decay and early stopping were used. Checkpointing 305 
+
+April 23, 2026 9/25 
+
+> .CC-BY 4.0 International license available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is made The copyright holder for this preprint this version posted April 28, 2026. ;https://doi.org/10.64898/2026.04.24.720764 doi: bioRxiv preprint
+
+Fig 4. Structure of the proposed Multi-Scale Contextual Attention (MSCA) module. Parallel dilated convolutions aggregate contextual information at multiple receptive-field scales, followed by channel and spatial attention refinement. The refined representation is fused with the input feature map through residual addition to preserve stable optimization. 
+
+Table 3. Conceptual comparison of MSCA with common attention mechanisms. Method Multi-scale Context Channel Attention Spatial Attention SE No Yes No CBAM No (single scale) Yes Yes (sequential) Pyramid Attention Yes (multi-stage) Yes Yes Proposed MSCA Yes (parallel dilated) Yes Yes (joint + residual) was driven by validation macro-F1. Mixed precision was enabled when supported to 306 
+
+improve throughput and reduce memory usage [26]. All settings affecting 307 
+
+reproducibility were logged, including seeds, unfreeze schedule, and learning rates [27]. 308 
+
+0.7.2 Attention: Multi-Scale Contextual Attention (MSCA) 309 
+
+MSCA is designed to improve symptom-focused learning under scale variation and 310 
+
+clutter. Diagnostic cues are emphasized while stable optimization is preserved through 311 
+
+residual fusion [28]. While the components are related to established multi-scale and 312 
+
+attention mechanisms, the novelty here lies in their lightweight integration within a 313 
+
+standard CNN and in the controlled evaluation that isolates their contribution under a 314 
+
+fixed protocol. To further clarify the novelty of the proposed MSCA module, it is 315 
+
+compared with attention mechanisms such as Squeeze-and-Excitation (SE), CBAM, and 316 
+
+pyramid attention designs. 317 
+
+The SE module focuses on channel recalibration. The spatial structure of the feature 318 
+
+map is not explicitly considered in SE, and contextual aggregation is obtained only 319 
+
+through global pooling. This improves channel selectivity but scale variation is not 320 
+
+directly addressed in field imagery. 321 
+
+The CBAM module extends SE by incorporating spatial attention after channel 322 
+
+attention. However, the attention operations in CBAM are performed on features 323 
+
+extracted at a single receptive-field scale. The contextual information was therefore 324 
+
+being limited to the inherent scale of the backbone feature map. In complex agricultural 325 
+
+scenes, where lesions and pests were appearing at different sizes and densities, such 326 
+
+single-scale processing was often being insufficient, even when deeper backbones were 327 
+
+being used. 328 
+
+April 23, 2026 10/25 
+
+> .CC-BY 4.0 International license available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is made The copyright holder for this preprint this version posted April 28, 2026. ;https://doi.org/10.64898/2026.04.24.720764 doi: bioRxiv preprint
+
+Pyramid attention mechanisms were being designed for capturing multi-scale 329 
+
+information. However, reliance was often placed on multi-stage feature pyramids, or on 330 
+
+heavy fusion across hierarchical levels. Such strategies were increasing model complexity 331 
+
+and computational cost, which were being considered unsuitable for 332 
+
+deployment-oriented agricultural systems, especially under memory constraints. 333 
+
+The proposed MSCA module was differentiated through three aspects. First, explicit 334 
+
+multi-scale contextual aggregation was being performed using parallel dilated 335 
+
+convolutions at a single intermediate feature level, with contextual information at 336 
+
+different receptive-field sizes being obtained simultaneously and fused before attention 337 
+
+refinement. Second, joint channel and spatial attention was being applied on the fused 338 
+
+representation, rather than being applied sequentially. Third, refined features were being 339 
+
+integrated with the original backbone features through residual fusion, with the original 340 
+
+signal being preserved and stable optimization being supported during fine-tuning. 341 
+
+The novelty of MSCA was therefore being defined by the efficient combination of 342 
+
+parallel multi-scale context extraction, lightweight joint attention refinement, and 343 
+
+residual integration within a standard ResNet backbone. The objective was not framed 344 
+
+as introducing a new backbone family, but as providing a deployment-aware refinement 345 
+
+mechanism, with its contribution being isolated through controlled ablation. A concise 346 
+
+conceptual comparison with SE, CBAM, and pyramid attention mechanisms was being 347 
+
+provided in Table 3. 348 
+
+Figure 4 illustrates the MSCA design. Parallel 3 × 3 convolutions with different 349 
+
+dilation rates capture contextual evidence at complementary receptive-field sizes. This 350 
+
+is useful in field imagery where lesions and pests can be small, sparse, or partially 351 
+
+occluded. The fused multi-scale features are then refined through lightweight channel 352 
+
+and spatial attention. Background responses are suppressed and diagnostically relevant 353 
+
+regions are emphasized. Finally, residual fusion preserves the original feature signal and 354 
+
+supports stable gradient flow during fine-tuning. 355 
+
+Let X ∈ RH×W ×C be an intermediate backbone feature map. MSCA applies K 356 
+
+parallel dilated convolutions (here K = 3 and dk ∈ { 1, 2, 3}) and fuses them: 357 
+
+Fk = ϕ(dk )3×3 (X), k = 1 , . . . , K, (2) 
+
+> 358
+
+Fms = ϕ1×1
+
+  F1 ∥ F2 ∥ · · · ∥ FK
+
+ ∈ RH×W ×C . (3) Channel attention is computed by global average pooling followed by a lightweight MLP: 359 
+
+zc = 1
+
+HW 
+
+> H
+
+X
+
+> i=1
+> W
+
+X
+
+> j=1
+
+Fms (i, j, c ), c = 1 , . . . , C, (4) 
+
+> 360
+
+a = σ W2 δ(W1z) ∈ RC , Mc = reshape( a) ∈ R1×1×C . (5) Spatial attention is obtained by pooling across channels and applying a small 361 
+
+convolution (we use k = 7): 362 
+
+U =  Avg c(Fms ) ; Max c(Fms )  ∈ RH×W ×2, (6) 
+
+> 363
+
+Ms = σ ϕk×k(U) ∈ RH×W ×1. (7) The refined output is produced via residual fusion: 364 
+
+Fout = X +  Fms ⊙ Mc ⊙ Ms
+
+, (8) where ϕ(dk )3×3 is a 3 × 3 convolution with dilation dk, ϕ1×1 is a 1 × 1 fusion convolution, 365 
+
+[·∥· ] denotes channel concatenation, δ(·) is ReLU, σ(·) is sigmoid, and ⊙ denotes 366 
+
+element-wise multiplication with broadcasting. 367 
+
+April 23, 2026 11/25 
+
+> .CC-BY 4.0 International license available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is made The copyright holder for this preprint this version posted April 28, 2026. ;https://doi.org/10.64898/2026.04.24.720764 doi: bioRxiv preprint
+
+Fig 5. Classifier head variants evaluated: (A) Flatten head, (B) Global Average Pooling (GAP) with nonlinearity, and (C) GAP with an additional fully connected layer. 
+
+## 0.8 Classification head, activation functions, and output 368 
+
+Refined features are mapped to class scores by a lightweight head. Global average 369 
+
+pooling is applied to the final tensor F ∈ R8×8×2048 to obtain h = GAP (F ) ∈ R2048 . A 370 
+
+fully connected layer produces logits z ∈ RC for C = 15 classes: 371 
+
+z = W h + b. (9) Softmax converts logits to probabilities: 372 
+
+pc = ezc
+
+PCj=1 ezj
+
+, c = 1 , . . . , C. (10) Training minimizes multi-class cross-entropy, optionally with class weights: 373 
+
+L = − 1
+
+N
+
+> N
+
+X
+
+> i=1
+> C
+
+X
+
+> c=1
+
+wc yic log pic . (11) When an intermediate nonlinearity is used in the head, LeakyReLU is applied to 374 
+
+support gradient flow under imbalance. Dropout ( p = 0 .3) is enabled only when 375 
+
+validation macro-F1 improves. The head variants evaluated in ablations are summarized 376 
+
+in Figure 5. 377 
+
+## 0.9 Hyperparameter tuning and implementation details 378 
+
+Hyperparameters were tuned using the validation split to improve generalization and 379 
+
+reduce overfitting [29]. Adam was used with β1 = 0 .9, β2 = 0 .999, ϵ = 10 −8, initial 380 
+
+learning rate 10 −4, and batch size 32. A cosine decay schedule was adopted. Early 381 
+
+stopping was driven by validation macro-F1 [30]. During fine-tuning, differential 382 
+
+learning rates were applied, with the head learning faster than the 383 
+
+backbone.Regularization was provided through weight decay. Where supported, mixed 384 
+
+precision was enabled to improve throughput and training stability [26]. In several runs, 385 
+
+early stopping was triggered sooner than expected because validation behavior was 386 
+
+April 23, 2026 12/25 
+
+> .CC-BY 4.0 International license available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is made The copyright holder for this preprint this version posted April 28, 2026. ;https://doi.org/10.64898/2026.04.24.720764 doi: bioRxiv preprint
+
+Table 4. Hardware and software configuration used for training and evaluation. 
+
+Component Specification 
+
+Processor Intel Core i7-7800 CPU RAM 16 GB GPU NVIDIA A100 / NVIDIA V100 (DGX) Operating System Ubuntu 16.04 Programming Language Python 3.9 Framework Keras + TensorFlow Optimizer Adam ( β1=0 .9, β2=0 .999, ϵ=10 −8)Initial Learning Rate 10 −4 (cosine decay) Batch Size 32 Head activation (if used) LeakyReLU Early stopping criterion Validation macro-F1 noisy, meaning that the best checkpoint was not always found near the final epoch, 387 
+
+which made comparisons across runs less straightforward. 388 
+
+Using Python 3.9, experiments were conducted with Keras built on top of 389 
+
+TensorFlow and executed in Ubuntu-based environments. Training epochs were run on 390 
+
+NVIDIA A100 and V100 GPUs, while random seeds, split CSV files, optimizer settings, 391 
+
+and scheduler parameters were recorded to support reproducibility [31]. Summarized in 392 
+
+Table 4 is the overall training and evaluation setup, although some configuration details 393 
+
+were reused across experiments rather than varied. 394 
+
+## 0.10 Inference and deployment-oriented profiling 395 
+
+At the inference time every input image was resized to a square size of 256 × 256, 396 
+
+transformed into the RGB colour space, and normalised using the same statistical 397 
+
+parameters used in the training. A ResNet-50 backbone, Multi-Scale Contextual 398 
+
+Attention (MSCA) module, global average pooling layer and a classification head were 399 
+
+then applied to the pre-processed tensor, producing a probability distribution over 15 400 
+
+classes. In order to improve throughput in a real-world situation, a batch inference on a 401 
+
+graphics card was conducted. Unless indicated in an ablation study, test-time 402 
+
+augmentation was not used at all [32]. Uninterrupted preprocessing is required when 403 
+
+deployed; inconsistencies in the required pipeline would modify the reported 404 
+
+performance measures. 405 
+
+To facilitate the arguments about the suitability of deployment, the computational 406 
+
+characteristics were profiled with the hardware configuration in Table 4. The overall 407 
+
+number of parameters was taken in the model summary, and latency was computed as 408 
+
+the median execution time in several forward passes after a warm-up period without 409 
+
+data-loading delays. Standard profiling tools estimated the floating-point operations 410 
+
+(FLOPS) of variants of the model with a fixed input resolution of (256 × 256). To control 411 
+
+comparability, measurements were made on the same software stack and preprocessing 412 
+
+pipeline. The given accuracies were also provided with the latency and FLOP numbers, 413 
+
+thus, correlating recognition performance with the deployability, but variability over run 414 
+
+time and hardware environment was still and could not be controlled completely. 415 
+
+## 0.11 Evaluation protocol and metrics 416 
+
+The evaluation had a strict protocol. After picking the model that performs best on the 417 
+
+validation split, the model was frozen and then tested on the held-out test set a single 418 
+
+time only [15]. No augmentation was done to the test set and normalisation and resizing 419 
+
+were done only. Reported were accuracy, macro-precision, macro-recall, macro-F1 and 420 
+
+April 23, 2026 13/25 
+
+> .CC-BY 4.0 International license available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is made The copyright holder for this preprint this version posted April 28, 2026. ;https://doi.org/10.64898/2026.04.24.720764 doi: bioRxiv preprint
+
+Matthews correlation coefficient (MCC). Per-class metrics were averaged to obtain 421 
+
+macro scores, and multi-class confusion Table was computed to obtain MCC. All 422 
+
+ablation experiments and controlled comparisons were done using the same data split 423 
+
+and random seed, with variations of the auxiliary head, augmentation strategies, the 424 
+
+presence or absence of MSCA activation, and changes in backbone depth. This method 425 
+
+enabled the direct comparison and reduced the possibilities of variability analysis. 426 
+
+In the experiments of ablation, only one component (e.g., the MSCA module) was 427 
+
+altered, but the data split, optimiser settings, learning schedule, and random seed were 428 
+
+kept fixed. This design allowed architectural effects to contend with performance 429 
+
+variations, but a single frozen test set exposed sampling effects to bias; it was also 430 
+
+vulnerable to sampling noise effects due to the reliance on only one set of tests at a 431 
+
+time, as opposed to experimentation with multiple sets of tests at once that could be 432 
+
+reused and pooled together later in the analysis [33]. 433 
+
+# Results and Discussions 434 
+
+The proposed universal crop condition recognition system was tested on the real field 435 
+
+images. A ResNet- 50 backbone was used with the MSCA module in the inference 436 
+
+pipeline and it was trained on 21404 images of fifteen semantic categories. There was no 437 
+
+control of visual conditions, cluttered backgrounds, partial occlusions and fluctuating 438 
+
+illumination in most samples; a number of classes were harder to identify due to tiny or 439 
+
+low-contrast manifestations of symptoms. 440 
+
+A held-out test split was fixed and not observed during training and hyperparameter 441 
+
+optimization and only the last checkpoint was chosen based on validation macro-F1. 442 
+
+Despite the fact that more robust statistical approximations might have been achieved 443 
+
+through cross-validation or repeated random splits, they were considered less 444 
+
+representative of the deployment situations, in which a model is trained once and tested 445 
+
+once using an unknown set. 446 
+
+Robustness was tested by stable dynamics of learning, and controlled ablation studies 447 
+
+which performed under the same split and random seed. The comparative framework 448 
+
+therefore enabled analysis of model variants whilst maintaining a realistic deployment 449 
+
+scenario. Among the reported results are learning dynamics, held-out performance, 450 
+
+MSCA and augmentation ablations, class-wise behaviour on a balanced diagnostic 451 
+
+subset, backbone-depth comparisons, deployment-oriented profiling and an indicative 452 
+
+comparison to recent literature, but not all these aspects were given equal weighting. 453 
+
+## 0.12 Learning curves and training stability 454 
+
+Before test performance was discussed, convergence and generalization were verified by 455 
+
+examining the learning curves. For field imagery, this step was considered important, 456 
+
+since deep models can learn shortcut cues from background texture when regularization 457 
+
+is weak. Shown in Figures 6 and 7 are training and validation accuracy and loss over 20 458 
+
+epochs for ResNet-50 + MSCA. 459 
+
+Convergence overall appeared smooth. Within the allocated training budget, 460 
+
+performance reached a stable region, although minor validation fluctuations remained 461 
+
+visible and were not analyzed further. 462 
+
+Since about 0.25 the training accuracy had improved and the ultimate epochs had 463 
+
+an almost 0.96 accuracy. The accuracy of validation increased exponentially, and it did 464 
+
+not decrease throughout the training. A nudging greater validation than training 465 
+
+accuracy might seem counterintuitive in this arrangement, but nonetheless observed in 466 
+
+practice. The process of training is augmented and regularized to introduce greater 467 
+
+April 23, 2026 14/25 
+
+> .CC-BY 4.0 International license available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is made The copyright holder for this preprint this version posted April 28, 2026. ;https://doi.org/10.64898/2026.04.24.720764 doi: bioRxiv preprint
+
+Fig 6. Training and validation accuracy over 20 epochs. 
+
+Fig 7. Training and validation loss over 20 epochs. randomness, and validation is conducted more fixedly. This kind of tendency is common 468 
+
+when the evaluation is intentionally harder than training is made to be [34]. 469 
+
+In accordance with the trends of accuracy, the loss curves represent consistent 470 
+
+optimization. The loss on training reduced to approximately 2.6 and validation loss 471 
+
+reduced to approximately 0.1 and there are only minor peaks and valleys on the loss at 472 
+
+subsequent epochs. No significant persistent generalization gap was observed and 473 
+
+overfitting is thus said to be controlled as per the chosen training schedule and 474 
+
+augmentation policy. Based on this, the validation macro-F1 is used in the selection of 475 
+
+final checkpoints since multiple late checkpoints have the same level of performance, and 476 
+
+the overall training dynamics are consistent. 477 
+
+## 0.13 Overall held-out test performance 478 
+
+Evaluation of the held out test set was done once after selecting the best checkpoint 479 
+
+through validation macro-F1. The same preprocessing was used during training and 480 
+
+testing, including resizing to 256 × 256 and ImageNet-style normalization, and the 481 
+
+distribution of inputs was kept the same. The main report did not use any test-time 482 
+
+April 23, 2026 15/25 
+
+> .CC-BY 4.0 International license available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is made The copyright holder for this preprint this version posted April 28, 2026. ;https://doi.org/10.64898/2026.04.24.720764 doi: bioRxiv preprint
+
+Table 5. Overall held-out test set performance for the ResNet-50 + MSCA model (macro-averaged). 
+
+Metric Value 
+
+Accuracy 0.93 Precision 0.94 Recall 0.93 F1 Score 0.94 
+
+Table 6. Overall prediction outcomes on the held-out test set. 
+
+Prediction outcome Number of samples 
+
+Correctly predicted samples 2999 Incorrectly predicted samples 211 Total test samples 3210 augmentation or any calibration, so the metrics would reflect the raw classifier behavior. 483 
+
+In the 15 labels, the macro-averaged performance is summarized in Table 5. 484 
+
+There is a high degree of proximity between the metric values implying fairly 485 
+
+balanced behaviour among classes. Precision does not improve at the cost of recall nor 486 
+
+do recall improvements incur at the cost of the precision. The fact that such balance 487 
+
+exists implies that the remaining errors can be primarily due to the really hard visual 488 
+
+cases, and not to the mere effect of thresholding or calibration, but this interpretation is 489 
+
+not directly confirmed. 490 
+
+The results of the prediction on the held-out test set are summarized in Table 6. 491 
+
+The overall accuracy of the test is 93.38% with 2,999 correct classifications, and 211 492 
+
+incorrect classifications. This summary offers a direct perspective of the absolute error 493 
+
+volume in realistic field conditions, which adds to the reported macro-averaged metrics, 494 
+
+but the behavior of the classes is not completely described. 495 
+
+## 0.14 The Controlled ablations: isolating MSCA, augmentation, 496 
+
+## and head effects 497 
+
+When clearly isolated as to the source of improvement, more confidence is gained as to 498 
+
+the accuracy of the report. Controlled ablations were performed using the same data 499 
+
+split, random seed, but with one factor held constant whilst the rest of the settings were 500 
+
+held constant. This way, MSCA, augmentation, and classifier head design were analyzed 501 
+
+separately and results of the test-sets were reported in Table 7. To maintain internal 502 
+
+baseline the split, training schedule and evaluation protocol were kept constant and in 503 
+
+this way, it was possible to attribute gains in performance more accurately than when 504 
+
+comparing cross-papers though it is still required to assume that optimization behavior 505 
+
+was maintained. Measurable gains are shown in Table 7 when MSCA is enabled under 506 
+
+identical training conditions. With augmentation applied, macro-F1 rises from 0.920 to 507 
+
+0.937 (+0 .017), while without augmentation an increase from 0.890 to 0.909 (+0 .019) is 508 
+
+observed. Under augmentation, a similar trend is followed by MCC, which increases 509 
+
+from 0.912 to 0.929 (+0 .017). Reported separately is an optional MixUp regularizer, 510 
+
+whereas the default configuration—unless otherwise stated—combines MSCA with 511 
+
+standard augmentation and a GAP-based head, a detail that is not always immediately 512 
+
+clear from the table layout. Consistent improvement over the plain ResNet-50 baseline 513 
+
+is therefore provided by MSCA when the protocol remains unchanged. Improved 514 
+
+generalization under field variability is also associated with augmentation, and when 515 
+
+augmentation is removed, a clear performance drop occurs for both the baseline and the 516 
+
+MSCA-enhanced model. Third, final performance depends on the classifier head design, 517 
+
+April 23, 2026 16/25 
+
+> .CC-BY 4.0 International license available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is made The copyright holder for this preprint this version posted April 28, 2026. ;https://doi.org/10.64898/2026.04.24.720764 doi: bioRxiv preprint
+
+Table 7. Ablation study on the held-out test set using a fixed data split and controlled training settings. 
+
+Setting Acc. Macro-P Macro-R Macro-F1 MCC 
+
+ResNet-50 (no MSCA) + augmentation 0.919 0.923 0.918 0.920 0.912 ResNet-50 + MSCA + augmentation 0.934 0.941 0.933 0.937 0.929 
+
+ResNet-50 (no MSCA), no augmentation 0.892 0.895 0.889 0.890 0.879 ResNet-50 + MSCA, no augmentation 0.908 0.912 0.906 0.909 0.898 Head: Flatten (MSCA + augmentation) 0.925 0.931 0.924 0.928 0.919 Head: GAP (MSCA + augmentation) 0.930 0.936 0.929 0.932 0.924 
+
+Table 8. Multi-seed evaluation results (mean ± standard deviation) over three independent runs using the same fixed data split. 
+
+Metric Mean Std. 
+
+Accuracy 0.934 0.004 Macro-Precision 0.941 0.003 Macro-Recall 0.933 0.004 Macro-F1 0.937 0.003 with GAP-based heads showing more stable behavior than flattening approaches, and 518 
+
+the best overall variant under this protocol arising from a GAP-style configuration. 519 
+
+## 0.15 Multi-seed evaluation and result stability 520 
+
+Stability beyond a single initialization was assessed utilizing a multi-seed evaluation. 521 
+
+The same fixed train–validation–test split was retained, and the experiment was 522 
+
+repeated with three different random seeds. The data split was unchanged, similarly, 523 
+
+the Preprocessing and augmentation were kept the same. Optimizer settings and the 524 
+
+learning schedule were also kept unchanged. This design isolates the effect of random 525 
+
+initialization. Stable performance across different random initializations is indicated by 526 
+
+the small standard deviations reported in Table 8. It is therefore suggested that the 527 
+
+observed gains are not driven by a single favorable seed, but instead reflect consistent 528 
+
+improvements linked to the architectural design, although other sources of variance were 529 
+
+not examined explicitly. 530 
+
+## 0.16 Statistical significance analysis 531 
+
+To determine whether the model behavior was consistent as opposed to stochastic 532 
+
+variation, statistical significance testing was conducted in order to ascertain whether the 533 
+
+observed improvements were a reflection of the model behavior or not. The reason 534 
+
+paired testing was considered suitable to this environment was that all the variants were 535 
+
+trained and tested on the same fixed data split. A paired t-test was used to compare 536 
+
+the ResNet-50 +MSCA with the baseline of ResNet-50 no MSCA module. The data 537 
+
+were in the form of Macro-F1 scores that were obtained after three separate runs, with 538 
+
+each run being initialized in a different random seed, and the training and evaluation 539 
+
+settings being the same. The importance of the different performances in the null 540 
+
+hypothesis of same model performance is indicated by the p -values obtained, but the 541 
+
+number of runs is very low and may limit the statistical power of the analysis. The 542 
+
+statistical analysis supported the fact that the performance increase achieved when the 543 
+
+MSCA module gets implemented is statistically significant at the 95% confidence level. 544 
+
+This is consistent with the conclusion that the apparent gains are due to the 545 
+
+architecture design and not the random variation between the different runs; however, 546 
+
+better accuracy of the estimate can be achieved by adding more random seeds. 547 
+
+April 23, 2026 17/25 
+
+> .CC-BY 4.0 International license available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is made The copyright holder for this preprint this version posted April 28, 2026. ;https://doi.org/10.64898/2026.04.24.720764 doi: bioRxiv preprint
+
+Table 9. Statistical significance testing using paired t-test across three independent runs. 
+
+Comparison Metric p-value 
+
+ResNet-50 vs. ResNet-50 + MSCA Macro-F1 < 0.05 
+
+Table 10. Quantitative comparison with established deep learning baselines on the held-out test set. All models were evaluated under the same training and evaluation protocol. 
+
+Model Accuracy Macro-P Macro-R Macro-F1 
+
+EfficientNet-B0 0.912 0.916 0.910 0.913 EfficientNet-B3 0.918 0.922 0.917 0.919 Vision Transformer (ViT-B/16) 0.905 0.909 0.902 0.905 Attention-based CNN (CBAM) 0.921 0.926 0.920 0.923 
+
+Proposed ResNet-50 + MSCA 0.934 0.941 0.933 0.937 
+
+## 0.17 Comparison with established deep learning baselines 548 
+
+The effectiveness of the MSCA enhanced architecture was validated by carrying out 549 
+
+direct comparative analyses. The assessments were conducted on EfficientNet and a 550 
+
+Vision Transformer, with attention based convolutional neural network being used as an 551 
+
+extra baseline. Training was done on all the models with the same fixed data division, 552 
+
+the same preprocessing, augmentation, and optimizer. The evaluation protocol was 553 
+
+applied equally to each model to identify comparability and also to counter the 554 
+
+confounding variability, but still, there can be residual differences in optimization 555 
+
+behaviors that can be obtained since there was architectural variance. Under field 556 
+
+imagery circumstances of clutter, varying illumination and a mix of scale, recognition 557 
+
+performance was measured therefore permitting the variations to be ascribed more to 558 
+
+architectural design and not necessarily to variations in the training arrangement. As 559 
+
+shown in Table 10 the proposed ResNet-50 + MSCA model is outperforming the 560 
+
+evaluated baselines across the reported metrics. The gain is being observed most clearly 561 
+
+in macro-F1, reflecting balanced behavior across classes, with varying visual difficulty. 562 
+
+Transformer-based models are providing strong representational capacity, but their 563 
+
+performance, under the given data regime and field variability, is remaining slightly 564 
+
+lower than the proposed approach. Overall, the results are suggesting that combining 565 
+
+explicit multi-scale contextual aggregation with lightweight attention refinement is 566 
+
+remaining effective, particularly for fine-grained agricultural image classification, when 567 
+
+complex and cluttered scenes are being handled. 568 
+
+## 0.18 Per-class behavior and error patterns on a balanced 569 
+
+## diagnostic subset 570 
+
+Aggregate metrics can hide which classes are difficult and why they fail. To make 571 
+
+per-class precision and recall directly comparable, we evaluate on a balanced diagnostic 572 
+
+subset containing 50 images per class, for a total of 750 images. This diagnostic subset 573 
+
+supports clearer error interpretation because differences are not confounded by class 574 
+
+frequency. The Table 11 reports per-class precision, recall, F1, and support scores. 575 
+
+Some of the classes have very high recall with Corn Common Rust, Healthy Maize, and 576 
+
+Sugarcane Pest/Condition recording 0.98 recall with high F1s. In the case of these 577 
+
+labels, performance is constantly high. Much more difficult behavior is observed in Rice 578 
+
+Pest/Condition, Wheat Healthy and Wheat Yellow Rust whereby recall is 0.86 and the 579 
+
+precision is high, indicating a conservative decision behavior. The pattern can be 580 
+
+attributed to field situations where the symptoms are low, spatially small, or even 581 
+
+April 23, 2026 18/25 
+
+> .CC-BY 4.0 International license available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is made The copyright holder for this preprint this version posted April 28, 2026. ;https://doi.org/10.64898/2026.04.24.720764 doi: bioRxiv preprint
+
+Table 11. Per-class precision/recall/F1 on a balanced diagnostic subset (50 images per class; total 750). 
+
+## ID Label Prec. Rec. F1 Support 
+
+## 0 Corn Common Rust 0.91 0.98 0.94 50 1 Corn Gray Leaf Spot 0.94 0.96 0.95 50 2 Healthy Corn 0.96 0.90 0.93 50 3 Corn Pest (Aphids/others) 0.90 0.94 0.92 50 4 Corn Leaf Blight 0.94 0.92 0.93 50 5 Maize Ear Rot 0.90 0.90 0.90 50 6 Maize Stem Borer 0.94 0.90 0.92 50 7 Healthy Maize 0.91 0.98 0.94 50 8 Rice Pest/Condition 0.93 0.86 0.90 50 9 Wheat Healthy 0.94 0.86 0.90 50 10 Wheat Pest/Condition 0.94 0.96 0.95 50 11 Wheat Yellow Rust 0.98 0.86 0.91 50 12 Cotton Pest/Condition 0.92 0.96 0.94 50 13 Sugarcane Pest/Condition 0.94 0.98 0.96 50 14 Millet Pest/Condition 0.92 0.96 0.94 50 
+
+## - Macro avg 0.93 0.93 0.93 750 overlapping in a visual image with different illumination. The noted error patterns have 582 
+
+typical features of field imagery. The lesions that occupy a small fraction of the image 583 
+
+are commonly missed, lesions that overlap foliage partially are sometimes missed, and 584 
+
+lesions that are underbacklit are sometimes missed because of low contrast. In such 585 
+
+cases, attention can occasionally disperse in other parts of the leaf such as veins and 586 
+
+areas of homogenous texture as opposed to highlighting edges of lesions, a factor that 587 
+
+complicates the separation of homogenous conditions. Specific augmentation of small or 588 
+
+low-contrast symptoms is thus driven, along with more-resolution or tiling inference in 589 
+
+case deployment supports that. Attention-based visualizations were subject to 590 
+
+qualitative analysis to determine model focus. The annotations of lesions at pixel level 591 
+
+were not provided and quantitative analysis was not performed because expert 592 
+
+validation was not performed. Nevertheless, the focus is still more likely to be around 593 
+
+lesion areas or pest clusters in correctly rated samples, and diffuse attention across veins 594 
+
+or smooth areas is found in false ones. The results of such observations can serve as 595 
+
+qualitative data to prove that MSCA contributes to symptom-oriented learning, but 596 
+
+there are still cases when attention refinement is quite difficult. 597 
+
+## 0.19 Effect of backbone depth under a controlled setting 598 
+
+Recognition performance is influenced by backbone depth, particularly in field imagery 599 
+
+where subtle textures and strong scale variation are present [35]. To quantify this effect, 600 
+
+three residual backbones were trained using the same data split, augmentation policy, 601 
+
+loss function, and early-stopping criterion, while MSCA was kept enabled throughout. 602 
+
+Variation was restricted to backbone depth only. Reported in Table 12 are the held-out 603 
+
+accuracy and loss for ResNet-18, ResNet-34, and ResNet-50, enabling a controlled 604 
+
+comparison that isolates depth-related effects. The highest accuracy and the lowest loss 605 
+
+are achieved by ResNet-50 in this controlled comparison. Likely captured by the deeper 606 
+
+backbone are stronger hierarchical features, which becomes relevant when overlapping 607 
+
+April 23, 2026 19/25 
+
+> .CC-BY 4.0 International license available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is made The copyright holder for this preprint this version posted April 28, 2026. ;https://doi.org/10.64898/2026.04.24.720764 doi: bioRxiv preprint
+
+Table 12. Held-out test accuracy and loss for residual backbones (all with MSCA enabled). 
+
+Model Accuracy (%) Loss 
+
+ResNet-18 90.71 0.1610 ResNet-34 89.42 0.1119 ResNet-50 93.38 0.06153 
+
+Table 13. Deployability-oriented profiling at 256 × 256 input. FLOPs are estimated; latency is the median forward-pass time after warm-up. 
+
+Model Params (M) Size (MB) FLOPs (G) Lat. A100 
+
+ResNet-50 (15-class head) 25.8 98 5.1 2. ResNet-50 + MSCA (proposed) 27.2 103 5.6 2. textures and small symptom regions are common in field imagery. Although a lower loss 608 
+
+is observed for ResNet-34 than for ResNet-18, its accuracy is slightly reduced, a 609 
+
+behavior that may arise from differences in confidence calibration under cross-entropy 610 
+
+optimization. Based on these observations, ResNet-50 is retained as the default 611 
+
+backbone for the proposed MSCA-enhanced recognition system. 612 
+
+## 0.20 Deployment-oriented profiling 613 
+
+The usability in the context of real-world precision-agriculture processes cannot be 614 
+
+guaranteed only with the high accuracy; there are other limitations like manageable 615 
+
+memory usage, affordable computational complexity, and the latency that makes timely 616 
+
+decisions, among others, which need to be met in practice. With the configuration as 617 
+
+seen in Table 4, the number of parameters, the size of the approximate model, the 618 
+
+number of FLOPs, and the median inference time at the resolution of 256 × 256are as 619 
+
+follows. Mean forward pass latency is the forward pass latency at the end of the 620 
+
+warm-up period, and omit any data loading and preprocessing delays, but remain 621 
+
+potentially significant to the overall end to end timing in real system implementations. 622 
+
+The MSCA presents a quantifiable change in the computational load, but the 623 
+
+deployment requirements are met. Since inference is possible on smartphones, drones, or 624 
+
+any other embedded agricultural systems, efficiency is a major priority. Modern GPUs 625 
+
+can preserve near-real time performance with the extra attention branches, and can be 626 
+
+deployed to the edge with feasibility through optimization. The moderate increase in 627 
+
+the count of parameters and FLOPs points to the trade-off between contextual 628 
+
+refinement and efficiency which is considered to be acceptable within the fixed 629 
+
+evaluation protocol. Parallel convolutional filters and lightweight attention projections 630 
+
+are added leading to slight growth in the number of parameters. FLOPs increase as well 631 
+
+due to enlargement of receptive-fields by dilated branches; however, at the chosen 256 632 
+
+by 256 resolution, still, the expansion is restrained. On a GPU, A100, it achieves a low 633 
+
+per-image latency; on an i7 CPU it exhibits higher latency, but appreciable latency 634 
+
+reduction can be achieved by use of quantization, FP16 inference, or run-time 635 
+
+optimization. Even though the results of profiling vary depending on the specifics of 636 
+
+implementation, they show that, under the right deployment settings, it is possible to 637 
+
+support near-real-time field monitoring.. 638 
+
+## 0.21 Indicative comparison with recent literature 639 
+
+The beneath Table 14 summarizes some of the recent research results which are simply 640 
+
+given to put the research findings in context. This comparison is not supposed to be a 641 
+
+strict standard, but rather an indication one, as datasets, label spaces, acquisition 642 
+
+April 23, 2026 20/25 
+
+> .CC-BY 4.0 International license available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is made The copyright holder for this preprint this version posted April 28, 2026. ;https://doi.org/10.64898/2026.04.24.720764 doi: bioRxiv preprint
+
+Table 14. Representative plant/crop recognition results in the literature (indicative comparison).                               
+
+> Reference Classes Dataset source Conditions Model Accuracy (%)
+> [7] 4Own collected In-field Inception/VGG variant 80.38 [8] 4PlantVillage Lab VGG + Inception modules 84.25 [6] 4PlantVillage Lab CNN (author design) 90.80 [5] 8Own collected In-field Custom CNN 92.85
+> Ours 15 Curated dataset In-field ResNet-50 + MSCA 93.38
+
+conditions and train test protocols differ significantly among existing literature. Direct 643 
+
+numerical comparison is not necessarily always significant especially since most studies 644 
+
+use laboratory-type datasets or smaller sets of classes. Instead of arguing that it is 645 
+
+absolutely better than a heterogeneous evaluation environment, performance on 646 
+
+field-style imagery with a richer label taxonomy is put in context. Many existing 647 
+
+methods have been used to report results on controlled datasets with cleaner 648 
+
+backgrounds and lower levels of environmental variability. Contrarily, the suggested 649 
+
+framework is tested on field imagery where the background is cluttered, there are 650 
+
+partial occlusions, and sudden illumination variations, with covering a larger crop and 651 
+
+pest/condition label space. In such practical circumstances, the achieved accuracy 652 
+
+measures the strength of the learnt feature representations and not performance in the 653 
+
+case of idealized acquisition conditions, but the comparison is not necessarily 654 
+
+coincidental. Under field-style acquisition and a 15-class taxonomy, 93.38% accuracy is 655 
+
+achieved by the proposed approach. Effective discrimination of visually similar 656 
+
+conditions in complex scenes is enabled by combining a residual backbone with 657 
+
+multi-scale contextual attention. Caution, however, should be exercised when 658 
+
+interpreting cross-study comparisons, since variations in label definitions and 659 
+
+experimental protocols can shift reported metrics. Unlike aggregated cross-paper 660 
+
+summaries, direct and controlled baselines are provided in Section 0.17, where modern 661 
+
+CNN and transformer-based architectures are evaluated under identical conditions. 662 
+
+## 0.22 Summary, limitations, and practical implications 663 
+
+Overall, the main design choice is supported by the reported results. Under a controlled 664 
+
+protocol, consistent improvements are yielded by MSCA over the non-attention baseline, 665 
+
+while robust invariances under field variability are actively learned through 666 
+
+augmentation. Where performance is weaker is clarified by the class-wise diagnostic 667 
+
+analysis, with recall reductions being concentrated in cases involving small or 668 
+
+low-contrast symptoms. In unconstrained field imagery, such failure modes are expected. 669 
+
+Several limitations are also acknowledged. From a single curated source, all images were 670 
+
+obtained, and cross-dataset or cross-region evaluation was not performed; therefore, 671 
+
+performance under unseen geographic regions, imaging devices, or seasonal variation 672 
+
+cannot be directly quantified. As image-level classification, the task is formulated, and 673 
+
+pixel-level or region-level annotations are not available, which limits quantitative 674 
+
+evaluation of localization accuracy and attention alignment. Across pest or condition 675 
+
+categories, some labels were aggregated; granularity was reduced by this choice, but 676 
+
+sufficient sample sizes and annotation reliability were preserved. The findings are not 677 
+
+invalidated by these constraints, although directions for future work are clearly 678 
+
+motivated. An important deployment concern remains generalization beyond the 679 
+
+evaluated dataset. Substantial variation is exhibited by field imagery in lighting, 680 
+
+background clutter, occlusion patterns, crop varieties, and acquisition devices. Although 681 
+
+diverse field-style images are included, explicit external evaluation was not conducted. 682 
+
+The reported results should therefore be interpreted as evidence of robustness within 683 
+
+the current data domain rather than as a guarantee of cross-domain transfer, and future 684 
+
+April 23, 2026 21/25 
+
+> .CC-BY 4.0 International license available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is made The copyright holder for this preprint this version posted April 28, 2026. ;https://doi.org/10.64898/2026.04.24.720764 doi: bioRxiv preprint
+
+work should incorporate cross-dataset and cross-season validation to assess 685 
+
+transferability more directly. Generalization is still targeted by the adopted design 686 
+
+choices. Field-style imagery with strong variability is used during training, while 687 
+
+augmentation is applied only to the training subset. Contextual and scale-robust 688 
+
+features are emphasized by attention refinement, instead of learning dataset-specific 689 
+
+shortcuts. Transfer to related agricultural monitoring scenarios is expected to be 690 
+
+supported by these factors, although confirmation through external validation remains 691 
+
+necessary. Practical improvements are also suggested by the observations. Tiny lesions 692 
+
+and low-contrast patterns can be amplified through targeted augmentations. For 693 
+
+early-stage symptoms, higher-resolution or tiled inference may be employed when 694 
+
+deployment budgets allow. Quantitative interpretability evaluation would be enabled by 695 
+
+region-level annotations. With such refinements, improved reliability can be achieved by 696 
+
+the unified pipeline for real monitoring workflows, while reproducibility and 697 
+
+deployment-oriented evaluation are preserved. 698 
+
+# Conclusion 699 
+
+An image-based system for unified crop and pest/condition recognition was evaluated 700 
+
+under realistic field conditions, using a ResNet-50 backbone augmented with a 701 
+
+lightweight Multi-Scale Contextual Attention (MSCA) module and trained on 21,404 702 
+
+images across 15 classes with a fixed, leakage-aware protocol. During training, stable 703 
+
+convergence was observed, and clarity was improved through more explicit description 704 
+
+of the MSCA design, dataset preparation, and evaluation strategy. On the held-out test 705 
+
+set, an accuracy of 0.93 and a macro-F1 of 0.94 were achieved, with precision and recall 706 
+
+remaining closely aligned. Under identical settings, controlled ablations demonstrated 707 
+
+consistent gains over the non-attention baseline, and from the backbone-depth 708 
+
+comparison it was evident that ResNet-50 outperformed shallower variants. Class-wise 709 
+
+behavior was largely even. Lower recall nevertheless appeared in a small number of 710 
+
+labels involving tiny, faint, or occluded symptoms, where attention sometimes diffused 711 
+
+toward veins or uniform texture regions rather than focusing sharply. Suitable for 712 
+
+decision support in field scouting is the overall pipeline, which also compares favorably 713 
+
+with laboratory-focused studies. Still, it remains limited by the absence of cross-dataset 714 
+
+evaluation and explicit localization, motivating future work on targeted augmentation, 715 
+
+higher-resolution inference, and broader regional validation. 716 
+
+# References 
+
+1. Ngugi HN, Ezugwu AE, Akinyelu AA, Abualigah L. Revolutionizing crop disease detection with computational deep learning: a comprehensive review. Environmental Monitoring and Assessment. 2024;196(3). doi:10.1007/s10661-024-12454-z. 2. Hu K, Wang Z, Coleman G, Bender A, Yao T, Zeng S, et al. Deep learning techniques for in-crop weed recognition in large-scale grain production systems: a review. Precision Agriculture. 2023;25(1):1–29. doi:10.1007/s11119-023-10073-1. 3. Naresh K, Gangothri K. Revolutionizing Agriculture Machine And Deep Learning Solutions For Enhanced Crop Quality And Weed Control. International Journal of Research Publication and Reviews. 2025;6(5):12251–12253. doi:10.55248/gengpi.6.0525.18148. 4. Tadepalli A, Mitra K. Satellite Image based Crop Classification Using Convolutional Autoencoder. In: Proceedings of the Genetic and Evolutionary April 23, 2026 22/25 
+
+> .CC-BY 4.0 International license available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is made The copyright holder for this preprint this version posted April 28, 2026. ;https://doi.org/10.64898/2026.04.24.720764 doi: bioRxiv preprint
+
+Computation Conference Companion. GECCO ’24 Companion. ACM; 2024. p. 615–618. 5. Mohialden YM, Hussien NM, Salman SA, Alwahhab ABA, Ali M. Enhancing Agriculture Crop Classification with Deep Learning. Babylonian Journal of Artificial Intelligence. 2024;2024:20–26. doi:10.58496/bjai/2024/004. 6. Tussupov J, Yessenova M, Abdikerimova G, Aimbetov A, Baktybekov K, Murzabekova G, et al. Analysis of Formal Concepts for Verification of Pests and Diseases of Crops Using Machine Learning Methods. IEEE Access. 2024;12:19902–19910. doi:10.1109/access.2024.3361046. 7. Xue H, Xu X, Zhu Q, Yang G, Long H, Li H, et al. Object-Oriented Crop Classification Using Time Series Sentinel Images from Google Earth Engine. Remote Sensing. 2023;15(5):1353. doi:10.3390/rs15051353. 8. Islam MM, Adil MAA, Talukder MA, Ahamed MKU, Uddin MA, Hasan MK, et al. DeepCrop: Deep learning-based crop disease prediction with web application. Journal of Agriculture and Food Research. 2023;14:100764. doi:10.1016/j.jafr.2023.100764. 9. Farmonov N, Amankulova K, Szatm´ ari J, Sharifi A, Abbasi-Moghadam D, Mirhoseini Nejad SM, et al. Crop Type Classification by DESIS Hyperspectral Imagery and Machine Learning Algorithms. IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing. 2023;16:1576–1588. doi:10.1109/jstars.2023.3239756. 10. Fu X, Ma Q, Yang F, Zhang C, Zhao X, Chang F, et al. Crop pest image recognition based on the improved ViT method. Information Processing in Agriculture. 2024;11(2):249–259. doi:10.1016/j.inpa.2023.02.007. 11. Gui J, Xu H, Fei J. Non-Destructive Detection of Soybean Pest Based on Hyperspectral Image and Attention-ResNet Meta-Learning Model. Sensors. 2023;23(2):678. doi:10.3390/s23020678. 12. Shahi TB, Xu CY, Neupane A, Guo W. Recent Advances in Crop Disease Detection Using UAV and Deep Learning Techniques. Remote Sensing. 2023;15(9):2450. doi:10.3390/rs15092450. 13. Chithambarathanu M, Jeyakumar MK. Survey on crop pest detection using deep learning and machine learning approaches. Multimedia Tools and Applications. 2023;82(27):42277–42310. doi:10.1007/s11042-023-15221-3. 14. Meena SD, Susank M, Guttula T, Chandana SH, Sheela J. Crop Yield Improvement with Weeds, Pest and Disease Detection. Procedia Computer Science. 2023;218:2369–2382. doi:10.1016/j.procs.2023.01.212. 15. Ai Y, Sun C, Tie J, Cai X. Research on Recognition Model of Crop Diseases and Insect Pests Based on Deep Learning in Harsh Environments. IEEE Access. 2020;8:171686–171693. doi:10.1109/access.2020.3025325. 16. Balaji B, Murthy TS, Kuchipudi R. A Comparative Study on Plant Disease Detection and Classification Using Deep Learning Approaches. International Journal of Image, Graphics and Signal Processing. 2023;15(3):48–59. doi:10.5815/ijigsp.2023.03.04. April 23, 2026 23/25 
+
+> .CC-BY 4.0 International license available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is made The copyright holder for this preprint this version posted April 28, 2026. ;https://doi.org/10.64898/2026.04.24.720764 doi: bioRxiv preprint
+
+17. Bhatti UA, Bazai SU, Hussain S, Fakhar S, Ku CS, Marjan S, et al. Deep Learning-Based Trees Disease Recognition and Classification Using Hyperspectral Data. Computers, Materials &; Continua. 2023;77(1):681–697. doi:10.32604/cmc.2023.037958. 18. J A, Eunice J, Popescu DE, Chowdary MK, Hemanth J. Deep Learning-Based Leaf Disease Detection in Crops Using Images for Agricultural Applications. Agronomy. 2022;12(10):2395. doi:10.3390/agronomy12102395. 19. G C S, Zhang Y, Koparan C, Ahmed MR, Howatt K, Sun X. Weed and crop species classification using computer vision and deep learning technologies in greenhouse conditions. Journal of Agriculture and Food Research. 2022;9:100325. doi:10.1016/j.jafr.2022.100325. 20. Li Z, Jiang X, Jia X, Duan X, Wang Y, Mu J. Classification Method of Significant Rice Pests Based on Deep Learning. Agronomy. 2022;12(9):2096. doi:10.3390/agronomy12092096. 21. Gon¸ calves J, Silva E, Faria P, Nogueira T, Ferreira A, Carlos C, et al. Edge-Compatible Deep Learning Models for Detection of Pest Outbreaks in Viticulture. Agronomy. 2022;12(12):3052. doi:10.3390/agronomy12123052. 22. Wang L, Wang J, Liu Z, Zhu J, Qin F. Evaluation of a deep-learning model for multispectral remote sensing of land use and crop classification. The Crop Journal. 2022;10(5):1435–1451. doi:10.1016/j.cj.2022.01.009. 23. Ritharson PI, Raimond K, Mary XA, Robert JE, J A. DeepRice: A deep learning and deep feature based classification of Rice leaf disease subtypes. Artificial Intelligence in Agriculture. 2024;11:34–49. doi:10.1016/j.aiia.2023.11.001. 24. Reedha R, Dericquebourg E, Canals R, Hafiane A. Transformer Neural Network for Weed and Crop Classification of High Resolution UAV Images. Remote Sensing. 2022;14(3):592. doi:10.3390/rs14030592. 25. Xu P, Tan Q, Zhang Y, Zha X, Yang S, Yang R. Research on Maize Seed Classification and Recognition Based on Machine Vision and Deep Learning. Agriculture. 2022;12(2):232. doi:10.3390/agriculture12020232. 26. Paymode AS, Malode VB. Transfer Learning for Multi-Crop Leaf Disease Image Classification using Convolutional Neural Network VGG. Artificial Intelligence in Agriculture. 2022;6:23–33. doi:10.1016/j.aiia.2021.12.002. 27. Haque MA, Marwaha S, Deb CK, Nigam S, Arora A, Hooda KS, et al. Deep learning-based approach for identification of diseases of maize crop. Scientific Reports. 2022;12(1). doi:10.1038/s41598-022-10140-z. 28. Guo Y, Gao J, Wang X, Jia H, Wang Y, Zeng Y, et al. Precious Tree Pest Identification with Improved Instance Segmentation Model in Real Complex Natural Environments. Forests. 2022;13(12):2048. doi:10.3390/f13122048. 29. Agilandeeswari L, Prabukumar M, Radhesyam V, Phaneendra KLNB, Farhan A. Crop Classification for Agricultural Applications in Hyperspectral Remote Sensing Images. Applied Sciences. 2022;12(3):1670. doi:10.3390/app12031670. 30. Ullah N, Khan JA, Alharbi LA, Raza A, Khan W, Ahmad I. An Efficient Approach for Crops Pests Recognition and Classification Based on Novel DeepPestNet Deep Learning Model. IEEE Access. 2022;10:73019–73032. doi:10.1109/access.2022.3189676. April 23, 2026 24/25 
+
+> .CC-BY 4.0 International license available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is made The copyright holder for this preprint this version posted April 28, 2026. ;https://doi.org/10.64898/2026.04.24.720764 doi: bioRxiv preprint
+
+31. Bouguettaya A, Zarzour H, Kechida A, Taberkit AM. A survey on deep learning-based identification of plant and crop diseases from UAV-based aerial images. Cluster Computing. 2022;26(2):1297–1317. doi:10.1007/s10586-022-03627-x. 32. Al Sahili Z, Awad M. The power of transfer learning in agricultural applications: AgriNet. Frontiers in Plant Science. 2022;13. doi:10.3389/fpls.2022.992700. 33. Kasinathan T, Singaraju D, Uyyala SR. Insect classification and detection in field crops using modern machine learning techniques. Information Processing in Agriculture. 2021;8(3):446–457. doi:10.1016/j.inpa.2020.09.006. 34. Zhao H, Chen Z, Jiang H, Jing W, Sun L, Feng M. Evaluation of Three Deep Learning Models for Early Crop Classification Using Sentinel-1A Imagery Time Series—A Case Study in Zhanjiang, China. Remote Sensing. 2019;11(22):2673. doi:10.3390/rs11222673. 35. Praharsha CH, Poulose A, Badgujar C. Comprehensive Investigation of Machine Learning and Deep Learning Networks for Identifying Multispecies Tomato Insect Images. Sensors. 2024;24(23):7858. doi:10.3390/s24237858. April 23, 2026 25/25

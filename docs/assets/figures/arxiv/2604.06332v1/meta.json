@@ -1,0 +1,46 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.06332v1/fig-001.webp",
+      "caption": "Figure 10. Additional Qualitative Comparison on TruckDrive Dataset. Qualitative comparison between the proposed method, Telescope, and state-of-the-art baselines. Both RVSA [44] and RFLA [52] are specialized for small object detection while DETR [5] and DINO [56] are strong general object detectors, but perform worse in long an ultra-long range object detection. Ground truth annotations are shown on the left. Zoomed-in views corresponding to the red rectangles are provided to highlight detections at long and ultra-long range, where some objects reach up to 1km. All baselines are fine-tuned on the TruckDrive [16] dataset.",
+      "page": 15,
+      "index": 1,
+      "width": 1036,
+      "height": 633
+    },
+    {
+      "url": "assets/figures/arxiv/2604.06332v1/fig-002.webp",
+      "caption": "Figure 7. Qualitative Comparison. Qualitative comparison between the proposed method, Telescope, and state-of-the-art baselines. Both RVSA [44] and RFLA [52] are specialized for small object detection while DETR [5] and DINO [56] are strong general object detectors, but perform worse in long an ultra-long range object detection. Ground truth annotations are shown on the left. Zoomed-in views corresponding to the red rectangles are provided to highlight detections at long and ultra-long range, where some objects reach up to 1km. All baselines are fine-tuned on the TruckDrive [16] dataset.",
+      "page": 7,
+      "index": 2,
+      "width": 1036,
+      "height": 1247
+    },
+    {
+      "url": "assets/figures/arxiv/2604.06332v1/fig-003.webp",
+      "caption": "Figure 9. Additional Qualitative Comparison on Argoverse Dataset. Qualitative comparison between the proposed method, Telescope, and state-of-the-art baselines specialized for small object detection. Ground truth annotations are shown on the left. Notably, there are many target boxes which represent occluded objects (rows 1, 2, 3, 6, and 7). All methods are fine-tuned on the Argoverse [47] dataset.",
+      "page": 14,
+      "index": 3,
+      "width": 1036,
+      "height": 1156
+    },
+    {
+      "url": "assets/figures/arxiv/2604.06332v1/fig-004.webp",
+      "caption": "Figure 2. Telescope. We propose a two-stage ultra-long range detection model. Stage one uses a down-sampled image to estimate the hyperbolic foveation image transformation parameters. This transformation enlarges distant objects at the center of the transform while shrinking nearby objects at the periphery. Stage two uses this transformed image alongside learned hyperbolic embeddings to detect objects at distances of up to 1km.",
+      "page": 3,
+      "index": 4,
+      "width": 974,
+      "height": 268
+    },
+    {
+      "url": "assets/figures/arxiv/2604.06332v1/fig-005.webp",
+      "caption": "Table 4. Distance-Wise Ultra-long Range Object Detection Evaluation on TruckDrive dataset. The proposed model using the SAM3 image encoder backbone, Deformable DETR detection head, de-noising training, and TeleScope re-sampling layer provides optimal performance, especially at ultra long range distances, where it significantly improves over previous methods.",
+      "page": 8,
+      "index": 5,
+      "width": 768,
+      "height": 258
+    }
+  ]
+}

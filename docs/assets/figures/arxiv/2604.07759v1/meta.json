@@ -1,0 +1,86 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.07759v1/fig-001.webp",
+      "caption": "Fig. 1. Overview of the proposed framework, including the construction of the large-scale ship detection dataset (WUTDet), the systematic evaluation of detection models with different architectures, and the construction and validation of the cross-dataset test set (Ship-GEN). WUTDet is characterized by dense small objects and diverse scenarios, while Ship-GEN is used to validate the effectiveness of WUTDet and the generalization capability of the models.",
+      "page": 1,
+      "index": 1,
+      "width": 524,
+      "height": 288
+    },
+    {
+      "url": "assets/figures/arxiv/2604.07759v1/fig-002.webp",
+      "caption": "TABLE V PERFORMANCE OF DIFFERENT OBJECT DETECTION METHODS ON OUR DATASET UNDER DIFFERENT SCENARIOS. ↑ INDICATES THAT HIGHER VALUES CORRESPOND TO BETTER PERFORMANCE. BOLD INDICATES THE BEST RESULT, AND UNDERLINING INDICATES THE SECOND-BEST RESULT.",
+      "page": 15,
+      "index": 2,
+      "width": 1076,
+      "height": 686
+    },
+    {
+      "url": "assets/figures/arxiv/2604.07759v1/fig-003.webp",
+      "caption": "Fig. 10. Pipeline of the Mamba-YOLO architecture [40]. As a representative Mamba-based object detection model, Mamba-YOLO [40] introduces SSM to efficiently capture long-range dependencies with linear computational complexity. By avoiding the quadratic overhead of traditional attention mechanisms, it achieves a favorable balance between global contextual modeling and real-time inference efficiency.",
+      "page": 10,
+      "index": 3,
+      "width": 940,
+      "height": 402
+    },
+    {
+      "url": "assets/figures/arxiv/2604.07759v1/fig-004.webp",
+      "caption": "Fig. 12. Continuation of Fig. 11. Visualization of detection results of different Transformer- and Mamba-based object detection methods on WUTDet. CT denotes the prediction confidence score, whose value is set to the default threshold used for model visualization. (k1-k4) represent Deformable DETR CT = 0.30; (l1-l4) represent DAB-DETR-R50 CT = 0.30; (m1-m4) represent DINO-4scale CT = 0.30; (n1-n4) represent RT-DETR-R50VD-M CT = 0.60; (o1-o4) represent D-FINE-S CT = 0.40; (p1-p4) represent LW-DETR-S CT = 0.50; (q1-q4) represent DEIM-D-FINE-S CT = 0.50; (r1-r4) represent VMamba-TFasterRcnn@1x CT = 0.30; (s1-s4) represent VMamba-T-FasterRcnn@1x CT = 0.30; (t1-t4) represent MobileMamba-B1-RetinaNet@1x CT = 0.30; (u1-u4) represent MobileMamba-B1-RetinaNet@1x CT = 0.30; (v1-v4) represent Mamba YOLO-M CT = 0.25.",
+      "page": 14,
+      "index": 4,
+      "width": 1066,
+      "height": 922
+    },
+    {
+      "url": "assets/figures/arxiv/2604.07759v1/fig-005.webp",
+      "caption": "TABLE I OVERVIEW OF SHIP DETECTION–RELATED DATASETS. THIS TABLE PROVIDES A STATISTICAL COMPARISON OF DIFFERENT DATASETS IN TERMS OF RELEASE YEAR, NUMBER OF IMAGES, NUMBER OF ANNOTATED OBJECTS, IMAGE RESOLUTION, ANNOTATION CATEGORIES, AND THE QUANTITY AND PROPORTION OF TARGETS AT DIFFERENT SCALES. HERE, ”†” INDICATES THAT THE CORRESPONDING DATASET IS UNAVAILABLE, AND “RANDOM” DENOTES THAT THE DATASET CONTAINS IMAGES WITH MORE THAN TWO DIFFERENT RESOLUTIONS, WITH MOST SAMPLES HAVING A RESOLUTION LOWER THAN 1920×1080. BOLD INDICATE THE HIGHEST VALUES IN THE CORRESPONDING COLUMNS.",
+      "page": 3,
+      "index": 5,
+      "width": 1076,
+      "height": 470
+    },
+    {
+      "url": "assets/figures/arxiv/2604.07759v1/fig-006.webp",
+      "caption": "TABLE VI PERFORMANCE OF DIFFERENT OBJECT DETECTION METHODS TRAINED ON DIFFERENT DATASETS AND EVALUATED ON THE SHIP-GEN DATASET.NOTE THAT THE INPUT SIZE OF MOBILEMAMBA-B1-RETINANET@1X IS SET TO 640×640. ↑ INDICATES THAT HIGHER VALUES CORRESPOND TO BETTER PERFORMANCE. PURPLE HIGHLIGHTS RESULTS OBTAINED ON WUTDET, AND BOLD INDICATES THE BEST RESULT.",
+      "page": 18,
+      "index": 6,
+      "width": 1083,
+      "height": 812
+    },
+    {
+      "url": "assets/figures/arxiv/2604.07759v1/fig-007.webp",
+      "caption": "Fig. 11. Visualization of detection results of different CNN-based object detection methods on WUTDet. CT denotes the prediction confidence score, whose value is set to the default threshold used for model visualization. The time displayed in the figure does not represent the actual image acquisition time. (a1-a4) represent CenterNet CT = 0.30; (b1-b4) represent YOLOX-S CT = 0.25; (c1-c4) represent YOLOv6-S CT = 0.40; (d1-d4) represent YOLOv8-S CT = 0.25; (e1-e4) represent YOLOv11-S CT = 0.25; (f1-f4) represent Hyper-YOLO-S CT = 0.25; (g1-g4) represent YOLOv12-S CT = 0.25; (h1-h4) represent YOLOv13-S CT = 0.25; (i1-i4) represent FBRT-YOLO-S CT = 0.25; (j1-j4) represent YOLO-MS-S CT = 0.30.",
+      "page": 13,
+      "index": 7,
+      "width": 983,
+      "height": 1010
+    },
+    {
+      "url": "assets/figures/arxiv/2604.07759v1/fig-008.webp",
+      "caption": "Fig. 14. Continuation of Fig. 13. Visualization of detection results of different Transformer- and Mamba-based object detection methods on WUTDet under various weather and illumination conditions. CT denotes the prediction confidence score, whose value is set to the default threshold used for model visualization. (k1-k5) represent Deformable DETR CT = 0.30; (l1-l5) represent DAB-DETR-R50 CT = 0.30; (m1-m5) represent DINO-4scale CT = 0.30; (n1-n5) represent RT-DETR-R50VD-M CT = 0.60; (o1-o5) represent D-FINE-S CT = 0.40; (p1-p5) represent LW-DETR-S CT = 0.50; (q1-q5) represent DEIM-D-FINE-S CT = 0.50; (r1-r5) represent VMamba-T-FasterRcnn@1x CT = 0.30; (s1-s5) represent VMamba-T-FasterRcnn@1x CT = 0.30; (t1-t5) represent MobileMambaB1-RetinaNet@1x CT = 0.30; (u1-u5) represent MobileMamba-B1-RetinaNet@1x CT = 0.30; (v1-v5) represent Mamba YOLO-M CT = 0.25.",
+      "page": 17,
+      "index": 8,
+      "width": 1064,
+      "height": 1149
+    },
+    {
+      "url": "assets/figures/arxiv/2604.07759v1/fig-009.webp",
+      "caption": "TABLE IV PERFORMANCE OF DIFFERENT OBJECT DETECTION METHODS ON OUR DATASET. SINCE THE AUTHORS OF YOLOV8-S, YOLOV11-S, HYPER-YOLO-S, YOLOV12-S, YOLOV13-S, AND FBRT-YOLO-S DO NOT EXPLICITLY SPECIFY THE MODULE DEFINITIONS OF THEIR BACKBONES, THE CORE STRUCTURES PROPOSED AT THE BACKBONE STAGE IN EACH METHOD ARE UNIFORMLY REGARDED AND LABELED AS THE BACKBONE NETWORK IN THIS WORK. FPS IS MEASURED WITH A BATCH SIZE OF 16. ↑ INDICATES THAT HIGHER VALUES CORRESPOND TO BETTER PERFORMANCE. BOLD INDICATES THE BEST RESULT, AND UNDERLINING INDICATES THE SECOND-BEST RESULT.",
+      "page": 12,
+      "index": 9,
+      "width": 1076,
+      "height": 717
+    },
+    {
+      "url": "assets/figures/arxiv/2604.07759v1/fig-010.webp",
+      "caption": "Fig. 13. Visualization of detection results of different CNN-based object detection methods on WUTDet under various weather and illumination conditions. CT denotes the prediction confidence score, whose value is set to the default threshold used for model visualization. (a1-a5) represent CenterNet CT = 0.30; (b1-b5) represent YOLOX-S CT = 0.25; (c1-c5) represent YOLOv6-S CT = 0.40; (d1-d5) represent YOLOv8-S CT = 0.25; (e1-e5) represent YOLOv11-S CT = 0.25; (f1-f5) represent Hyper-YOLO-S CT = 0.25; (g1-g5) represent YOLOv12-S CT = 0.25; (h1-h5) represent YOLOv13-S CT = 0.25; (i1-i5) represent FBRT-YOLO-S CT = 0.25; (j1-j5) represent YOLO-MS-S CT = 0.30.",
+      "page": 16,
+      "index": 10,
+      "width": 958,
+      "height": 1231
+    }
+  ]
+}

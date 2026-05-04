@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.04908v1/fig-001.webp",
+      "caption": "Table 2: HI-MoE forward routing procedure. The algorithm first computes scene-level routing from global context, then performs query-wise instance routing within the scene-constrained expert pool.",
+      "page": 6,
+      "index": 1,
+      "width": 944,
+      "height": 1304
+    },
+    {
+      "url": "assets/figures/arxiv/2604.04908v1/fig-002.webp",
+      "caption": "Figure 2: Visualization derived from the expert-level routing statistics in Table 8. Left: per-expert subset AP for representative experts and the average row. Right: for each displayed expert, the proportion of that expert’s routed assignments associated with its dominant scene-route category (Crowd for E1, Indoor for E3, Outdoor for E6). These percentages are normalized independently per expert and therefore are not additive and are not expected to sum to 100% across the three bars. This figure is intended as a first-step illustration of specialization rather than a complete utilization analysis across all experts and layers.",
+      "page": 10,
+      "index": 2,
+      "width": 940,
+      "height": 516
+    },
+    {
+      "url": "assets/figures/arxiv/2604.04908v1/fig-003.webp",
+      "caption": "Figure 1: HI-MoE overview. A scene router first selects a scene-consistent expert subset; an instance router then performs per-query top-K routing inside that subset. Sparse experts replace selected transformer FFNs.",
+      "page": 4,
+      "index": 3,
+      "width": 727,
+      "height": 558
+    },
+    {
+      "url": "assets/figures/arxiv/2604.04908v1/fig-004.webp",
+      "caption": "Table 1: Notation summary for the hierarchical routing module.",
+      "page": 4,
+      "index": 4,
+      "width": 468,
+      "height": 402
+    }
+  ]
+}

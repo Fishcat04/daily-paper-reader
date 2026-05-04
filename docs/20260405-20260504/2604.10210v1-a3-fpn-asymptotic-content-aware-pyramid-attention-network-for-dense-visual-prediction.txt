@@ -1,0 +1,1011 @@
+Title: A3-FPN: Asymptotic Content-Aware Pyramid Attention Network for Dense Visual Prediction
+
+URL Source: https://arxiv.org/pdf/2604.10210v1
+
+Published Time: Tue, 14 Apr 2026 00:48:48 GMT
+
+Number of Pages: 38
+
+Markdown Content:
+# A3-FPN: Asymptotic Content-Aware Pyramid Attention Network for Dense Visual Prediction 
+
+Meng’en Qin a,b,c , Yu Song a, Quanling Zhao a, Xiaodong Yang b, Yingtao Che a, ∗, Xiaohui Yang a, ∗
+
+> aHenan Engineering Research Center for Artificial Intelligence Theory and Algorithms, Henan University, Kaifeng, China
+> bFaculty of Computer Science and Control Engineering, Shenzhen University of Advanced Technology, Shenzhen, China
+> cDepartment of Electrical and Electronic Engineering, The Hong Kong Polytechnic University, Hong Kong, China
+
+Abstract 
+
+Learning multi-scale representations is the common strategy to tackle object scale variation in dense prediction tasks. Although existing feature pyramid networks have greatly advanced vi-sual recognition, inherent design defects inhibit them from capturing discriminative features and recognizing small objects. In this work, we propose Asymptotic Content-Aware Pyramid At-tention Network ( A3-FPN), to augment multi-scale feature representation via the asymptotically disentangled framework and content-aware attention modules. Specifically, A3-FPN employs a horizontally-spread column network that enables asymptotically global feature interaction and disentangles each level from all hierarchical representations. In feature fusion, it collects sup-plementary content from the adjacent level to generate position-wise o ff sets and weights for context-aware resampling, and learns deep context reweights to improve intra-category similar-ity. In feature reassembly, it further strengthens intra-scale discriminative feature learning and reassembles redundant features based on information content and spatial variation of feature maps. Extensive experiments on MS COCO, VisDrone2019-DET and Cityscapes demonstrate that A3-FPN can be easily integrated into state-of-the-art CNN and Transformer-based archi-tectures, yielding remarkable performance gains. Notably, when paired with OneFormer and Swin-L backbone, A3-FPN achieves 49.6 mask AP on MS COCO and 85.6 mIoU on Cityscapes. Codes are available at https://github.com/mason-ching/A3-FPN .
+
+Keywords: Dense prediction, Asymptotical disentangled framework, Multi-scale representation   
+
+> ∗Corresponding author
+> Email address: mengenching@gmail.com (Meng’en Qin)
+> arXiv:2604.10210v1 [cs.CV] 11 Apr 2026
+
+1. Introduction 
+
+Dense visual prediction [1, 2] is one collection of computer vision tasks that aims to predict the label of every pixel in images. It plays a pivotal role in understanding scenes and is of great importance in autonomous driving and medical imaging, to name a few. With significant breakthroughs in deep learning, a series of promising and leading research is proposed based on Convolutional Neural Networks and Vision Transformers across various dense prediction tasks, including object detection [3, 4], instance segmentation [5, 6], semantic segmentation [7, 8], etc. Visual prediction tasks need both spatial details for object segmentation or location and se-mantic information for object classification, which are more likely to reside in di ff erent-scale feature maps. Furthermore, objects of di ff erent sizes also tend to be recognized on di ff erent res-olution feature maps. Thus, how to e ffi ciently learn a hierarchy of features at di ff erent scales becomes one of the key problems in deep learning methods for visual prediction tasks. Fea-ture Pyramid Network (FPN) [9] is the widely used architecture to generate multi-scale features and address the variable size challenge. Specifically, FPN initially employs 1 ×1 convolution operations to reduce the channel dimension of feature maps extracted from the backbone. Sub-sequently, it constructs a top-down network to propagate top-level semantic information to lower levels, which consists of two stages: upsample each channel of higher-level feature maps, and directly add the two-level feature maps point by point. Although FPN has substantially improved the performance of deep networks in dense visual tasks, some design defects (e.g. information loss, context-agnostic sampling and pattern inconsistency) inhibit it from further learning more discriminative features, as shown in Fig. 1. 
+
+Information loss. FPN adopts a layer-wise top-down pathway to fuse multi-level features, which results in a disadvantageous case: features from a certain level can only su ffi ciently ben-efit neighboring-level features, and the interaction between features from non-adjacent levels is weakened. For instance, if features from level 1 intend to access level-3 information, FPN must first fuse the information from level 2 and level 3, and then allow level 1 to indirectly acquire level-3 features by combining the information from level 2. In the top-down propagation, some information in level 3 is more likely to be lost. The above defect still exists in FPN variants like PAFPN [10] and BiFPN [11], which fuse multi-scale features in a layer-by-layer manner. 
+
+Context-agnostic sampling: Prior to feature fusion, feature maps are upsampled by interpo-lation in the top-down branch (FPN) or downsampled through 3 ×3 convolutions in the bottom-up 22×Downsample    
+
+> 2×Downsample
+> 2×Upsample
+> 2×Upsample
+> 1×1 Conv
+> level 1
+> level 2
+> level 3
+> level 2
+> level 1
+> 1×1 Conv
+> Pattern inconsistency between adjacent features
+> Information loss Inaccurate and context-agnostic sampling
+> level 3
+> (a) (b) Fig. 1. Illustration of FPN [9] and PAFPN [10]. (a) Top-down multi-scale feature fusion path in FPN. (b) Extra bottom-up path aggregation in PAFPN. Both methods have some defects: (1) information loss, (2) context-agnostic sampling, (3) pattern inconsistency.
+
+branch (PAFPN). But both the interpolation and strided convolution are context-agnostic and rely on fixed, static sampling patterns based solely on relative sub-pixel neighborhoods. As a result, these operations are prone to introducing inaccurate, redundant, and even erroneous boundary information at the pixel level during subsequent fusion stages. In this situation, objects simi-lar to the background are most probably located inaccurately or even ignored. Several works, such as Dysample [12], CARAFE [13] and FaPN [14], propose sampling-based or kernel-based upsampling operators to enhance feature fusion and mitigate blurred boundary features. Never-theless, these approaches fail to fully exploit the rich context inherent in the multi-scale hierarchy. Moreover, in addition to upsampling, enhancing downsampling remains unaddressed and is also crucial for accurate and robust object recognition. 
+
+Pattern inconsistency: In the fusion stage of FPN, adjoining features are typically fused via element-wise summation. Because of convolutions and pooling operations between di ff erent pyramid levels, there are significant content and pattern inconsistencies between these levels. Element-wise addition fails to address these semantic discrepancies and disregards the under-lying relationship learning of di ff erent feature representation patterns in the multi-scale fusion, which may lead to intra-category conflict and too many false positive samples in the fused fea-tures. AFPN [15] attempts to alleviate cross-scale pattern inconsistency by adaptive spatial fu-sion, but its performance remains limited due to lacking deep learning of the context relationship 3of di ff erent levels. Most recently, FreqFusion [16] introduces a frequency-aware feature fusion method to enhance high-frequency detailed boundary information and reduce semantic inconsis-tency during upsampling. Despite its improvements, FreqFusion still utilizes a straightforward summation operation and neglects to explicitly model the pattern proportion relationship of dif-ferent scales. Motivated by these issues, we propose Asymptotic Content-Aware Pyramid Attention Net-work ( A3-FPN), to strengthen multi-scale feature representation through the asymptotically dis-entangled framework and content-aware attention-based feature fusion and reassembly. Com-pared to other current pyramid networks which inherit FPN’s grid-like framework, A3-FPN is distinctive in the following three aspects: (1) Instead of the limited layer-by-layer pathway, it employs a horizontally-spread column-wise network that carries some theoretical advantages to alleviate information loss and help disentangle information of each level from all levels. (2) In feature fusion, it collects supplementary content from adjacent features to produce context-aware off sets and weights for feature resampling, and applies multi-scale context reweighting to model deep pattern relationships and enhance intra-category similarity. (3) In feature reassembly, it fur-ther facilitates intra-scale representative content and filters out redundant ones for more accurate and quality locating by reassembling less expressive features based on information density and spatial variation of feature maps. To demonstrate the e ff ectiveness of our model, we implement numerous experiments on MS COCO [17] and Cityscapes [18] datasets. Using Faster R-CNN /Mask R-CNN and ResNet-50 as the baseline, A3-FPN achieves a superior performance of 40.9 AP box and 37.1 AP mask respec-tively; the light version, A3-FPN-Lite, attains 39.7 AP box and 36.3 AP mask while maintaining fewer parameters and lower latency, as shown in Fig. 2. In this work, our main contributions are as follows: 
+
+• We present an in-depth analysis of existing multi-scale feature fusion frameworks and op-erations widely used in dense visual prediction tasks. Specifically, we identify three critical issues: information loss, context-agnostic sampling and pattern inconsistency, which hin-der expressive hierarchical feature learning, and result in intra-category inconsistency and object displacement. 
+
+• A3-FPN, an asymptotic content-aware pyramid attention network, is proposed to tackle these issues. The asymptotically disentangled framework can e ff ectively alleviate infor-455 75 95 115 135 155 175       
+
+> Latency (ms)
+> A!-FPN -Lite (ours)
+> FPN
+> PAFPN PConv
+> AugFPN
+> NAS -FPN
+> AFPN
+> Params (M)
+> AP on COCO val2017
+> FPN
+> PAFPN
+> NAS -FPN
+> CARAFE
+> FPT
+> GraphFPN
+> AFPN
+> A!-FPN -Lite (ours)
+> A!-FPN (ours)
+> GraphFPN
+> FPT
+> A!-FPN (ours)
+> (a) (b) Fig. 2. (a) Average precision, parameters, and FLOPs of various feature pyramid networks evaluated on COCO val2017
+> [17]. Bubble area scales with model GFLOPs; (b) Inference latency vs. performance on COCO val2017 for feature pyramid models. All models are trained for 12 epochs using Faster R-CNN with ResNet-50 as the baseline. Inference latency is measured on a single NVIDIA RTX 4090 GPU.
+
+mation loss and gradually learn required information in the asymptotically global feature interaction. The content-aware attention-based fusion modules are designed to mitigate intra-category content inconsistency and boundary displacement for medium-to-large ob-jects, while facilitating discriminative content learning for small instances. 
+
+• Qualitative and quantitative results show that A3-FPN and A3-FPN-Lite can be easily inte-grated into SOTA dense prediction CNNs and Vision Transformers, leading to considerable improvements. It is worth mentioning that A3-FPN with OneFormer as the architecture and Swin-L as the backbone accomplishes a new record of 49.6 AP mask on COCO val2017 and 85.6 mIoU on Cityscapes. 
+
+2. Related Work 
+
+2.1. Dense Visual Prediction 
+
+Dense prediction tasks [1, 2] encompass a range of challenges, including object detection [3, 4], instance segmentation [5, 6], semantic segmentation [7, 8], etc. Advancements in dense visual prediction have been primarily driven by several seminal deep learning architectures. For semantic segmentation, fully convolutional network (FCN) [7] marks a turning point and leads to the development of fundamental frameworks such as PSPNet [19], PSANet [20], UperNet 5[21], PointRend [22] and SegNext [23]. Transformer-based segmentors like SETR [24] and SegFormer [25] utilize the self-attention mechanism to capture long-range contextual dependen-cies, achieving state-of-the-art performance on semantic segmentation benchmarks. In object detection, R-CNN series [26, 27] and YOLO series [28] have become the dominant CNN-based methods, achieving a great balance between model performance and inference speed. Addition-ally, detection transformers (DETRs) make their debut in DETR [29], eliminating traditional hand-designed components and NMS. As the first real-time detection transformer, RT-DETR [30] designs an e ffi cient hybrid encoder to process multi-scale features and uncertainty-minimal query selection to provide high-quality initial queries to the decoder, therefore improving de-tection accuracy. As for instance segmentation, Mask R-CNN [5] and its variants [6, 27] have yielded promising pixel-level results by adding extra mask prediction branches to Faster R-CNN. Most recently, some models, such as Mask2Former [31], Mask DINO [8] and OneFormer [32], have advanced the field by unifying segmentation and detection tasks within a single framework. 
+
+2.2. Multi-scale Feature Representation 
+
+Typically, features at di ff erent levels encode positional information corresponding to objects of di ff erent sizes. Small feature maps carry abstract features and position information of large objects, while large feature maps capture low-dimensional textures and position details of small objects [33]. FPN [9] leverages the feature diversity and fuses multi-scale features by cross-scale connections, thereby increasing detection accuracy for objects of varied sizes. Building on FPN, PANet [10] integrates a bottom-up pathway for more comprehensive information fusion across di ff erent levels. E ffi cientDet [11] introduces BiFPN, a novel and repeatable module that enhances the e ffi ciency of information fusion. FaPN [14] improves FPN for dense visual predictions by aligning upsampled feature maps. AFPN [15] promotes feature interaction across non-adjacent levels but ignores information redundancy and object displacement in feature fusion. NAS-FPN [34] leverages Neural Architecture Search (NAS) to automatically discover the optimal feature pyramid framework in a data-driven manner. SFI network [35] leverages frequency-domain in-formation to improve fused FPN features and LR-FPN [36] introduces SPIEM and CIM to en-able finer multi-scale interaction and to reinforce object-region representations. GraphFPN [37] adopts a graph neural network to enable non-adjacent feature interaction and information propa-gation across the pyramid, but its graph-based modeling leads to a substantial increase in param-eters and computational overhead. Gold-YOLO [33] enables straight interaction across di ff erent 6Linear                                   
+
+> Linear
+> Context
+> Weight
+> Generator
+> Offset
+> Generator
+> Stem
+> Input
+> !×#×3
+> !
+> 4×#
+> 4×&!
+> !
+> 8×#
+> 8×&"
+> !
+> 16 ×#
+> 16 ×&#
+> !
+> 32 ×#
+> 32 ×&$(a) Asymptotically Disentangled Fusion Framework
+> Feature map Backbone
+> Column 1 Column 2 Column m
+> Intra -scale Content -
+> aware Attention module
+> Upsample
+> Resampler
+> Downsample
+> Resampler
+> X%&!
+> T
+> Group
+> Norm
+> !!,!",!#,…,!$
+> ⋯⋯
+> ⋮⋮⋮
+> Reverse
+> Channel Disperse
+> Reassembly
+> Hadamard Product
+> Summation
+> TThreshold
+> (b) Multi -scale Context -aware Attention Module (c) Intra -scale Content -aware Attention Module
+> X%'!
+> X%Y%
+> X%
+> Z%
+> Y!
+> Level 1
+> Level 2
+> Level 3
+> Level 4
+> Multi -scale Context -
+> aware Attention module
+> weighting
+> weighting
+> $!,$",$#,…,$$
+> Sigmoid
+
+⋯ ⋯
+
+⋯ ⋯
+
+⋯ ⋯
+
+⋯ ⋯Fig. 3. Overall architecture of A3-FPN. (a) The bottom-up asymptotically disentangled fusion framework consisting of 
+
+m columns; (b) Multi-scale Context-aware Attention module for feature fusion; (c) Intra-scale Content-aware Attention module for feature reassembly. 
+
+levels and achieves better fusion through the Gather-and-Distribute mechanism. A2-FPN [38] proposes MGC, GACARAFE, and GACAP to address inaccurate sampling and semantic incon-sistency, but it ignores information transmission loss caused by the overall fusion framework. We propose the asymptotically disentangled framework to explicitly alleviate such framework-induced information loss. Moreover, A2-FPN’s kernel-based sampling is spatially fixed and thus less e ff ective for objects of varied shapes. TFPN [39] designs feature reference, calibration, and feedback modules with the same motivations as A2-FPN. Although TFPN’s upsampling and fu-sion operations are similar to ours, there are some key di ff erences: (1) our method learns much richer multi-level context via the o ff set generator that guides the resampler; (2) TFPN assumes shared o ff set maps for all channels during calibration, but we introduce the grouping strategy so that each group of channels corresponds to a group of o ff set maps, increasing model diversity and robustness. 
+
+3. Method 
+
+Fig. 3 presents the general architecture of A3-FPN, which consists of three essential compo-nents: asymptotically disentangled framework, multi-scale context-aware attention module for feature fusion (MCAtten), and intra-scale content-aware attention module for feature reassembly (ICAtten). We also develop A3-FPN-Lite, a more e ffi cient and lightweight version, which only 7Sigmoid    
+
+> RepBlock
+> Conv
+> Module
+> Linear
+> Linear
+> DWConv
+> !!C
+> !"#$
+> %&
+> !"'$
+> ()
+> DWConv
+> flaten
+> flaten
+> ⋮
+> ⋮
+> ⋮
+> ⋮
+> unflaten
+> unflaten
+> !!
+> !"#$
+> *+ %&
+> !"'$
+> *+ ()
+> Conv Module
+> C
+> N×
+> (a) (b)
+> 1×1
+> Conv
+> 1×1
+> Conv Fig. 4. Off set generator and context weight generator in multi-scale context-aware attention module. (a) O ff set gen-erator gathers context information to produce position-wise coordinate o ff set maps and sampling weight maps for the subsequent Resampler; (b) Context weight generator learns the relationship among di ff erent representation patterns and assigns the corresponding context weight to di ff erent-level features.
+
+di ff ers from A3-FPN in some hyperparameter settings (refer to Appendix D). For convenient dis-cussion, we use Xi to denote the i-th level input features in each column. Yi is the i-th level fused features from MCAtten, and Zi is the i-th level reassembled features from ICAtten. The whole algorithm procedure of A3-FPN is summarized in Appendix A. 
+
+3.1. Asymptotically Disentangled Framework 
+
+As shown in Fig. 5, existing pyramid networks can be categorized into layer-wise or global feature fusion frameworks. Layer-wise frameworks (e.g., FPN [9], PANet [10] and BiFPN [11]) only utilize local information in each feature fusion and facilitate information flow in a layer-by-layer manner, which hinders the feature utilization among non-adjacent levels. Global frame-works, such as Deformable Attention [40] and Gold-YOLO [33], make sure that any level can di-rectly acquire information from all other levels. While the global framework can enhance multi-scale feature interaction, it overlooks the significant pattern and content gaps from non-adjacent levels, especially for the bottom and topmost features. Inspired by High Resolution Networks [41], we propose an asymptotic column-spread framework in A3-FPN to represent multi-scale features. It initiates the feature fusion by combining adjacent-level features and progressively disentangles every level from all levels through column-wise information interaction and hori-zontal information spread. The proposed framework carries some great theoretical advantages over others, including (1) su ffi cient and asymptotically direct interaction among features from all levels, alleviating information loss in the transmission path; (2) helping learn the superior transformation function to disentangle information needed for dense visual predictions at each level. These properties are guaranteed by the following lemmas: 
+
+Lemma 1 . Let Xi denote the random variable corresponding to the input feature at level i.8(a) FPN  
+
+> Level 2 ( 𝑋 !)Level 1 ( 𝑋 ")
+
+⋮ ⋮ ⋮ ⋮     
+
+> (c) D eformable Attention (b) Gold -YOLO (d) 𝐴 #-FPN (ours)
+> Level 4 (𝑋 $)Level 3 (𝑋 #)
+> Backbone Zero Mapping
+
+Fig. 5. Comparison of di ff erent multi-scale designs, including (a) FPN [9] (layer-wise framework), (b) Gold-YOLO [33] (global convolutional framework), (c) Deformable Attention [40] (global attention framework), (d) A3-FPN (asymptoti-cally disentangled framework). 
+
+Suppose a framework induces a propagation path from Xi to X j (i.e. Xi → Xi+1 → · · · → X j). If each step Xt → Xt+1 satisfies a strong data processing inequality with contraction coe ffi cient 
+
+ηt ∈ [0 , 1], the retained information from Xi to X j is bounded by 
+
+I(Xi; X j) ≤ (
+
+> j−i
+
+Y
+
+> t=1
+
+ηt) H(Xi),
+
+where H(Xi) < ∞ is the entropy of Xi, I(; ) denotes the mutual information. 
+
+Proof . In fact, information propagation between the input feature Xi and X j can be rep-resented as a directed Markov chain of intermediate random variables: Xi → Xi+1 → · · · → 
+
+X j−i → X j. The chain is the actual directed sequence of stochastic mappings along the shortest path. Apply the strong data processing inequality successively down the chain, then we can get 
+
+I (Xi; Xi+1) ≤ η0 I (Xi; Xi) = H (Xi) ,
+
+I (Xi; Xi+2) ≤ η1 I (Xi; Xi+1) ≤ η1η0 H (Xi) ,...
+
+I Xi; X j
+
+ ≤ Q j−it=1 ηt
+
+ H (Xi) .
+
+(1) This completes the proof of Lemma 1. We note that if step t is deterministic or invertible, the corresponding ηt equals 1. Real network operations (downsampling, bottlenecks, activation nonlinearities, training stochasticity, etc.) often act as non-invertible /noisy steps for which ηt < 1is plausible. ■
+
+Lemma 2 . Given a compact set K, F ∗ : K → K d is continuous and admits a composition 9of finitely many local continuous maps arranged on a directed acyclic graph (DAG) G. If each local map in the DAG is Lv-Lipschitz on its compact domain, for every ε > 0, there exists a finite column count m and a parametric continuous mapping for each column such that the asymptotic composition Fm produced by these columns satisfies sup 
+
+> x∈K
+
+∥F m(x) − F ∗(x)∥ ≤ ε. 
+
+In other words, an asymptotic column-wise network can uniformly approximate F ∗ on K arbi-trarily well. 
+
+Proof . G = (V, E) is a finite directed acyclic graph, where Vin are the inputs and root (output) nodes provide F ∗(x). For input nodes νin i ∈ V in , set yνin i (x) = ˆyνin i (x) = xi so their node errors are zero. For each non-input node ν ∈ V \ V in , there is a continuous local mapping: 
+
+ϕν : Qu∈pa (ν) Yu → Y ν, where pa (ν) are the parents of ν in G and Yu is the output space of node 
+
+u. The value at node ν is Yν = ϕν({Y u : u ∈ pa (ν)}). Because F ∗ is represented by G and G is finite, index the non-input nodes in a topological order ν1, ν 2, · · · , ν n so that all parents of νi have indices < i. For each νi, the mapping ϕνi
+
+is continuous and Lνi -Lipschitz on a compact domain Di. Fix any collection of approximations ˆϕνi . Define the approximated node values ˆYν by replacing ϕν with ˆ ϕν and evaluate the DAG in the same topological order. For each node νi, let the uniform per-node approximation error be 
+
+εi = sup z∈Di ∥ ˆϕνi (z) − ϕνi (z)∥.For each node νi, we can define the maximal path-amplification factor Wi as 
+
+Wi = max 
+
+> π∈Π(i→root )
+
+Y
+
+> u∈π
+
+Lu, (2) where Π(i → root ) is the set of directed paths in the DAG from node νi to an output /root node, and the product runs over nodes on the path after νi. If there is no path from νi to the root, set 
+
+Wi = 0. Then the total uniform error at the root induced by replacing every ϕνi with ˆ ϕνi satisfies sup 
+
+> x∈K
+
+∥F m(x) − F ∗(x)∥ ≤ 
+
+> n
+
+X
+
+> i=1
+
+Wiεi. (3) To guarantee the right-hand side of Equation 3 ≤ ε, it su ffi ces to choose any positive εi satisfying 10 Pni=1 Wiεi ≤ ε. A simple explicit choice is to set, for example, 
+
+εi =
+
+
+
+ε
+
+nW i
+
+, when Wi > 0,
+
+0, when Wi = 0,
+
+(4) then nX
+
+> i=1
+
+Wiεi =
+
+> n
+
+X
+
+> i:Wi>0
+
+Wi · ε
+
+nW i
+
+= ε · |{ i : Wi > 0}| 
+
+n ≤ ε. (5) Each ϕνi is continuous on compact domain Di. By the universal approximation theorem [42] and its recent advances [43], for any δ > 0, there exists a finite-width finite-depth parametric neural network (MLP with a standard non-polynomial activation like ReLU or sigmoid, possibly arranged into a conv block) that uniformly approximates ϕνi within δ on Di. Therefore, for each 
+
+i we can choose a finite ˆ ϕνi such that sup z∈Di ∥ ˆϕvi (z) − ϕvi (z)∥ ≤ εi using εi chosen in Equation 4. Map nodes to columns according to a topological layering of G: every column C(k) imple-ments the collection of approximators n ˆϕν
+
+o for those nodes assigned to column k. Because the DAG and per-node approximators are finite, the number of columns m is finite, and each column is a finite parametric continuous map. The composition of columns Fm = C(m) ◦ · · · ◦ C(1) is precisely the global approximator of F ∗. By construction, the per-node uniform errors are the εi
+
+chosen in Equation 4, so by Equation 3 the uniform approximation error satisfies sup 
+
+> x∈K
+
+∥F m(x) − F ∗(x)∥ ≤ 
+
+> n
+
+X
+
+> i=1
+
+Wiεi ≤ ε. (6) Hence, the finite-column finite-width asymptotically disentangled framework approximates F ∗
+
+within ε uniformly on K. This completes the proof of Lemma 2. ■
+
+Lemma 1 shows that, under realistic non-invertible mappings, the shorter-path design has a higher transmission upper bound, permitting more information to be retained among multi-level features. This explains why frameworks that create direct paths between two-level features (e.g., global fusion and asymptotically disentangled fusion) are less likely to su ff er cumulative information loss than those requiring many sequential processing hops to transfer the same in-formation (layer-by-layer fusion). For empirical validation, we provide a detailed performance analysis of di ff erent fusion frameworks with the same fusion operations in Table 6, which further 11 illustrates the superiority of the proposed framework. In Fig. 5 (d), if considering each column in A3-FPN as one layer of MLP, the proposed framework is indeed an MLP-DAG-style network. In fact, the overall objective of networks can be interpreted as learning an optimal network or function F ∗. Given an image x, the network maps x to F ∗(x) such that the output representation forms a hierarchy of features that are well aligned with downstream tasks. The hierarchical features can acquire precisely the information required at that level by F ∗. Since F ∗ is realized by a feed-forward architecture, information flows strictly forward without cycles, which naturally satisfies the definition of a directed acyclic graph (DAG): a decomposition as a composition of finitely many local continuous maps. Lemma 2 ensures that, compared with other fusion frameworks, the asymptotically disentangled design can approximate the global optimum of F ∗ more e ff ectively with finite column depth and width. Considering practical constraints such as runtime and computational cost, we fix the number of columns to three, and set the max width of columns to four. Moreover, there are two design paradigms for A3-FPN: top-down or bottom-up asymptotic framework (see top-down asymptotic framework in Appendix B). In section 4.6, we will exper-imentally prove that the former is more appropriate for position-relevant tasks (object detection and instance segmentation), whereas the latter is more suited to semantic segmentation. 
+
+3.2. Multi-scale Context-aware Attention for Feature Fusion 
+
+The conventional feature fusion su ff ers from two issues that detrimentally impact dense vi-sual prediction, namely intra-category inconsistency and object displacement, which are mainly caused by inaccurate sampling and pattern-agnostic fusion operations. As shown in Fig. 3 (b), we propose MCAtten to align object-level features and strengthen intra-category similarity across di ff erent levels. MCAtten is comprised of two steps: context attention-guided feature resampling and feature reweighting, each of which will be discussed in detail below. 
+
+Position-wise o ff set generator. Given i-th level features Xi ∈ Rci×hi×wi of (m-j)-th column, where i ≤ min = min( m − j + 1, n), j ∈ { 0, 1, . . . , m − 1}, n is the number of levels, ci denotes the channel dimension and hi, wi are the spatial size of Xi, we upsample {Xi+1, · · · , Xmin } by 1 × 1 convolutions and bilinear interpolations (nearest neighbor) and downsample {X1, · · · , Xi−1}
+
+by strided convolutions with di ff erent strides and kernels. Now we attain the coarsely sampled features nXup  
+
+> 1
+
+, · · · , Xup i−1, Xdn i+1, · · · , Xdn 
+
+> min
+
+o, each of which has the same shape as Xi. Subsequently, 
+
+nXup  
+
+> 1
+
+, · · · , Xi, · · · , Xdn 
+
+> min
+
+o are fed into the o ff set generator to learn the position and context semantic 12 information of previous coarse sampling points. The o ff set generator shown in Fig. 4 (a) begins the process by concatenating all inputs and then puts the concatenation into the convolution mod-ule to produce context information with ( min − 1) ci channels. The context content is evenly split into ( min − 1) parts, each of which will go through an individual o ff set generator branch to attain the specific o ff sets and weights for every sampled level. In the o ff set generator branch, we utilize a depthwise convolution and linear projection layer to process the context information, finally yielding fine-grained and position-wise o ff sets Xo f f set ∈ RK2×3×hi×wi for context-aware feature resampling. However, it may impair model generalization and diversity that all ci channels share the same o ff set maps. Therefore, we divide the ci channels into several groups, for each of which there is a learned Xo f f set . Eventually, the o ff set XGo f f set belongs to RG×K2×3×hi×wi , where G means the number of groups, K2 denotes K × K resampling points on sampled feature maps. Addition-ally, in XGo f f set every resampling point ( x, y) corresponds to a pair of coordinate o ff sets ( ∆x, ∆y)and coordinate attention weight ∆m, which indicates the significance of the sampling point. 
+
+Context-aware feature resampler. After acquiring the o ff set maps, we exploit deformable convolutions [44] to resample coarsely sampled feature maps, followed by GELU activation and Layer Normalization. Here, we briefly review the deformable convolution and then explain why it can function as the core operation of Resampler. For a sampled feature map Xs ∈ Rci×hi×wi , the output feature at the position X[( x, y)] after a vanilla convolution with the K × K kernel can be obtained by: 
+
+X[( x, y)] =
+
+> K2
+
+X
+
+> n=1
+
+wn · Xs[( x, y) + pn], (7) where ( x, y) ∈ { (0 , 0) , (0 , 1) , . . . , (hi − 1, wi − 1) }, K2 is the number of sample points each time, 
+
+wn and pn ∈ n − j K
+
+> 2
+
+k , − j K
+
+> 2
+
+k , − j K
+
+> 2
+
+k , − j K
+
+> 2
+
+k + 1 , . . . , j K
+
+> 2
+
+k , j K
+
+> 2
+
+ko stands for the convolutional weight and pre-defined o ff set for the n-th sample location, respectively. In addition to the fixed off sets, deformable convolutions attempt to learn extra coordinate o ff sets ( ∆x, ∆y). When apply-ing deformable convolutions to Xs, Equation 7 can be reformulated as: 
+
+Xrs =
+
+> K2
+
+X
+
+> n=1
+
+wn · Xs[( x, y) + pn + (∆xn, ∆yn)] · ∆mn, (8) where ( ∆xn, ∆yn) and ∆mn are the learnable coordinate o ff sets and attention weight for the n-th location. Furthermore, considering dividing the channels into G groups, the final resampled 13 Ground truth Bilinear interpolation DySample Context -aware Resampler 
+
+Ground truth Strided convolution CARAFE ++ Context -aware Resampler               
+
+> Upsample Downsample Fig. 6. In first row, H/8×W/8 feature maps are upsampled to H/4×W/4 by bilinesar interpolation, DySample [12] and Cotext-aware Resampler (ours); In second row, we downsample H/4×W/4 feature maps to H/8×W/8 through strided convolution, CARAFE ++ [13] and Cotext-aware Resampler (ours).
+
+features are calculated by: 
+
+Xrs =
+
+> G
+
+[
+
+> g=1
+> K2
+
+X
+
+> n=1
+
+wg · Xsg[( x, y) + pn + (∆xgn , ∆ygn )] · ∆mgn , (9) where S is the concatenation of feature maps, G is the group number and wg ∈ R ciG represents the location-irrelevant projection weights of the g-th group. Because o ff set maps are produced by the context-aware o ff set generator, Equation 8 and 9 can resample the coarse feature maps based on learned context content, correcting object displacement and boundary redundancy. In addition, we compare di ff erent upsampling and downsampling methods with the context-aware feature resampler, which is shown in Fig. 6. Our approach significantly restores representative object features in the sampling process, while reducing the misplaced boundary pixels. 
+
+Context weight generator. In this section, we need to rethink how to e ffi ciently fuse multi-scale features nXrs  
+
+> 1
+
+, · · · , Xi, · · · , Xrs 
+
+> min
+
+o. Features from di ff erent levels embody di ff erent content representation patterns. Some patterns contain more abstract features that are quite essential for recognizing the existence of objects, while others carry more detailed content that is beneficial to understanding the object boundary. Although Resampler mitigates pixel-level feature dishar-mony and error, direct feature fusion by element-wise summation still exposes relatively low intra-category similarity [16], and also hinders relationship attention learning among di ff erent feature patterns, thus increasing the risk of false classification and underdetection. The proposed context weight generator highlights context content modeling and pattern relationship learning in the fusion stage, aiming to reduce the intra-category inconsistency and background interfer-14 Standard feature fusion + Context -ware Resampler + Context -aware Resampler      
+
+> + Context weight generator
+> +Context -aware Resampler
+> + Context weight generator
+> +ICAtten Fig. 7. Visualization of detection results, the corresponding feature maps and heatmaps. Resampler refines coarsely sampled features and diminishes object displacement. The context weight generator learns the significance relationship of di ff erent feature patterns, decreasing the misclassifications and missed detections. ICAtten further enhances the dis-criminative features and alleviates complex background interference.
+
+ence. In Fig. 4 (b), the generator first squeezes nXrs  
+
+> 1
+
+, · · · , Xi, · · · , Xrs 
+
+> min
+
+o with min convolution modules to avoid drastic channel reduction in the following operations. And then, we feed the concatenated features to two branch paths, where the lower pathway applies N RepBlocks com-posed of RepConv to extract abstract attention content and the upper branch with a cheap 1 × 1convolution layer attains the shallow context information as a supplement to the lower branch. Afterward, the two-path outputs are fused by element-wise addition and projected by the Sig-moid function, generating the context attention weight maps Wi ∈ Rmin ×hi×wi . Each channel in the context weights represents the pattern proportion relationship of the corresponding level, and the i-th level fused features Yi are finally calculated by: 
+
+Yi = (
+
+> min
+
+X
+
+> n=1,n,i
+
+Wni
+
+O
+
+Xrs n ) + Wii
+
+O
+
+Xi, (10) where N implies Hadamard product, Wni ∈ Rhi×wi refers to the aggregation context weight map of the i-th level and n-th channel in ( m − j)-th column. 15 3.3. Intra-scale Content-aware Attention for Feature Reassembly 
+
+As is shown in Fig.7, while we notably improve the detection performance with the resam-pler and context weight generator, some tiny and occluded objects are still located inaccurately or underdetected. In fact, models confront di ffi culty separating tiny objects from complex and clut-tered backgrounds since they take up fewer pixels. Moreover, some fused object features are not discriminative and expressive enough to be recognized by the model, also resulting in misclas-sifications and missed detections. Motivated by this, we design ICAtten to further suppress the redundant background information by the spatial content variation of feature maps and facilitate intra-scale target-relevant content attention learning by channel reassembly and feature reuse. To fulfill this, we first need to separate the expressive features from less expressive ones. The latter can be regarded as trivia and play a role as a complement to the former. Considering the model’s FLOPs and parameters, we use the learnable parameter scaling factors in Group Normalization [45] to evaluate the information density of feature maps. For fused features Yi ∈ Rci×hi×wi , we initially subtract the mean and divide Yi by the standard deviation as follows: 
+
+Ystd  
+
+> i
+
+= GN (Yi) = α Yi − μ
+
+√σ2 + β (11) where σ and μ are the standard deviation and mean of Yi, α and β are learnable transformation coe ffi cients. We apply the trainable parameters α ∈ Rci in GN to assess the variance of pixel values across batches and channels. Greater variation represents richer spatial and semantic content density. The standardized weights ωi ∈ Rci are attained by Equation 12, indicating the informativeness of features. 
+
+ωi =
+
+
+
+αi
+
+Pci 
+
+> j=1
+
+α j
+
+, i = 1, 2, · · · , ci
+
+ (12) We reweight the feature values by ωi and subsequently transform them to the range (0 , 1) using the Sigmoid function to calculate the reweights. Afterward, we designate reweights exceeding the threshold as 1 to generate the informative attention weights ω1 
+
+> i
+
+, whereas reweights falling below the threshold are set as 0 to generate the non-informative weights ω2 
+
+> i
+
+(threshold is set to 16 Table 1: Performance of Faster RCNN [26] with di ff erent feature pyramid networks on MS COCO val2017 . † indicates model performance referred from other works. 
+
+Method Backbone AP AP 50 AP 75 AP S AP M AP L Params(M) FLOPs(G) FPN [9] R50 37.4 57.3 40.3 18.4 41.7 52.7 41.7 187 PConv † [46] R50 38.5 59.9 41.4 - - - 42.8 -FreqFusion [16] R50 39.4 60.9 42.7 23.0 43.3 50.9 - -PAFPN [10] R50 38.1 58.1 41.3 19.1 42.5 54.0 45.2 209 NAS-FPN † [34] R50 37.7 54.5 41.1 15.5 44.5 56.9 68.2 366 AugFPN [47] R50 38.7 61.2 41.9 24.0 42.5 49.5 – –GraphFPN [37] R50 39.1 58.3 39.4 22.4 38.9 56.7 100.0 380 FPT [48] R50 38.0 57.1 38.9 20.5 38.1 55.7 88.2 346 FaPN [14] R50 39.2 - - 24.5 43.3 49.1 - -RCNet [49] R50 40.2 60.9 43.6 25.0 43.5 52.9 68.6 299 AFPN [15] R50 39.0 57.6 42.1 19.4 43.0 55.0 49.8 194 
+
+A3-FPN-Lite (ours) R50 39.7 60.5 42.8 23.5 43.2 56.4 49.6 210 
+
+A3-FPN (ours) R50 40.9 61.7 43.5 24.6 44.1 56.7 76.5 323 
+
+0.5 in the experiments). The computation of ω1 
+
+> i
+
+, ω 2 
+
+> i
+
+can be formulated as: 
+
+ω1 
+
+> i
+
+=
+
+
+
+Sigmoid( ωi), Sigmoid( ωi) ≤ threshold; 1, Sigmoid( ωi) > threshold ,ω2 
+
+> i
+
+=
+
+
+
+Sigmoid( ωi), Sigmoid( ωi) ≥ threshold; 0, Sigmoid( ωi) < threshold .
+
+(13) After that, the fused features Yi are multiplied by ω1 
+
+> i
+
+and ω2 
+
+> i
+
+, respectively, producing two result-ing weighted features: the informative ones Z1 and less informative ones Z2. So far, we have condensed the irrelevant background features and separated the fused features into two parts: Z1
+
+has expressive and informative spatial and semantic information, while Z2 has less information, which can be viewed as trivial details. Subsequently, we disperse Z1 and Z2 along the channel dimension and make each channel of Z1 and its reverse-matched channel of Z2 add together, promoting the information flow e ffi ciency across channels and strengthening the representative feature expression. Finally, we concatenate all reassembled channels to form Zi.17 4. Experiments 
+
+4.1. Datasets and Evaluation Metrics 
+
+Datasets: We consider four widely-used benchmarks to evaluate the performance of A3-FPN, including PASCAL VOC [50] and VisDrone2019-DET [51] for object detection, MS COCO [17] for object detection and instance segmentation, Cityscapes [18] for semantic segmentation. PASCAL VOC [50] is a vital benchmark for object recognition, which has 20 object cate-gories (e.g., vehicles, animals, household items) and contains 22136 training images (2007train-val and 2012trainval) and 4952 test images (voc2007test). The dataset is widely adopted for evaluating object detection models using mean Average Precision (mAP) at an intersection-over-union (IoU) threshold of 0.5. VisDrone2019-DET [51] is a collection of aerial images captured by drones for small object detection, containing a total of 7,019 images. The dataset is split into 6,471 images for training and 548 for validation. Each image is annotated with objects from ten distinct categories: bicycle, awning tricycle, tricycle, van, bus, truck, motor, pedestrian, person, and car. The images typically have a high resolution of approximately 2000 × 1500 pixels. MS COCO [17] encompasses more than 100K images annotated for 80 object categories, which provides both per-object bounding boxes and pixel-level segmentation masks. It contains 115k images for training (train2017), 5k images for validation (val2017) and 20k images for test-ing (test-dev). We use the train2017 subset for training models and report model performances on the val2017 subset for comparison with SOTA methods. Cityscapes [18] targets large-scale urban scene understanding for autonomous driving. It includes 5,000 high-resolution (2048 ×1024) images with pixel-accurate annotations, which are split into training, validation and test sets with 2975, 500 and 1525 images, respectively. The annotation consists of 30 classes (e.g., road, pedestrian, and vehicle), 19 of which are used for the semantic segmentation task. 
+
+Evaluation metrics: For performance evaluation, Average Precision (AP) serves as the pri-mary metric for both object detection and instance segmentation, which is calculated under the Intersection-over-Union (IoU) threshold of 0.5:0.95. We also compute AP s, AP m, AP l for small (area < 32 2 pixels), medium (32 2 ≤ area ≤ 96 2 pixels), and large (area > 96 2 pixels) objects. Note that AP box and AP mask denote APs for bounding box and segmentation mask, respectively. For semantic segmentation, mean Intersection-over-Union (mIoU) is used as the core metric to 18 Table 2: Small object detection performance with di ff erent feature pyramid networks on the VisDrone2019-DET dataset. The baseline model is RetinaNet [52].                                                                                 
+
+> Method Backbone Epoch AP AP 50 AP 75 AP SAP MAP L
+> RetinaNet [52] R50 12 18.1 31.1 18.3 8.8 28.5 38.0 FPN [9] R50 12 21.0 36.4 21.4 10.9 34.3 40.1 PAFPN [10] R50 12 21.2 36.5 21.6 10.9 34.6 41.1 AugFPN [47] R50 12 21.7 37.1 22.2 11.1 35.4 40.4 FPT [48] R50 12 19.3 33.3 19.2 9.4 30.0 38.9 RCFPN [49] R50 12 21.0 36.0 21.3 10.5 34.8 38.1 AFPN [15] R50 12 20.7 36.0 21.2 10.7 33.4 36.9 CFPT [53] R50 12 22.2 38.0 22.4 11.9 35.2 41.7
+> A3-FPN (ours) R50 12 23.7 39.4 24.7 12.4 37.7 43.8
+
+measure the average overlap between predicted and ground-truth segmentation masks across all classes. mIoU can ensure robust performance assessment even in datasets with highly uneven class distributions. 
+
+4.2. Implementation Details 
+
+We employ MMDetection [54] and MMSegmentation [55] as the implementation platform and train models on 8 NVIDIA RTX 4090 GPUs, with 2 images processed on each. All hy-perparameters in this work strictly follow the default configurations of these codebases. When integrating the proposed method into transformer-based frameworks, we replace the functionally equivalent feature fusion module with A3-FPN to further prove its generalization and e ff ective-ness. For more fair comparison, we also maintain the original training protocols from their respective o ffi cial code repository. 
+
+4.3. Object Detection 
+
+We first compare the performance of Faster RCNN with di ff erent multi-scale feature fusion methods under the same training schedule. As shown in Table 1, A3-FPN achieves a leading position in AP, AP 50 , and AP S with 76.5 M parameters and 323 GFLOPs, outperforming the other pyramid networks in the table. Our lightweight A3-FPN-Lite maintains relatively lower computational cost and inference latency (Fig. 2) and attains 39.7 AP and 60.5 AP 50 . Addition-ally, we also present the qualitative evaluation between our method and other feature pyramid networks in Fig. 8, including the detection visualization and corresponding AblationCAM [56]. Fig. 8 implies that coarse sampling and vanilla fusion operations will produce inconsistent and less expressive features, finally resulting in misclassification and underdetection. With MCAtten 19 FPN PAFPN NAS -FPN AFPN !!-FPN Fig. 8. Qualitative evaluation of various feature pyramid networks for object detection on MS COCO validation set, including FPN [9], PAFPN [10], NAS-FPN [34], AFPN [15] and our A3-FPN. Odd rows are the detection results, and the others are the corresponding AblationCAM [56] visualization. The object category in the images is sheep. 
+
+and ICAtten, A3-FPN learns more discriminative and intra-category similar features and reduces intra-category inconsistency in the fusion stage. Thus, our model is more focused on object pixel regions, and correctly predicts the locations and class of all sheep objects. Moreover, we also evaluate our model on VisDrone2019-DET to analyze its performance in smaller goal-intensive scenarios. In Table 2, our method improves the baseline by +5.6 AP and outperforms the other competing methods across all reported metrics. These results further confirm that A3-FPN e ff ec-tively filters redundant information and enhances discriminative feature learning for small and densely clustered instances in complex environments. To further demonstrate the versatility of our approach, we incorporate A3-FPN into leading CNN (multi-stage and one-stage) and Transformer detectors. As summarized in Table 3, exten-sive experiments indicate that our method can remarkably boost the performance of both detec-tor frameworks. By incorporating A3-FPN-Lite and A3-FPN, Cascade R-CNN [27] achieves 1.5 AP and 2.3 AP improvements, respectively. When adopting A3-FPN-Lite and A3-FPN to learn multi-scale features, the point representation-based detector RepPointsV2 [3] surpasses the orig-inal baseline performance by 1.3 AP and 2.2 AP. In the one-stage detector, A3-FPN increases the detection precision of FCOS [57] and GFLV2 [58] by 3.2 AP and 2.0 AP, while A3-FPN-Lite en-20 Table 3: Performance comparison between state-of-the-art detectors with and without incorporating A3-FPN on MS COCO dataset. CNN detectors are evaluated on COCO test-dev , while vision transformer detectors are tested on COCO val2017 .
+
+Type Method Backbone Epoch AP AP 50 AP 75 AP S AP M AP L
+
+multi-stage CNN detectors 
+
+Cascade R-CNN [27] R101 18 42.8 62.1 46.3 23.7 45.5 55.2 
+
+A3-FPN-Lite R101 18 44.3 62.3 47.6 25.3 47.1 57.6 
+
+A3-FPN R101 18 45.1 62.9 48.5 26.2 47.9 58.1 RepPointsV2 [3] R101 24 46.0 65.3 49.5 27.4 48.9 57.3 
+
+A3-FPN-Lite R101 24 47.3 66.1 50.4 27.9 49.6 58.4 
+
+A3-FPN R101 24 48.2 67.2 51.1 28.5 50.9 60.3 
+
+one-stage CNN detectors 
+
+FCOS [57] R101 24 41.5 60.7 45.0 24.4 44.8 51.6 
+
+A3-FPN-Lite R101 24 43.4 62.8 47.1 26.2 45.9 52.9 
+
+A3-FPN R101 24 44.7 63.9 48.2 27.8 47.1 54.3 GFLV2 [58] R101 24 46.2 64.3 50.5 27.8 49.9 57.0 
+
+A3-FPN-Lite R101 24 47.1 65.3 51.2 28.2 51.3 58.6 
+
+A3-FPN R101 24 48.2 66.2 52.8 28.8 51.9 60.2 
+
+vision Transformer detectors (300 queries) 
+
+RT-DETR [30] R50 72 53.1 71.3 57.7 34.8 58.0 70.0 
+
++A3-FPN-Lite R50 72 54.1 71.9 58.3 35.4 58.3 71.2 
+
++A3-FPN R50 72 54.9 72.6 58.8 36.1 58.7 72.3 D-FINE [59] HGNetv2-L 80 54.0 71.6 58.4 36.5 58.0 71.9 
+
++A3-FPN-Lite HGNetv2-L 80 54.8 72.3 59.1 36.8 58.9 72.5 
+
++A3-FPN HGNetv2-L 80 55.5 72.9 60.0 37.2 59.4 73.1 Mask DINO [8] R50 50 50.5 - - - - -
+
++A3-FPN R50 50 51.6 - - - - -
+
+hances them by 1.9 AP and 0.9 AP. For the detection transformer, replacing Hybrid Encoder with 
+
+A3-FPN-Lite and A3-FPN leads to AP improvements of +1.0 and +1.8 for RT-DETR [30], and 
+
++0.8 and +1.5 for D-FINE [59], respectively. In addition, integrating A3-FPN into the unified visual multi-task framework further validates its e ff ectiveness, with Mask DINO [8] achieving a +1.1 AP enhancement. These improvements also indicate that intra-category inconsistency and object displacement in the feature fusion are still widely prevalent challenges in advanced models. 
+
+4.4. Instance Segmentation 
+
+Quantitative evaluations of instance segmentation are summarized in Table 4. With ResNet-50 [60] and Mask R-CNN [5] serving as the backbone and segmentation head, our A3-FPN show-cases noteworthy performance on COCO val2017 , surpassing the other methods in the table across AP, AP 50 , and AP S. Notably, A3-FPN-Lite attains 36.3 mask AP with comparable com-putational e ffi ciency (similar parameters and FLOPs to lightweight counterparts), outperforming 21 Table 4: Mask AP comparison of di ff erent instance segmentation models on COCO val2017 . CNN methods adopt Mask R-CNN [5] as the baseline architecture. * denotes mask AP is evaluated on instance ground truths derived from panoptic annotations [32] and † indicates re-implementation results. 
+
+Type Method Backbone Epoch AP AP 50 AP 75 AP S AP M AP L
+
+CNN methods 
+
+FPN [9] R50 12 34.7 55.7 37.2 18.3 37.4 47.2 FPT [48] R50 12 36.8 55.9 38.6 18.8 35.3 54.2 
+
+CARAFE [13] R50 12 35.4 56.7 37.6 16.9 38.1 51.3 DySample + [12] R50 12 35.7 57.3 38.2 17.3 38.2 51.8 FreqFusion [16] R50 12 36.0 57.9 38.1 17.9 39.0 52.3 
+
+A2-FPN [38] R50 12 36.2 58.4 38.1 20.1 39.2 49.6 TFPN † [39] R50 12 36.6 58.5 38.0 19.7 39.0 52.5 
+
+A3-FPN-Lite R50 12 36.3 57.6 38.2 19.5 38.6 52.9 
+
+A3-FPN R50 12 37.1 58.7 38.4 20.2 39.1 53.7 DynaMask [6] R50 12 37.6 57.4 40.5 20.7 40.4 50.3 
+
+A3-FPN-Lite R50 12 38.1 57.8 41.2 21.1 40.9 51.6 
+
+A3-FPN R50 12 38.8 58.4 42.0 21.7 41.3 52.5 
+
+Transformer methods 
+
+Mask2Former [31] R50 50 43.7 66.0 46.9 23.4 47.2 64.8 
+
++A3-FPN R50 50 44.2 66.5 47.9 24.5 47.6 65.6 OneFormer [32] Swin-L 100 49.0 * - - - - -
+
++A3-FPN Swin-L 100 49.6 * - - - - -Mask DINO [8] R50 50 45.4 67.9 49.3 25.2 48.3 65.8 
+
++A3-FPN R50 50 46.2 68.7 50.2 26.1 48.9 66.6 
+
+CARAFE [13] by 0.9 AP, DySample [12] by 0.6 AP, and FreqFusion [16] by 0.3 AP. Qualitative results in Fig. 9 (a) and (b) demonstrate A3-FPN’s outstanding segmentation and classification precision compared to conventional FPNs and upsampling methods, which can be attributed to the content-aware attention mechanism that e ff ectively decreases false positives and missing de-tections. Furthermore, integrating A3-FPN-Lite and A3-FPN into DynaMask [6] elevates baseline performance by 0.5 AP and 1.2 AP, respectively. When applied to transformer-based instance segmentors, our method delivers consistent gains: Mask2Former ( +0.5 AP), OneFormer ( +0.6 AP), and Mask DINO ( +0.8 AP), demonstrating its versatility in multi-scale feature representa-tion. 
+
+4.5. Semantic Segmentation 
+
+As shown in Table 5 and Fig. 9 (c) and (d), A3-FPN exhibits prominent advantages in both CNN and transformer-based semantic segmentors on the Cityscapes validation set. When using ResNet-50 as the backbone and PointRend [22] as the mask head, A3-FPN achieves 79.93 and 81.54 mIoU under single-scale and multi-scale training, while A3-FPN-Lite attains 78.98 /80.48 22 FP T DySample CARAFE FP N !!-FPN COCO            
+
+> +!!-FPN COCO Mask DINO Mask2Former +!!-FPN COCO
+> (a)
+> (b)
+> Uper Net Seg Next SETR Seg Former
+> Ground truth
+> !!-FPN
+> Mask2Former +!!-FPN Mask DINO Ground truth
+> Ground truth
+> +!!-FPN
+> (c)
+> (d)
+> Ground truth
+
+Fig. 9. Qualitative evaluation. (a) Instance segmentation results of Mask RCNN [5] with di ff erent feature fusion ap-proaches, including FPN [9], FPT [48], DySample [12], CARAFE [13] and our A3-FPN; (b) and (d) are comparison between some unified transformer-based models (Mask2Former [31] and Mask DINO [8]) with and without integrat-ing A3-FPN on the instance and semantic segmentation task respectively; (c) Semantic segmentation visualization on Cityscapes validation set using di ff erent semantic segmentors, which are UperNet [21], SegNext [23], SegFormer [25], SETR [24], and our A3-FPN. Additional qualitative results are presented in Appendix E and F. 
+
+(s.s. /m.s.) mIoU with lower parameter counts. Additionally, compared to classical FPN-based methods like UperNet [21], A3-FPN and A3-FPN-Lite achieve a significant gain of 1.46 and 0.74 mIoU, respectively. When integrated with transformer-based segmentors, A3-FPN delivers consistent performance gains across multiple architectures: SegFormer [25] and Mask2Former [31] reach 80.8 and 81.1 mIoU respectively, surpassing their baseline implementations by +2.2 
+
+and +1.7 , and the FreqFusion-enhanced counterparts [16] by +0.7 and +0.6 ; Mask DINO [8] and OneFormer [32] exhibit improvements of 1.8 and 0.9 mIoU respectively, demonstrating broad compatibility of A3-FPN. All these results strongly underscore the robustness and e ffi cacy of A3-FPN in advancing semantic segmentation performance. 
+
+4.6. Ablation Studies 
+
+In this section, we perform thorough ablation studies for the proposed method, including threshold selection in ICAtten, group division in the grouping strategy, validating the e ff ective-23 Table 5: Comparison with recent state-of-the-art semantic segmentation methods on Cityscapes [18] validation set. We calculate mIoU to assess the model performance and intra-category consistency of the final predictions. †† indicates our re-implementation results, while s.s. and m.s. denotes single-scale and multi-scale training, respectively. 
+
+Type Method Backbone Crop Size Schedule mIoU (s.s.) mIoU (m.s.) 
+
+CNN segmentors 
+
+PointRend [22] R50 512 ×1024 80k 76.47 78.13 FaPN †† [14] R50 512 ×1024 80k 79.07 -
+
+A3-FPN-Lite R50 512 ×1024 80k 78.98 80.48 
+
+A3-FPN R50 512 ×1024 80k 79.93 81.54 PSPNet [19] R50 512 ×1024 80k 78.55 79.79 PSANet [20] R50 512 ×1024 80k 77.24 78.69 SegNeXt [23] MSCAN-T 1024 ×1024 160k 79.80 81.40 UperNet [21] R50 512 ×1024 80k 78.19 79.19 
+
+A3-FPN-Lite R50 512 ×1024 80k 78.93 80.36 
+
+A3-FPN R50 512 ×1024 80k 79.65 81.22 
+
+Transformer segmentors 
+
+SETR PUP [24] ViT-L 768 ×768 80k 79.2 81.0 Segmenter [61] ViT-L-16 768 ×768 80k 79.1 81.3 SegFormer [25] MIT-B1 1024 ×1024 160k 78.6 79.7 
+
++FreqFusion [16] MIT-B1 1024 ×1024 160k 80.1 -
+
++A3-FPN MIT-B1 1024 ×1024 160k 80.8 -Mask2Former [31] R50 512 ×1024 90k 79.4 82.2 
+
++FreqFusion [16] R50 512 ×1024 90k 80.5 -
+
++A3-FPN R50 512 ×1024 90k 81.1 -Mask DINO [8] R50 512 ×1024 90k 79.8 -
+
++A3-FPN R50 512 ×1024 90k 81.6 -OneFormer [32] Swin-L 512 ×1024 90k 83.0 84.4 
+
++A3-FPN Swin-L 512 ×1024 90k 83.9 85.6 
+
+ness of the asymptotically disentangled framework, and systematic evaluation of feature sam-pling and fusion operations in A3-FPN. 
+
+Feature fusion framework. Feature fusion frameworks play a critical role in multi-scale feature learning. To validate the framework superiority of A3-FPN, we conduct comparative ex-periments on Mask R-CNN using di ff erent multi-scale fusion frameworks, including layer-wise framework (top-down [9] and top-down + bottom-up [10]), global fusion framework (Gather-and-Distribute in Gold-YOLO [33]) and the asymptotically disentangled framework. To ensure a fair comparison and eliminate biases from well-designed fusion modules, we implement the standard FPN’s and A3-FPN’s modules across all frameworks. Quantitative results in Table 6 show that, regardless of the sampling and fusion methods employed, the proposed asymptoti-cally disentangled framework consistently outperforms other fusion frameworks across object 24 Table 6: Ablation study for di ff erent feature fusion frameworks. AP box and AP mask are evaluated on MS COCO val2017 ,while mIoU is calculated on Cityscapes. 
+
+Framework AP box AP mask mIoU 
+
+with FPN’s modules: 
+
+top-down framework [9] 38.2 34.7 -top-down + bottom up framework [10] 38.7 35.1 -Gather-and-Distribute framework [33] 39.2 35.4 -top-down asymptotically disentangled framework 39.8 35.9 -
+
+with A 3-FPN’s modules: 
+
+top-down framework 39.3 35.8 -top-down + bottom up framework 39.9 36.1 -Gather-and-Distribute framework 40.4 36.5 -top-down asymptotically disentangled framework 41.9 37.3 79.11 bottom-up asymptotically disentangled framework 41.3 36.9 79.65  
+
+> Table 7: Performance comparison with other sampling methods and results are reported on COCO val2017 .
+
+Sampler AP box AP mask 
+
+Nearest 38.3 34.7 PixelShu ffl e [62] 38.5 34.8 CARAFE [13] 39.2 35.4 A2U [63] 38.2 34.6 SAPA-B [64] 38.7 35.1 FADE [65] 39.1 35.1 DySample + [12] 39.6 35.7 Resampler (ours) 40.2 36.1             
+
+> Table 8: Performance comparison with other feature fusion methods and results are reported on COCO
+> val2017 .
+> Method AP box AP box 50
+> Concatenation +Conv 37.7 57.4 Sum +Conv 37.4 57.3 Adaptive Spatial Fusion [15] 37.9 57.7 Channel Attention [38] 38.2 58.1 Context Weight Generator (ours) 38.6 58.6
+
+detection, instance segmentation, and semantic segmentation tasks. This superiority stems from its multi-column nesting paradigm and column-wise disentangled mechanism, which collectively enhance the model’s capacity to learn both discriminative feature representations and semanti-cally rich embeddings. Table 6 further reveals the task-specific advantages of the proposed asymptotic framework. Top-down asymptotic design achieves superior performance in position-sensitive tasks (e.g., ob-ject detection, instance segmentation), as its hierarchical feature propagation enables deeper se-mantic enrichment through more column transformations. This design prioritizes the flow of high-level semantic content (e.g., object existence and category) to lower levels via column-wise spread, enhancing localization accuracy while maintaining class consistency. Bottom-up asymptotic design excels in semantic segmentation, where accurate boundary delineation crit-ically depends on semantically rich low-level features. By progressively enriching low-level 25 Table 9: Ablation study for MCAtten and ICAtten. With Faster RCNN [26] as the detector, models are trained and evaluated on PASCAL VOC training set (2007trainval and 2012trainval) and voc2007test, respectively.                        
+
+> MCAtten ICAtten AP AP 50 AP 75
+> context-aware resampler context weight generator
+> standard feature fusion 54.13 80.23 59.56
+> ✓✗✗55.47 82.43 60.97
+> ✓✓✗56.45 82.27 62.03
+> ✓✓✓57.08 82.56 62.13
+
+features through 3-column nesting, the bottom-up paradigm facilitates the integration of seman-tic information at the low level and fine-grained pixel-level mask learning, improving semantic segmentation precision. 
+
+Feature sampling and fusion operations. We first validate the e ffi cacy of the proposed MCAtten and ICAtten in A3-FPN. As demonstrated in Table 6, frameworks incorporating MCAt-ten and ICAtten consistently outperform those using standard FPN, achieving superior AP box ,AP mask and mIoU. To further dissect the superiority of individual components, we conduct a detailed analysis of the context-aware resampler and context weight generator. Compared to recent sampling methods, our context-aware resampler exhibits distinct advantages. As shown in Table 7, when integrated with Mask R-CNN and ResNet-50 for instance segmentation, the proposed context-aware resampler outperforms the second-place Dysample [12] by remarkable margins of 0.6 AP box and 0.4 AP mask . Di ff erent from context-agnostic and independent sampling methods like DySample [12] and CARAFE [13], our resampler depends on multi-scale feature hierarchies and uses adjacent-level information to enhance sampling quality. Similarly, when evaluated with Faster R-CNN and ResNet-50 (Table 8), our feature interaction strategy by the context weight generator surpasses the other feature fusion approaches, achieving 0.7 AP box and 0.4 AP box improvements over Adaptive Spatial Fusion [15] and Channel Attention [38], respec-tively. Finally, we investigate the cooperation e ff ects of combining all proposed modules. As summarized in Table 9 and Figure 7, only the integration of all components yields optimal per-formance across AP, AP 50 and AP 75 , which further confirms the contribution and necessity of each component in A3-FPN. 
+
+Threshold setting in ICAtten. In ICAtten, the higher threshold means the stricter informa-tion compression and filtering. To explore the e ff ect of di ff erent threshold settings, we vary the threshold from 0.2 to 0.8 gradually to compare APs on PASCAL VOC and mIoUs on Cityscapes. As illustrated in Table 10, the optimal AP-mIoU emerges at a threshold of 0.5, where AP reaches 26 Table 10: APs on PASCAL VOC 2007 test set and mIoUs on Cityscapes validation set with di ff erent thresholds in ICAtten.                                     
+
+> Metric Threshold 0.2 0.3 0.4 0.5 0.6 0.7 0.8 AP 56.53 56.65 56.36 57.08 56.73 56.51 56.45 mIoU 79.15 79.29 79.57 79.65 79.45 79.34 79.23
+> Table 11: APs of our method on PASCAL VOC 2007 test set with di ff erent channel numbers per group in the o ff set generator and ICAtten.
+> Module Channels 4816 32 64 off set generator 56.47 56.86 57.08 56.98 56.79 ICAtten 56.34 56.95 57.08 56.69 56.91
+
+57.08 and mIoU remains competitive at 79.65. Therefore, we adopt the optimal threshold of 0.5 for ICAtten. 
+
+Group division in the o ff set generator and ICAtten. To determine the optimal number of channels in dividing into groups, we conduct ablation experiments with varying numbers of channels and record the APs on PASCAL VOC, as shown in Table 11. The results show that 16 channels per group achieves the optimal AP for both o ff set generator and ICAtten, which is con-sistent with the observations reported in [45]. Accordingly, we use this setting in all subsequent experiments. 
+
+5. Conclusion 
+
+In this work, we rethink the existing multi-scale feature fusion methods for dense visual pre-diction tasks, analyzing their defects concerning the framework design and fusion operations. Building on this, we propose A3-FPN, an asymptotic content-aware pyramid attention network, which integrates the asymptotically disentangled framework with content-aware attention-based fusion operations. A3-FPN e ffi ciently resolves intra-category inconsistencies and boundary fea-ture displacement for medium-to-large objects while enhancing discriminative feature learning for small and densely clustered instances. Despite its outstanding performance, we have not yet systematically examined A3-FPN under more extreme or challenging scenarios, such as out-of-distribution inputs, low-light conditions, or severe occlusion. These situations are common in real-world applications and may significantly a ff ect the robustness of the proposed approach. We leave this as an important direction for future work, where we plan to explore model adaptation 27 and enhancement strategies to improve performance in these challenging environments. 
+
+References 
+
+[1] M. Chen, L. Zhang, R. Feng, X. Xue, J. Feng, Rethinking local and global feature repre-sentation for dense prediction, Pattern Recognition 135 (2023) 109168. [2] G. Zhang, Z. Li, C. Tang, J. Li, X. Hu, Cednet: A cascade encoder–decoder network for dense prediction, Pattern Recognition 158 (2025) 111072. [3] Y. Chen, Z. Zhang, Y. Cao, L. Wang, S. Lin, H. Hu, Reppoints v2: Verification meets regression for object detection, in: Advances in Neural Information Processing Systems, Vol. 33, 2020, pp. 5621–5631. [4] X. Ding, R. Zhang, Q. Liu, Y. Yang, Real-time small object detection using adaptive weighted fusion of e ffi cient positional features, Pattern Recognition 167 (2025) 111717. [5] K. He, G. Gkioxari, P. Dollár, R. Girshick, Mask r-cnn, in: Proc. IEEE Int. Conf. Comput. Vis. (ICCV), 2017, pp. 2961–2969. [6] R. Li, C. He, S. Li, Y. Zhang, L. Zhang, Dynamask: dynamic mask selection for instance segmentation, in: Proceedings of the IEEE /CVF Conference on Computer Vision and Pat-tern Recognition, 2023, pp. 11279–11288. [7] J. Long, E. Shelhamer, T. Darrell, Fully convolutional networks for semantic segmentation, in: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, 2015, pp. 3431–3440. [8] F. Li, H. Zhang, H. Xu, S. Liu, L. Zhang, L. M. Ni, H.-Y. Shum, Mask dino: Towards a unified transformer-based framework for object detection and segmentation, in: Proceed-ings of the IEEE /CVF Conference on Computer Vision and Pattern Recognition, 2023, pp. 3041–3050. [9] T.-Y. Lin, P. Dollár, R. Girshick, K. He, B. Hariharan, S. Belongie, Feature pyramid net-works for object detection, in: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, 2017, pp. 2117–2125. 28 [10] S. Liu, L. Qi, H. Qin, J. Shi, J. Jia, Path aggregation network for instance segmentation, in: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, 2018, pp. 8759–8768. [11] M. Tan, R. Pang, Q. V. Le, E ffi cientdet: Scalable and e ffi cient object detection, in: Proceed-ings of the IEEE /CVF Conference on Computer Vision and Pattern Recognition, 2020, pp. 10781–10790. [12] W. Liu, H. Lu, H. Fu, Z. Cao, Learning to upsample by learning to sample, in: Proc. IEEE Int. Conf. Comput. Vis. (ICCV), 2023, pp. 6027–6037. [13] J. Wang, K. Chen, R. Xu, Z. Liu, C. C. Loy, D. Lin, Carafe ++ : Unified content-aware reassembly of features, IEEE Transactions on Pattern Analysis and Machine Intelligence 44 (9) (2022) 4674–4687. [14] S. Huang, Z. Lu, R. Cheng, C. He, Fapn: Feature-aligned pyramid network for dense image prediction, in: Proc. IEEE Int. Conf. Comput. Vis. (ICCV), 2021, pp. 864–873. [15] G. Yang, J. Lei, H. Tian, Z. Feng, R. Liang, Asymptotic feature pyramid network for label-ing pixels and regions, IEEE Transactions on Circuits and Systems for Video Technology 34 (9) (2024) 7820–7829. [16] L. Chen, Y. Fu, L. Gu, C. Yan, T. Harada, G. Huang, Frequency-aware feature fusion for dense image prediction, IEEE Transactions on Pattern Analysis and Machine Intelligence (2024). [17] T.-Y. Lin, M. Maire, S. Belongie, J. Hays, P. Perona, D. Ramanan, P. Dollár, C. L. Zitnick, Microsoft coco: Common objects in context, in: Proceedings of the European Conference on Computer Vision, Springer, 2014, pp. 740–755. [18] M. Cordts, M. Omran, S. Ramos, T. Rehfeld, M. Enzweiler, R. Benenson, U. Franke, S. Roth, B. Schiele, The cityscapes dataset for semantic urban scene understanding, in: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, 2016, pp. 3213–3223. [19] H. Zhao, J. Shi, X. Qi, X. Wang, J. Jia, Pyramid scene parsing network, in: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, 2017, pp. 2881–2890. 29 [20] H. Zhao, Y. Zhang, S. Liu, J. Shi, C. C. Loy, D. Lin, J. Jia, Psanet: Point-wise spatial atten-tion network for scene parsing, in: Proceedings of the European Conference on Computer Vision, 2018, pp. 267–283. [21] T. Xiao, Y. Liu, B. Zhou, Y. Jiang, J. Sun, Unified perceptual parsing for scene understand-ing, in: Proceedings of the European Conference on Computer Vision, 2018, pp. 418–434. [22] A. Kirillov, Y. Wu, K. He, R. Girshick, Pointrend: Image segmentation as rendering, in: Proceedings of the IEEE /CVF Conference on Computer Vision and Pattern Recognition, 2020, pp. 9799–9808. [23] M.-H. Guo, C.-Z. Lu, Q. Hou, Z. Liu, M.-M. Cheng, S.-M. Hu, Segnext: Rethinking con-volutional attention design for semantic segmentation, in: Advances in Neural Information Processing Systems, Vol. 35, 2022, pp. 1140–1156. [24] S. Zheng, J. Lu, H. Zhao, X. Zhu, Z. Luo, Y. Wang, Y. Fu, J. Feng, T. Xiang, P. H. Torr, et al., Rethinking semantic segmentation from a sequence-to-sequence perspective with transformers, in: Proceedings of the IEEE /CVF Conference on Computer Vision and Pat-tern Recognition, 2021, pp. 6881–6890. [25] E. Xie, W. Wang, Z. Yu, A. Anandkumar, J. M. Alvarez, P. Luo, Segformer: Simple and effi cient design for semantic segmentation with transformers, in: Advances in Neural In-formation Processing Systems, Vol. 34, 2021, pp. 12077–12090. [26] S. Ren, K. He, R. Girshick, J. Sun, Faster r-cnn: towards real-time object detection with region proposal networks, in: Advances in Neural Information Processing Systems, 2015, p. 91–99. [27] Z. Cai, N. Vasconcelos, Cascade r-cnn: Delving into high quality object detection, in: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, 2018, pp. 6154–6162. [28] A. Wang, H. Chen, L. Liu, K. Chen, Z. Lin, J. Han, et al., Yolov10: Real-time end-to-end object detection, in: Advances in Neural Information Processing Systems, 2024, pp. 107984–108011. 30 [29] N. Carion, F. Massa, G. Synnaeve, N. Usunier, A. Kirillov, S. Zagoruyko, End-to-end object detection with transformers, in: Proceedings of the European Conference on Computer Vision, Springer, 2020, pp. 213–229. [30] Y. Zhao, W. Lv, S. Xu, J. Wei, G. Wang, Q. Dang, Y. Liu, J. Chen, Detrs beat yolos on real-time object detection, in: Proceedings of the IEEE /CVF Conference on Computer Vision and Pattern Recognition, 2024, pp. 16965–16974. [31] B. Cheng, I. Misra, A. G. Schwing, A. Kirillov, R. Girdhar, Masked-attention mask trans-former for universal image segmentation, in: Proceedings of the IEEE /CVF Conference on Computer Vision and Pattern Recognition, 2022, pp. 1280–1289. [32] J. Jain, J. Li, M. T. Chiu, A. Hassani, N. Orlov, H. Shi, Oneformer: One transformer to rule universal image segmentation, in: Proceedings of the IEEE /CVF Conference on Computer Vision and Pattern Recognition, 2023, pp. 2989–2998. [33] C. Wang, W. He, Y. Nie, J. Guo, C. Liu, Y. Wang, K. Han, Gold-yolo: E ffi cient object de-tector via gather-and-distribute mechanism, in: Advances in Neural Information Processing Systems, Vol. 36, 2023, pp. 51094–51112. [34] G. Ghiasi, T.-Y. Lin, Q. V. Le, Nas-fpn: Learning scalable feature pyramid architecture for object detection, in: Proceedings of the IEEE /CVF Conference on Computer Vision and Pattern Recognition, 2019, pp. 7036–7045. [35] W. Weng, M. Wei, J. Ren, F. Shen, Enhancing aerial object detection with selective fre-quency interaction network, IEEE Transactions on Artificial Intelligence 5 (12) (2024) 6109–6120. [36] H. Li, R. Zhang, Y. Pan, J. Ren, F. Shen, Lr-fpn: Enhancing remote sensing object detection with location refined feature pyramid network, in: 2024 International Joint Conference on Neural Networks (IJCNN), 2024, pp. 1–8. [37] G. Zhao, W. Ge, Y. Yu, Graphfpn: Graph feature pyramid network for object detection, in: Proc. IEEE Int. Conf. Comput. Vis. (ICCV), 2021, pp. 2763–2772. 31 [38] M. Hu, Y. Li, L. Fang, S. Wang, A2-fpn: Attention aggregation based feature pyramid network for instance segmentation, in: Proceedings of the IEEE /CVF Conference on Com-puter Vision and Pattern Recognition, 2021, pp. 15343–15352. [39] D. Liu, J. Liang, T. Geng, A. Loui, T. Zhou, Tripartite feature enhanced pyramid network for dense prediction, IEEE Transactions on Image Processing 32 (2023) 2678–2692. [40] X. Zhu, W. Su, L. Lu, B. Li, X. Wang, J. Dai, Deformable detr: Deformable transformers for end-to-end object detection, in: International Conference on Learning Representations, 2021. [41] J. Wang, K. Sun, T. Cheng, B. Jiang, C. Deng, Y. Zhao, D. Liu, Y. Mu, M. Tan, X. Wang, W. Liu, B. Xiao, Deep high-resolution representation learning for visual recognition, IEEE Transactions on Pattern Analysis and Machine Intelligence 43 (10) (2021) 3349–3364. [42] G. Cybenko, Approximation by superpositions of a sigmoidal function, Mathematics of control, signals and systems 2 (4) (1989) 303–314. [43] Z. Lu, H. Pu, F. Wang, Z. Hu, L. Wang, The expressive power of neural networks: A view from the width, in: Advances in neural information processing systems, 2017, p. 6232–6240. [44] Y. Xiong, Z. Li, Y. Chen, F. Wang, X. Zhu, J. Luo, W. Wang, T. Lu, H. Li, Y. Qiao, et al., E ffi cient deformable convnets: Rethinking dynamic and sparse operator for vision applications, in: Proceedings of the IEEE /CVF Conference on Computer Vision and Pattern Recognition, 2024, pp. 5652–5661. [45] Y. Wu, K. He, Group normalization, in: Proceedings of the European Conference on Com-puter Vision, 2018, pp. 3–19. [46] X. Wang, S. Zhang, Z. Yu, L. Feng, W. Zhang, Scale-equalizing pyramid convolution for object detection, in: Proceedings of the IEEE /CVF Conference on Computer Vision and Pattern Recognition, 2020, pp. 13359–13368. [47] C. Guo, B. Fan, Q. Zhang, S. Xiang, C. Pan, Augfpn: Improving multi-scale feature learn-ing for object detection, in: Proceedings of the IEEE /CVF Conference on Computer Vision and Pattern Recognition, 2020, pp. 12595–12604. 32 [48] D. Zhang, H. Zhang, J. Tang, M. Wang, X. Hua, Q. Sun, Feature pyramid transformer, in: Proceedings of the European Conference on Computer Vision, Springer, 2020, pp. 323– 339. [49] Z. Zong, Q. Cao, B. Leng, Rcnet: Reverse feature pyramid and cross-scale shift network for object detection, in: Proceedings of the 29th ACM International Conference on Multimedia, 2021, pp. 5637–5645. [50] M. Everingham, L. Van Gool, C. K. Williams, J. Winn, A. Zisserman, The pascal visual object classes (voc) challenge, International Journal of Computer Vision 88 (2010) 303– 338. [51] D. Du, P. Zhu, L. Wen, X. Bian, et al., Visdrone-det2019: The vision meets drone ob-ject detection in image challenge results, in: 2019 IEEE /CVF International Conference on Computer Vision Workshop (ICCVW), 2019, pp. 213–226. [52] T.-Y. Lin, P. Goyal, R. Girshick, K. He, P. Dollár, Focal loss for dense object detection, in: Proc. IEEE Int. Conf. Comput. Vis. (ICCV), 2017, pp. 2980–2988. [53] Z. Du, Z. Hu, G. Zhao, Y. Jin, H. Ma, Cross-layer feature pyramid transformer for small object detection in aerial images, IEEE Transactions on Geoscience and Remote Sensing 63 (2025) 1–14. [54] K. Chen, J. Wang, J. Pang, Y. Cao, Y. Xiong, X. Li, S. Sun, W. Feng, Z. Liu, J. Xu, et al., Mmdetection: Open mmlab detection toolbox and benchmark, arXiv preprint arXiv:1906.07155 (2019). [55] M. Contributors, MMSegmentation: Openmmlab semantic segmentation toolbox and benchmark, https://github.com/open-mmlab/mmsegmentation (2020). [56] H. G. Ramaswamy, et al., Ablation-cam: Visual explanations for deep convolutional net-work via gradient-free localization, in: Proceedings of the IEEE /CVF Winter Conference on Applications of Computer Vision, 2020, pp. 983–991. [57] Z. Tian, C. Shen, H. Chen, T. He, Fcos: Fully convolutional one-stage object detection, in: Proc. IEEE Int. Conf. Comput. Vis. (ICCV), 2019, pp. 9627–9636. 33 [58] X. Li, W. Wang, X. Hu, J. Li, J. Tang, J. Yang, Generalized focal loss v2: Learning reliable localization quality estimation for dense object detection, in: Proceedings of the IEEE /CVF Conference on Computer Vision and Pattern Recognition, 2021, pp. 11632–11641. [59] Y. Peng, H. Li, P. Wu, Y. Zhang, X. Sun, F. Wu, D-FINE: Redefine regression task of DETRs as fine-grained distribution refinement, in: The Thirteenth International Conference on Learning Representations, 2025. [60] K. He, X. Zhang, S. Ren, J. Sun, Deep residual learning for image recognition, in: Pro-ceedings of the IEEE Conference on Computer Vision and Pattern Recognition, 2016, pp. 770–778. [61] R. Strudel, R. Garcia, I. Laptev, C. Schmid, Segmenter: Transformer for semantic segmen-tation, in: Proc. IEEE Int. Conf. Comput. Vis. (ICCV), 2021, pp. 7262–7272. [62] W. Shi, J. Caballero, F. Huszár, J. Totz, A. P. Aitken, R. Bishop, D. Rueckert, Z. Wang, Real-time single image and video super-resolution using an e ffi cient sub-pixel convolu-tional neural network, in: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, 2016, pp. 1874–1883. [63] Y. Dai, H. Lu, C. Shen, Learning a ffi nity-aware upsampling for deep image matting, in: Proceedings of the IEEE /CVF Conference on Computer Vision and Pattern Recognition, 2021, pp. 6841–6850. [64] H. Lu, W. Liu, Z. Ye, H. Fu, Y. Liu, Z. Cao, Sapa: Similarity-aware point a ffi liation for feature upsampling, in: Advances in Neural Information Processing Systems, 2022, pp. 20889–20901. [65] H. Lu, W. Liu, H. Fu, Z. Cao, Fade: Fusing the assets of decoder and encoder for task-agnostic upsampling, in: Proceedings of the European Conference on Computer Vision, Springer, 2022, pp. 231–247. [66] J. Wang, K. Chen, R. Xu, Z. Liu, C. C. Loy, D. Lin, Carafe: Content-aware reassembly of features, in: Proc. IEEE Int. Conf. Comput. Vis. (ICCV), 2019, pp. 3007–3016. 34 Appendix A. Algorithm Procedures of A3-FPN Algorithm 1: Bottom-up Asymptotic Content-Aware Pyramid Attention Network 
+
+Input : n hierarchical features {X1, X2, . . . , Xn} from the backbone, which will go through m column transformations in A3-FPN. Initialize {Z1, Z2, . . . , Zn}
+
+for j ← 1 to m do min = min( j + 1, n)
+
+for i ← 1 to min do for k ← 1 to min do 
+
+k > i: Upsample Xk to Xsamp k
+
+k < i: Downsample Xk to Xsamp k
+
+end 
+
+nXo f f set  
+
+> 1
+
+, · · · , Xo f f set i−1 , Xo f f set i+1 , · · · , Xo f f set 
+
+> min
+
+o ← Off setGererator (nXsamp  
+
+> 1
+
+, · · · , Xi, · · · , Xsamp 
+
+> min
+
+o)
+
+for k ← 1 to min do 
+
+k , i: Xrs k ← Resampler (Xsamp k , Xo f f set k )
+
+end 
+
+{W1, · · · , Wi, · · · , Wmin } ← ContextWeightGererator (Xrs  
+
+> 1
+
+, · · · , Xi, · · · , Xrs  
+
+> min
+
+)Feature fusion: 
+
+Yi = (
+
+> min
+
+X
+
+> n=1,n,i
+
+Wn
+
+O
+
+Xrs n ) + Wi
+
+O
+
+Xi
+
+Compute spatial weights: 
+
+Ystd  
+
+> i
+
+= GN (Yi) = α Yi − μ
+
+√σ2 + β, ω i =
+
+
+
+αi
+
+Pci 
+
+> j=1
+
+αj
+
+, i = 1, 2, · · · , ci
+
+
+
+Attain information weights: 
+
+ω1 
+
+> i
+
+=
+
+
+
+Sigmoid( ωi), Sigmoid( ωi) ≤ 0.5; 1, Sigmoid( ωi) > 0.5 , , ω 2 
+
+> i
+
+=
+
+
+
+Sigmoid( ωi), Sigmoid( ωi) ≥ 0.5; 0, Sigmoid( ωi) < 0.5 .
+
+Feature reassembly: 
+
+Zi =
+
+> C
+
+[
+
+> c=1
+
+Yci × ω1ci + YC−c+1 
+
+> i
+
+× ω2ci
+
+
+
+end 
+
+{X1, · · · , Xmin , Xmin +1, · · · , Xn} ← { Z1, · · · , Zmin , Xmin +1, · · · , Xn}
+
+end Output : n refined multi-scale features maps {Z1, Z2, . . . , Zn}
+
+35 Appendix B. Top-down Asymptotically Disentangled Framework Column 1  Column 2  Column 3 
+
+Level 4 
+
+Level 3 
+
+Level 2 
+
+Level 1 
+
+Stem 
+
+Input 
+
+Fig. B.10. Illustration of A3-FPN with the top-down asymptotic disentangled framework. 
+
+Appendix C. Process Visualization in MCAtten Offset 
+
+Generator 
+
+Context 
+
+Weight 
+
+Generator 
+
+!!
+
+!"#$
+
+> %&
+
+!"'$
+
+> ()
+
+coordinate offset ( ∆#, ∆$) attention weight ∆%
+
+coordinate offset ( ∆#, ∆$) attention weight ∆%
+
+resampled feature map 
+
+resampled feature map 
+
+!!
+
+!"#$
+
+> *+%&
+
+!"'$
+
+> *+()
+
+context attention weight 
+
+(a) 
+
+(b) 
+
+!!
+
+!"#$
+
+> *+%&
+
+!"'$
+
+> *+()
+
+Fig. C.11. (a) Visualization of coordinate o ff sets and the corresponding attention weight in the o ff set generator. (b) Fusion process visualization in MCAtten. 
+
+36 Appendix D. More qualitative evaluations of A3-FPN on the instance segmentation task FP T DySample CARAFE FP N !!-FPN COCO      
+
+> +!!-FPN COCO Mask DINO Mask2Former +!!-FPN COCO
+> (a)
+> (b)
+
+Fig. D.12. (a) Instance segmentation results of Mask RCNN[5] with di ff erent feature fusion approaches, including FPN[9], FPT[48], DySample[12], CARAFE[66] and our A3-FPN. (b) Qualitative comparison between some unified transformer-based models (Mask2Former[31] and Mask DINO[8]) with and without integrating A3-FPN on the instance segmentation task. 
+
+Appendix E. More qualitative evaluations of A3-FPN on the semantic segmentation task Uper Net Seg Next SETR Seg Former Ground truth !!-FPN      
+
+> Mask2Former +!!-FPN Mask DINO Ground truth Ground truth +!!-FPN
+> (a)
+> (b)
+
+Fig. E.13. (a) Visualization on Cityscapes validation set using di ff erent semantic segmentors, which are UperNet[21], SegNext[23], SegFormer[25], SETR[24], and our A3-FPN. (b) Qualitative evaluation of unified transformer-based mod-els (Mask2Former[31] and Mask DINO[8]) with and without integrating A3-FPN on the semantic segmentation task. 
+
+37 Appendix F. Hyperparameter Setting between A3-FPN and A3-FPN-Lite 
+
+Table F.12: Hyperparameters setting between A3-FPN and A3-FPN-Lite. 
+
+Hyperparameter A3-FPN A3-FPN-Lite Squeeze [1, 2, 4, 4] [1, 2, 4, 8] Using Resampling [True, True, True] [False, False, True] Compress Channels [16, 16, 16, 32] [16, 16, 16, 16] GN Group [16, 16, 16, 32] [16, 16, 16, 16] RepBlock Number 2 1Expansion 4.0 2.0 Resample Group [16, 16, 16, 32] [16, 16, 16, 16] Off set Scale 2.0 1.0 Norm after Resampling LN LN Output Bias in Resampler True True DWConv Kernel 3 3
+
+38

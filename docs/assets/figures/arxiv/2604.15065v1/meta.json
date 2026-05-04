@@ -1,0 +1,70 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.15065v1/fig-001.webp",
+      "caption": "Figure 4: Dual-path axis-wise sampling in LSConv. Left: x-/y-axis convolution samples on a 9× 9 grid with linear (blue) and snake (green) paths centered at the red cell. Right: axis-wise offset accumulation and bilinear interpolation used to obtain deformed sampling locations for the two paths.",
+      "page": 6,
+      "index": 1,
+      "width": 882,
+      "height": 372
+    },
+    {
+      "url": "assets/figures/arxiv/2604.15065v1/fig-002.webp",
+      "caption": "Figure 5: Sampling patterns comparison on a 9× 9 grid. We contrast standard, dilated, deformable [53], and DSC [54] convolutions with two LSConv variants. LSConv combines a constrained linear path and a deformable snake-like path to cover both straight and curved structures, while other operators follow their fixed or unconstrained sampling layouts.",
+      "page": 7,
+      "index": 2,
+      "width": 588,
+      "height": 408
+    },
+    {
+      "url": "assets/figures/arxiv/2604.15065v1/fig-003.webp",
+      "caption": "Figure 1: Overview of HELP. Backbone: LSConv is integrated into the backbone to enhance sparse features before transformer encoding. Encoder: MOHFE (green) fuses heatmap information with class and bounding box information to form heatmap-enhanced embeddings. Decoder: HQ-Retrieval (blue) selects informative embeddings for decoding while suppressing background-dominant ones. Bottom-right: HPE in action, where heatmap activation is used to select high-quality embeddings and filter out background-dominant ones.",
+      "page": 3,
+      "index": 3,
+      "width": 976,
+      "height": 348
+    },
+    {
+      "url": "assets/figures/arxiv/2604.15065v1/fig-004.webp",
+      "caption": "Table 1: Comparison performance on PASCAL VOC and NWPU VHR-10. Compared with RT-DETR, our method achieves consistently higher accuracy on both datasets while markedly reducing computational and model complexity. The best and second-best results are highlighted in red and blue.",
+      "page": 8,
+      "index": 4,
+      "width": 832,
+      "height": 472
+    },
+    {
+      "url": "assets/figures/arxiv/2604.15065v1/fig-005.webp",
+      "caption": "Table 2: Ablation study of our design components on NWPU VHR-10 and PASCAL VOC. Each component contributes incremental improvements, and the full configuration consistently achieves the best performance on both datasets.",
+      "page": 8,
+      "index": 5,
+      "width": 826,
+      "height": 221
+    },
+    {
+      "url": "assets/figures/arxiv/2604.15065v1/fig-006.webp",
+      "caption": "Figure 6: Visualization of HPE heatbars under cluttered versus clean scenes. The heatmap guidance provides more object-aware spatial information, leading to tighter and more stable localization under background distractions and scale variations.",
+      "page": 9,
+      "index": 6,
+      "width": 744,
+      "height": 619
+    },
+    {
+      "url": "assets/figures/arxiv/2604.15065v1/fig-007.webp",
+      "caption": "Figure 2: HPE shows where to embed. Top: the encoder fuses heatmap information into embeddings. Middle: the decoder retrieves informative embeddings for decoding. Bottom: the heatbar visualizes HPE activation (higher = red, lower = blue).",
+      "page": 5,
+      "index": 7,
+      "width": 490,
+      "height": 404
+    },
+    {
+      "url": "assets/figures/arxiv/2604.15065v1/fig-008.webp",
+      "caption": "Figure 3: Heatmap-guided query retrieval in an encoder-decoder detector. HPE produces a binary mask from heatmaps and uses it to suppress background-dominant positional embeddings while preserving foreground-salient ones. The masked embeddings are used for noise-suppressed encoding in the encoder and for selecting high-quality queries before decoding.",
+      "page": 5,
+      "index": 8,
+      "width": 490,
+      "height": 454
+    }
+  ]
+}

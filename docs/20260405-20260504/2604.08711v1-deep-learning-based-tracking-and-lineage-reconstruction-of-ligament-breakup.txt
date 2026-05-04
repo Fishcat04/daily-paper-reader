@@ -1,0 +1,440 @@
+Title: Deep Learning-Based Tracking and Lineage Reconstruction of Ligament Breakup
+
+URL Source: https://arxiv.org/pdf/2604.08711v1
+
+Published Time: Mon, 13 Apr 2026 00:12:08 GMT
+
+Number of Pages: 17
+
+Markdown Content:
+# Deep Learning-Based Tracking and Lineage Reconstruction of Ligament Breakup 
+
+Vrushank Ahire a, Vivek Kurumanghat b, Mudasir Ganaie a, Lipika Kabiraj b
+
+> aDepartment of Computer Science and Engineering, IIT Ropar, Rupnagar, 140001, Punjab, India
+> bDepartment of Mechanical Engineering, IIT Ropar, Rupnagar, 140001, Punjab, India
+
+Abstract 
+
+The disintegration of liquid sheets into ligaments and droplets involves highly transient, multi-scale dynamics that are complex to quantify from high-speed shadowgraphy images. Identification of droplets, ligaments, and blobs formed by the breakup of a liquid sheet, and their tracking from frame to frame, is an essential part of spray analysis. Analysis of such processes poses a fundamental challenge for conventional multi-object tracking frameworks, which enforce strict one-to-one temporal associations and cannot explicitly represent one-to-many fragmentation events. In this study, we present a two-stage deep learning frame-work for object detection (droplets and ligaments) and for the identification of temporal relationships between objects across successive frames. This framework directly models ligament deformation, fragmentation, and parent–children lineage during the disintegration of liquid sheets. In the first stage, a Faster R-CNN detector with a ResNet-50 backbone and Feature Pyramid Net-work is trained to identify and classify ligaments and droplets in high-speed shadowgraphy recordings of an impinging Carbopol gel jet. A morphology-preserving synthetic data generation strategy enriches the training set without introducing physically implausible configurations, achieving a held-out test 𝐹 1 score of up to 0.872 across fourteen systematically varied original-to-synthetic data configurations. In the second stage, a Transformer-augmented multilayer perceptron classifies inter-frame object associations into three physically motivated categories — continuation, fragmentation (one-to-many), and non-association, us-ing physics-informed geometric features. Despite severe class imbalance inherent to atomizing flows, the model achieves 86.1% overall accuracy, 93.2% precision, and perfect recall (1.00) for fragmentation events on the held-out test set. Together, the two stages enable automated reconstruction of fragmentation trees, preservation of parent–child lineage, and extraction of breakup statistics including fragment multiplicity and droplet size distributions. By explicitly identifying children droplets formed from fragmentation of ligaments, the framework offers a automated analysis of primary mode of atomization. 
+
+Keywords: Fuel atomization, Ligament fragmentation, Droplet formation, High-speed imaging, Object tracking, Deep learning 
+
+1. Introduction 
+
+Liquid jet and sheet atomization involves complex mecha-nisms of ligament formation, and fragmentation into droplets [1, 2]. Understanding these phenomena is crucial for numer-ous technical applications, including fuel injection in combus-tion engines, pharmaceutical atomization, agricultural spray-ing, and additive manufacturing [3, 4]. High-speed shadowg-raphy and digital imaging capture the temporal evolution of ligaments and droplets with microsecond resolution [5, 6]. It is very challenging to obtain quantitative data from im-age sequences because the objects are dense, overlapping, and rapidly changing shape, which makes changes such as frag-mentation and coalescence more difficult to detect. Standard computer vision techniques for spray analysis uti-lize intensity thresholding, edge detection, and morphological operations to identify discrete droplets and ligaments [7, 8]. These methods work well for separate objects under even lighting, but they struggle with overlapping areas, irregular shapes, and the differences in imaging between real experi-  
+
+> ∗Corresponding author
+> Email address: lipika.kabiraj@iitrpr.ac.in (Lipika Kabiraj)
+
+ments. SORT, DeepSORT, and ByteTrack are examples of clas-sical multi-object tracking algorithms that match frames one-to-one [9, 10, 11]. This fundamental constraint inhibits ex-isting methodologies from accurately representing fragmenta-tion occurrences, wherein a singular parent ligament separates into multiple children droplets. This makes it difficult for com-puters to correlate children droplets to ligaments from images captured at very short time intervals. Recent advances in deep learning techniques on images pro-cessing have transformed object detection and instance seg-mentation in multiphase flow applications [21, 22]. Convo-lutional Neural Networks (CNNs), particularly region-based architectures like Faster R-CNN [23] and Mask R-CNN [22], demonstrate superior performance in detecting droplets and ligaments under various imaging conditions [12]. Studies by Jose et al. [16, 15] have shown that instance segmentation models consistently outperform traditional computer vision methods in extracting droplet size distributions and primary breakup features. Moreover, hybrid pipelines that integrate deep learning with classical post-processing techniques have demonstrated robustness across various operating conditions [18]. However, these approaches primarily focus on frame-by-frame detection without explicitly correlating the tempo-                                                                    
+
+> arXiv:2604.08711v1 [cs.CV] 9 Apr 2026 Table 1: Comparison of learning-based methods for various recently reported spray and breakup analysis. ✓= supported; ✗= not addressed.
+> Study Key Method Detect & Classify Synthetic Data Temporal Tracking 1→NBreakup Lineage Reconstruction Key Limitation
+> Sibirtsev et al. (2023) [12] Mask R-CNN ✓✗✗✗✗Frame-by-frame; no temporal modeling Ade et al. (2024) [13] U-Net (holography) ✓✓✗✗✗Detection only; no lineage modeling Zhang et al. (2025) [14] YOLOv8 (spray ligaments) ✓✓✓✗✗Tracking limited to 1-to-1 Jose et al. (2024, 2025) [15, 16] Mask R-CNN / instance segmentation ✓✓✗✗✗Frame-wise statistics; no temporal learning Lim et al. (2024) [17] YOLO-based segmentation ✓✓✗✗✗Segmentation-focused; no tracking Tretola et al. (2024) [18] Hybrid DL + post-processing ✓✗✓✗✗Breakup handled via heuristics; not learned Hasti & Shin (2022) [19] Modified U-Net ✓✗✗✗✗Single-frame; no ligament-level modeling Huynh & Nguyen (2024) [20] YOLOv5 (droplet detection) ✓✓✗✗✗Droplet-only; no ligament or breakup model
+> Present study Faster R-CNN + TransformerMLP ✓✓✓✓✓
+
+ral relationships required to reconstruct fragmentation events, leaving a significant gap in the analysis of dynamic liquid sheet breakup processes. Synthetic data creation is a useful and efficient approach for training deep learning models when avaiable data is scarace and accurate labelling of data is tedious [13, 17]. Ade et al. [13] created holographic pictures to train U-Net models how to sep-arate droplets. Zhang et al. [14] created enhanced datasets for YOLOv8 training by combining real backgrounds with labeled ligaments. These experiments show that synthetic images that keep the shape and brightness of objects can greatly improve model generalization, especially in high-speed shadowgraphy images, where annotation is a time-consuming process. How-ever, such studies do not tracking of objects and correlate frag-mented components from a parent ligament, and this is essen-tial for comprehending fragmentation events. Table 1 summarizes current learning-based methods re-ported in recent works on spray and image based analysis. Prior research focuses on detection, synthetic augmentation, and constrained 1-to-1 tracking; however, none explicitly fa-cilitate one-to-many breakup modeling or lineage restoration. This study fills these gaps by modeling temporal linkages to-gether and allowing for full fragmentation lineage investiga-tion. Based on this goal, we present a two-stage deep learn-ing architecture that integrates spatial analysis through object identification (Study I) with temporal relationship inference (Study II). The main contributions are:  
+
+> ■
+
+A complete two-stage framework that combines Faster R-CNN object identification with a Transformer-augmented MLP to represent occurrences where ligaments break up.  
+
+> ■
+
+A morphology-preserving synthetic data generation strat-egy that achieves up to 88.2% 𝐹 1 score on an unseen test set using minimal ground-truth annotations.  
+
+> ■
+
+Systematic comparison across varied original-to-synthetic data ratios, identifying optimal configurations for spray imaging.  
+
+> ■
+
+Automated extraction of fragmentation trees, parent–child lineages, and breakup statistics, with perfect recall (1.00) for infrequent breakup events. The remainder of this paper is organized as follows. Sec-tion 2 describes the experimental setup and data acquisition. Section 3 presents the proposed two-stage framework. Sec-tion 4 reports experimental results and evaluation. Section 5 discusses future directions and concludes the paper. 
+
+2. Atomization Setup and Data Acquisition 
+
+In this section, we describe the experimental setup and di-agnostics used to acquire high-speed imaging data of a liquid spray. The test fluid preparation, atomization configuration, imaging setup, and annotation methodology (for training and evaluating the proposed framework) are discussed in detail. 
+
+2.1. Test Fluid Preparation and Rheological Characterization 
+
+A carbopol gel with a weight concentration of 0.10 wt.% is used as the test fluid. Carbopol gels are non-Newtonian flu-ids widely used as gel propellant simulants to examine vari-ous atomization characteristics. Our previous studies aimed to understand the mechanisms of liquid sheet breakup and droplet formation in carbopol gels in weight concentrations of 0.10–0.30 wt.%. In the present study, we chose 0.10 wt.% car-bopol gel, which has the lowest zero-shear viscosity among the compositions studied, as an initial dataset. The steps we fol-lowed for preparing the gel are described in our previous arti-cles [24, 25]. Carbopol is a cross-linked polyacrylic acid poly-mer. Carbopol powder dissolves in water to form clear gels. The gel is prepared by gradually adding Carbopol powder to deionized water while stirring with a mechanical stirrer. The solution is further neutralized with triethanolamine that facili-tates gelation. Rheological measurements of the 0.10 wt.% car-bopol gel is performed using a rotational rheometer equipped with a cone-and-plate geometry. Steady shear experiments are conducted over a shear rate range of 0.001–1000 s−1 , encom-passing the deformation rates relevant to the atomization pro-cess. 
+
+2.2. Atomization Configuration 
+
+Atomization experiments are conducted using a like-on-like doublet impinging-jet configuration, as schematically il-lustrated in Fig. 1. The test fluid is supplied from a cylindrical reservoir (inner diameter 72 mm) in which the liquid and the pressurizing gas are separated by a piston. Compressed ni-trogen gas is supplied to the gas side of the reservoir through a pressure regulator, and the applied pressure displaced the piston, thereby driving the liquid through the atomizer. The piston is capable of traversing a distance of approximately 35– 40 cm, allowing sufficient liquid volume to be delivered under steady operating conditions. 2Figure 1: Experimental setup for impinging jets atomization and high-speed shadowgraphy. A pressurized piston-cylinder system drives the liquid through two impinging nozzles, forming a liquid sheet that breaks into ligaments and droplets. The imaging pipeline extracts localized 256 × 256 patches with object-level bounding box annotations (ligament L, droplet D). The objects are shown with indices and alternate red and blue boxes for easy visualization (best viewed in color). 
+
+From the reservoir, the liquid is conveyed through a 1/4 in di-ameter supply line and delivered to two identical smooth noz-zles. Each nozzle had a length of 1 in (25.4 mm) and an in-ner diameter of 0.41 mm . The jets issued from the nozzles im-pinged at a fixed angle of 90 ◦, with a pre-impingement distance of 10 mm , forming a thin liquid sheet at the point of impinge-ment. All experiments are conducted at a fixed Weber num-ber of We ≈ 400 , ensuring identical inertial-to-surface-tension conditions for the image dataset used in the machine-learning analysis. Injection pressure is measured at the nozzle inlet using STS ATM.1ST pressure sensors with a measurement range of 0– 33 bar and a resolution of 5 kPa. The piston displacement is measured using a resistance-based linear position sensor mounted on the piston rod. The measured piston motion is used to estimate the instantaneous volumetric flow rate and the corresponding jet exit velocity. 
+
+2.3. High-Speed Shadowgraphy Imaging 
+
+High-speed imaging of the impinging jets and the resulting spray formation is performed using a Photron Fastcam Mini AX100 camera equipped with a 105 mm macro lens. A back-lighting configuration is employed using a continuous white LED panel to provide uniform illumination and high contrast between the liquid structures and the background. Images are acquired at a frame rate of 5120 frames per second with an image resolution of 1024 × 880 pixels, corresponding to a spa-tial resolution of 83 μm/pixel . All images are recorded in 8-bit grayscale format. A total of 287 high-speed images are extracted from the recorded sequence under steady operating conditions for use in the machine-learning analysis. These images capture the liquid sheet formation, instability growth, ligament formation, and droplet breakup processes. For temporal tracking and lin-eage reconstruction (Study II), a representative short sequence of consecutive frames exhibiting pronounced ligament defor-mation and breakup is selected. All sensor signals, including pressure and piston position measurements, are acquired using a National Instruments data acquisition system equipped with a NI 9220 voltage input mod-ule. The high-speed camera is synchronized with the data ac-quisition system to ensure temporal alignment between the operating conditions and the acquired image data. In the present study, we utilize high-speed images of the at-omization of a 0.10 wt.% carbopol gel at a Weber number of 400 under atmospheric conditions. This composition acts as a base case to test the performance of the proposed methodol-ogy, which could be further extended to other compositions. The details of the image set are provided in the following sub-sections. 
+
+2.4. Ground Truth Annotation Protocol 
+
+Ground truth annotations for object detection are generated using a semi-automated computer vision pipeline developed in MATLAB. The pipeline performed initial object detection us-ing a fixed thresholding on inverted grayscale images, followed by connected-component analysis and morphological filtering to suppress noise. Detected objects are labelled manually as either ligaments (L) or droplets (D) based on their appearance, size and aspect ratio. The labelling is based on the geometric features of the object, such as the area-to-perimeter ratio and eccentricity. Droplets tend to be more spherical, whereas liga-ments appear elongated and stretched after breakup from the sheet. The largest connected object in each image, corresponding to the continuous liquid sheet, is automatically identified and excluded from subsequent analysis. All detection, annotation, and tracking steps in both Study I and Study II are performed on cropped image patches of size 256×256 pixels extracted from 3the original high-resolution images. This patch-based formu-lation localizes regions of active breakup and ensures consis-tent spatial context across frames. For each detected object, ge-ometric properties including bounding box coordinates, mask area, and centroid location are extracted. All generated anno-tations are manually reviewed and corrected, requiring sub-stantially less effort than full manual annotation while ensur-ing high-quality ground truth. Objects smaller than 4 pixels are excluded, as they approach the optical resolution limit and are highly susceptible to imaging noise. For temporal relationship annotation (Study II), all possible object pairs between frame 𝑡 and the subsequent frame 𝑡 +1 
+
+within corresponding 256 × 256 patches are considered. Ob-ject pairs whose centroids could not be physically related are assigned the label NONE (label = −1 ) by default. Explicit man-ual annotation is therefore restricted to physically meaningful events: MOVE (label = 0), indicating continuation of the same object across frames, and BREAKUP (label = 1), indicating frag-mentation of a parent object into multiple children. This an-notation method significantly reduced the amount of manual labeling needed, while still fully capturing the important tem-poral relationships. In total, 34 consecutive frame pairs are annotated with pairwise object relationships. This forms the dataset used to train and evaluate the temporal relationship classifier. 
+
+3. Methodology 
+
+The proposed method separates spatial recognition from temporal inference. Study I performs object detection and clas-sification on individual frames, whereas Study II determines temporal relationships between detected objects across subse-quent frames. Figure 3 illustrates a detailed two-stage archi-tecture. 
+
+3.1. Study I: Spatial Analysis (Object Detection) 
+
+The objective of Study I is to create an object detection framework capable of accurately localizing and identifying lig-aments and droplets in individual frames, and thus establishing a foundation for subsequent analysis. As depicted in Fig. 3, the model operates on individual image patches, producing object-level predictions denoted by bounding boxes and associated class labels (ligament or droplet). During the training phase, these predictions are refined against ground truth annotations utilizing standard detection losses, enabling the model to ac-quire both precise localization and semantic classification abil-ities. The learning pipeline integrates both original and syn-thetic data to enhance generalization across varied data en-vironments. Model development is conducted using a cross-validated training approach, with final performance assessed on a separate held-out set of original unseen images to ensure unbiased evaluation. The detailed methodology, encompass-ing data generation, model architecture, and experimental con-figuration, is described in the subsequent subsection. 
+
+3.1.1. Morphology-Preserving Synthetic Data Generation 
+
+To overcome the challenge of scarcity of labelled data, we utilize a synthetic data generation strategy. Our approach dif-fers from conventional augmentation techniques such as rota-tion, flipping, or elastic deformation, which can create physi-cally impossible forms. Instead, it preserves the original object shapes and their relative spatial arrangement as observed dur-ing breakup. Fig. 2 presents illustrative examples of a patch from an original image (256 x 256 px), its corresponding clean image , and a synthetic image .
+
+> Figure 2: Representative examples of morphology-preserving data generation showing (A) original image, (B) clean image, and (C) generated synthetic im-age.
+
+For each original training image, all detected ligaments and droplets are extracted along with their spatial coordinates, cre-ating a collection of physically realistic objects. Connected-component analysis is applied to the ligament objects to pre-serve the largest contiguous region, eliminating small droplets in the cropped ligament image and yielding a clean ligament mask. These processed object crops are referred to as clean objects and are tightly cropped to eliminate unnecessary back-ground regions. Following that, two types of training images are con-structed. Initially, clean objects are placed onto a noise-matched background while preserving their original spatial lo-cations. Secondly, fully synthetic composite images are gener-ated by randomly choosing between 50 and 70 clean objects 
+
+from the collection of ligament and droplet objects and plac-ing them at random, non-overlapping locations on a synthetic canvas. The canvas background is generated using Gaussian noise with intensity values uniformly distributed between 225 and 255, simulating the texture of shadowgraphy backgrounds. As all synthetic objects are drawn directly from the anno-tated object collection, their class labels and bounding box co-ordinates are predefined. As a result, no additional manual annotation are required for the synthetic images. A combi-nation of cleaned original images and randomized composite images increases data diversity while preserving physical plau-sibility. This allows the detector to generalize across different regions of the original high-resolution images (1028 x 880 px) and across varying object densities. Overall, the synthetic images retained the object morpholo-gies present in the original dataset while incorporating con-trolled variation in background appearance and spatial ar-rangement. 4Figure 3: Proposed two-stage deep learning framework. Study I performs frame-wise detection using Faster R-CNN (ResNet-50+FPN) trained on original and morphology-preserving synthetic images, outputting bounding boxes and class labels. Study II encodes object pairs from consecutive frames using physics-informed geometric features and passes them to a Transformer-augmented MLP that predicts MOVE , BREAKUP , or NONE relationships, enabling fragmentation lineage reconstruction. 
+
+3.1.2. Faster R-CNN Architecture and Training 
+
+Object detection is implemented using Faster R-CNN [23] with a ResNet-50 [26] backbone and Feature Pyramid Network (FPN) [27]. This architecture is chosen for its strong detection ability which is essential for spray images, where object sizes range from small droplets ( ∼10 pixels) to elongated ligaments exceeding 100 pixels. The ResNet-50 backbone is initialized with weights pretrained on the COCO dataset [28], while the FPN allows feature representation across scales. The detection steps comprises of two parallel branches for bounding box regression and object classification (back-ground, droplet, and ligament). Region of Interest (RoI) Align [22] is used to extract feature maps from the FPN, preserving spatial alignment, which is essential for the precise localization of small objects. Training is conducted for 25 epochs with a batch size of 4 and an initial learning rate of 5 × 10 −3 . A step learning rate schedule is used with a decay factor of 𝛾 = 0 .1 applied after ev-ery 7 epochs. Optimization is performed using stochastic gra-dient descent with momentum 0.9 and weight decay 5 × 10 −4 .Gradient clipping with a maximum norm of 10.0 is used to stabilize training. Data augmentation included random hori-zontal flipping (probability 0.5) and photometric perturbations (brightness and contrast variations within ±10%). During training of the model, the network optimizes the loss that includes a classification loss for object category prediction (background, droplet, and ligament) and a bounding box re-gression loss for precise localization. The output of the model is a set of bounding boxes with associated class labels and confidence scores, which provide accurate detection of small droplets and elongated ligaments across varying scales. 
+
+3.1.3. Experimental Configurations 
+
+To evaluate the effect of synthetic data on detection perfor-mance by the model, three experimental configurations are de-signed with different proportions of number of original and synthetic training images, as described in Table 2.                                               
+
+> Table 2: Training data configurations for evaluating the impact of original-to-synthetic data composition on object detection performance.
+> Experiment Setting Original Synthetic Total
+> Exp1 Nog_050_Nsyn_00200 50 200 250 Nog_100_Nsyn_00150 100 150 250 Nog_150_Nsyn_00100 150 100 250 Nog_200_Nsyn_00050 200 50 250 Nog_250_Nsyn_00000 250 0250 Exp2 Nog_250_Nsyn_00000 250 0250 Nog_250_Nsyn_00250 250 250 500 Nog_250_Nsyn_00500 250 500 750 Nog_250_Nsyn_01000 250 1000 1250 Exp3 Nog_050_Nsyn_00250 50 250 300 Nog_100_Nsyn_00250 100 250 350 Nog_150_Nsyn_00250 150 250 400 Nog_200_Nsyn_00250 200 250 450 Nog_250_Nsyn_00250 250 250 500
+
+Experiment 1 (Exp1) maintained a constant total of 250 training images while altering the original-to-synthetic im-ages ratio. Experiment 2 (Exp2) maintained the original image count at 250 while gradually increasing the number of syn-thetic samples. Experiment 3 (Exp3) maintained a synthetic image count at 250 while varying the number of original im-ages from 50 to 250. For each configuration, the dataset is randomly shuffled and 5partitioned, and 5-fold cross-validation is performed on the available data to obtain training and validation splits for model development and selection. The validation data also comprises synthetic image samples to monitor performance and select the best model within each fold. To ensure an unbiased evaluation, final performance is as-sessed on a separate held-out test set of 37 original unseen im-ages, which are not used at any stage of training, validation, or synthetic data generation. The independent test set remained consistent over Exp1, Exp2, and Exp3 to enable unbiased com-parison. This methodology offers a more rigorous evaluation than standard cross-validation, as it combines cross-validated model selection with a new test set for final assessment. 
+
+3.2. Study II: Temporal Relationship Inference 
+
+The aim of Study II is to deduce physically meaningful temporal relationships between objects detected in successive frames, explicitly accounting for one-to-many fragmentation events. Rather than enforcing a one-to-one relationship as in classical multi-object tracking, we formulate temporal rela-tions as a pairwise classification problem over objects detected in successive frames (time instances). 
+
+3.2.1. Pairwise Formulation of Temporal Associations 
+
+Consider two consecutive frames acquired at times 𝑡 and 
+
+𝑡 +1 . Let (𝑡 ) = { 𝑜 (𝑡 )1 , … , 𝑜 (𝑡 ) 
+
+> 𝑁 𝑡
+
+} and (𝑡 +1) = { 𝑜 (𝑡 +1) 1 , … , 𝑜 (𝑡 +1)  
+
+> 𝑁 𝑡 +1
+
+}
+
+denote the sets of detected objects (ligaments or droplets) in the two frames, obtained from Stage 1. Each object is associ-ated with a bounding box, geometric attributes (described in section 3.2.2), and a class label (ligament or droplet). For every ordered object pair (𝑜 (𝑡 ) 
+
+> 𝑖
+
+, 𝑜 (𝑡 +1)  
+
+> 𝑗
+
+), we seek to de-termine their semantic temporal relationship. This relation-ship is defined as one of three mutually exclusive classes: 𝑦 𝑖𝑗 ∈{−1 , 0, 1} , where 
+
+• 𝑦 𝑖𝑗 = 0 (MOVE ): the two objects correspond to the same physical entity across frames, 
+
+• 𝑦 𝑖𝑗 = 1 (BREAKUP ): object 𝑜 (𝑡 ) 
+
+> 𝑖
+
+is the parent of object 𝑜 (𝑡 +1) 
+
+> 𝑗
+
+due to fragmentation, 
+
+• 𝑦 𝑖𝑗 = −1 (NONE ): the objects are physically unrelated. This formulation naturally accommodates one-to-many breakup events, as a single parent object 𝑜 (𝑡 ) 
+
+> 𝑖
+
+may be associ-ated with multiple children in (𝑡 +1) through multiple pairwise predictions with 𝑦 𝑖𝑗 = 1 .
+
+3.2.2. Feature Engineering for Physical Relationship Modeling 
+
+Rather than learning temporal associations directly from image appearance, each object pair (𝑜 (𝑡 ) 
+
+> 𝑖
+
+, 𝑜 (𝑡 +1)  
+
+> 𝑗
+
+) is represented using a compact set of physically meaningful geometric fea-tures derived from object bounding boxes and binary masks. Let 𝑜 (𝑡 ) 
+
+> 𝑖
+
+and 𝑜 (𝑡 +1)  
+
+> 𝑗
+
+denote two detected objects in consecutive frames 𝑡 and 𝑡 +1 . Each object is characterized by a bounding box  = ( 𝑥 1, 𝑦 1, 𝑥 2, 𝑦 2), centroid 𝐜 = ( 𝑐 𝑥 , 𝑐 𝑦 ), binary mask ,projected area 𝐴 , all computed from the connected-component representation of the object mask. For each candidate pair, a feature vector 𝐟 𝑖𝑗 is constructed as follows: (1) Centroid distance , defined as Δ𝑐 = ‖𝐜 𝑗 − 𝐜 𝑖 ‖2, where 𝐜 𝑖 and 
+
+𝐜 𝑗 are centroids of the object masks in frames 𝑡 and 𝑡 +1 ,respectively. (2) Normalized centroid distance , defined as Δ𝑐 norm = ‖𝐜 𝑗 −𝐜 𝑖 ‖2 
+
+> √𝐴 𝑖
+
+,which accounts for scale-dependent displacement. (3) Bounding box Intersection-over-Union (IoU) , computed as    
+
+> |𝑖 ∩𝑗 ||𝑖 ∪𝑗 |
+
+, measuring spatial overlap between the two objects. (4) Area ratio , given by 𝐴 𝑗  
+
+> 𝐴 𝑖
+
+, where 𝐴 𝑖 and 𝐴 𝑗 are the pixel areas computed from the binary masks. (5) Type consistency , defined as a binary indicator 
+
+𝛿 type =
+
+{
+
+0, if 𝜏 𝑖 = 𝜏 𝑗 
+
+1, if 𝜏 𝑖 ≠ 𝜏 𝑗 
+
+,
+
+where 𝜏 ∈ { ligament , droplet } denotes the object class la-bel. These features collectively represent essential physical characteristics associated with ligament stretching, thinning, breakup, and droplet movement. This facilitates distinc-tion between object continuation (MOVE), fragmentation (BREAKUP), and objects that are unrelated (NONE) without relying on visual similarity. To exclude physically implausible associations, spatial gat-ing is applied by discarding object pairs with a centroid dis-tance greater than 64 pixels or a normalized centroid distance greater than 5 pixels. These thresholds represent the maximum expected displacement in 0.2 ms , which is the time between successive frames. 
+
+3.2.3. Neural Architectures and Hyperparameter Optimization 
+
+To model temporal relationships between object pairs, we formulate a supervised multi-class classification problem using a set of five geometric features: centroid distance (pixel and normalized), bounding box Intersection over Union (IoU), area ratio, and type consistency. All features are standardized using z-score normalization prior to training. We evaluate five neural architectures of increasing complex-ity. All models take a 5-dimensional input vector and output class probabilities over three categories: MOVE , BREAKUP ,and NONE . The architectural details are summarized in Ta-ble 3. All models are trained using the Adam optimizer with an initial learning rate of 10 −3 and weight decay tuned to 
+
+[10 −5 , 10 −2 ]. Mini-batch training is performed with batch sizes of {32 , 64 , 128} . Early stopping with a patience of 15 epochs is used based on the validation 𝐹 1-score. To address severe class imbalance ( NONE ≫ MOVE ≫
+
+BREAKUP ), a weighted cross-entropy loss is used, where class weights are inversely proportional to class frequencies. Hyper-parameter optimization, including model type, learning rate, 6Table 3: Neural architectures evaluated for temporal relationship classification.                                                    
+
+> Model Architecture Details
+> BasicMLP 5→64 →32 →3
+> Linear + BN + ReLU + Dropout (0.3) ResidualMLP 5→64 →ResBlock ×2 →32 →3
+> Linear(64) + BN + ReLU + Dropout (0.2) + Linear(64) + BN AttentionMLP 5→64 →Attention →32 →3
+> 𝐚 =𝜎 (𝑊 2tanh( 𝑊 1𝐱 ))
+> FeatureInteractionMLP Input (5) + interactions (10) →15 15 →128 →64 →32 →3
+> Linear + BN + ReLU + Dropout (0.1–0.3) TransformerMLP 5→64 →Transformer →32 →3
+> 𝑑 model = 64 , FFN = 128, [CLS] token
+
+batch size, weight decay, and spatial gating thresholds, is ex-ecuted using Bayesian optimization (Optuna) with a Tree-structured Parzen Estimator (TPE) sampler. Model perfor-mance is evaluated using 5-fold cross-validation, and the final model is selected based on the highest validation 𝐹 1-score. 
+
+3.3. Lineage Reconstruction and End-to-End Inference Pipeline 
+
+The final stage of the framework integrates the outputs of Study I (spatial detection) and Study II (temporal relationship modeling) to reconstruct complete object lineages across time. This end-to-end inference pipeline is illustrated in Fig. 3. Given a sequence of images, Study I is first applied in-dependently to each frame to detect ligaments and droplets, along with their corresponding bounding boxes. For each pair of consecutive frames (𝑡, 𝑡 +1) , all spatially gated object pairs 
+
+(𝑜 (𝑡 ) 
+
+> 𝑖
+
+, 𝑜 (𝑡 +1)  
+
+> 𝑗
+
+) are then generated and encoded using the geomet-ric feature vectors described in Section 3.2.2. These feature vectors are passed to the trained classifier from Study II, which provides class probabilities for the three temporal relationship types as outputs: MOVE , BREAKUP , and NONE .The predicted pairwise relationships represent physically consistent temporal associations. For each object 𝑜 (𝑡 ) 
+
+> 𝑖
+
+in frame 
+
+𝑡 , candidate children objects in frame 𝑡 +1 with predicted prob-abilities exceeding predefined thresholds ( 𝜏 move = 0.5 for 
+
+MOVE and 𝜏 break = 0 .3 for BREAKUP ) are identified. If only a single MOVE association is present and no competing breakup predictions, a continuation edge is assigned that preserves ob-ject identity across frames. When several objects exceed the BREAKUP threshold for the same parent object, the event is termed as fragmentation. In such cases, the subset of children objects that minimizes the area conservation error ||𝐴 𝑖 − ∑𝑘 𝐴 𝑗 𝑘 
+
+|| /𝐴 𝑖 is selected, enforcing approximate mass conservation and ensuring physical plausi-bility. All remaining associations are rejected and categorized as NONE .The resultant temporal associations are organized into a di-rected acyclic graph (DAG), where nodes represent detected objects at specific time instances, and edges denote continu-ation or fragmentation events. This graph topology directly represents parent–children relationships and supports one-to-many breakup events. The graph traversal facilitates au-tomated reconstruction of fragmentation trees, from which breakup statistics such as fragment multiplicity, ligament lifes-pan, parent-to-child area ratios, and object velocities (derived from centroid displacements) can be directly estimated. 
+
+4. Results and Discussion 
+
+We present the quantitative and qualitative evaluation of the proposed two-stage framework. The results are presented for Study I and Study II as introduced in the methodology. Through Study I, we demonstrate the ability of a trained Faster R-CNN detector to locate and classify ligaments and droplets. The results describe how different original–synthetic data compositions influence detection accuracy, geometric consistency, and droplet-size statistics. Subsequently, through Study II we demonstrate the temporal relationship classifier that classifies MOVE , BREAKUP , and NONE associations be-tween consecutive frames. This further enables breakup-aware tracking and ligament lineage reconstruction. These results collectively demonstrate that the proposed framework provides both reliable object detection and temporal relation-ships for fragmentation in sprays. 
+
+4.1. Study I: Object Detection Performance 
+
+The Faster R-CNN detector is evaluated on a held-out bench-mark that comprises 37 original unseen images. Tables 4–6 summarize the test-set precision, recall, and 𝐹 1-score for the three experiments–Exp1, Exp2, and Exp3, whereas Table 7 reports the corresponding 5-fold cross-validation results in terms of mean ± standard deviation. In addition to standard detection metrics, average precision is reported for droplets (D) and ligaments (L), which allows a detailed assessment of class-specific performance. Figures 5–8 visualize the geomet-ric consistency and droplet-size distributions obtained from the computer-vision (CV) annotations and the model predic-tions. Figure 10 shows qualitative results on two different con-figurations. 7Figure 4: Droplet diameter histograms for Experiment 1 comparing CV-derived and model-predicted distributions across five training configurations. Mixed training settings better preserve the overall shape of the droplet-size distribution.       
+
+> Figure 5: Scatter plots for Experiment 1 comparing predicted and ground-truth geometric features across five training configurations. Mixed original–synthetic settings exhibit closer agreement with the reference annotations than the all-original baseline. A and P denote area and perimeter, respectively, where ba and pd
+> denote base and predicted , respectively.
+
+The results indicate that the incorporation of synthetic data is most effective when used to complement rather than re-place original experimental images. Across the three exper-iments, moderate synthetic augmentation improves general-ization, particularly when labelled data availability is less, whereas excessive reliance on synthetic data results in re-duced localization fidelity or class imbalance. The results also reveal a precision–recall trade-off: configurations with more original images tend to produce higher precision, whereas mixed original–synthetic settings often improve recall and ob-ject sensitivity. This trade-off is especially relevant for spray analysis, where missed droplets or unresolved neighboring ob-jects can directly affect downstream droplet-size statistics and breakup characterization. 
+
+4.1.1. Experiment 1: Effect of Original-to-Synthetic Ratio 
+
+Here we discuss the results obtained from training RCNN model using image sets as shown in Table 4. The variation in the ratio of original to synthetic images affects precision, recall and 𝐹 1 score. For a fixed number (250) of images, when com-paring test sets that use only original images during training, Detailed results are discussed here. It is clear that incorporat-ing synthetic data improves held-out test performance. It is observed that for the case Exp Is4, original images to synthetic images in the ration 200/50 shows the highest Precision, Recall and F-1 score. The original set (250 original, 0 synthetic) attains the low-est 𝐹 1-score of 0.769. All of the mixed setups perform better, with improvements of up to 8.3%. The best held-out perfor-  
+
+> Table 4: Object detection performance for Experiment 1 (fixed total = 250 im-ages, varying original/synthetic ratio). Evaluated on 37 held-out original im-ages. Bold indicates the best value per column.
+
+Setting Precision Recall 𝐹 1-score 
+
+Nog_050_Nsyn_00200 0.836 0.859 0.847 Nog_100_Nsyn_00150 0.832 0.856 0.844 Nog_150_Nsyn_00100 0.813 0.836 0.825 Nog_200_Nsyn_00050 0.827 0.879 0.852 
+
+Nog_250_Nsyn_00000 0.760 0.778 0.769 
+
+mance comes from Nog_200_Nsyn_00050 , which gets an 𝐹 1-score of 0.852 and the highest recall of 0.879. This means that a training set with primarily actual images and a small number of synthetic samples is a good way to get a mix of reality and variety. Notably, even the very synthetic configuration Nog_-050_Nsyn_00200 gets an 𝐹 1 score of 0.847, which shows that the images that are made still have enough morphological in-formation to help detection performance. We examine how well the model performs for each subgroup in Exp1 by comparing the droplet size distributions from model predictions with those from manually labeled ground truth an-notations. Figure 4 shows histogram plots of the droplet size distribution for each of the five parts of Exp1. The Sauter Mean Diameter (SMD) is shown for both the model predictions and the manual results in each subplot. The model-detected droplet count differs from the manual count across all data subsets. 8The SMD data further supports this finding. They show not only variations in detection counts but also potential biases in the droplet-size distribution. Figure 5 shows how well the ligaments are found. In this case, ligaments are defined by their predicted area and perime-ter. Findings from four typical test photos are displayed for each Exp1 subgroup. This comparison shows how well the model distinguishes between ligament morphology and its manually determined counterparts. It shows changes in shape and scale that may not be fully captured by aggregate statis-tics alone. The scatter graphs in Fig. 5 show that the predicted geometric descriptors match the actual trends, especially for the mixed-data setups. The histogram comparisons in Fig. 4 show that the predicted droplet-size distributions are still in line with the CV reference distributions. This experiment suggests that a mixture of original images thus enhances the count and accuracy of object detection. Sim-ilar analyses are done for Exp2 and Exp3, and the droplet size distribution histograms and ligament characterization plots for each are presented in Figs. 6–7 and Figs. 8–9, respectively. The tendencies observed in these tests are examined in the next sections, focusing on how well the model performs overall and how synthetic image augmentation affects it. 
+
+4.1.2. Experiment 2: Scaling Synthetic Data with Fixed Original Images  
+
+> Table 5: Object detection performance for Experiment 2 (fixed 250 original images, increasing synthetic data). Evaluated on 37 held-out original images.
+> Bold indicates the best value per column.
+
+Setting Precision Recall 𝐹 1-score 
+
+Nog_250_Nsyn_00000 0.764 0.776 0.770 Nog_250_Nsyn_00250 0.837 0.880 0.858 
+
+Nog_250_Nsyn_00500 0.847 0.864 0.856 Nog_250_Nsyn_01000 0.847 0.850 0.849 
+
+Experiment 2 analyzes the effect of increasing the amount of synthetic data while maintaining the number of original image counts at 250. The results are summarized in Table 5. A considerable improvement is observed when synthetic data is integrated into to a fixed collection of 250 original im-ages. The 𝐹 1-score improves from 0.770 for the no-synthetic baseline to 0.858 for Nog_250_Nsyn_00250 . Increasing the synthetic count to 500 maintains strong performance ( 𝐹 1 =0.856), but further increasing it to 1000 results in a slight decline ( 𝐹 1 = 0.849). These results indicate that moderate augmentation is beneficial, but that very large synthetic-to-original ratios yield low returns and may bias the detector to-ward synthetic-specific appearance patterns. In practical terms, the most optimal augmentation range in this experimental context is 250–500 synthetic images, corre-sponding to approximately 1 ×–2 × synthetic expansion relative to the original dataset. The corresponding histogram and scat-ter plots in Figs. 7 and 6 support these findings. The predictions align with the reference geometric measurements as synthetic data is introduced, but saturate at higher augmentation levels. Synthetic images improve robustness and coverage of plausi-ble morphologies, but excessive augmentation does not yield proportional gains on the test-set. 
+
+4.1.3. Experiment 3: Effect of Original Data Volume with Fixed Synthetic Images 
+
+Experiment 3 studies the effect of increasing the number of original images while keeping the synthetic data budget fixed at 250 images. The results are provided in Table 6.   
+
+> Table 6: Object detection performance for Experiment 3 (fixed 250 synthetic images, varying original data volume). Evaluated on 37 held-out original im-ages. Bold indicates the best value per column.
+
+Setting Precision Recall 𝐹 1-score 
+
+Nog_050_Nsyn_00250 0.862 0.864 0.863 Nog_100_Nsyn_00250 0.848 0.861 0.855 Nog_150_Nsyn_00250 0.835 0.853 0.844 Nog_200_Nsyn_00250 0.849 0.877 0.863 Nog_250_Nsyn_00250 0.861 0.882 0.872 
+
+Results from Experiment 3 show that increasing the frac-tion of original images in the training data sets consistently improves generalization when paired with a fixed amount of synthetic augmentation. The highest overall held-out per-formance in Study I is achieved by Nog_250_Nsyn_00250 ,which attains precision = 0.861, recall = 0.882, and 𝐹 1 = 0.872. This outcome indicates that synthetic data remains valuable even when a moderate number of original images are consid-ered, but its effect is maximum when sufficient original exam-ples are also included. The configuration with only 50 original images and 250 synthetic images still achieves 𝐹 1 = 0.863, high-lighting the effectiveness of synthetic augmentation in scenar-ios where limited annotated datasets are available. The trend observed in Fig. 9 further suggests that larger original datasets enhance geometric consistency between pre-dictions and reference annotations. Similarly, the histograms in Fig. 8 show increasingly accurate reconstruction of droplet-size distributions as the fraction of original training data grows. These observations indicate that synthetic data en-hances the feature space, whereas original images provide ac-curate boundary localization and separation of neighboring objects. 
+
+4.1.4. 5-Fold Cross-Validation Results 
+
+The cross-validation findings in Table 7 validates that the detector performance is consistent across folds, with gener-ally low standard deviations for all metrics. For most configu-rations, the variation remains below 0.015, indicating that the observed performance differences are not caused by unstable training behavior. Here, mAP50 denotes mean Average Pre-cision at an IoU threshold of 0.50, whereas mAP50–95 calcu-lates the mean Average Precision across IoU thresholds rang-ing from 0.50 to 0.95, thereby offering a thorough assessment of localization quality. Precision measures the fraction of pre-dicted detections that are correct, recall measures the fraction 9Figure 6: Droplet diameter histograms for Experiment 2. Increasing synthetic data improves agreement between CV and model-predicted droplet-size distributions up to a moderate augmentation level.        
+
+> Figure 7: Scatter plots for Experiment 2 illustrating the relationship between predicted and ground-truth geometric features as the synthetic data volume increases. Agreement improves with moderate augmentation, while the gains become marginal at higher synthetic ratios. A and P denote area and perimeter, respectively, where ba and pd denote base and predicted , respectively.
+
+of ground-truth objects that are successfully detected, the 𝐹 1-score summarizes their balance through the harmonic mean, and the class-wise AP values report detection performance separately for droplets (D) and ligaments (L). The cross-validation method evaluates performance based on the fold-wise test split defined within each experimental configuration, while model selection is performed using the corresponding fold-wise validation split. Consequently, the cross-validation results reflect performance based on the data configuration used when constructing each fold, rather than the static held-out benchmark of 37 unseen original images used in Tables 4–6. Thus, the absolute rankings of config-urations in cross-validation do not precisely reflect the pat-terns observed in the held-out benchmark, and the two eval-uations should be interpreted as complementary rather than interchangeable. In Experiment 1, the mixed configuration Nog_200_-Nsyn_00050 the highest cross-validated mAP50 (0.787) and recall (0.831), whereas the original setting Nog_250_Nsyn_-00000 gives the best mAP50–95 (0.580), precision (0.936), and 𝐹 1-score (0.869). This indicates that a modest amount of synthetic augmentation can improve object coverage and de-tection quality. Whereas the set with only original images remains more conservative and yields better precision and stricter IoU localization performance. In Experiment 2, the no-synthetic baseline Nog_250_-Nsyn_00000 yields the highest cross-validated mAP50–95, precision, and 𝐹 1-score, while Nog_250_Nsyn_00250 attains the highest recall, and Nog_250_Nsyn_00500 gives the high-est mAP50. This pattern shows that moderate synthetic aug-mentation improves sensitivity and IoU = 0.50 detection cover-age, but larger synthetic ratios do not translate into improved fine localization across stricter IoU thresholds. The reduction in 𝐹 1-score at Nog_250_Nsyn_01000 further suggests that ex-cessive synthetic augmentation may reduce the consistency of the detector. In Experiment 3, the trends exhibit greater coherence and are favorable for mixed training. As the number of original images increases while keeping 250 synthetic images fixed, all primary cross-validation metrics improve steadily, resulting in the best overall configuration Nog_250_Nsyn_00250 . This setting attains the highest mAP50 (0.817), mAP50–95 (0.557), precision (0.798), recall (0.842), and 𝐹 1-score (0.820) in Experi-ment 3. These findings indicate that synthetic images are most beneficial when they supplement a sufficiently strong base of original data sets rather than replace them. The class-wise AP values gives further insight into detector performance. Ligament detection outperforms droplet detec-10 Figure 8: Droplet diameter histograms for Experiment 3 showing strong agreement between CV-derived and model-predicted droplet-size distributions across all settings, with the best agreement observed at higher original data volumes.        
+
+> Figure 9: Scatter plots for Experiment 3 illustrating the effect of increasing original data volume while keeping the synthetic set fixed. Agreement with ground-truth geometry improves as more original images are included. A and P denote area and perimeter, respectively, where ba and pd denote base and predicted ,respectively.
+
+tion, particularly at stricter IoU thresholds, as reflected by the generally higher AP50–95 values for class L. Such behaviour is anticipated because ligaments are larger, more continuous, and visually easier to localize than small, closely spaced droplets. Conversely, droplet localization remains challenging, espe-cially under stricter overlap requirements, which explains the comparatively lower AP50–95_D values across many test set-tings. These observations are further supported with the qual-itative examples in Fig. 10, where missed or merged droplets remain the dominant failure mode. The cross-validation results support the main conclusion of Study I: synthetic data are advantageous, however the effec-tiveness is largely influenced by their integration with actual images. Moderate synthetic augmentation enhances recall and detection coverage, but superior localization fidelity and over-all robustness are attained when synthetic images are com-bined with an adequately large collection of original experi-mental sets. 
+
+4.1.5. Influence of Synthetic Images 
+
+Figure 10 illustrates the impact of training data composition on detection performance by comparing object detection and classification outputs from two models trained with varying original-synthetic data compositions. Ligaments are indicated by red bounding boxes, while droplets are denoted by green bounding boxes. Figure 10(A) presents detections from a model exclusively trained on original images ( Nog_250_Syn_000 ), while Fig. 10(B) displays detections from a model trained on a hybrid dataset comprising both original and synthetic images (Nog_100_Syn_250 ). Two failure cases of the original-only model are indicated by purple curves in Fig. 10(A). In the first highlighted region, multiple droplets are found to be missed. In the second, a pair of closely spaced droplets of different sizes is merged into a single detected object. These errors indicate that training only on original images may lack the necessary variability to ef-fectively capture all fine droplet configurations, especially for small and neighboring droplets that warrant precise boundary marking. In contrast, the mixed-data model depicted in Fig. 10(B) ef-fectively identifies the previously undetected droplets and dis-tinguishes the connected droplet pair into two unique entities. This behavior aligns with the quantitative findings: augment-ing original images with synthetic samples enhances sensitiv-ity to complex structures and assists the detector in more effec-tively resolving fine-scale objects. Accurate droplet separation significantly influences droplet-size distributions and breakage statistics; thus, these qualitative enhancements are not solely appealing but important to the physical validity of the com-prehensive spray-analysis process. 
+
+Study I summary. Taken together, the held-out test, cross-validation analysis, scatter plots, histogram comparisons, and qualitative examples show that synthetic augmentation is most effective when combined with original experimental images. Synthetic data substantially reduces the dependence on large manually annotated datasets and enables strong performance even in low-annotation regimes. However, consistent results 11 Table 7: 5-fold cross-validation results for all experimental configurations in Study I. Values are reported as mean ± standard deviation. D: droplet, L: ligament. 
+
+Bold indicates the best mean value within each experimental block for the primary metrics mAP50, mAP50–95, precision, recall, and 𝐹 1-score. 
+
+Exp Setting mAP50 mAP50–95 Precision Recall 𝐹 1-score AP50_D AP50_L AP50–95_D AP50–95_L 
+
+Exp1 Nog_050_Nsyn_00200 0.763 ±0.007 0.469 ±0.006 0.670 ±0.006 0.763 ±0.010 0.713 ±0.008 0.697 ±0.012 0.830 ±0.008 0.272 ±0.010 0.666 ±0.010 Nog_100_Nsyn_00150 0.728 ±0.017 0.450 ±0.014 0.749 ±0.006 0.790 ±0.008 0.769 ±0.006 0.743 ±0.011 0.713 ±0.027 0.358 ±0.008 0.542 ±0.022 Nog_150_Nsyn_00100 0.763 ±0.008 0.511 ±0.003 0.801 ±0.003 0.795 ±0.008 0.798 ±0.005 0.743 ±0.010 0.783 ±0.010 0.406 ±0.004 0.616 ±0.008 Nog_200_Nsyn_00050 0.787 ±0.008 0.546 ±0.006 0.845 ±0.001 0.831 ±0.014 0.838 ±0.007 0.786 ±0.018 0.789 ±0.008 0.478 ±0.009 0.614 ±0.006 Nog_250_Nsyn_00000 0.776 ±0.010 0.580 ±0.007 0.936 ±0.002 0.812 ±0.015 0.869 ±0.009 0.801 ±0.016 0.752 ±0.008 0.546 ±0.011 0.614 ±0.005 Exp2 Nog_250_Nsyn_00000 0.807 ±0.007 0.619 ±0.007 0.937 ±0.003 0.811 ±0.009 0.869 ±0.006 0.798 ±0.011 0.817 ±0.010 0.543 ±0.008 0.694 ±0.011 Nog_250_Nsyn_00250 0.791 ±0.006 0.523 ±0.005 0.805 ±0.003 0.844 ±0.003 0.824 ±0.003 0.814 ±0.004 0.767 ±0.013 0.445 ±0.003 0.601 ±0.010 Nog_250_Nsyn_00500 0.818 ±0.002 0.538 ±0.003 0.774 ±0.005 0.816 ±0.004 0.795 ±0.004 0.776 ±0.005 0.860 ±0.005 0.387 ±0.008 0.690 ±0.005 Nog_250_Nsyn_01000 0.795 ±0.005 0.513 ±0.003 0.757 ±0.005 0.761 ±0.007 0.759 ±0.005 0.713 ±0.008 0.877 ±0.004 0.323 ±0.003 0.704 ±0.004 
+
+Exp3 Nog_050_Nsyn_00250 0.794 ±0.003 0.494 ±0.003 0.690 ±0.006 0.761 ±0.004 0.724 ±0.004 0.696 ±0.005 0.891 ±0.004 0.284 ±0.004 0.705 ±0.003 
+
+Nog_100_Nsyn_00250 0.770 ±0.002 0.476 ±0.003 0.698 ±0.003 0.776 ±0.004 0.735 ±0.003 0.720 ±0.005 0.820 ±0.006 0.309 ±0.004 0.642 ±0.004 Nog_150_Nsyn_00250 0.779 ±0.005 0.490 ±0.003 0.738 ±0.003 0.812 ±0.004 0.773 ±0.003 0.761 ±0.004 0.796 ±0.010 0.369 ±0.002 0.612 ±0.009 Nog_200_Nsyn_00250 0.809 ±0.001 0.535 ±0.001 0.765 ±0.003 0.825 ±0.003 0.793 ±0.003 0.775 ±0.005 0.843 ±0.003 0.392 ±0.004 0.679 ±0.003 Nog_250_Nsyn_00250 0.817 ±0.005 0.557 ±0.003 0.798 ±0.003 0.842 ±0.002 0.820 ±0.002 0.802 ±0.004 0.831 ±0.009 0.441 ±0.004 0.673 ±0.005 
+
+Figure 10: Comparison of object detection and classification results for models trained with different data compositions. Ligaments and droplets are denoted by red and green bounding boxes, respectively. (A) Detections produced by a model trained only on original images ( Nog_250_Syn_000 ). (B) Detections produced by a model trained on a mixed original–synthetic dataset ( Nog_100_Syn_250 ). Purple-highlighted regions indicate representative failure and recovery cases discussed in the text. 
+
+are obtained when synthetic images supplement, rather than replace, original images. 
+
+4.2. Study II: Temporal Relationship Classification 
+
+Study II investigates how precisely the proposed framework identifies temporal relationships between detected objects in the spray across consecutive frames. The task is to classify each candidate pair as MOVE , BREAKUP , or NONE , thereby facilitating breakup-aware tracking and lineage reconstruc-tion. The subsequent section compares multiple classifier ar-chitectures, evaluates the held-out performance of the best-performing model, and examines how the chosen geometric features help in reliable temporal association. 
+
+4.2.1. Model Comparison 
+
+Table 8 compares the five evaluated architectures for tem-poral relationship classification, with results averaged over the cross-validation folds. The comparison shows a clear and con-sistent advantage for the TransformerMLP across all reported metrics. Among all evaluated architectures, TransformerMLP demonstrates the strongest performance, with an average 
+
+𝐹 1-score of 0.898 ±0.006, the highest average accuracy (0.876), precision (0.936), recall (0.876), and the lowest inter-fold standard deviation. The combination of higher mean per-formance and minimal variance signifies that the model is not only more precise but also more consistent across various train-validation splits. The enhancement over the 12 Table 8: Model comparison for temporal relationship classification (Study II). Bold indicates the best value. 
+
+Model Avg Acc. Avg Prec. Avg Rec. Avg 𝐹 1 ± Std Overall 𝐹 1
+
+TransformerMLP 0.876 0.936 0.876 0.898 ± 0.006 0.898 
+
+FeatureInteractionMLP 0.841 0.921 0.841 0.867 ± 0.009 0.867 AttentionMLP 0.838 0.921 0.838 0.864 ± 0.011 0.864 ResidualMLP 0.834 0.920 0.834 0.861 ± 0.012 0.861 BasicMLP 0.806 0.909 0.806 0.836 ± 0.012 0.836 BasicMLP baseline is significant, elevating the overall 𝐹 1-score from 0.836 to 0.898, thereby affirming that the temporal relationship classification challenge is better addressed by architectures that can model complex feature interactions instead of depending exclusively on shallow or purely direct decision boundaries. This performance pattern aligns with the fundamental framework of the task. The distinction between MOVE ,
+
+BREAKUP , and NONE is determined not by any single geomet-ric indicator, but by the combined dynamics of displacement, overlap, and area variation. The TransformerMLP first projects the five-dimensional input vector into a higher-dimensional la-tent space, enhanced by a learnable classification token, and then processes it through stacked transformer encoder layers before final classification. This formulation, while not inde-pendently tokenizing each feature like certain tabular trans-former variations, offers a more expressive method for repre-senting nonlinear dependencies in the learnt feature represen-tation compared to traditional feedforward baselines. The im-proved expressive capacity presumably enhances the efficacy of the model in addressing unclear temporal relationships. The moderate performance of FeatureInteractionMLP, At-tentionMLP, and ResidualMLP further strengthens this inter-pretation. All three surpass the BasicMLP, suggesting that improved feature integration, interaction modeling, or opti-mization stability is advantageous for this issue. Neverthe-less, none equals the comprehensive precision and resilience of TransformerMLP. This indicates that partial interaction mod-els alone is inadequate for covering the complete relational complexities of breakup dynamics. Consequently, Trans-formerMLP is designated as the definitive model for Study II and is employed in the ensuing qualitative and held-out test analyses. To qualitatively evaluate temporal tracking ability, Fig. 11 compares manually established correspondences with model-predicted correspondences for two frames separated by Δ𝑡 =0.20 ms at a fixed downstream location after the initial sheet breakup. In Fig. 11(A), the lighter and darker shades denote structures at 𝑡 = 0 and 𝑡 = 0 .20 ms, respectively, with pairwise links determined through manual annotation. These annota-tions provide the qualitative reference against which the model predictions are evaluated. Figure 11(B) illustrates the predictions generated by the trained TransformerMLP-based pipeline. The visual coherence between the two panels indicates that the model successfully retrieves most of the manually defined correspondences, en-compassing instances of both translational displacement and geometric changes due to breakdown. That setting is com-plex due to the potential for objects to migrate, distort, shrink, vanish, or divide into several progeny within a brief tempo-ral span. The qualitative examples thus corroborate the quan-titative findings by demonstrating that the model generates temporal relationships instead of merely optimizing aggregate scalar measures. 
+
+4.2.2. Temporal Relationship Classifier Performance 
+
+Table 9 reports the final evaluation of the TransformerMLP on the held-out test split. The held-out test results con-firm that the performance advantages observed during cross-validation translate effectively to unseen data. Trans-formerMLP achieves an overall accuracy of 0.861, precision of 0.932, recall of 0.861, and 𝐹 1-score of 0.887, demonstrating strong generalization despite the ambiguity and severe imbal-ance (NONE:MOVE:BREAKUP ≈ 117:22:1) inherent to tempo-ral relationship classification in atomizing flows. 
+
+> Table 9: Final test results for the TransformerMLP model on the held-out test split in Study II.
+
+Metric / Configuration Value 
+
+Overall Performance 
+
+Accuracy 0.861 Precision 0.932 
+
+Recall 0.861 
+
+𝐹 1-score 0.887 
+
+Class-wise Recall 
+
+MOVE 0.895 BREAKUP 1.000 
+
+NONE 0.853 
+
+Spatial Gating Constraints 
+
+Distance threshold (pixel) 64 px Distance threshold (normalized) 8.0 From the standpoint of downstream lineage reconstruction, the most critical result is the perfect BREAKUP recall of 1.000. This means that every true fragmentation event in the held-out test split is successfully identified by the model. Such behav-ior is essential for breakup-aware tracking, because a missed breakup event cannot be recovered later and would perma-nently sever the parent–child structure of the fragmentation tree. In this setting, high breakup sensitivity is therefore more 13 Figure 11: Visualization of ligament and droplet tracking at a downstream location following initial sheet breakup. (A) Ground-truth correlations between two time instances separated by Δ𝑡 = 0 .20 ms, obtained via manual labelling. Lighter-shaded objects represent structures at 𝑡 = 0 , while darker-shaded objects represent the corresponding structures at 𝑡 = 0 .20 ms. (B) Model-predicted correlations for the same two time instances. Lighter-shaded objects correspond to 
+
+𝑡 = 0 , while darker-shaded objects with prominent borders denote structures identified and correlated by the trained model at 𝑡 = 0 .20 ms. 
+
+important than aggressively minimizing all positive breakup predictions, since implausible candidates can still be filtered during downstream lineage reconstruction using physically motivated constraints such as area-conservation-based consis-tency checks. The remaining specific to class recall metrics explain the functional performance of the model. The MOVE recall of 0.895 implies that the model retains the majority of valid tem-poral continuations, which is crucial for sustaining track con-tinuity between successive frames. The NONE recall of 0.853 indicates that the classifier effectively dismisses most invalid associations, thereby minimizing the introduction of spurious edges into the temporal graph. These findings demonstrate that the model effectively addresses the three conflicting de-mands of the task: maintaining motion continuity, identifying infrequent fragmentation occurrences, and reducing false re-lationships between unrelated entities. The spatial gating thresholds directly influence this perfor-mance. By limiting candidate connections to a centroid dis-placement of no more than 64 pixels or a normalized distance of 8.0, the inference method eliminates numerous physically implausible pairings prior to categorization. This alleviates the continuous difficulty of candidate matching and directs the classifier towards locally plausible relationships. In dense spray zones, where several droplets and ligaments may be in close proximity, such gating is crucial for managing ambigu-ity. The observed test performance should be seen as the result of a hybrid method that integrates learned relational inference with physically motivated candidate removal. 
+
+4.2.3. Feature Correlation Analysis 
+
+Figure 12 displays the correlation matrix for the four geo-metric input features alongside the class label, resulting in a total of five investigated variables. The observed correlations are predominantly moderate, with the highest absolute corre-lation recorded at |𝑟 | = 0 .57 between centroid_dist_px and 
+
+centroid_dist_norm . This is anticipated, as both variables measure displacement information at varying scales. Signifi-cantly, no pair of input features demonstrates near-complete redundancy, suggesting that the chosen feature set include complimentary rather than irrelevant physical information. centroid_dist_px                     
+
+> centroid_dist_norm
+> bbox_iou
+> area_ratio
+> label
+> centroid_dist_px
+> centroid_dist_norm
+> bbox_iou
+> area_ratio
+> label
+> 1.00 0.57 -0.34 -0.14 -0.40
+> 0.57 1.00 -0.43 0.07 -0.31
+> -0.34 -0.43 1.00 -0.00 0.21
+> -0.14 0.07 -0.00 1.00 -0.05
+> -0.40 -0.31 0.21 -0.05 1.00
+> Feature Correlation Matrix
+> 1.00
+> 0.75
+> 0.50
+> 0.25
+> 0.00
+> 0.25
+> 0.50
+> 0.75
+> 1.00
+> Correlation
+
+Figure 12: Correlation matrix for the five geometric input features together with the class label. Off-diagonal feature correlations are moderate, with the largest absolute correlation observed between centroid distance and normal-ized centroid distance, confirming that the selected features are complemen-tary rather than redundant. Near-zero correlations involving area_ratio 
+
+indicate that size evolution provides information largely independent of spa-tial displacement and overlap cues. 
+
+The moderate correlation between the two centroid-distance variables confirms that both encode related but not identical spatial information. One reflects the raw displace-ment magnitude in pixel space, while the other normalizes it relative to object scale, thereby providing a more physically in-terpretable measure across objects of different sizes. Similarly, 14 bbox_iou contributes overlap-based evidence that cannot be inferred solely from centroid proximity, especially when ob-jects deform or elongate between frames. A notable observation is the near-zero correlation between  
+
+> area_ratio
+
+and the centroid-distance. This indicates that size evolution and spatial displacement behave as largely in-dependent physical cues. Such independence is highly desir-able for breakup analysis, because a true fragmentation event may involve strong area change even when centroid motion is small, while a pure continuation may involve large displace-ment with minimal change in projected area. The low re-dundancy among these features therefore justifies their joint use and helps explain why architectures capable of modeling feature interactions, especially TransformerMLP, outperform simpler baselines. The inclusion of the class label in the correlation matrix is also useful at an exploratory level, because it provides a com-pact view of how each input variable relates to the target cate-gories. While these pairwise correlations do not by themselves capture the nonlinear decision boundaries learned by the clas-sifier, they still indicate that the selected variables carry dis-criminative information relevant to temporal relationship pre-diction. The correlation structure supports the design method-ology of the feature set: each variable captures a distinct aspect of temporal object behavior, and their combined use provides the classifier with a physically grounded yet sufficiently di-verse representation of motion, overlap, and shape evolution. 
+
+4.2.4. Temporal Visualization and Lineage Reconstruction 
+
+Figure 3 presents the overall inference pipeline of the pro-posed two-stage framework. Following object detection, can-didate object pairs from consecutive frames are represented using the selected geometric variables and classified as MOVE ,
+
+BREAKUP , or NONE . These predicted temporal relationships are then used to reconstruct lineage across the image sequence. This representation is particularly important for spray breakup analysis because it explicitly supports one-to-many transi-tions, which cannot be handled naturally by conventional one-to-one tracking methods. As a result, the framework enables physically interpretable lineage reconstruction and supports downstream extraction of breakup-related temporal statistics. 
+
+5. Conclusions 
+
+This study presents a two-stage deep learning framework for the automated detection, temporal association, and lineage reconstruction of ligament breakup in high-speed shadowgra-phy images of atomizing non-Newtonian liquid sheets. A liq-uid sheet breakup and droplet formation are fundamentally a topology-changing process in which a single parent structure may persist, deform, or fragment into multiple descendants over time. Such behavior is not naturally handled by con-ventional tracking methods based on one-to-one temporal as-signment. To address this limitation, the proposed framework combines frame-wise object detection (study-I) with pairwise temporal relationship classification and facilitates breakup-aware lineage reconstruction (study-II). In Study I, a Faster R-CNN detector with a ResNet-50– FPN backbone is trained to detect and classify ligaments and droplets from cropped spray images (256 x 256 px). Amorphology-preserving synthetic data generation strategy is employed to address annotation scarcity while maintaining re-alistic object morphology and spatial arrangement. The re-sults demonstrated that synthetic augmentation is most effec-tive when used to complement rather than replace original ex-perimental images. Throughout the evaluated training config-urations, the detector achieved strong and consistent perfor-mance, with the best held-out test 𝐹 1-score reaching 0.872. In Study II, temporal reasoning is defined as a three-class relationship-prediction problem over candidate object pairs across consecutive frames. The relationship classi-fier used five physics-informed geometric features, namely centroid distance, normalized centroid distance, bounding-box intersection-over-union, area ratio, and label consistency. Among the evaluated architectures, TransformerMLP pro-duced the best and most consistent results, demonstrating that temporal relationship prediction benefits from models capa-ble of learning nonlinear interactions among complementary geometric cues. On the held-out test split, the final model at-tained an accuracy of 86.1%, precision of 93.2%, and an 𝐹 1-score of 0.887, while maintaining perfect recall for breakup events. This operating behavior is crucial because missed breakup events would irreversibly disrupt the reconstructed parent– children lineage. By combining the outputs of the two studies, the frame-work enables the construction of temporal graphs that ex-plicitly encode continuation and fragmentation events across frames. This enables automatic reconstruction of fragmenta-tion trees and the extraction of physically significant descrip-tors such as fragment multiplicity, parent–child inheritance, area-based consistency, and centroid-derived motion informa-tion. The proposed framework, therefore, extends spray image analysis beyond frame-wise detection and conventional track-ing methods. It provides a physically interpretable and com-putationally effective representation of breakup dynamics. The findings indicate that the fragmentation-dominated temporal analysis can be addressed effectively through relationship-aware learning based on reliable object detection. The proposed methodology reduces dependence on labor-intensive manual temporal annotation and offers a practical route toward automated analysis of breakup processes in com-plex multiphase flows. Future research should explore longer temporal context, graph-based or sequence-based temporal reasoning, richer instance-level representations, and valida-tion across broader atomization regimes, imaging conditions, and fluid systems. 
+
+Acknowledgement 
+
+We acknowledge financial support for research provided by the Indian Space Research Organization (Project Nr. ISRO/RES/3/782/18-19) and SERB DST, Govt. of India (Project Nr. SPG/2022/002031). We also acknowledge the Department 15 of Computer Science and Engineering at IIT Ropar for provid-ing the computational facility. 
+
+Declaration of Competing Interest 
+
+The authors declare that they have no known competing fi-nancial interests or personal relationships that could have in-fluenced the work reported in this paper. 
+
+References 
+
+[1] C. Dumouchel, On the experimental investigation on pri-mary atomization of liquid streams, Experiments in fluids 45 (3) (2008) 371–422. [2] E. Villermaux, Fragmentation, Annu. Rev. Fluid Mech. 39 (1) (2007) 419–446. [3] T. D. Fansler, D. L. Reuss, V. Sick, R. N. Dahms, Invited re-view: Combustion instability in spray-guided stratified-charge engines: A review, International Journal of Engine Research 16 (3) (2015) 260–305. [4] A. H. Lefebvre, V. G. McDonell, Atomization and sprays, CRC press, 2017. [5] C. J. Kähler, S. Scharnowski, C. Cierpka, On the resolution limit of digital particle image velocimetry, Experiments in fluids 52 (6) (2012) 1629–1639. [6] G. S. Settles, M. J. Hargather, A review of recent devel-opments in schlieren and shadowgraph techniques, Mea-surement Science and Technology 28 (4) (2017) 042001. [7] N. Chigier, R. D. Reitz, Regimes of jet breakup and breakup mechanisms- physical aspects, Recent advances in spray combustion: Spray atomization and drop burn-ing phenomena. 1 (1996) 109–135. [8] M. Linne, Imaging in the optically dense regions of a spray: A review of developing techniques, Progress in Energy and Combustion Science 39 (5) (2013) 403–440. [9] A. Bewley, Z. Ge, L. Ott, F. Ramos, B. Upcroft, Simple on-line and realtime tracking, in: 2016 IEEE international conference on image processing (ICIP), Ieee, 2016, pp. 3464–3468. [10] N. Wojke, A. Bewley, D. Paulus, Simple online and realtime tracking with a deep association metric, in: 2017 IEEE international conference on image processing (ICIP), IEEE, 2017, pp. 3645–3649. [11] Y. Zhang, P. Sun, Y. Jiang, D. Yu, F. Weng, Z. Yuan, P. Luo, W. Liu, X. Wang, Bytetrack: Multi-object tracking by as-sociating every detection box, in: European conference on computer vision, Springer, 2022, pp. 1–21. [12] S. Sibirtsev, S. Zhai, M. Neufang, J. Seiler, A. Jupke, Mask r-cnn based droplet detection in liquid–liquid systems, part 2: Methodology for determining training and image processing parameter values improving droplet detec-tion accuracy, Chemical Engineering Journal 473 (2023) 144826. [13] S. S. Ade, D. Gupta, L. D. Chandrala, K. C. Sahu, Applica-tion of deep learning and inline holography to estimate the droplet size distribution, International Journal of Mul-tiphase Flow 177 (2024) 104853. [14] H. Zhang, Y. Wang, Y. Zhao, L. Chen, Y. Wu, C. Zheng, X. Wu, X. Gao, Intelligent and quantitative ligament breakup event analysis in 65 khz off-axis holographic video of swirl spray, International Journal of Multiphase Flow (2025) 105337. [15] B. Jose, F. Hampp, Machine learning based spray process quantification, International Journal of Multiphase Flow 172 (2024) 104702. [16] B. Jose, O. Lammel, F. Hampp, Ml-based semantic seg-mentation for quantitative spray atomization description, Available at SSRN 5017516 (2025). [17] W. L. Lim, M. Y. Teow, R. T. Wong, R. K. Pathan, C. C. Ho, R. B. Koneru, P. Khare, L. Bravo, S. L. Lau, Seman-tic liquid spray understanding with computer-generated images, IEEE Access 12 (2024) 39968–39977. [18] G. Tretola, P. McGinn, D. Fredrich, K. Vogiatzaki, Ma-chine learning assisted characterisation and prediction of droplet distributions in a liquid jet in cross-flow, Proceed-ings of the Combustion Institute 40 (1-4) (2024) 105760. [19] V. R. Hasti, D. Shin, Denoising and fuel spray droplet de-tection from light-scattered images using deep learning, Energy and AI 7 (2022) 100130. [20] N. Huynh, K.-D. Nguyen, Real-time droplet detection for agricultural spraying systems: A deep learning approach, Machine Learning and Knowledge Extraction 6 (1) (2024) 259–282. [21] Y. LeCun, Y. Bengio, G. Hinton, Deep learning, nature 521 (7553) (2015) 436–444. [22] K. He, G. Gkioxari, P. Dollár, R. Girshick, Mask r-cnn, in: Proceedings of the IEEE international conference on computer vision, 2017, pp. 2961–2969. [23] S. Ren, K. He, R. Girshick, J. Sun, Faster r-cnn: Towards real-time object detection with region proposal networks, Advances in neural information processing systems 28 (2015). [24] A. Saurabh, D. Deshmukh, S. Nath, D. Agarwal, K. Vivek, L. Kabiraj, Impingement atomization of carbopol gels, AIAA Journal 60 (2022) 6463–6472. doi:10.2514/1. J060195 .16 [25] V. Kurumanghat, A. Saurabh, L. Kabiraj, An experimental investigation on mechanisms of sheet disintegration into droplets for aqueous polymer gels, International Journal of Multiphase Flow 191 (2025) 105303. doi:10.1016/ J.IJMULTIPHASEFLOW.2025.105303 .[26] K. He, X. Zhang, S. Ren, J. Sun, Deep residual learning for image recognition, in: Proceedings of the IEEE confer-ence on computer vision and pattern recognition, 2016, pp. 770–778. [27] T.-Y. Lin, P. Dollár, R. Girshick, K. He, B. Hariharan, S. Be-longie, Feature pyramid networks for object detection, in: Proceedings of the IEEE conference on computer vision and pattern recognition, 2017, pp. 2117–2125. [28] T.-Y. Lin, M. Maire, S. Belongie, J. Hays, P. Perona, D. Ra-manan, P. Dollár, C. L. Zitnick, Microsoft coco: Common objects in context, in: European conference on computer vision, Springer, 2014, pp. 740–755. 17

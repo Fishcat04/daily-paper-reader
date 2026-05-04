@@ -1,0 +1,399 @@
+Title: Adaptive Slicing-Assisted Hyper Inference for Enhanced Small Object Detection in High-Resolution Imagery
+
+URL Source: https://arxiv.org/pdf/2604.19233v1
+
+Published Time: Wed, 22 Apr 2026 00:48:45 GMT
+
+Number of Pages: 12
+
+Markdown Content:
+# Adaptive Slicing-Assisted Hyper Inference for Enhanced Small Object Detection in High-Resolution Imagery 
+
+Francesco Moretti 1 Yi Jin 1 Guiqin Mario 11College of Educational Science and Technology, Polytechnic University of Turin 
+
+# Abstract 
+
+Deep learning-based object detectors have achieved re-markable success across numerous computer vision appli-cations, yet they continue to struggle with small object detection in high-resolution aerial and satellite imagery, where dense object distributions, variable shooting angles, diminutive target sizes, and substantial inter-class variabil-ity pose formidable challenges. Existing slicing strate-gies [1] that partition high-resolution images into manage-able patches have demonstrated promising results for en-larging the effective receptive field of small targets; how-ever, their reliance on fixed slice dimensions introduces sig-nificant redundant computation, inflating inference cost and undermining detection speed. In this paper, we propose 
+
+Adaptive Slicing-Assisted Hyper Inference (ASAHI) , a novel slicing framework that shifts the paradigm from prescribing a fixed slice size to adaptively determining the optimal number of slices according to image resolu-tion, thereby substantially mitigating redundant computa-tion while preserving beneficial overlap between adjacent patches. ASAHI integrates three synergistic components: (1) an adaptive resolution-aware slicing algorithm that dy-namically generates 6 or 12 overlapping patches based on a learned threshold, (2) a slicing-assisted fine-tuning (SAF) strategy that constructs augmented training data compris-ing both full-resolution and sliced image patches, and (3) a Cluster-DIoU-NMS (CDN) post-processing module that combines the geometric merging efficiency of Cluster-NMS [75] with the center-distance-aware suppression of DIoU-NMS [74] to achieve robust duplicate elimination in crowded scenes. Extensive experiments on two chal-lenging benchmarks, VisDrone2019 [12] and xView [28], demonstrate that ASAHI achieves state-of-the-art perfor-mance with mAP 50 of 56.8% on VisDrone2019-DET-val and 22.7% on xView-test, while reducing inference time by 20–25% compared to the baseline SAHI method [1], con-firming its effectiveness for practical high-resolution small object detection. 
+
+# 1. Introduction 
+
+Object detection has long been a cornerstone of computer vision, underpinning a wide spectrum of real-world appli-cations such as autonomous navigation, surveillance, and industrial inspection [45, 32, 43]. Fueled by advances in deep convolutional neural networks, modern detectors— ranging from single-stage pipelines such as the YOLO fam-ily [43, 44, 3, 25, 60] and RetinaNet [32] to two-stage archi-tectures exemplified by Faster R-CNN [45]—have achieved impressive accuracy on standard benchmarks. Despite these advances, the detection of small objects remains a notori-ously difficult and largely unsolved problem, particularly in the domain of high-resolution aerial imagery captured by unmanned aerial vehicles (UAVs), satellites, and high-altitude cameras [12, 28, 56]. The challenges associated with small object detection in such settings are multifaceted and mutually reinforcing. First, aerial images typically exhibit extremely high spa-tial resolutions ( e.g. , 1920 × 1080 to 3000 × 2500 pixels), while the objects of interest occupy only a tiny fraction of the total image area, leading to a severe scale imbal-ance between foreground and background [68, 26]. Second, the dense spatial distribution of objects—vehicles, pedestri-ans, and infrastructure elements crowded along streets and intersections—creates extensive occlusion and inter-object proximity that confound standard non-maximum suppres-sion (NMS) procedures [4, 74]. Third, the unconstrained variation in camera altitude, viewing angle, illumination conditions, and atmospheric effects introduces appearance variability that further degrades feature discrimination for small targets [9, 48]. Collectively, these factors explain why even state-of-the-art detectors such as Faster R-CNN achieve only 6.2% mAP on extremely small objects in Vis-Drone2019 [12], despite achieving 38.0% mAP at multi-scale. The community has explored several complementary strategies to address these limitations. One prominent direc-tion is the design of specialized architectures that enhance multi-scale feature extraction through additional prediction heads, attention mechanisms, or feature pyramid refine-ments [77, 67, 31, 65, 55]. For instance, TPH-YOLOv5 [77] augments the YOLOv5 backbone with Transformer-based prediction heads and CBAM attention modules to improve sensitivity to small objects. QueryDet [67] introduces cas-caded sparse queries that accelerate high-resolution feature processing while maintaining detection accuracy. Another research avenue focuses on improving post-processing through enhanced NMS variants [4, 47, 74, 75], while generative approaches such as SOD-MTGAN [2] seek to synthesize super-resolved representations of small targets. More recently, the Transformer revolution [57, 11] has cat-1
+
+> arXiv:2604.19233v1 [cs.CV] 21 Apr 2026
+
+alyzed the development of attention-based detectors includ-ing DETR [6], Deformable DETR [78], and DINO [69], which eliminate hand-crafted components like anchor gen-eration and NMS. Parallel progress in document under-standing [51, 15, 52] and scene text detection [55, 53, 36, 72] has further demonstrated the power of multi-modal perception pipelines that jointly process visual and textual cues. Among the most pragmatic and effective approaches is the image slicing strategy, which partitions a high-resolution input into smaller overlapping patches, performs detection independently on each patch, and merges the re-sults [1, 41]. The Slicing-Aided Hyper Inference (SAHI) framework [1] has emerged as a popular instantiation of this paradigm, demonstrating consistent improvements across a variety of detectors. By enlarging the effective receptive field relative to each small target, slicing mitigates the fun-damental scale mismatch between network input resolution and object size. However, SAHI employs a fixed slice size (e.g. , 512 ×512 pixels), which inevitably produces varying degrees of redundant computation across images of differ-ent resolutions. Specifically, when slicing with a fixed patch dimension, boundary regions frequently contain substantial overlap with adjacent patches that exceed the intended over-lap ratio, resulting in duplicated computation that inflates both latency and the number of duplicate predictions that must be subsequently suppressed. To overcome these limitations, we propose Adaptive Slicing-Assisted Hyper Inference (ASAHI) , a resolution-adaptive slicing framework that fundamentally shifts the de-sign philosophy from prescribing a fixed slice size to dy-namically determining the optimal number of slices. The key insight underlying ASAHI is that by fixing the num-ber of patches (either 6 or 12, selected via a resolution-dependent threshold) and computing the corresponding patch dimensions adaptively, the overlap between adjacent slices can be precisely controlled, thereby minimizing re-dundant computation while ensuring that boundary regions retain sufficient contextual information. We further intro-duce Slicing-Assisted Fine-tuning (SAF) , a training data augmentation strategy that constructs the fine-tuning dataset by combining the original full-resolution images with their corresponding sliced patches, enabling the model to learn complementary global and local feature representations. Finally, we design Cluster-DIoU-NMS (CDN) , a hybrid post-processing algorithm that inherits the parallel compu-tational efficiency of Cluster-NMS [75] while incorporating the DIoU distance penalty [74] to better distinguish over-lapping objects in crowded aerial scenes. Our main contributions can be summarized as follows: • We propose ASAHI, a novel adaptive slicing algorithm that dynamically adjusts slice dimensions according to image resolution, reducing redundant computation by up to 38.7% compared to SAHI [1] while improving detection accuracy. • We introduce SAF, a slicing-assisted fine-tuning strat-egy that effectively augments training data with resolution-consistent image patches, enabling the de-tector to develop robust multi-scale feature representa-tions. • We design CDN, a Cluster-DIoU-NMS post-processing module that achieves both higher accuracy and faster inference in dense detection scenarios. • Comprehensive experiments on VisDrone2019 [12] and xView [28] demonstrate that ASAHI achieves state-of-the-art detection performance with a 1.7% mAP improvement and 20–25% speed improvement over SAHI [1]. 
+
+# 2. Related Work 
+
+2.1. Generic Object Detection 
+
+Modern CNN-based object detectors can be broadly cate-gorized into single-stage and two-stage paradigms. Single-stage detectors, including SSD [35], RetinaNet [32], the YOLO family [43, 44, 3, 25, 8, 60, 24], and Efficient-Det [49], directly predict object locations and class la-bels in a single forward pass, formulating detection as a dense regression problem. Two-stage detectors, exemplified by R-CNN [19], Faster R-CNN [45], Mask R-CNN [20], SPPNet [21], and DetectoRS [42], first generate region proposals and then refine them through Region-of-Interest (RoI) alignment operations. Feature Pyramid Networks (FPN) [31] and Path Aggregation Networks (PANet) [33] have become standard components for multi-scale feature fusion in both paradigms. The emergence of Vision Transformers [11, 57] has introduced a third paradigm based on set prediction. DETR [6] pioneered end-to-end detection by eliminating anchor generation and NMS through bipartite matching, while subsequent works such as Deformable DETR [78], DN-DETR [30], DINO [69], and Grounding DINO [34] have progressively improved convergence speed, detection accuracy, and open-vocabulary generalization. Diffusion-Det [7] further explores the application of diffusion mod-els to the object detection paradigm. Meanwhile, ad-vances in multi-modal understanding—spanning document intelligence [51, 15, 17, 71, 59, 46], scene text recog-nition [55, 53, 54, 72, 73, 36], and visual question an-swering [52, 58, 13]—have demonstrated that joint visual-textual reasoning can significantly enhance perception ca-pabilities, providing complementary insights that benefit fine-grained visual recognition tasks such as small object detection. 22.2. Small Object Detection 
+
+Small object detection has attracted increasing attention due to its broad applications in medical imaging [39], re-mote sensing [70], industrial inspection [62], and traffic surveillance [56]. The fundamental challenge lies in the ex-tremely limited pixel information available for small targets after successive downsampling through deep network lay-ers [40, 26]. Representative approaches address this challenge from multiple angles. Architecture-level innovations include TPH-YOLOv5 [77], which augments YOLOv5 with Transformer prediction heads and CBAM attention [65]; TOOD [14], which introduces task-aligned prediction heads; PP-YOLOE [66], which evolves the YOLO frame-work with efficient reparameterization; and SSA-CNN [76], which incorporates semantic self-attention mechanisms. Density-guided approaches like DMNet [29] leverage den-sity maps to focus computational resources on densely populated regions. CRENet [64] and ClusDet [68] em-ploy adaptive region clustering to identify areas of inter-est in aerial images. HIT-UAV [48] introduces a high-altitude infrared thermal benchmark to facilitate research on UAV-based detection under challenging lighting condi-tions. QueryDet [67] and Focus-and-Detect [27] accelerate high-resolution processing through cascaded sparse queries and focus-then-detect pipelines, respectively. GLSAN [9] proposes a global-local self-adaptive mechanism that dy-namically balances contextual and local feature extrac-tion. Concurrently, universal document parsing frame-works [18, 16, 38] and multi-modal benchmarks [52, 50] have advanced fine-grained visual recognition capabilities that are directly transferable to small object analysis. Slicing-based methods represent a particularly practi-cal and complementary approach. SAHI [1] slices im-ages into fixed-size overlapping patches during both train-ing and inference, effectively enlarging the receptive field for small objects. Swin Transformer [37] and CSWin Trans-former [10] apply window-based attention mechanisms that implicitly partition the feature map, though their slicing oc-curs within the network’s forward pass and incurs substan-tial memory overhead. The power of tiling and merging strategies for aerial object detection has been further vali-dated in [41]. While effective, the fixed-size slicing in SAHI introduces resolution-dependent redundant computation—a limitation that our proposed ASAHI framework directly ad-dresses. 
+
+2.3. Post-Processing for Object Detection 
+
+Post-processing plays a critical role in detection pipelines, particularly in high-density scenarios where small objects frequently overlap. Traditional NMS [4] uses IoU as the sole criterion for suppression, which can lead to the elim-ination of true positives in crowded scenes. Soft-NMS [4] introduces a Gaussian decay function to smooth suppres-sion scores, while WBF [47] ensembles predictions from multiple models through weighted averaging. To address the geometric limitations of IoU, Zheng 
+
+et al. [74] introduce GIoU, DIoU, and CIoU losses that incorporate non-overlapping area penalties, center-point distance, and aspect ratio, respectively, providing richer geometric supervision for bounding box regression. Cluster-NMS [75] reformulates NMS as a matrix opera-tion that eliminates sequential processing, achieving signif-icant speedup. Focus-and-Detect [27] and Cascade R-CNN + NWD [61] demonstrate that combining specialized de-tection strategies with advanced post-processing can yield substantial improvements in small object scenarios. Our CDN module builds upon these insights by integrating the parallelized efficiency of Cluster-NMS with the geometric awareness of DIoU, achieving both speed and accuracy im-provements. 
+
+# 3. Method 
+
+In this section, we present the proposed ASAHI framework in detail. We first provide an overview of the complete detection pipeline (Sec. 3.1), then describe the backbone architecture (Sec. 3.2), the core ASAHI adaptive slicing algorithm (Sec. 3.3), the slicing-assisted fine-tuning strat-egy (Sec. 3.4), and the Cluster-DIoU-NMS post-processing module (Sec. 3.5). We additionally provide a formal anal-ysis of the redundant computation reduction achieved by ASAHI (Sec. 3.6). 
+
+3.1. Framework Overview 
+
+The SAHI [1] slicing method partitions an input image into overlapping patches of fixed dimensions, feeds each patch independently through a detection network, and merges the resulting predictions with those obtained from the full-resolution image. While this strategy effectively enlarges the receptive field for small objects, the use of fixed patch sizes introduces redundant computation that varies with in-put resolution—boundary slices frequently extend beyond the image boundaries or overlap excessively with neighbor-ing patches. ASAHI addresses this limitation by reformulating the slicing problem: instead of prescribing a fixed patch size, we fix the number of patches and adaptively compute the corresponding dimensions based on image resolution. As illustrated in Fig. 1, the complete detection pipeline oper-ates in two parallel inference streams: (1) Full Inference (FI) , where the complete image is processed at its origi-nal resolution to capture global context and detect larger objects; (2) ASAHI Inference , where the image is adap-3tively sliced into 6 or 12 overlapping patches, each of which is independently processed after bilinear interpolation to a uniform size. The predictions from both streams are aggre-gated and refined through our CDN post-processing module to produce the final detection results. 
+
+3.2. Backbone Architecture 
+
+We adopt TPH-YOLOv5 [77] as the backbone detec-tion network, motivated by its demonstrated excellence in drone-captured object detection (5th place in Vis-Drone2021 challenge [5]). TPH-YOLOv5 employs CSP-Darknet53 [3] as the backbone with three Transformer en-coder blocks [11], utilizes PANet [33] with CBAM [65] modules as the neck, and features four Transformer-based prediction heads optimized for multi-scale detection. Building upon the architecture provided by Zhu et al. [77], we introduce a minor architectural modification by removing one CBAM module [65] from the neck struc-ture. This simplification reduces computational overhead without degrading detection performance, as our experi-ments demonstrate. It is worth noting that while we employ TPH-YOLOv5 as the primary backbone in this work, the ASAHI framework is detector-agnostic and can be seam-lessly integrated with other architectures from the YOLO family [43, 3, 25, 60, 24] or Transformer-based detec-tors [6, 78, 69]. 
+
+3.3. Adaptive Slicing-Assisted Hyper Inference 
+
+The core contribution of this work lies in the ASAHI adap-tive slicing algorithm, which dynamically determines the number and dimensions of image patches based on input resolution. Unlike SAHI [1], which uses a fixed patch size (typically 512 ×512 ), ASAHI fixes the number of slices and computes the corresponding dimensions to precisely control overlap ratios. 
+
+Resolution-Dependent Threshold. We define a thresh-old T that determines whether an image should be parti-tioned into 6 ( 3×2) or 12 ( 4×3) slices: 
+
+T = r × (4 − 3 × μ) + 1 , (1) where μ ∈ [0 , 1) denotes the overlap ratio between adja-cent patches and r denotes the limiting dimension that con-strains patch sizes to remain within a bounded range. In our implementation, r is set to 512, yielding T = 1818 when 
+
+μ = 0 .15 .
+
+Algorithm 1 ASAHI Adaptive Slicing 
+
+Require: Image Ik with dimensions W × H; overlap ratio 
+
+μ; limiting dimension r
+
+Ensure: Set of sliced patches P 
+
+> 1:
+
+Compute threshold T via Eq. (1)  
+
+> 2:
+
+if max( W, H ) ≤ T then  
+
+> 3:
+
+ncols ← 3, nrows ← 2 
+
+> 4:
+
+else  
+
+> 5:
+
+ncols ← 4, nrows ← 3 
+
+> 6:
+
+end if  
+
+> 7:
+
+Compute slice size p via Eq. (2)  
+
+> 8:
+
+Derive llong , lshort from p 
+
+> 9:
+
+Determine slice w, slice h based on aspect ratio  
+
+> 10:
+
+P ← ∅  
+
+> 11:
+
+for i = 0 to nrows − 1 do  
+
+> 12:
+
+for j = 0 to ncols − 1 do  
+
+> 13:
+
+(x1, y 1) ← (j · stride w, i · stride h) 
+
+> 14:
+
+(x2, y 2) ← (x1 + slice w, y 1 + slice h) 
+
+> 15:
+
+P ← P ∪ { Ik[y1 : y2, x 1 : x2]} 
+
+> 16:
+
+end for  
+
+> 17:
+
+end for  
+
+> 18:
+
+return P
+
+Adaptive Slice Size Computation. Given an input image of dimensions W × H, the slice size p is computed as: 
+
+p =
+
+
+
+max 
+
+ W 
+
+> 3−2μ
+
++ 1 , H 
+
+> 2−μ
+
++ 1 
+
+
+
+if max( W, H ) ≤ T, 
+
+max 
+
+ W 
+
+> 4−3μ
+
++ 1 , H 
+
+> 3−2μ
+
++ 1 
+
+
+
+if max( W, H ) > T. 
+
+(2) This formulation ensures that the computed patch dimen-sions accommodate the image boundaries precisely, elim-inating the excessive boundary overlap that plagues fixed-size approaches. 
+
+Slice Coordinate Determination. After computing p, we derive the long-edge length llong and short-edge length lshort 
+
+of each slice: 
+
+(llong = W 
+
+> 3−2μ
+
++ 1 , lshort = H 
+
+> 2−μ
+
++ 1 if 6 slices ,llong = W 
+
+> 4−3μ
+
++ 1 , lshort = H 
+
+> 3−2μ
+
++ 1 if 12 slices .
+
+(3) The slicing height and width are assigned based on the image’s aspect ratio (slice h = llong , slice w = lshort when 
+
+H > W , and vice versa), and slice coordinates are iter-atively computed until the entire image is covered. Each slice is subsequently resized to a uniform dimension via bi-linear interpolation, preserving the aspect ratio. The complete ASAHI slicing procedure is formalized in Algorithm 1. 4[Detection Pipeline Diagram] 
+
+Input Image → { Full Inference Path, ASAHI Slicing Path } → TPH-YOLOv5 → Bounding Box Predictions →
+
+Cluster-DIoU-NMS → Final Results Figure 1: Overview of the proposed ASAHI detection framework. The input image is simultaneously processed through two complementary pathways: Full Inference (FI) for global context and large object detection, and ASAHI adaptive slicing for enhanced small object detection. The Cluster-DIoU-NMS (CDN) module merges and refines predictions from both pathways. During training, the SAF strategy constructs the fine-tuning dataset by combining full-resolution images with their corresponding sliced patches. 
+
+3.4. Slicing-Assisted Fine-Tuning (SAF) 
+
+To support the dual-pathway inference architecture, the training data must include both full-resolution im-ages and their sliced counterparts. We construct the fine-tuning dataset by combining the original pre-training images {I1, I 2, . . . , I j } with their sliced patches 
+
+{P 11 , . . . , P 1 
+
+> k
+
+, . . . , P jk }. The slicing method used for gen-erating training patches need not exactly match the ASAHI algorithm; conventional sliding window methods can also be employed effectively. During training, both full-resolution images and sliced patches are resized to a uniform dimension (512 pixels) to ensure scale consistency. Although this resizing causes some information loss for the full-resolution images, the primary feature extraction in our framework focuses on the sliced patches, while the full-resolution images serve pri-marily to provide global contextual information ( e.g. , rel-ative spatial positioning of objects). To manage the com-putational burden introduced by the expanded dataset, we deliberately forgo additional data augmentation techniques such as random rotation, geometric distortion, or photomet-ric jittering. 
+
+3.5. Cluster-DIoU-NMS (CDN) 
+
+Post-processing constitutes a critical bottleneck in small ob-ject detection, as the high density of predictions in aerial im-ages necessitates efficient and accurate duplicate suppres-sion. Traditional NMS [4] evaluates each detection sequen-tially against the highest-scoring prediction, using IoU as the sole suppression criterion. This approach suffers from two limitations in small object scenarios: (1) IoU alone can-not distinguish between true overlapping objects and dupli-cate detections when objects are closely spaced, and (2) the sequential processing is computationally expensive for the large number of detections typical of aerial imagery. Our CDN module addresses both limitations by combin-ing Cluster-NMS [75] with DIoU [74]. The DIoU loss func-tion is defined as: 
+
+LDIoU = IoU − ρ2(x, xgt )
+
+c2 , (4) where ρ2(x, xgt ) represents the squared Euclidean distance between the center points of the predicted and ground-truth bounding boxes, and c denotes the diagonal length of the smallest enclosing rectangle covering both boxes. In CDN, detections are first sorted by confidence score. The DIoU values between the top-scoring detection and all remaining detections are computed. If DIoU > 0.5, the corresponding entry in the Cluster-NMS matrix is set to 0 (indicating suppression); otherwise, it is set to 1 (retained for the next iteration). The Cluster-NMS left-multiplication operation then efficiently propagates suppression decisions across all detections in parallel, eliminating the redundant sequential computation inherent in standard NMS. This pro-cess repeats until all entries are resolved, yielding the final set of non-redundant detections. 
+
+3.6. Redundant Computation Analysis 
+
+We provide a formal analysis of the redundant computation reduction achieved by ASAHI compared to SAHI. Let a
+
+and b denote the number of slices along the horizontal and vertical axes, respectively: 
+
+a =
+
+ W − p · μp · (1 − μ)
+
+
+
+, b =
+
+ H − p · μp · (1 − μ)
+
+
+
+. (5) The redundant area Sr is computed as: 
+
+Rx = p · a − p · μ · (a − 1) − W, (6) 
+
+Ry = p · b − p · μ · (b − 1) − H, (7) 
+
+Sr = Rx · H + Ry · W − Rx · Ry . (8) The total area including both image and redundant re-gions is Sr + Sa, where Sa = W × H. The fraction of re-dundant computation reduced by ASAHI relative to SAHI is: 
+
+Sredu rate = 1 − SASAHI  
+
+> r
+
++ Sa
+
+SSAHI  
+
+> r
+
++ Sa
+
+, (9) where SASAHI  
+
+> r
+
+and SSAHI  
+
+> r
+
+denote the redundant areas under ASAHI and SAHI, respectively. Table 1 presents the computed redundancy reduc-tion ratios for representative image resolutions from Vis-Drone2019 and xView. ASAHI achieves reductions ranging 5Table 1: Redundant computation reduction of ASAHI compared to SAHI [1] at various image resolutions.                    
+
+> Image Resolution (px) Reduction (%)
+> 960 ×540 38.72
+> 1360 ×765 2.56
+> 1400 ×1050 25.61
+> 1920 ×1080 25.92
+> 2000 ×1500 24.13
+> 2913 ×2428 6.99
+
+from 2.56% to 38.72%, with particularly significant gains for images whose dimensions are poorly aligned with the fixed SAHI slice size. 
+
+# 4. Experiments 
+
+4.1. Datasets and Evaluation Metrics VisDrone2019-DET [12]. This benchmark comprises 8,599 drone-captured images spanning diverse geographic locations and altitudes, partitioned into 6,471 training im-ages, 1,580 test images, and 548 validation images. Image resolutions range from 1024 × 960 to 1920 × 1024 pixels, with annotations for over 540,000 objects across 10 cate-gories: pedestrian, person, bicycle, car, van, truck, tricycle, awning-tricycle, bus, and motor. The dataset is character-ized by extremely dense object distributions, frequent oc-clusion, and substantial scale variation. 
+
+xView [28]. This large-scale remote sensing dataset con-tains high-resolution aerial imagery captured worldwide, with resolutions ranging from 2000 ×2000 to 3000 ×2500 
+
+pixels. It includes over one million object instances across 60 diverse categories. Following standard practice, we ran-domly allocate 80%, 10%, and 10% of the images for train-ing, testing, and validation, respectively. 
+
+Evaluation Metrics. We report performance using stan-dard COCO-style metrics: mAP (averaged over IoU thresh-olds from 0.5 to 0.95 in steps of 0.05), mAP 75 (IoU = 0.75), mAP 50 (IoU = 0.5), mAP 50 s (small objects: area < 32 2
+
+px), mAP 50 m (medium objects: 32 2 ≤ area ≤ 96 2 px), and mAP 50 l (large objects: area > 96 2 px). Inference speed is measured in images per second (img/s). 
+
+4.2. Implementation Details 
+
+All training and primary evaluation are conducted on a sin-gle NVIDIA RTX 3080 GPU, with additional speed bench-marks performed on an NVIDIA RTX 2080 Ti. We fine-tune the pre-trained TPH-YOLOv5 model [77] using the SAF-augmented dataset, which comprises 50,708 sliced patches and 6,471 original images for VisDrone2019. All images are resized to 512 pixels with a batch size of 32. Training proceeds for 120 epochs using the Adam optimizer with an initial learning rate of 3 × 10 −3, which decays to 12% of the initial value at the final epoch. During infer-ence, the overlap ratio is set to μ = 0 .15 , and the CDN matching threshold is 0.5. The threshold T , computed via Eq. (1), evaluates to 1,818. 
+
+4.3. Ablation Studies Impact of Slice Count. Table 2 presents the detection performance on VisDrone2019-DET-test and xView-test under different fixed slice counts (4, 6, 12, 15), the baseline SAHI (512 px), and our adaptive ASAHI. On both datasets, ASAHI achieves the highest mAP 50 (45.6% and 22.7%, re-spectively) and competitive inference speeds (4.88 img/s and 3.58 img/s). For small and medium objects, ASAHI consistently outperforms all fixed-count configurations and the SAHI baseline (mAP 50 s improvements of +4.0% and +2.4% over SAHI on VisDrone and xView, respectively). While fixing 4 slices yields the fastest speed, it sacrifices accuracy on small objects; conversely, 12 or 15 slices im-prove coverage but incur significant computational over-head. ASAHI’s adaptive strategy achieves an optimal bal-ance by selecting 6 or 12 slices based on image resolution. 
+
+Component-wise Ablation. Tables 4 and 5 systemati-cally evaluate the contribution of each proposed compo-nent on VisDrone2019-DET-val and xView-val, respec-tively. Starting from the TPH-YOLOv5 baseline with full inference only (TPH+FI), we incrementally add ASAHI slicing, full inference, patch overlap (PO), SAF fine-tuning, and CDN post-processing. Each component contributes positively: ASAHI slicing provides the largest single im-provement (+19.9% mAP 50 on VisDrone), while the com-bination of SAF and CDN further boosts performance by +1.3% mAP 50 . Notably, the complete framework achieves the highest mAP 50 s (48.5% on VisDrone), confirming the effectiveness of our approach for small object detection. 
+
+4.4. Comparison with State-of-the-Art 
+
+Table 6 compares our complete framework against a com-prehensive set of state-of-the-art detection methods on VisDrone2019-DET-val. Our approach achieves the highest mAP (36.0%), mAP 75 (28.2%), and mAP 50 (56.8%) among all methods except Focus-and-Detect [27], which achieves higher mAP 50 (66.1%) but at a dramatically lower speed (0.73 img/s vs. our 5.26 img/s—a 7.2× speedup). This substantial speed advantage makes ASAHI far more prac-tical for real-world deployment scenarios where inference 6Table 2: Results on VisDrone2019-DET-test. ↑ denotes improvement over SAHI (512 px). Best results in bold .
+
+Method Speed (img/s) mAP mAP 75 mAP 50 mAP 50 s mAP 50 m mAP 50 lASAHI (4 slices) 5.19 23.9 17.1 38.7 24.9 56.5 68.8 
+
+ASAHI (6 slices) 4.98 28.5 22.0 41.6 28.8 58.5 65.3 ASAHI (12 slices) 2.98 29.3 22.8 41.9 30.5 56.4 64.3 ASAHI (15 slices) 2.39 27.2 21.3 40.9 29.9 55.1 62.9 SAHI (512 px) 3.69 28.7 24.1 42.2 29.8 58.5 65.6 
+
+ASAHI (adaptive) 4.88 ↑1.19 30.4 ↑1.7 25.2 ↑1.1 45.6 ↑3.4 33.8 ↑4.0 59.7 ↑1.2 60.7 
+
+Table 3: Results on xView-test. ↑ denotes improvement over SAHI (512 px). Best results in bold .
+
+Method Speed (img/s) mAP mAP 75 mAP 50 mAP 50 s mAP 50 m mAP 50 lASAHI (4 slices) 3.80 7.5 18.4 11.7 22.6 13.2 20.0 
+
+ASAHI (6 slices) 2.78 17.3 12.0 21.3 15.3 23.1 18.2 ASAHI (12 slices) 1.13 16.2 12.4 21.9 16.5 23.5 17.9 ASAHI (15 slices) 1.09 15.3 10.8 20.6 14.8 20.7 16.8 SAHI (512 px) 2.56 16.07 11.5 20.4 14.9 23.5 17.6 
+
+ASAHI (adaptive) 3.58 ↑1.02 17.5 ↑1.43 12.4 ↑0.9 22.7 ↑2.3 17.3 ↑2.4 25.6 ↑2.1 15.2 
+
+Table 4: Component ablation on VisDrone2019-DET-val. 
+
+Configuration mAP mAP 75 mAP 50 s m lTPH+FI 15.7 10.6 34.2 21.4 53.3 74.4 TPH+ASAHI 34.1 24.9 54.4 46.6 66.1 58.9 TPH+ASAHI+FI 34.1 25.3 55.5 46.7 68.1 76.5 +PO 34.3 25.9 55.5 46.8 68.6 77.6 +SAF+CDN 36.0 28.2 56.8 48.5 69.6 72.9 
+
+Table 5: Component ablation on xView-val. 
+
+Configuration mAP mAP 75 mAP 50 s m lTPH+FI 13.2 7.4 14.8 9.4 16.3 12.3 TPH+ASAHI 19.9 12.3 24.4 18.6 27.7 15.2 TPH+ASAHI+FI 20.3 12.6 24.4 18.8 28.3 18.5 +PO 20.3 12.8 24.5 18.8 28.6 19.6 +SAF+CDN 20.5 14.4 25.7 19.3 28.6 17.2 
+
+latency is a critical constraint. Compared to the SAHI base-line (TPH+SAHI), ASAHI improves mAP 50 by 1.7% while simultaneously increasing processing speed from 4.67 to 5.26 img/s. 
+
+4.5. Post-Processing Comparison 
+
+Table 7 evaluates the impact of different post-processing methods when combined with ASAHI on VisDrone2019-DET-val. Our CDN module achieves the best overall per-formance, with the highest mAP (36.0%), mAP 75 (28.2%), Table 6: State-of-the-art comparison on VisDrone2019-DET-val. 
+
+Method mAP mAP 75 mAP 50 Speed Fast R-CNN [63] 12.3 9.6 24.9 2.57 Cascade+NWD [61] 18.7 12.9 40.2 3.20 DMNet [29] 28.2 17.3 30.5 1.87 HIT-UAV [48] 34.6 21.7 55.8 3.45 CRENet [64] 33.7 20.9 54.3 1.10 GLSAN [9] 30.7 18.4 55.4 2.30 QueryDet [67] 33.9 19.5 56.1 2.75 ClusDet [68] 32.4 18.9 56.2 1.29 Focus&Detect [27] 42.0 30.1 66.1 0.73 TPH+SAHI [1] 34.9 27.5 55.1 4.67 
+
+TPH+ASAHI (Ours) 36.0 28.2 56.8 5.26 
+
+mAP 50 s (48.5%), mAP 50 m (69.6%), and inference speed (5.26 img/s). Compared to standard NMS, CDN improves mAP by 2.1% while increasing speed by 72%. Notably, CDN also outperforms Soft-NMS [4], WBF [47], and other Cluster-NMS variants across all metrics, demonstrating the benefit of combining cluster-based parallel processing with center-distance-aware suppression. 
+
+4.6. ASAHI vs. SAHI Component Analysis 
+
+Table 8 provides a direct comparison between SAHI [1] and ASAHI when combined with identical architectural compo-nents on VisDrone2019-DET-val. Across all configurations, ASAHI consistently outperforms SAHI, with the most sig-nificant improvement observed in the complete framework 7Table 7: Post-processing comparison with ASAHI on VisDrone2019-DET-val.                            
+
+> Module mAP mAP 50 smSpeed NMS 33.9 55.8 47.4 68.3 3.06 Soft-NMS 32.3 52.6 44.3 65.8 2.72 WBF 33.4 55.1 46.7 67.5 2.88 Cl.-GIoU-NMS 34.5 56.3 48.0 68.5 5.17 Cl.-CIoU-NMS 35.9 56.8 48.4 68.6 4.87
+> CDN (Ours) 36.0 56.8 48.5 69.6 5.26
+
+Table 8: ASAHI vs. SAHI under identical components on VisDrone2019-DET-val.                                          
+
+> Configuration mAP mAP 75 mAP 50 smlTPH+FI 15.7 10.6 34.2 21.4 53.3 74.4 TPH+SAHI 33.0 23.5 54.2 45.7 66.8 69.0 TPH+SAHI+FI 33.5 24.1 54.6 45.7 68.3 75.2 +PO 34.9 25.7 55.1 46.1 68.8 74.6 +SAF+CDN 34.9 27.5 55.1 48.1 69.0 72.7 TPH+ASAHI 34.1 24.9 54.4 46.6 66.1 58.9 TPH+ASAHI+FI 34.1 25.3 55.5 46.7 68.1 76.5 +PO 34.3 25.9 55.5 46.8 68.6 77.6 +SAF+CDN 36.0 28.2 56.8 48.5 69.6 72.9
+
+(+1.7% mAP 50 , +0.4% mAP 50 s). These results confirm that the adaptive slicing strategy provides systematic bene-fits that compound with other detection enhancements. 
+
+4.7. Qualitative Analysis 
+
+The superior performance of ASAHI can be attributed to its enhanced sensitivity to low-resolution features in deeper network layers, which translates into stronger focusing ca-pability on small targets. Heatmap visualizations on Vis-Drone [12] reveal that while SAHI distributes attention broadly across the scene with limited focus on small tar-gets, and TPH-YOLOv5 exhibits stronger target focusing but occasionally attends to irrelevant regions ( e.g. , road sur-faces), our method demonstrates the most concentrated at-tention on actual targets with minimal spurious activations. Detection results confirm that ASAHI identifies more small objects with higher confidence scores, while also reduc-ing false negatives in challenging scenarios including dark scenes, reflective surfaces, variable shooting angles, and ex-tremely dense object clusters. On the xView dataset, where image resolutions are par-ticularly high ( 2000 ×2000 to 3000 ×2500 ), ASAHI’s adap-tive slicing proves especially beneficial—the ability to gen-erate resolution-appropriate patches significantly improves feature extraction for the diverse object scales present in re-mote sensing imagery. 
+
+4.8. Limitations 
+
+Despite its strong performance, ASAHI exhibits certain limitations that warrant discussion. First, the enhanced fo-cus on small objects comes at the cost of slightly reduced detection accuracy for large objects, as evidenced by the mAP 50 l results in Tables 2–8. This trade-off arises because small slices inherently fragment large objects, disrupting their spatial continuity. Second, error analysis reveals that category confusion (11.4% on VisDrone) and localization errors (14% on xView) remain the dominant sources of de-tection failures, suggesting that the algorithm would bene-fit from improved small-object discriminability through ad-vances in representation learning [51, 73, 38] and geometric reasoning [23]. 
+
+# 5. Conclusion 
+
+We have presented ASAHI, a novel adaptive slicing frame-work for small object detection in high-resolution aerial imagery that addresses the fundamental redundant com-putation problem inherent in fixed-size slicing approaches such as SAHI [1]. By shifting the paradigm from pre-scribing fixed slice dimensions to adaptively determin-ing the optimal number of slices based on image resolu-tion, ASAHI substantially reduces computational overhead (20–25% inference speedup) while simultaneously improv-ing detection accuracy across both small and medium ob-ject categories. The complementary Slicing-Assisted Fine-tuning (SAF) strategy and Cluster-DIoU-NMS (CDN) post-processing module further enhance the framework’s effec-tiveness, yielding state-of-the-art results on VisDrone2019 (mAP 50 = 56.8%) and xView (mAP 50 = 22.7%) bench-marks with a favorable speed-accuracy trade-off (5.26 img/s on VisDrone2019-DET-val). The detector-agnostic design of ASAHI ensures broad applicability across the YOLO family [43, 3, 25, 60] and beyond. Future work will explore integrating coordinate attention mechanisms [22], hierar-chical vision transformers [10, 37], and multi-modal per-ception pipelines [52, 18, 16, 59] to further improve small target sensitivity, as well as multi-scale fusion techniques to mitigate the observed trade-off with large object detection. 
+
+# References     
+
+> [1] Fatih Cagatay Akyon, Sinan Onur Altinuc, and Alptekin Temizel. Slicing aided hyper inference and fine-tuning for small object detection. In Proceedings of the IEEE Interna-tional Conference on Image Processing (ICIP) , pages 966– 970. IEEE, 2022. [2] Yancheng Bai, Yongqiang Zhang, Mingli Ding, and Bernard Ghanem. SOD-MTGAN: Small object detection via multi-task generative adversarial network. In Proceedings of the
+
+8European Conference on Computer Vision (ECCV) , pages 210–226. Springer, 2018. [3] Alexey Bochkovskiy, Chien-Yao Wang, and Hong-Yuan Mark Liao. YOLOv4: Optimal speed and accuracy of object detection. arXiv preprint arXiv:2004.10934 , 2020. [4] Navaneeth Bodla, Bharat Singh, Rama Chellappa, and Larry S Davis. Soft-NMS–improving object detection with one line of code. In Proceedings of the IEEE International Conference on Computer Vision (ICCV) , pages 5562–5570. IEEE, 2017. [5] Yuren Cao, Zhijian He, Longjia Wang, Wengao Wang, Yix-ian Yuan, Daiwei Zhang, Jialiang Zhang, Pengfei Zhu, Luc Van Gool, Junwei Han, et al. VisDrone-DET2021: The vision meets drone object detection challenge results. In 
+
+Proceedings of the IEEE/CVF International Conference on Computer Vision Workshops (ICCVW) , pages 2847–2854. IEEE, 2021. [6] Nicolas Carion, Francisco Massa, Gabriel Synnaeve, Nicolas Usunier, Alexander Kirillov, and Sergey Zagoruyko. End-to-end object detection with transformers. In Proceedings of the European Conference on Computer Vision (ECCV) ,pages 213–229. Springer, 2020. [7] Shoufa Chen, Peize Sun, Yibing Song, and Ping Luo. Diffu-sionDet: Diffusion model for object detection. In Proceed-ings of the IEEE/CVF International Conference on Com-puter Vision (ICCV) , pages 19830–19843. IEEE, 2023. [8] Chuyi Cheng, Yifeng Song, Jian Li, Biao Wang, Aiguo Tao, Zeyu Chen, Jiayan Yuan, Chu Fan, Zhongyu Rong, et al. YOLOv6 v3.0: A full-scale reloading. arXiv preprint arXiv:2301.05586 , 2023. [9] Sutao Deng, Shuai Li, Kai Xie, Wenfeng Song, Xiang-wen Liao, Aimin Hao, and Hong Qin. A global-local self-adaptive network for drone-view object detection. IEEE Transactions on Image Processing , 30:1556–1569, 2021. [10] Xiaoyi Dong, Jianmin Bao, Dongdong Chen, Weiming Zhang, Nenghai Yu, Lu Yuan, Dong Chen, and Baining Guo. CSWin Transformer: A general vision transformer backbone with cross-shaped windows. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pages 12114–12124. IEEE, 2022. [11] Alexey Dosovitskiy, Lucas Beyer, Alexander Kolesnikov, Dirk Weissenborn, Xiaohua Zhai, Thomas Unterthiner, Mostafa Dehghani, Matthias Minderer, Georg Heigold, Syl-vain Gelly, et al. An image is worth 16 ×16 words: Trans-formers for image recognition at scale. In Proceedings of the International Conference on Learning Representations (ICLR) , 2021. [12] Dawei Du, Pengfei Zhu, Longyin Wen, Xiao Bian, Haibin Lin, Qinghua Hu, Tao Peng, Jiangyu Zheng, Xiangyu Wang, Yifan Zhang, et al. VisDrone-DET2019: The vi-sion meets drone object detection in image challenge results. In Proceedings of the IEEE/CVF International Conference on Computer Vision Workshops (ICCVW) , pages 213–226. IEEE, 2019. [13] Xingjian Fei, Jinghui Lu, Quan Sun, Hao Feng, Yanjie Wang, Wei Shi, Anlu Wang, Jingqun Tang, and Can Huang. Ad-vancing sequential numerical prediction in autoregressive models. In Proceedings of the Annual Meeting of the As-sociation for Computational Linguistics (ACL) , 2025. [14] Chengjian Feng, Yujie Zhong, Yu Gao, Matthew R Scott, and Weilin Huang. TOOD: Task-aligned one-stage object detection. In Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) , pages 3490–3499. IEEE, 2021. [15] Hao Feng, Qi Liu, Hao Liu, Jingqun Tang, Wenqing Zhou, Hezhi Li, and Can Huang. DocPedia: Unleashing the power of large multimodal model in the frequency domain for ver-satile document understanding. 2024. [16] Hao Feng, Wei Shi, Kai Zhang, Xingjian Fei, Liangtao Liao, Dingkang Yang, Yingying Du, Xuecheng Wu, Jingqun Tang, Yang Liu, et al. Dolphin-v2: Universal document parsing via scalable anchor prompting. arXiv preprint arXiv:2602.05384 , 2026. [17] Hao Feng, Zijian Wang, Jingqun Tang, Jinghui Lu, Wenqing Zhou, Hezhi Li, and Can Huang. UniDoc: A universal large multimodal model for simultaneous text detection, recogni-tion, spotting and understanding. 2023. [18] Hao Feng, Shuai Wei, Xingjian Fei, Wei Shi, Yunhao Han, Liangtao Liao, Jinghui Lu, Binghong Wu, Qi Liu, Chunhui Lin, Jingqun Tang, et al. Dolphin: Document image parsing via heterogeneous anchor prompting. In Findings of the As-sociation for Computational Linguistics: ACL , pages 21919– 21936, 2025. [19] Ross Girshick, Jeff Donahue, Trevor Darrell, and Jitendra Malik. Rich feature hierarchies for accurate object detec-tion and semantic segmentation. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) , pages 580–587. IEEE, 2014. [20] Kaiming He, Georgia Gkioxari, Piotr Doll´ ar, and Ross Gir-shick. Mask R-CNN. In Proceedings of the IEEE Interna-tional Conference on Computer Vision (ICCV) , pages 2980– 2988. IEEE, 2017. [21] Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun. Spatial pyramid pooling in deep convolutional networks for visual recognition. IEEE Transactions on Pattern Analysis and Machine Intelligence , 37(9):1904–1916, 2015. [22] Qibin Hou, Daquan Zhou, and Jiashi Feng. Coordinate atten-tion for efficient mobile network design. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pages 13708–13717. IEEE, 2021. [23] Shuo Huang, Yuxuan Wang, Hanchi Luo, Huanyu Jing, Chao Qin, and Jingqun Tang. MinDEV: Multi-modal integrated diffusion framework for video reconstruction from EEG sig-nals. In Proceedings of the ACM International Conference on Multimedia , pages 3350–3359, 2025. [24] Glenn Jocher, Ayush Chaurasia, and Jing Qiu. Ultr-alytics YOLOv8. 2023. https://github.com/ ultralytics/ultralytics .[25] Glenn Jocher, Alex Stoken, Jiri Borovec, et al. Ultralyt-ics/YOLOv5: v5.0–YOLOv5-P6 1280 models, AWS, Super-vise.ly and YouTube integrations, 2021. [26] M´ at´ e Kisantal, Zbigniew Wojna, Jakub Muber, Jakub Jezier-ski, and Jarosław Kowalczyk. Augmentation for small object detection. In Proceedings of the International Conference on Advances in Computer Vision , 2019. 
+
+9[27] Onur Can Koyun, Ramazan Kadir Keser, ˙ Ibrahim Batuhan Akkaya, and Bu˘ gra Ufuk T¨ oreyin. Focus-and-detect: Asmall object detection framework for aerial images. Signal Processing: Image Communication , 104:116675, 2022. [28] Darius Lam, Richard Kuzma, Kevin McGee, Samuel Doo-ley, Michael Laielli, Matthew Klaric, Yaroslav Bulatov, and Brendan McCord. xview: Objects in context in overhead imagery. arXiv preprint arXiv:1802.07856 , 2018. [29] Changlin Li, Taojiannan Yang, Sijie Zhu, Chen Chen, and Shanyue Guan. Density map guided object detection in aerial images. In Proceedings of the IEEE/CVF Confer-ence on Computer Vision and Pattern Recognition Work-shops (CVPRW) , pages 737–746. IEEE, 2020. [30] Feng Li, Hao Zhang, Shilong Liu, Jian Guo, Lionel M Ni, and Lei Zhang. DN-DETR: Accelerate DETR training by in-troducing query denoising. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pages 13619–13627. IEEE, 2022. [31] Tsung-Yi Lin, Piotr Doll´ ar, Ross Girshick, Kaiming He, Bharath Hariharan, and Serge Belongie. Feature pyramid networks for object detection. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) , pages 936–944. IEEE, 2017. [32] Tsung-Yi Lin, Priya Goyal, Ross Girshick, Kaiming He, and Piotr Doll´ ar. Focal loss for dense object detection. In Pro-ceedings of the IEEE International Conference on Computer Vision (ICCV) , pages 2980–2988. IEEE, 2017. [33] Shu Liu, Lu Qi, Haifang Qin, Jianping Shi, and Jiaya Jia. Path aggregation network for instance segmentation. In Pro-ceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pages 8759–8768. IEEE, 2018. [34] Shilong Liu, Zhaoyang Zeng, Tianhe Ren, Feng Li, Hao Zhang, Jie Yang, Chunyuan Li, Jianwei Yang, Hang Su, Jun Zhu, et al. Grounding DINO: Marrying DINO with grounded pre-training for open-set object detection. In Proceedings of the European Conference on Computer Vision (ECCV) ,pages 38–55. Springer, 2024. [35] Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy, Scott Reed, Cheng-Yang Fu, and Alexander C Berg. SSD: Single shot multibox detector. In Proceedings of the European Conference on Computer Vision (ECCV) ,pages 21–37. Springer, 2016. [36] Yuliang Liu, Jiaxin Zhang, Dezhi Peng, Mingxin Huang, Xinyu Wang, Jingqun Tang, Can Huang, Dahua Lin, et al. SPTS v2: Single-point scene text spotting. IEEE Transactions on Pattern Analysis and Machine Intelligence ,45(12):15047–15063, 2023. [37] Ze Liu, Yutong Lin, Yue Cao, Han Hu, Yixuan Wei, Zheng Zhang, Stephen Lin, and Baining Guo. Swin Transformer: Hierarchical vision transformer using shifted windows. In 
+
+Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) , pages 10012–10022. IEEE, 2021. [38] Jinghui Lu, Haiyang Yu, Yanjie Wang, Yongjie Ye, Jingqun Tang, Ziwei Yang, Binghong Wu, Qi Liu, Hao Feng, Han Wang, et al. A bounding box is worth one token— interleaving layout and text in a large language model for document understanding. In Findings of the Association for Computational Linguistics: ACL , pages 7252–7273, 2025. [39] Kushagra Mahajan, Monika Sharma, and Lovekesh Vig. Meta-DermDiagnosis: Few-shot skin disease identification using meta-learning. In Proceedings of the IEEE/CVF Con-ference on Computer Vision and Pattern Recognition Work-shops (CVPRW) , pages 730–731. IEEE, 2020. [40] Junhyug Noh, Wonho Bae, Wonhee Lee, Jinhwan Seo, and Gunhee Kim. Better to follow, follow to be better: Towards precise supervision of feature super-resolution for small ob-ject detection. In Proceedings of the IEEE/CVF Interna-tional Conference on Computer Vision (ICCV) , pages 9725– 9734. IEEE, 2019. [41] Fatih ¨Ozge Unel, Burak Osman Ozkalayci, and Cevahir Cigla. Power of tiling and merging in small object detection. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition Workshops (CVPRW) , pages 0–0. IEEE, 2019. [42] Siyuan Qiao, Liang-Chieh Chen, and Alan Yuille. De-tectoRS: Detecting objects with recursive feature pyramid and switchable atrous convolution. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pages 10208–10219. IEEE, 2021. [43] Joseph Redmon, Santosh Divvala, Ross Girshick, and Ali Farhadi. You only look once: Unified, real-time object de-tection. In Proceedings of the IEEE Conference on Com-puter Vision and Pattern Recognition (CVPR) , pages 779– 788. IEEE, 2016. [44] Joseph Redmon and Ali Farhadi. YOLO9000: Better, faster, stronger. In Proceedings of the IEEE Conference on Com-puter Vision and Pattern Recognition (CVPR) , pages 7263– 7271. IEEE, 2017. [45] Shaoqing Ren, Kaiming He, Ross Girshick, and Jian Sun. Faster R-CNN: Towards real-time object detection with re-gion proposal networks. IEEE Transactions on Pattern Anal-ysis and Machine Intelligence , 39(6):1137–1149, 2017. [46] Biluo Shan, Xingjian Fei, Wei Shi, Anlu Wang, Guozhi Tang, Liangtao Liao, Jingqun Tang, Xiang Bai, and Can Huang. MCTBench: Multimodal cognition towards text-rich visual scenes benchmark. arXiv preprint arXiv:2410.11538 ,2024. [47] Roman Solovyev, Weimin Wang, and Tatiana Gabruseva. Weighted boxes fusion: Ensembling boxes from different object detection models. Image and Vision Computing ,107:104117, 2021. [48] Jiashun Suo, Tianyi Wang, Xingzhou Zhang, Haiyang Chen, Wei Zhou, and Weisong Shi. HIT-UAV: A high-altitude in-frared thermal dataset for unmanned aerial vehicle-based ob-ject detection. Scientific Data , 10(1):227, 2023. [49] Mingxing Tan, Ruoming Pang, and Quoc V Le. EfficientDet: Scalable and efficient object detection. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pages 10778–10787. IEEE, 2020. [50] Jingqun Tang, Wei Du, Bochao Wang, Wenqing Zhou, Song Mei, Tao Xue, Xiang Xu, and Haoyue Zhang. Character recognition competition for street view shop signs. National Science Review , 10(6):nwad141, 2023. 
+
+10 [51] Jingqun Tang, Chunhui Lin, Zhen Zhao, Shuai Wei, Binghong Wu, Qi Liu, Yang He, Kang Lu, Hao Feng, Yu Li, et al. TextSquare: Scaling up text-centric visual instruction tuning. arXiv preprint arXiv:2404.12803 , 2024. [52] Jingqun Tang, Qi Liu, Yongjie Ye, Jinghui Lu, Shuai Wei, Anlu Wang, Chunhui Lin, Hao Feng, Zhen Zhao, et al. MTVQA: Benchmarking multilingual text-centric vi-sual question answering. In Findings of the Association for Computational Linguistics: ACL , pages 7748–7763, 2025. [53] Jingqun Tang, Wenqiang Qian, Lei Song, Xiaobin Dong, Lingxi Li, and Xiang Bai. Optimal boxes: Boosting end-to-end scene text recognition by adjusting annotated bounding boxes via reinforcement learning. In Proceedings of the Eu-ropean Conference on Computer Vision (ECCV) , pages 233– 248. Springer, 2022. [54] Jingqun Tang, Shaobo Qiao, Benlei Cui, Yuhang Ma, Shengjie Zhang, and Dimitrios Kanoulas. You can even annotate text with voice: Transcription-only-supervised text spotting. In Proceedings of the 30th ACM International Con-ference on Multimedia , pages 4154–4163, 2022. [55] Jingqun Tang, Wenqing Zhang, Hao Liu, Min-Ke Yang, Bo Jiang, Guangliang Hu, and Xiang Bai. Few could be better than all: Feature sampling and grouping for scene text detec-tion. In Proceedings of the IEEE/CVF Conference on Com-puter Vision and Pattern Recognition (CVPR) , pages 4563– 4572. IEEE, 2022. [56] Kang Tong, Yiquan Wu, and Fei Zhou. Recent advances in small object detection based on deep learning: A review. 
+
+Image and Vision Computing , 97:103910, 2020. [57] Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszko-reit, Llion Jones, Aidan N Gomez, Łukasz Kaiser, and Illia Polosukhin. Attention is all you need. In Advances in Neu-ral Information Processing Systems (NeurIPS) , volume 30, 2017. [58] Anlu Wang, Biluo Shan, Wei Shi, Kai-Yun Lin, Xingjian Fei, Guozhi Tang, Liangtao Liao, Jingqun Tang, Can Huang, et al. PARGO: Bridging vision-language with partial and global views. In Proceedings of the AAAI Conference on Ar-tificial Intelligence , 2025. [59] Anlu Wang, Jingqun Tang, Liangtao Liao, Hao Feng, Qi Liu, Xingjian Fei, Jinghui Lu, Han Wang, Hao Liu, Yang Liu, et al. WildDoc: How far are we from achieving comprehen-sive and robust document understanding in the wild? In Pro-ceedings of the Conference on Empirical Methods in Natural Language Processing (EMNLP) , 2025. [60] Chien-Yao Wang, Alexey Bochkovskiy, and Hong-Yuan Mark Liao. YOLOv7: Trainable bag-of-freebies sets new state-of-the-art for real-time object detectors. In 
+
+Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pages 7464–7475. IEEE, 2023. [61] Jinwang Wang, Chang Xu, Wen Yang, and Lei Yu. A normal-ized Gaussian Wasserstein distance for tiny object detection. 
+
+arXiv preprint arXiv:2110.13389 , 2021. [62] Tao Wang, Yang Chen, Munan Qiao, and Hichem Snoussi. A fast and robust convolutional neural network-based de-fect detection model in product quality control. The Inter-national Journal of Advanced Manufacturing Technology ,94(9):3465–3471, 2018. [63] Xiaolong Wang, Abhinav Shrivastava, and Abhinav Gupta. A-Fast-RCNN: Hard positive generation via adversary for object detection. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR) , pages 3039–3048. IEEE, 2017. [64] Yang Wang, Yuliang Yang, and Xin Zhao. Object detec-tion using clustering algorithm adaptive searching regions in aerial images. In Proceedings of the European Conference on Computer Vision Workshops (ECCVW) , pages 651–664. Springer, 2020. [65] Sanghyun Woo, Jongchan Park, Joon-Young Lee, and In So Kweon. CBAM: Convolutional block attention module. In 
+
+Proceedings of the European Conference on Computer Vi-sion (ECCV) , pages 3–19. Springer, 2018. [66] Shangliang Xu, Xinxin Wang, Wenyu Lv, Qinyao Chang, Cheng Cui, Kaipeng Deng, Guanzhong Wang, Qingqing Dang, Shengyu Wei, Yuning Du, et al. PP-YOLOE: An evolved version of YOLO. arXiv preprint arXiv:2203.16250 ,2022. [67] Chenhongyi Yang, Zehao Huang, and Naiyan Wang. Query-Det: Cascaded sparse query for accelerating high-resolution small object detection. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pages 13658–13667. IEEE, 2022. [68] Fan Yang, Heng Fan, Peng Chu, Erik Blasch, and Haibin Ling. Clustered object detection in aerial images. In 
+
+Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) , pages 8310–8319. IEEE, 2019. [69] Hao Zhang, Feng Li, Shilong Liu, Lei Zhang, Hang Su, Jun Zhu, Lionel M Ni, and Heung-Yeung Shum. DINO: DETR with improved denoising anchor boxes for end-to-end object detection. In Proceedings of the International Conference on Learning Representations (ICLR) , 2023. [70] Yuting Zhang, Mang Ye, Jianbing Zhu, Siming Liu, Lei Zhang, and Bo Du. FFCA-YOLO for small object detection in remote sensing images. IEEE Transactions on Geoscience and Remote Sensing , 62:5611215, 2024. [71] Weichao Zhao, Hao Feng, Qi Liu, Jingqun Tang, Shuai Wei, Binghong Wu, Liangtao Liao, Yongjie Ye, Hao Liu, Wenqing Zhou, et al. TabPedia: Towards comprehensive visual table understanding with concept synergy. In Advances in Neural Information Processing Systems (NeurIPS) , 2024. [72] Zhen Zhao, Jingqun Tang, Binghong Wu, Chunhui Lin, Hao Liu, Zhizhong Zhang, Xin Tan, Can Huang, and Yuan Xie. Multi-modal in-context learning makes an ego-evolving scene text recognizer. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pages 15230–15241. IEEE, 2024. [73] Zhen Zhao, Jingqun Tang, Binghong Wu, Chunhui Lin, Shuai Wei, Hao Liu, Xin Tan, Zhizhong Zhang, Can Huang, et al. Harmonizing visual text comprehension and genera-tion. In Advances in Neural Information Processing Systems (NeurIPS) , 2024. [74] Zhaohui Zheng, Ping Wang, Wei Liu, Jinze Li, Rongguang Ye, and Dongwei Ren. Distance-IoU loss: Faster and better 
+
+11 learning for bounding box regression. In Proceedings of the AAAI Conference on Artificial Intelligence , volume 34, pages 12993–13000, 2020. [75] Zhaohui Zheng, Ping Wang, Dongwei Ren, Wei Liu, Rong-guang Ye, Qinghua Hu, and Wangmeng Zuo. Enhancing ge-ometric factors in model learning and inference for object detection and instance segmentation. IEEE Transactions on Cybernetics , 52(8):8574–8586, 2022. [76] Chengji Zhou, Meiqing Wu, and Siew-Kei Lam. SSA-CNN: Semantic self-attention CNN for pedestrian detection. arXiv preprint arXiv:1902.09080 , 2019. [77] Xingkui Zhu, Shuchang Lyu, Xu Wang, and Qi Zhao. TPH-YOLOv5: Improved YOLOv5 based on transformer predic-tion head for object detection on drone-captured scenarios. In Proceedings of the IEEE/CVF International Conference on Computer Vision Workshops (ICCVW) , pages 2778–2788. IEEE, 2021. [78] Xizhou Zhu, Weijie Su, Lewei Lu, Bin Li, Xiaogang Wang, and Jifeng Dai. Deformable DETR: Deformable transform-ers for end-to-end object detection. In Proceedings of the In-ternational Conference on Learning Representations (ICLR) ,2021. 
+
+12

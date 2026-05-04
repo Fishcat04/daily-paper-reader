@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.21153v1/fig-001.webp",
+      "caption": "Fig. 3. F1macro versus Ltest across the ablation runs. Lower loss is associated with, but does not determine, higher F1macro.",
+      "page": 4,
+      "index": 1,
+      "width": 512,
+      "height": 300
+    },
+    {
+      "url": "assets/figures/arxiv/2604.21153v1/fig-002.webp",
+      "caption": "Fig. 2. MalNet-Image Tiny class distribution. The Tiny subset is less imbalanced than the full MalNet-Image benchmark, but substantial imbalance remains across type–family pairs.",
+      "page": 3,
+      "index": 2,
+      "width": 473,
+      "height": 348
+    },
+    {
+      "url": "assets/figures/arxiv/2604.21153v1/fig-003.webp",
+      "caption": "Fig. 1. APK-to-image conversion pipeline. The DEX byte stream is reshaped into a two-dimensional grid and resized to 256×256; the three-channel variant assigns colors by DEX section.",
+      "page": 2,
+      "index": 3,
+      "width": 529,
+      "height": 268
+    },
+    {
+      "url": "assets/figures/arxiv/2604.21153v1/fig-004.webp",
+      "caption": "TABLE III COMPLETE ABLATION TABLE. PT: PRETRAINED; IN: INPUT CHANNELS (1 = GRAYSCALE, 3 = RGB-LIKE DEX COLOR CODING); TA: TRIVIALAUGMENT; MU: MIXUP; AF: SCHEDULE-FREE ADAMW; AW: ADAMW; CE: CROSS-ENTROPY; WCE: WEIGHTED CROSS-ENTROPY. METRICS ARE Pmacro , Rmacro , F1macro , AND AUCmacro .",
+      "page": 5,
+      "index": 4,
+      "width": 1072,
+      "height": 1292
+    }
+  ]
+}

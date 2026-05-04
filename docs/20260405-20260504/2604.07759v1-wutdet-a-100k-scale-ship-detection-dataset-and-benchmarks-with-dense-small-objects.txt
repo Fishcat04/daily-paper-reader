@@ -1,0 +1,1429 @@
+Title: WUTDet: A 100K-Scale Ship Detection Dataset and Benchmarks with Dense Small Objects
+
+URL Source: https://arxiv.org/pdf/2604.07759v1
+
+Published Time: Fri, 10 Apr 2026 00:45:33 GMT
+
+Number of Pages: 20
+
+Markdown Content:
+1
+
+# WUTDet: A 100K-Scale Ship Detection Dataset and Benchmarks with Dense Small Objects 
+
+Junxiong Liang † , Mengwei Bao † , Tianxiang Wang , Xinggang Wang , Senior Member, IEEE ,An-An Liu , Senior Member, IEEE , and Ryan Wen Liu ∗ , Member, IEEE 
+
+Abstract —Ship detection for navigation is a fundamental perception task in intelligent waterway transportation systems. However, existing public ship detection datasets remain limited in terms of scale, the proportion of small-object instances, and scene diversity, which hinders the systematic evaluation and generalization study of detection algorithms in complex maritime environments. To this end, we construct WUTDet, a large-scale ship detection dataset. WUTDet contains 100,576 images and 381,378 annotated ship instances, covering diverse operational scenarios such as ports, anchorages, navigation, and berthing, as well as various imaging conditions including fog, glare, low-lightness, and rain, thereby exhibiting substantial diversity and challenge. Based on WUTDet, we systematically evaluate 20 baseline models from three mainstream detection architectures, namely CNN, Transformer, and Mamba. Experimental results show that the Transformer architecture achieves superior overall detection accuracy ( AP ) and small-object detection performance (AP s), demonstrating stronger adaptability to complex maritime scenes; the CNN architecture maintains an advantage in inference efficiency, making it more suitable for real-time applications; and the Mamba architecture achieves a favorable balance between detection accuracy and computational efficiency. Furthermore, we construct a unified cross-dataset test set, Ship-GEN, to evaluate model generalization. Results on Ship-GEN show that models trained on WUTDet exhibit stronger generalization under different data distributions. These findings demonstrate that WUTDet provides effective data support for the research, eval-uation, and generalization analysis of ship detection algorithms in complex maritime scenarios. The dataset is publicly available at: https://github.com/MAPGroup/WUTDet. 
+
+Index Terms —Ship perception, ship navigation, ship dataset, object detection. 
+
+I. I NTRODUCTION 
+
+# WITH the rapid development of intelligent ships and unmanned navigation technologies, vision-based en-vironmental perception has become a critical component for 
+
+This work was supported in part by the National Natural Science Foundation of China under Grant 52422111 and Grant 52271365, and in part by the Excellent Youth Foundation of Hubei Scientific Committee under Grant 2024AFA042. (Corresponding author: Ryan Wen Liu.) Junxiong Liang, Mengwei Bao, Tianxiang wang and Ryan Wen Liu are with School of Navigation, Wuhan University of Technology, Wuhan 430063, China, with Sanya Science and Education Innovation Park, Wuhan University of Technology, Sanya 572000, China, and also with the State Key Labora tory of Maritime Technology and Safety, Wuhan 430063, China (e-mail: jxliang@whut.edu.cn; mengweibao@whut.edu.cn; tianxiang-wang@whut.edu.cn; wenliu@whut.edu.cn). Xinggang Wang is with the School of Electronic Information and Commu-nications, Huazhong University of Science and Technology, Wuhan 430074, China (e-mail: xgwang@hust.edu.cn). An-An Liu is with the School of Electrical and Information Engineering, Tianjin University, Tianjin 300072, China (e-mail: anan0422@gmail.com). 
+
+† Equal contribution. 
+
+∗ Corresponding author. Benchmark   
+
+> CNN -based methods
+> CNN
+> Backbone
+> Path Aggregation
+> Network
+> Detection
+> Head
+> CNN
+> Backbone
+> Path Aggregation
+> Network
+> Detection
+> Head
+> Class
+> & box
+> Class
+> & box
+> CNN
+> Backbone
+> Path Aggregation
+> Network
+> Detection
+> Head
+> Class
+> & box
+> CNN -based methods
+> CNN
+> Backbone
+> Path Aggregation
+> Network
+> Detection
+> Head
+> Class
+> & box
+> Mamba -based methods
+> Class
+> & box
+> Detection
+> Head
+> Vision mamba encoder
+
+Evaluation       
+
+> WaterScence
+> (Partial test set )
+> WSODD
+> (F ull test set)
+> Ship -GEN
+> (Unified set)
+> Ship -GEN
+> (Unified set) Transformer -based methods
+> Class
+> & box
+> Detection
+> Head
+> Transformer
+> de coder
+> object queries
+> Transformer
+> encoder
+> ... ...
+> ... ...
+> Class
+> & box
+> Detection
+> Head
+> Transformer
+> de coder
+> object queries
+> Transformer
+> encoder
+> ...
+> ...
+> Transformer -based methods
+> Class
+> & box
+> Detection
+> Head
+> Transformer
+> de coder
+> object queries
+> Transformer
+> encoder
+> ...
+> ...
+> Transformer -based methods
+> Class
+> & box
+> Detection
+> Head
+> Transformer
+> de coder
+> object queries
+> Transformer
+> encoder
+> ...
+> ...
+> Dense small ob jects & d iverse scenarios
+
+WUTDet dataset     
+
+> Dense small ob jects & d iverse scenarios
+
+WUTDet dataset          
+
+> Validity analysis &Cross -validation
+> Generalization
+> performance
+> Transfer
+> learning
+> Fine -Tuning
+> mAP
+> Dataset
+> validity Norm
+> Forward
+> Conv1d +SSM
+> Backwar
+> Conv1d +SSM
+> Activation
+> L
+> Epochs
+> 050 40 30 20 10
+> 0
+> 20
+> 30
+> 40
+> 50
+> 60
+> 70
+> 10
+> 0
+> 20
+> 30
+> 40
+> 50
+> 60
+> 70
+> 10
+> mAP
+> Epochs
+> 050 40 30 20 10
+> 0
+> 20
+> 30
+> 40
+> 50
+> 60
+> 70
+> 10
+> mAP
+> Training mAP
+> Test mAP
+> Training mAP
+> Test mAP
+> Size
+> Object size distribution
+> Size
+> Object size distribution
+
+Fig. 1. Overview of the proposed framework, including the construction of the large-scale ship detection dataset (WUTDet), the systematic evaluation of detection models with different architectures, and the construction and validation of the cross-dataset test set (Ship-GEN). WUTDet is characterized by dense small objects and diverse scenarios, while Ship-GEN is used to validate the effectiveness of WUTDet and the generalization capability of the models. 
+
+achieving autonomous navigation and safe collision avoidance [1]. As one of the core tasks in visual perception, object detection aims to automatically localize and recognize ships in complex maritime scenes, providing essential information for subsequent target tracking, behavior analysis, and trajectory planning [2], [3]. In real-world navigation environments, ship detection results directly affect the reliability of collision risk assessment and avoidance decisions, playing a vital role in improving navigation safety, operational efficiency, and the intelligence of waterway transportation systems [4], [5]. However, maritime scenes are often characterized by complex backgrounds, drastic lightness variations, changing weather conditions, and large-scale differences in target sizes, which pose significant challenges to the robustness and generalization capability of ship detection algorithms. In recent years, deep learning has driven the rapid evolu-tion of object detection methods. Early convolutional neural network (CNN)–based detectors, such as Faster R-CNN [6], YOLO [7], [8], and SSD [9], achieved remarkable success in general object detection tasks by extracting local features through multi-layer convolutional structures. Subsequently, the Transformer [10] architecture was introduced into the vision domain [11]. Its self-attention mechanism enables the modeling of long-range dependencies, endowing models with stronger global feature representation capability. Representa-tive methods include DETR [12] and its improved variants [13], [14]. More recently, the Mamba [15] architecture based 
+
+> arXiv:2604.07759v1 [cs.CV] 9 Apr 2026 2
+
+on state space models (SSM) has demonstrated advantages in long-sequence modeling and efficient inference, providing a new technical paradigm for object detection [16]. CNN-, Transformer-, and Mamba-based architectures differ substan-tially in feature representation and computational mechanisms. Their respective performance in ship detection tasks thus warrants systematic evaluation and comparative analysis. Although deep learning–based detection models have achieved continuous advances, their performance remains highly dependent on large-scale and high-quality training datasets. However, existing public ship detection datasets [17], [18], [19] still exhibit significant limitations in terms of scale and diversity. On the one hand, some datasets contain a limited number of samples, which is insufficient to support the training of large models and reliable performance evaluation. On the other hand, with respect to target scale distribution, small-scale ship targets are generally underrepresented, failing to reflect real navigation scenarios in which distant vessels dominate. In addition, some datasets provide insufficient coverage of ship operational scenarios and imaging conditions, which restricts the generalization capability of detection models in complex maritime environments. Therefore, constructing a ship detec-tion dataset with larger scale, richer scene diversity, and more fine-grained annotations is of great importance for systemat-ically evaluating the robustness and generalization ability of detection models under complex maritime conditions. Based on the above analysis, this paper constructs a large-scale ship detection dataset (WUTDet) with diverse scenarios and target scales. Based on WUTDet, we conduct a systematic evaluation of detection models with different architectures and further establish a cross-dataset test set (Ship-GEN) to validate the effectiveness of WUTDet and the generalization capability of the models. The overall framework is illustrated in Fig. 1. Through joint analysis at both the data and algorithm levels, this work reveals the performance differences and applicability of mainstream detection models in ship detection tasks, and provides quantitative references for subsequent model design and methodological improvement. The main contributions of this paper are summarized as follows:  
+
+> •
+
+We construct a large-scale, high-resolution ship detection dataset (WUTDet), which contains 100,576 images and 381,378 ship instances. The dataset provides fine-grained annotations of ship targets across diverse operational sce-narios, imaging conditions, and target scales. In addition, we perform a comprehensive statistical analysis from multiple perspectives, including target-scale distribution and scene composition, thereby further revealing the main challenges involved in ship detection tasks.  
+
+> •
+
+Based on the constructed dataset, we conduct comparative experiments and performance analysis on 20 baseline object detection models, covering representative detection methods based on CNN, Transformer, and Mamba archi-tectures. Through in-depth analysis of the experimental results, we summarize the performance differences of these models in ship detection tasks, together with their respective strengths and limitations, thereby providing quantitative evidence and benchmark references for sub-sequent research and methodological improvements.  
+
+> •
+
+To validate the effectiveness of WUTDet and system-atically evaluate model generalization, we construct a unified n cross-dataset test set (Ship-GEN). Models are trained on different datasets and then evaluated on Ship-GEN under a unified testing protocol, thereby assessing their generalization capability in cross-dataset scenarios. The remainder of this paper is organized as follows. Section II reviews related work on object detection datasets and detection algorithms. Section III presents the constructed ship detection dataset (WUTDet), including data collection, data processing and annotation, and dataset Statistics. Section IV describes the 20 baseline detection algorithms adopted in the experiments. Section V reports the experimental results of these baseline methods on the WUTDet dataset and fur-ther presents their performance on the constructed Ship-GEN dataset. Finally, Section VI concludes the paper. II. R ELATED WORK 
+
+This section provides a review and analysis of existing related work from the perspectives of object detection datasets and object detection methods. 
+
+A. Object Detection Dataset 
+
+General Object Detection Datasets. General-purpose ob-ject detection datasets provide unified benchmarks for training and evaluation, serving as fundamental support for the devel-opment of detection algorithms in terms of model architecture design and performance improvement. PASCAL VOC [25] is one of the earliest representative datasets, containing 20 common object categories and establishing a standardized evaluation protocol for object detection. It laid an impor-tant foundation for the development of two-stage detection frameworks. Owing to its moderate scale and high annotation quality, this dataset remained a widely adopted benchmark for performance comparison over an extended period. Building upon this, ImageNet [26] extended object detection annota-tions through the ILSVRC [27] detection subset, whose large-scale labeled samples significantly promoted the application of deep convolutional neural networks in visual tasks and drove detection models toward deeper and more complex architec-tures. Subsequently, MS COCO [28] further increased the scale and complexity of detection datasets, covering 80 object categories. Its distinctive characteristics include a more diverse object scale distribution, a higher proportion of small objects, and an emphasis on detecting densely distributed multiple objects under complex background conditions, making it one of the most widely used benchmark datasets in current object detection research.To further expand category diversity and semantic coverage, Open Images [29] continuously increased both the number of samples and object categories, containing approximately 6,000 object instances with hierarchical annota-tion structures, thereby providing important support for large-scale model training and generalization capability evaluation. Meanwhile, Objects365 [30] aims to construct an ultra-large-scale object detection dataset, including 365 object categories and over 10 million bounding box annotations. It compensates for the limitations of traditional datasets in terms of category 3
+
+TABLE I OVERVIEW OF SHIP DETECTION –R ELATED DATASETS . T HIS TABLE PROVIDES A STATISTICAL COMPARISON OF DIFFERENT DATASETS IN TERMS OF RELEASE YEAR , NUMBER OF IMAGES , NUMBER OF ANNOTATED OBJECTS , IMAGE RESOLUTION , ANNOTATION CATEGORIES , AND THE QUANTITY AND PROPORTION OF TARGETS AT DIFFERENT SCALES . H ERE , ” †” INDICATES THAT THE CORRESPONDING DATASET IS UNAVAILABLE , AND “RANDOM ”
+
+> DENOTES THAT THE DATASET CONTAINS IMAGES WITH MORE THAN TWO DIFFERENT RESOLUTIONS
+
+, WITH MOST SAMPLES HAVING A RESOLUTION LOWER THAN 1920 ×1080. B OLD INDICATE THE HIGHEST VALUES IN THE CORRESPONDING COLUMNS .Dataset Year Image/Frame Object Size Category Object Size 
+
+0 ∼ 32 2 (Small) 32 2 ∼ 96 2 (Medium) > 96 2 (Large) SMD [20] 2017 20,367 157,998 1920 ×1080 10 16,017 10.14% 77,263 48.90% 6,4718 40.96% Seaships † [17] 2018 31,455 40,077 1920 ×1080 6 - - - - - -SeaShips(7000) [17] 2018 7,000 9,221 1920 ×1080 6 15 0.16% 784 8.50% 8,422 91.33% Mcships † [21] 2020 14,709 26,529 random 13 - - - - - -Mcships-lite [21] 2020 7,996 11,331 random 2 949 8.38% 2,038 17.99% 8,344 73.64% WSODD [18] 2021 7,467 21.911 random 14 2,984 13.62% 9443 43.10% 9,484 43.28% SimuShips [22] 2022 9,471 22503 1920 ×1080 2 3006 13.36% 4138 18.39% 15359 68.25% FVessel [23] 2023 11,210 28,213 2560 ×1440 1 2,472 8.76% 14,744 52.26% 10,997 38.98% WaterScenes [19] 2023 54,120 202,807 1920 ×1080 7 53,348 26.30% 91,287 45.01% 58,172 28.68% MVDD13 [24] 2024 35,474 40,869 random 13 189 0.46% 2018 4.94% 38,662 94.60% 
+
+WUTDet(Ours) 2026 100,576 381,378 1920 ×1080 2560 ×1440 1 132,882 34.84% 163,642 42.91% 84,854 22.25% Note: All ship instances in WUTDet are annotated as a single category, ”ship.” This design is based on two primary considerations. First, fine-grained ship categorization is not a critical factor for collision avoidance decision-making in autonomous maritime navigation. Second, the dataset contains a high prevalence of small-scale objects (area ≤ 32 2 pixels) that lack sufficient visual semantic information for reliable fine-grained annotation. 
+
+scale and scene coverage, offering a more sufficient data foundation for training large-scale detection models. Despite their significant value in algorithm design and performance evaluation, these general-purpose datasets are mainly collected from terrestrial and urban environments, with object categories dominated by pedestrians, vehicles, and everyday objects. Their imaging conditions and scene struc-tures differ substantially from real maritime environments. Such datasets usually lack typical maritime characteristics, such as strong sea-surface reflections, complex meteorological conditions, and long-range small-scale ships. Consequently, relying solely on general-purpose datasets is insufficient for comprehensively evaluating the robustness of detection models in complex maritime scenarios. Therefore, it is necessary to construct specialized object detection datasets for maritime environments as an important complement. 
+
+Ship Object Detection Datasets. Compared with general-purpose object detection datasets, specialized datasets con-structed for maritime scenarios can more accurately reflect the imaging characteristics of water surfaces and the distribution patterns of ship targets. From a temporal perspective, maritime datasets have evolved from basic environmental perception to multi-task integration, and further toward large-scale fine-grained recognition. In 2015, MODD [31], as a pioneering work, established a fundamental framework for water-surface obstacle detection using 12 waterborne video sequences. Al-though its targets were only coarsely divided into “large ob-stacles” and “small obstacles,” it laid an initial foundation for vision-based collision avoidance research. Subsequently, SMD [20], released in 2017, significantly enriched the diversity of maritime scenarios by covering ten target categories from both shore-based and onboard viewpoints in Singapore waters, and introduced near-infrared imaging to support target perception under low-lighnetness conditions. In 2018, the release of SeaShips [17] marked the maturity of large-scale, precisely annotated ship datasets. It collected 31,455 images from port surveillance systems and covered six common inland vessel categories. After 2020, datasets gradually evolved toward more complex and multi-dimensional tasks. McShips [21] provided fine-grained annotations of 13 military and civilian ship cat-egories, posing greater challenges to detection models under conditions of minimal inter-class differences. WSODD [18] enhanced environmental diversity by covering ports, nearshore areas, and open waters, enabling better characterization of complex backgrounds and diverse water-surface conditions. SimuShips [22] presents a simulation-based ship detection dataset containing 9,471 images with precise bounding-box annotations. By systematically incorporating diverse obstacle types, weather and illumination variations, occlusion, and scale changes, it provides a low-cost supplement to real-world mar-itime data. FVessel [23] released in 2023 focused on improving vessel monitoring accuracy through asynchronous trajectory matching between AIS and video data. The latest WaterScenes [19] further advances multi-task 4D radar–camera fusion per-ception for water-surface scenarios, whereas MVDD13 [24] establishes a large-scale, fine-grained visual benchmark for ship detection in USV applications. However, according to the statistics in Table I, existing ship-specific datasets still exhibit significant limitations in supporting the training of advanced deep learning models (Transformer and Mamba architectures) and in enabling robust generalization evaluation under complex scenarios. First, in terms of data scale and availability, most public datasets remain at the order of tens of thousands of images. Moreover, 4FURUI688                    
+
+> (b) Data collection navigation route
+> NVR DN20
+> +
+> Zhoushan,
+> China
+> (a) Onboard data acquisition system
+> FURUI688
+> (b) Data collection navigation route
+> NVR DN20
+> +
+> Zhoushan,
+> China
+> (a) Onboard data acquisition system
+> Fig. 2. WUTDet Data Collection Setup. (a) Onboard data acquisition device used for image collection; (b) illustration of the ship navigation route over three months during data collection process.
+
+due to copyright or privacy restrictions, some datasets are only partially released, such as SeaShips (7000) and McShips-lite, making it difficult to meet the data volume requirements of large-parameter models. Second, the distribution of target scales is generally highly imbalanced. Large objects account for 91.33% and 94.60% of the samples in SeaShips(7000) and MVDD13, respectively, whereas small objects constitute only 0.16% and 0.46%. In SMD, SimuShips, and FVessel, the proportion of small objects is also only 10.14%, 13.36%, and 8.76%, respectively. This sample distribution, which overem-phasizes large objects while neglecting small ones, fails to reflect real navigation scenarios where distant ships dominate, thereby constraining the detection performance of models on small ship. Furthermore, in terms of imaging resolution and environmental complexity, most datasets mainly adopt a single resolution of 1920 ×1080, with insufficient coverage of higher resolutions such as 2560 ×1440. To address these issues, we construct a large-scale ship detection dataset (WUTDet), aiming to systematically alleviate the problems of insufficient sample scale, biased target scale distribution, and limited imaging conditions in existing datasets. It provides a more challenging and application-oriented unified benchmark for ship detection algorithms in complex maritime environments. 
+
+B. Object Detection Methods 
+
+CNN-Based Methods. CNN-based methods currently con-stitute the dominant paradigm for ship detection and can be broadly divided into two-stage and one-stage approaches. Two-stage methods, represented by Faster R-CNN [6] and Cascade R-CNN [32], generate region proposals followed by refined classification and regression, achieving superior localization accuracy. They often incorporate feature pyramid networks (FPN) or contextual modeling to alleviate challenges posed by large scale variations of ships and interference from complex sea backgrounds. In contrast, one-stage methods such as the YOLOs [33], [34], [35] and SSD [9] reformulate detection as a regression problem, greatly improving inference efficiency and meeting the real-time requirements of maritime surveillance. To accommodate the limited computational resources of ship-borne embedded platforms, recent variants from YOLOv8 to YOLOv13 have continuously optimized lightweight backbone networks (C2f and C3K2 structures) and combined them with multi-scale feature representations and relational modeling, aiming to enhance robustness under complex sea conditions, particularly for detecting small vessels that are easily disturbed by waves. 
+
+Transformer-Based Methods. Transformer-based detec-tion methods establish long-range dependencies through self-attention mechanisms and thus possess stronger global feature modeling capabilities. Since DETR [12] reformulated object detection as a set prediction problem, research in this field has mainly focused on improving efficiency and achieving real-time performance. The first line of work, exemplified by Deformable DETR [13], accelerates convergence through sparse sampling attention and significantly improves the de-tection performance of small, distant ships on the sea surface. The second line, represented by DAB-DETR [36] and DINO [37], enhances matching stability in complex backgrounds by refining object queries and introducing denoising training strategies. Furthermore, to meet practical deployment require-ments, models such as RT-DETR [14] and D-FINE [38] optimize bounding box regression and inference latency while preserving the advantages of end-to-end architectures. They demonstrate stronger feature selection and representation capa-bility than traditional CNN-based methods when dealing with challenging scenarios such as strong sea-surface reflections and occlusions. 
+
+Mamba-Based Methods. Mamba [15], as an emerging sequence modeling approach based on SSM, offers near-linear computational complexity, providing an efficient technical pathway for processing high-resolution maritime images. In ship detection tasks, architectures such as Vision Mamba [16] and VMamba [39] leverage SSM to enhance visual representation learning, overcoming the limitation of Trans-formers whose computational cost grows quadratically with image resolution while maintaining efficient inference. Re-cently, Mamba architectures have begun to integrate with one-stage real-time detection frameworks (Mamba YOLO [40]). By adopting SSM-based backbones, they reduce the compu-tational burden of self-attention mechanisms and thereby en-able low-latency object detection under real-time constraints. When applied to large-scale, high-resolution ship datasets (Ours WUTDet), such architectures demonstrate significant potential for balancing computational efficiency and detection robustness in complex maritime environments. III. D ATASET 
+
+This paper aims to construct a large-scale real-world ship detection dataset (WUTDet) for maritime environment percep-tion, collision avoidance, and safe navigation, and to conduct a evaluation of state-of-the-art object detection algorithms based on this dataset. As summarized in Table I, WUTDet significantly exceeds existing ship detection datasets in terms of both the number of images and annotated object instances, and it contains a large proportion of small-scale ships at long distances, which better reflects the target distribution in real navigation scenarios. In this section, we describe the dataset construction process in detail and provide a statistical analysis of its composition and characteristics. 
+
+A. Data Collection 
+
+Visible-light cameras can capture high-resolution images of ship navigation areas and provide rich color and texture 5(d) Berthing (d) Berthing  (c) Navigation (c) Navigation  (b) Anchorage (b) Anchorage  (a) P ort (a) P ort                                     
+
+> Fig. 3. Image examples in WUTDet from four typical operational scenarios, namely port, anchorage, navigation, and berthing. These scenarios differ significantly in ship distribution, target scale, and occlusion level, posing diverse challenges for ship detection. TABLE II TRAIN /V ALIDATION /T EST SPLIT STATISTICS OF WUTD ET . C ONSIDERING THAT SHIP TYPE IS OF LIMITED IMPORTANCE FOR COLLISION AVOIDANCE IN AUTONOMOUS NAVIGATION AND THAT SMALL -SCALE OBJECTS DO NOT PROVIDE SUFFICIENT VISUAL SEMANTIC INFORMATION FOR RELIABLE FINE -GRAINED ANNOTATION ,ALL SHIP INSTANCES IN WUTD ET ARE UNIFORMLY ANNOTATED AS A SINGLE CATEGORY .Split 1920 ×1080 2560 ×1440 Images Percentage Objects Category Train 65,070 15,391 80,461 80.0% 305,264 Ship Validation 8,134 1,924 10,058 10.0% 38,118 Ship Test 8,133 1,924 10,057 10.0% 37,996 Ship Total 81,337 19,239 100,576 100% 381,378 Ship
+
+information. In addition, they offer advantages such as low power consumption, flexible deployment, and long-term stable operation. Therefore, the dataset constructed in this study uniformly adopts visible-light images as the data source. The data acquisition system consists of the Furui 688 vessel platform, the DN20 marine photoelectric evidence system, and a Hikvision network video recorder (NVR). The Furui 688 is a port supply vessel with a length of 35 m and a width of 8 m, serving as the data collection platform. The DN20 and the NVR are installed on the vessel to acquire and store video data in real time during navigation. The DN20 is equipped with a high-definition visible-light camera and an infrared thermal imager; in this study, only the video data captured from its visible-light channel are used. The NVR is responsible for the real-time storage of the video data collected by the DN20. Fig. 2 illustrates the overall data acquisition setup and navigation route. Specifically, Fig. 2 (a) shows the onboard data acquisition system, while Fig. 2 (b) presents the vessel’s navigation routes in the over a three-month data collection period. All images with a resolution of 1920 ×1080 in the dataset are obtained from this acquisition system. To ensure the diversity and representativeness of the dataset, the onboard DN20 system conducted continuous video acqui-sition under a wide range of conditions, including different maritime scenarios (harbors, anchorages, berthing, and navi-gation states), different time periods (daytime and nighttime), varying lightness conditions (low-lightness and glare), and di-verse weather conditions (fog and rain). In addition, for certain scenarios, stitched videos with a resolution of 5120 ×1440 were further cropped to generate high-resolution images with a resolution of 2560 ×1440. The higher image resolution provides richer target detail information, which is beneficial for training detection models with improved performance and stronger robustness. It should be noted that these stitched videos were also collected during actual vessel navigation. All video data were captured in the Zhoushan waters. 
+
+B. Data Processing and Annotation 
+
+The collected video data are preprocessed according to the following procedure: (1) since the videos are recorded continuously under all-weather conditions, video segments that do not contain ship targets are first removed; (2) videos captured during berthing that mainly contain non-maritime backgrounds are discarded to avoid introducing data irrelevant to navigation scenarios; (3) the remaining videos are then sampled into frames. To reduce redundancy among images, 6(a) Fog (b) Glare (c) Low -lightness (d) Rain (e) Normal (a) Fog (b) Glare (c) Low -lightness (d) Rain (e) Normal  
+
+> Fig. 4. Image examples in WUTDet under fog, glare, low-lightness, rain, and normal conditions. These diverse imaging conditions provide data support for evaluating the performance of different models under heterogeneous visual conditions.
+
+one frame is retained every 1–5 s for each video; (4) the extracted images are further filtered by removing those without ship targets, with severe blur, or with high visual similarity; (5) to obtain high-quality image samples, Step (4) is repeated until all retained images satisfy the quality requirements; (6) finally, cross-validation is performed to check the consistency and integrity of all images, and all images are uniformly named using seven-digit numbers, e.g., 0000001.jpg. With respect to the annotation strategy, all ship targets in WUTDet are labeled as a single category, “ship.” This choice is motivated by two main considerations. On the one hand, the dataset is designed for maritime situational awareness and collision avoidance, in which ship type is not a primary concern. On the other hand, the dataset contains a large number of small-scale targets with areas ranging from 0 to 32² pixels, for which it is difficult to reliably distinguish specific ship categories during annotation. The LabelImg 1 tool is used to annotate ship targets with tight rectangular bounding boxes, and the category labels together with their spatial locations are saved in extensible markup language (.xml) files following the same format as the Pascal VOC 2007 dataset, with all “difficult” fields set to 0. To ensure the standardization and accuracy of the anno-tations, a three-level quality control mechanism consisting of manual labeling, cross-validation, and expert review is adopted. The specific rules are as follows: (1) for occluded targets and ship clusters, only the visible parts are annotated, without inferring the locations of the occluded regions; (2) multiple annotators with experience in object detection in-dependently label all images in the first round; (3) multiple rounds of cross-validation are conducted to eliminate missing and incorrect annotations, and the bounding boxes are refined to obtain more accurate results; (4) experts randomly inspect the annotations to evaluate their quality; (5) the final annota-tion files are named using the same seven-digit numbers as the corresponding images, e.g., 0000001.xml. 
+
+> 1https://github.com/HumanSignal/labelImg
+
+C. Dataset Statistics 
+
+As illustrated in Fig. 3, all images in WUTDet are col-lected from real ship navigation processes, covering multiple typical operational states, including port area, anchorage area, berthing state, and navigation state. During the data screening stage, samples are carefully selected to ensure broad coverage of diverse imaging variations, such as different object scales, ship parts, illumination conditions, viewpoints, background complexity, and occlusion, thereby guaranteeing the represen-tativeness and challenge of the dataset in real-world maritime scenarios. 
+
+Dataset Split. To ensure sufficient training data and reliable performance evaluation, the large-scale ship dataset WUTDet contains a total of 100,576 high-resolution images and 381,378 annotated instances. As shown in Table II, the dataset is strictly divided into training, validation, and test sets with a ratio of 8:1:1. Specifically, the training set includes 80,461 images with 305,264 object instances, accounting for 80.0% of the entire dataset, which provides adequate supervision for deep learning models to capture complex ship characteristics and maritime backgrounds. The validation and test sets contain 10,058 and 10,057 images, with 38,118 and 37,996 instances, respectively. During the splitting process, particular attention is paid to maintaining consistent data distributions across the training, validation, and test sets in terms of object categories, scale distributions, and scene complexity. This strategy effectively avoids evaluation bias caused by data imbalance and ensures that the experimental results are representative and stable. 
+
+Scene diversity. To comprehensively evaluate the gener-alization ability and robustness of detection models under complex maritime environments, the dataset is further divided into specific scene subsets according to different meteorolog-ical conditions and illumination levels. As shown in Table III, while keeping the training set unchanged, samples from the validation and test sets are merged to construct a multi-dimensional evaluation benchmark consisting of fog, glare, low-lightness, rain, and normal scenes. In terms of statistical 7
+
+TABLE III IMAGE AND OBJECT STATISTICS UNDER DIFFERENT SCENE CONDITIONS IN WUTD ET .Scene Fog Glare Low-lightness Rain Normal Images 3,380 900 578 694 14,688 Objects 9,688 2,995 2,294 2,125 59,183 Total      
+
+> 381,359
+> Large
+> 84,854 (22.25%)
+> Medium-Large
+> 68,378 (17.93%)
+> Medium-Small
+> 95,264 (24.98%)
+> Generally Small
+> 70,009 (18.36%)
+> Relatively Small
+> 50,141 (13.15%)
+> Extremely Small
+> 12,713 (3.33%)
+> 10 110 210 310 410 5
+> 10 6
+> Area (pixels 2)
+> 0
+> 5000
+> 10000
+> 15000
+> 20000
+> Frequency
+> Mean Median
+> Min area: 12
+> Max area: 2436483
+> Mean: 23168
+> Median: 2280
+> (a) Scale distribution (b) Object area distribution
+
+Fig. 5. Presents the statistics of object scales in WUTDet. (a) shows the number and proportion of objects in different area intervals, where Extremely Small, Relatively Small, Generally Small, Medium-Small, Medium-Large, and Large correspond to area ranges of [0 , 12 2], (12 2, 20 2], (20 2, 32 2],
+
+(32 2, 60 2], (60 2, 96 2], and (96 2, +∞) pixels, respectively. (b) illustrates the frequency distribution of object areas. 
+
+distribution, the normal scene contains 14,688 images with 59,183 object instances, forming the main basis for evalu-ation. For more challenging adverse conditions, the dataset includes 3,380 fog images (9,688 objects), 900 glare images (2,995 objects), 694 rain images (2,125 objects), and 578 low-lightness images (2,294 objects). Representative image samples of WUTDet under different scene conditions are shown in Fig. 4. Such fine-grained scene partitioning aims to simulate extreme visual disturbances encountered in real navigation scenarios. It not only quantitatively demonstrates the wide environmental coverage of WUTDet but also provides a solid experimental basis for in-depth analysis of model performance degradation and failure modes under specific conditions. 
+
+Ship Size Diversity. To objectively evaluate the model’s capability in representing multi-scale targets, especially its performance in detecting distant and small objects, we conduct a detailed statistical analysis of the object scale distribution in WUTDet. The dataset covers an extremely wide range of target sizes, with instance areas ranging from as small as 12 pixels to as large as 2,436,483 pixels. As shown in Fig. 5 (a), the objects are categorized into six scale levels. Among them, extremely small, relatively small, and generally small targets together account for 34.81% of all annotated instances. This high proportion of small-scale targets makes the dataset especially suitable for benchmarking small-object detection algorithms in complex maritime scenarios. Medium-scale targets dominate the dataset, where medium-small and medium-large objects jointly constitute 42.91% of the total instances, ensuring stable learning and robust evaluation under conventional detection settings. In addition, large targets (22.25%) further enhance the diversity of object scales. Fig. 5 (b) presents the frequency histogram of object areas under a logarithmic coordinate 1 2 3 4 5 6 7 8 9 10 10+                     
+
+> Number of objects per image
+> 0
+> 2k
+> 4k
+> 6k
+> 8k
+> 10k
+> 12k
+> 14k
+> 16k
+> 18k
+> 20k
+> Number of images
+> 16740
+> 17789
+> 14607
+> 8556
+> 5971
+> 3968
+> 3120 2917
+> 1966 1427
+> 3400
+> 2103 2210 1831
+> 1051 769 485 393 394 240 164 418
+> 2108 2211 1832
+> 1072 732 523 382 366 234 195 402
+> Training set
+> Validation set
+> Test set
+
+Fig. 6. Distribution of the number of objects per image in WUTDet. The bars show the statistics of the training, validation, and test sets, while the red curve denotes a smoothed approximation of the object-count distribution in the training set. 0 1 2 3 4 5 6 7 8 9      
+
+> Aspect ratio
+> 0
+> 2k
+> 4k
+> 6k
+> 8k
+> 10k
+> 12k
+> 14k
+> Frequency
+> Mode: 13,547 Total objects: 381,359
+> Ratio range: [0.1, 26.7]
+> >9
+> 979
+> (0.3%)
+
+Fig. 7. Aspect ratio distribution of objects in WUTDet. The aspect ratio is defined as the height-to-width ratio of the bounding box. The histogram shows the frequency distribution of aspect ratios, and the orange curve indicates the corresponding smoothed trend. 
+
+system, which illustrates a continuous distribution with an evident Gaussian-like tendency, and a major concentration in the range of 10 3 to 10 4 pixels. Overall, while maintaining a relatively balanced scale distribution, WUTDet emphasizes small targets through deliberate sample construction. This characteristic not only challenges existing algorithms in multi-scale representation learning but also provides a high-quality data foundation for accurate recognition of distant vessels in maritime surveillance tasks. 
+
+Object Distribution. To comprehensively analyze the sta-tistical characteristics of the WUTDet dataset and the chal-lenges it poses for detection tasks, we conduct a quantitative evaluation from two perspectives: object density and geometric distribution. First, the analysis of per-image object density is illustrated in Fig. 6. WUTDet exhibits a wide range of distributions from sparse to highly dense scenes, and the number of objects per image follows a pronounced long-tail pattern. In the training, validation, and test sets, images containing 1–3 objects account for the majority, with the highest frequency observed for images containing two objects (17,789 images in the training set). Notably, the dataset also includes a substantial number of crowded scenes: approxi-mately 3,400 training images and 820 validation/test images contain more than 10 objects (10+). Such high-density object distributions realistically simulate complex maritime traffic conditions in ports and anchorages, where vessels frequently converge and overlap, thereby imposing higher requirements on the algorithm’s robustness to occlusion under complex spatial arrangements. Second, statistical analysis of the ge-8Conv BN SiLU      
+
+> BaseConv BaseConv
+> BaseConv BaseConv
+> BottleNeck(Ture)
+> BottleNeck(False)
+> BaseConv
+> BaseConv Split Bottleneck
+
+... Bottleneck                
+
+> Concat
+> n*Bottleneck
+> (add= ?)
+> SPPF Upsample
+> Concat C2f
+> Concat C2f YOLOHead
+> Upsample
+> Concat
+> BaseConv
+> C2f YOLOHead
+> Concat
+> BaseConv C2f YOLOHead
+> BaseConv
+> Concat
+> Maxpool
+> BaseConv
+> 3*Maxpool
+> SPPF C2f
+> BaseConv C2f
+> Conv BN SiLU
+> BaseConv BaseConv
+> BaseConv BaseConv
+> BottleNeck(Ture)
+> BottleNeck(False)
+> BaseConv
+> BaseConv Split Bottleneck
+
+... Bottleneck          
+
+> Concat
+> n*Bottleneck
+> (add= ?)
+> SPPF Upsample
+> Concat C2f
+> Concat C2f YOLOHead
+> Upsample
+> Concat
+> BaseConv
+> C2f YOLOHead
+> Concat
+> BaseConv C2f YOLOHead
+> BaseConv
+> Concat
+> Maxpool
+> BaseConv
+> 3*Maxpool
+> SPPF C2f
+> BaseConv C2f
+> Fig. 8. Pipeline of the YOLOv8 architecture [41]. As a representative CNN-based object detection model, YOLOv8 improves detection efficiency and representation capability through designs such as an anchor-free decoupled head and enhanced gradient flow, and has become a widely adopted baseline for real-time object detection tasks.
+
+ometric properties reveals that the aspect ratio distribution of WUTDet spans an extremely wide dynamic range, from 0.1 to 26.7. As shown in Fig. 7, although most ship instances are concentrated within the range of [1 , 5] , a considerable number of annotations exhibit extreme aspect ratios. This distribution reflects significant geometric variations caused by viewpoint changes (drastic transitions between frontal and side views) and by differences in vessel types (slender ocean-going cargo ships versus short and wide working vessels). In summary, the high-density clustering characteristics and extreme geometric variations observed in WUTDet not only enhance the realism and difficulty of the dataset, but also compel detection models to achieve stronger geometric robustness within complex spa-tial contexts, which is essential for accurate recognition and localization in challenging maritime environments. IV. M ETHOD 
+
+This section reviews three detection paradigms including CNN-based, Transformer-based, and Mamba-based methods, focusing on their architectural evolution, core design princi-ples, and remaining limitations. 
+
+A. CNN-Based Methods 
+
+One-stage convolutional detectors, represented by the YOLO series, unify proposal generation, classification, and bounding-box regression into a single forward pass, formulat-ing detection as end-to-end dense prediction and eliminating the computational overhead of explicit region proposal stages. 
+
+YOLOv8. YOLOv8 [41] improves upon earlier YOLO vari-ants by addressing two long-standing limitations: insufficient feature reuse under constrained computational budgets and optimization conflicts caused by coupled prediction heads (as illustrated in Fig. 8). Its backbone incorporates cross-stage partial connectivity to balance representational richness against parameter efficiency, facilitating the interaction between high-level semantic and low-level spatial features, which is partic-ularly critical for detecting small or boundary-ambiguous tar-gets. The neck adopts a bidirectional feature-pyramid topology that propagates complementary cues across resolution levels, sustaining recall under significant scale variation. A decoupled head disentangles classification and localization objectives into separate branches, mitigating gradient conflicts that commonly degrade regression stability in shared-parameter formulations. Nevertheless, as a dense prediction framework, YOLOv8 in-herently generates substantial candidate redundancy, necessi-tating non-maximum suppression (NMS) whose hyperparame-ter sensitivity can compromise performance in densely packed scenes. 
+
+YOLOs. YOLOX [33] eliminates anchor priors and adopts a decoupled head to reduce inductive bias, pursuing archi-tectural consistency with its end-to-end training objective. YOLOv6 [42] targets the accuracy-latency trade-off through hardware-aware operator design and refined feature reuse in the backbone and neck stages. YOLOv11 [41] restruc-tures the backbone module topology and feature propagation paths to improve gradient flow and representational capacity within a comparable computational envelope. Hyper-YOLO [43] extends the standard YOLO feature hierarchy with en-hanced fusion and context modeling modules, strengthening discriminability under cluttered backgrounds and severe scale disparity. YOLOv12 [34] and YOLOv13 [35] jointly optimize backbone and fusion architectures with a focus on multi-scale semantic coherence and computational redundancy reduction under lightweight deployment constraints. FBRT-YOLO [44] refines the regression pathway through dedicated feature en-hancement modules, improving bounding-box stability for hard-to-localize samples. YOLO-MS [45] augments cross-scale fusion pathways with explicit multi-resolution branches, enhancing robustness to target size variation. 9AIFI    
+
+> S3
+> S4
+> S5
+> Uncertainty -minimal Query Selection
+> Decoder & Head
+> F5
+> Efficient Hybrid Encoder Conv1× 1 S1
+> BN
+> SiLU
+> Conv1× 1 S1
+> BN
+> SiLU
+> Object Query
+> Image Feature
+> Position Embedding
+> Fusion
+> Fusion
+> Fusion C
+> CCFF
+> Backbone
+> Fig. 9. Pipeline of the RT-DETR architecture [14]. As a representative Transformer-based object detection model, RT-DETR [14] improves computational efficiency and spatial alignment through designs such as the efficient hybrid encoder and IoU-aware query selection, and achieves end-to-end real-time detection without post-processing by eliminating NMS.
+
+B. Transformer-Based Methods 
+
+Transformer-based methods, represented by the DETR [12] family, reformulate detection as set prediction, where a fixed set of learnable queries interact with image features to pro-duce predictions trained end-to-end via bipartite matching. This formulation fundamentally bypasses anchor design and heuristic candidate filtering, but introduces new challenges in convergence efficiency, computational cost on high-resolution features, and small-object sensitivity. 
+
+RT-DETR. RT-DETR [14] targets the computational bot-tleneck that prevents prior DETR variants from real-time deployment (as shown in Fig. 9). Its core design is an Efficient Hybrid Encoder that explicitly decouples intra-scale feature interaction from cross-scale feature fusion, substan-tially reducing the quadratic cost of multi-scale Transformer encoding while retaining contextual richness. An IoU-aware query selection mechanism further replaces confidence-based initialization with localization-quality-guided priors, improv-ing spatial alignment between initial queries and target re-gions. By preserving the set prediction paradigm, RT-DETR eliminates heuristic post-processing such as NMS entirely, and additionally supports flexible speed-accuracy control by adjusting decoder depth at inference without retraining. How-ever, the aggressive efficiency constraints impose a represen-tational ceiling. In severely crowded scenes or under extreme small-object density, the streamlined encoder may compromise multi-scale feature alignment relative to heavier non-real-time counterparts, exposing a sensitivity to the balance between encoder capacity and feature resolution. 
+
+DETRs. Deformable DETR [13] addresses the slow con-vergence and prohibitive complexity of the original DETR by replacing dense global attention with deformable attention that sparsely aggregates features from a small set of learn-able sampling points across multiple scales. DAB-DETR [36] reformulates query representation by explicitly associating each query with a spatial reference point, which conditions attention aggregation and positional updates in the decoder, thereby strengthening spatial correspondence between queries and target regions. DINO [37] extends multi-scale modeling by feeding four-scale features into both encoder and decoder and stabilizing query-feature interactions, yielding more reliable matching and regression under small-object and crowded con-ditions. D-FINE [38] and its related variants target localization quality specifically, introducing iterative box refinement on top of DETR-style predictions to reduce residual regression errors. LW-DETR [46] prioritizes deployment efficiency by coupling a lightweight backbone with lower-complexity interaction modules, serving as a representative baseline for resource-constrained Transformer-based detection. DEIM [47] builds upon the D-FINE refinement framework, reinforcing query interaction mechanisms and matching stability to improve prediction consistency and localization robustness. 
+
+C. Mamba-Based Methods 
+
+Mamba-based methods introduce selective SSM as an al-ternative to attention for long-range dependency modeling. Unlike token-wise attention whose computational cost scales quadratically with sequence length, Mamba propagates global context through input-dependent state transitions with linear complexity, offering a favorable trade-off between contex-tual modeling capacity and computational overhead for high-resolution feature extraction. 
+
+Mamba-YOLO. Mamba-YOLO [40] integrates selective state space modeling into the one-stage YOLO detection framework, targeting the fundamental tension between global context aggregation and real-time inference that neither pure CNN nor Transformer-based detectors fully resolve (as shown in Fig. 10). Its backbone replaces standard convolutional blocks with SSM-based modules that propagate long-range structural dependencies along sequential state trajectories, ex-tending the effective receptive field beyond what local convo-lution kernels can achieve without incurring the quadratic cost of self-attention. To mitigate the directional sensitivity inherent in sequential state propagation over two-dimensional feature maps, Mamba-YOLO adopts multi-directional scanning strate-gies that traverse spatial features along complementary paths, improving the isotropy of contextual coverage. The detection head retains the dense prediction paradigm of YOLO, pre-serving inference efficiency while benefiting from globally enriched feature representations. However, the sequential state recurrence limits parallelism relative to attention-based coun-10 Simple Stem 
+
+> ODSSBlock
+> Vision Clue Merge
+> ODSSBlock
+> SPPF
+> Vision Clue Merge
+> ODSSBlock
+> Vision Clue Merge
+> ODSSBlock
+
+UU
+
+CC
+
+> ODSSBlock
+
+CC
+
+UU
+
+CC
+
+> ODSSBlock
+
+CC   
+
+> Conv
+> Conv
+> ODSSBlock
+> ODSSBlock
+> 80× 80 Small xx
+> 40× 40Medium
+> 20× 20Large xx
+> Conv
+
+CC
+
+UU                                                        
+
+> X1
+> X2
+> X3
+> X14
+> X15
+> X16
+> X7
+> X5
+> X3
+> X1
+> X8
+> X6
+> X4
+> X2
+> X15
+> X13
+> X11
+> X9
+> X16
+> X14
+> X12
+> X10
+> Conv  y1y2
+> y3y4
+> Conv
+> Activation
+> BatchNorm
+> Conv
+> BatchNorm
+> Stem
+> Vision Clue Merge
+> L1
+> L2
+> L3
+> L4
+> Activation
+> BatchNorm
+> Convolution
+> Concatenate
+> Upsample
+> k=3
+> Stride=2
+> k=3
+> Stride=2
+> X1X2X3X4
+> X5X6X7X8
+> X9X10 X11 X12
+> X13 X14 X15 X16
+> X1X2X3X4
+> X5X6X7X8
+> X9X10 X11 X12
+> X13 X14 X15 X16
+> ......
+> P3
+> P4
+> P5
+> P3
+> P4
+> P5
+> ODMamba Backbone PAFPN Head 𝑯
+> 𝟖 ×𝑾
+> 𝟖 ×𝟐 𝑪 𝟐 𝑯
+> 𝟏𝟔 ×𝑾
+> 𝟏𝟔 ×𝟒 𝑪 𝟑 𝑯
+> 𝟑𝟐 ×𝑾
+> 𝟑𝟐 ×𝟖 𝑪 𝟒 𝑾 ×𝑯 ×𝑪 𝟏 𝑯
+> 𝟐 ×𝑾
+> 𝟐 ×𝟒 𝑪 𝟏 𝑯
+> 𝟐 ×𝑾
+> 𝟐 ×𝑪 𝟐 𝑯
+> 𝟒 ×𝑾
+> 𝟒 ×𝑪 𝟏
+
+Fig. 10. Pipeline of the Mamba-YOLO architecture [40]. As a representative Mamba-based object detection model, Mamba-YOLO [40] introduces SSM to efficiently capture long-range dependencies with linear computational complexity. By avoiding the quadratic overhead of traditional attention mechanisms, it achieves a favorable balance between global contextual modeling and real-time inference efficiency. 
+
+terparts, and the scanning strategy remains sensitive to scene structure, particularly under irregular spatial distributions. 
+
+Mambas. VMamba [39] establishes a general-purpose vi-sion backbone based on selective state space modeling, intro-ducing the cross-scan mechanism to extend one-dimensional state propagation to two-dimensional feature maps while main-taining linear complexity. The tiny variant VMamba-T is paired with Faster R-CNN [48] as a two-stage detection base-line, where the SSM-enriched features benefit both region pro-posal generation and RoI-level classification. MobileMamba [49] targets mobile deployment by designing lightweight state space blocks with reduced channel dimensions and simplified state transitions. Its B1 variant is combined with RetinaNet [50] as a one-stage anchor-based baseline, trading the localiza-tion refinement of two-stage pipelines for inference efficiency. Together, these two configurations represent complementary integration strategies for Mamba backbones within established detection frameworks. V. E XPERIMENTS 
+
+This section evaluates the performance of 20 detection methods on WUTDet, and further validates the effectiveness of WUTDet and the generalization capability of the models using the unified test set Ship-GEN. 
+
+A. Experimental Data and Experimental Settings 
+
+Experimental Data. To comprehensively evaluate the per-formance of different object detection methods in complex maritime scenarios, extensive comparative experiments are conducted on WUTDet. Furthermore, to validate the effec-tiveness of WUTDet in cross-dataset scenarios, we construct a unified cross-dataset test set, termed Ship-GEN. Given that a high proportion of small objects is a prominent characteristic of WUTDet, we select WaterScene [19] and WSODD [18], which exhibit the highest and second-highest proportions of small objects among the datasets listed in Table I excluding WUTDet, as the data sources for Ship-GEN. Specifically, Ship-GEN is composed of a portion of the WUTDet test set, a portion of the WaterScene test set, and the entire WSODD test set, resulting in a total of 3,276 images. To ensure fairness and consistency, the annotations in WaterScene and WSODD are unified by removing all bounding boxes associated with non-ship categories, while retaining only ship instances and relabeling them as a single category, “ship.” All other experimental settings remain consistent with the original configurations of WaterScene and WSODD. This cross-dataset evaluation protocol provides a more comprehensive bench-mark for assessing the generalization ability and robustness of detection models across different data distributions. 
+
+Experimental Settings. All training and testing experi-ments were conducted on a unified high-performance deep learning workstation equipped with a single NVIDIA GeForce RTX 4090 GPU with 24 GB of memory. All methods were implemented using the PyTorch framework. Model scales were distinguished by the suffixes “-S”, “-T”, or different backbone architectures. According to their architectural characteristics, the evaluated detection methods were categorized into three groups: CNN-based methods, Transformer-based methods, and Mamba-based methods. For CNN-based methods, the input image resolution was uniformly set to 640 × 640 . CenterNet [51] and YOLOv6 strictly followed their original configura-tions and were trained for 140 and 400 epochs, respectively, while the remaining CNN-based detectors were trained for 300 epochs using their default settings. Transformer-based models adopted a unified multi-scale input strategy and were trained according to their original configurations, with training epochs ranging from 36 to 132. Mamba-based models retained their standard single-scale training paradigm with only 12 training epochs and were evaluated at two resolutions, 640 × 640 and 
+
+1333 × 800 , to analyze their sensitivity to scale variations. Mamba YOLO [40] followed the YOLO training framework with a fixed input resolution of 640 × 640 and a training schedule of 300 epochs. 11 
+
+B. Evaluation Metrics 
+
+To provide a comprehensive and objective evaluation of the baseline models and the dataset constructed in this work, we adopt multiple evaluation metrics based on the MS COCO benchmark, including AR 50:95 (%) , AP 50:95 (%) ,AP s(%) , AP m(%) , AP l(%) and FPS. The detailed definitions are given as follows. 
+
+Average Recall and Average Precision. Precision (P) denotes the proportion of correctly predicted positive sam-ples among all predicted positives, while Recall (R) de-notes the proportion of correctly detected positives among all ground-truth positives. In our experiments, AR 50:95 (%) and AP 50:95 (%) are used as the primary evaluation metrics. They correspond to the mean Average Precision and mean Average Recall computed over ten different Intersection over Union (IoU) thresholds ranging from 0.50 to 0.95 with a step size of 0.05. This multi-threshold averaging strategy enables a more rigorous assessment of bounding box localization accuracy. 
+
+Multi-scale Object Detection. To objectively evaluate model performance on targets of different sizes, the overall AP is further subdivided according to the pixel area of target instances. Specifically, AP s(%) denotes the average precision for small objects (area < 32 2 pixels), AP m(%) corresponds to medium-sized objects ( 32 2 ≤ area ≤ 96 2 pixels), and AP l(%) 
+
+represents the average precision for large objects (area > 96 2
+
+pixels). 
+
+Model Parameters and Inference Speed. Model size and inference speed are important indicators for assessing practical applicability. The number of parameters (Params, in M) de-notes the total number of trainable parameters in a model and reflects its storage cost and computational complexity. Frames Per Second (FPS) is used to measure real-time inference capability and is generally defined as the number of images processed per unit time. In this work, the batch-based average 
+
+F P S is adopted as the inference efficiency metric, which is calculated according to eq. (1). 
+
+F P S = 1
+
+n
+
+> n
+
+X
+
+> k=1
+
+BatchSize t(k)
+
+> infer
+
+!
+
+(1) where BatchSize denotes the number of input images in a single inference batch, t(k) 
+
+> infer
+
+denotes the inference time of one batch in the k-th trial, and n denotes the number of test runs. For fair comparison, BatchSize and n are fixed to 16 and 100, respectively. 
+
+C. Results and Analysis 
+
+Overall performance of different methods on WUTDet. 
+
+To systematically evaluate the performance and robustness of object detection methods with different architectures in com-plex maritime scenarios, a unified comparison experiment was conducted on WUTDet covering three mainstream paradigms, namely CNN-, Transformer-, and Mamba-based models. The quantitative results are summarized in Table IV. From the perspective of AP 50:95 (%) , Transformer-based methods achieve the best overall performance. Specifically, DEIM-D-FINE-S [47] and D-FINE-S [38] obtain the high-est accuracies of 71.8% and 71.4%, respectively, which are significantly superior to those of CNN- and Mamba-based models, indicating their stronger capability in modeling object semantics and structural features under complex maritime backgrounds. Among CNN-based approaches, YOLOX-S [33] (67.6%) and YOLOv6-S [42] (64.0%) yield the best perfor-mance, whereas earlier models such as CenterNet [51] (54.2%) exhibit significantly lower accuracy, suggesting that con-ventional convolutional architectures encounter performance bottlenecks in multi-scale and densely distributed scenarios. Mamba-based models show relatively lower accuracy overall; for instance, VMamba-T-FasterRCNN@1x [39] achieves only 43.9% with an input resolution of 640 ×640, while its per-formance improves to 60.0% at 1333 ×800, demonstrating a strong sensitivity to input resolution. In terms of AR 50:95 (%) , Transformer-based approaches remain dominant. Both DEIM-D-FINE-S (77.1%) and D-FINE-S (77.0%) achieve the highest recall, indicating more stable object coverage under dense ship distributions and occlusion conditions. For CNN-based methods, YOLOX-S (70.9%) and YOLOv6-S (67.6%) show relatively high recall, whereas Hyper-YOLO-S (29.4%) exhibits an abnormally low recall rate, revealing severe missed detections in complex scenes. Mamba-based models show limited recall under low-resolution input, e.g., VMamba-T-FasterRCNN@1x achieves only 46.9% at 640×640, which increases to 64.1% at higher resolution, indicating insufficient sensitivity to fine-grained targets. Regarding multi-scale detection performance (AP s(%) ,AP m(%) , AP l(%) ), small-object detection poses greater chal-lenges. Transformer-based models show a clear advantage on AP s(%) , with DEIM-D-FINE-S reaching 56.7%, outper-forming the best CNN-based method YOLOX-S (50.0%) by approximately 6.7%, which verifies the effectiveness of self-attention mechanisms in capturing global context and weak object features. In contrast, Mamba-based models per-form poorly on small objects; for example, VMamba-T-FasterRCNN@1x achieves only 3.7% at 640×640, and even with higher resolution its AP s(%) increases merely to 34.5%, remaining significantly lower than those of Transformer and CNN methods. For medium-scale targets (AP m(%) ), the per-formance gap among different architectures becomes smaller, while Transformer-based methods still maintain an advantage; for instance, DEIM-D-FINE-S (73.1%) exceeds YOLOX-S (69.8%). For large targets (AP l(%) ), except for Deformable DETR [13] (74.9%) and DAB-DETR-R50 [36] (49.6%), most methods achieve accuracies above 80%, with DEIM-D-FINE-S and D-FINE-S both reaching 88.4%, indicating that large vessels in WUTDet are easier to recognize and the inter-model performance gap is relatively limited. In terms of the trade-off between accuracy and speed, CNN-based methods exhibit clear advantages. YOLOX-S (60.8 FPS) and Hyper-YOLO-S (66.7 FPS) maintain 63%–67% AP 50:95 (%) while achieving real-time or even ultra-real-time inference, making them suitable for online maritime moni-toring and embedded deployment. By contrast, Transformer-based methods, although more accurate, generally suffer from lower inference speed. For example, DEIM-D-FINE-S (31.2 FPS) and D-FINE-S (30.8 FPS) are applicable to near-real-12 
+
+TABLE IV PERFORMANCE OF DIFFERENT OBJECT DETECTION METHODS ON OUR DATASET . S INCE THE AUTHORS OF YOLO V8-S, YOLO V11-S, H YPER -YOLO-S, YOLO V12-S, YOLO V13-S, AND FBRT-YOLO-S DO NOT EXPLICITLY SPECIFY THE MODULE DEFINITIONS OF THEIR BACKBONES , THE CORE STRUCTURES PROPOSED AT THE BACKBONE STAGE IN EACH METHOD ARE UNIFORMLY REGARDED AND LABELED AS THE BACKBONE NETWORK IN THIS WORK . FPS IS MEASURED WITH A BATCH SIZE OF 16. ↑ INDICATES THAT HIGHER VALUES CORRESPOND TO BETTER PERFORMANCE . B OLD INDICATES THE BEST RESULT , AND UNDERLINING INDICATES THE SECOND -BEST RESULT .
+
+Category Method Backbone Year Params(M) Epoch Input size FPS ↑ AR 50:95 (%) ↑ AP 50:95 (%) ↑ AP s(%) ↑ AP m(%) ↑ AP l(%) ↑
+
+CNN CenterNet [51] Resdcn-18 2019 14.4 140 640 × 640 38.0 61.3 54.2 31.1 58.1 80.9 YOLOX-S [33] Modified CSP 2021 8.9 300 640 × 640 60.8 70.9 67.6 50.0 69.5 86.0 YOLOv6-S [42] EfficientRep 2022 18.5 400 640 × 640 33.08 67.6 64.0 36.8 69.8 87.2 YOLOv8-S [41] C2f 2023 11.1 300 640 × 640 60.1 66.2 62.5 33.5 69.1 87.2 YOLOv11-S [41] C3K2 2024 9.4 300 640 × 640 57.0 66.4 62.6 33.9 69.2 87.1 Hyper-YOLO-S [43] MANet 2024 14.8 300 640 × 640 66.7 29.4 63.1 34.5 69.6 87.3 YOLOv12-S [34] A2C2f 2025 9.0 300 640 × 640 30.2 66.1 62.4 33.4 68.8 86.9 YOLOv13-S [35] DS-C3K2 2025 9.0 300 640 × 640 25.6 65.0 61.3 32.5 68.0 86.6 FBRT-YOLO-S [44] FCM 2025 2.9 300 640 × 640 45.6 66.8 62.9 34.3 69.3 87.1 YOLO-MS-S [45] Modified CSP 2025 8.7 300 640 × 640 18.4 64.7 58.1 27.6 64.7 85.1 Transformer Deformable DETR [13] ResNet50 2021 39.8 50 multi-scale 6.2 64.8 56.8 38.5 60.6 74.9 DAB-DETR-R50 [36] ResNet50 2022 43.4 50 multi-scale 11.1 39.4 27.6 6.3 33.8 49.6 DINO-4scale [37] ResNet50 2023 46.6 36 multi-scale 4.5 73.3 65.2 49.5 67.4 82.6 RT-DETR -R50VD-M [14] PResNet 2024 36.4 72 multi-scale 10.0 71.3 65.9 46.0 68.4 86.0 D-FINE-S [38] HGNetv2 2024 10.1 132 multi-scale 30.8 77.0 71.4 56.1 72.8 88.4 
+
+LW-DETR-S [46] Vit-tiny 2024 14.2 60 multi-scale 14.8 63.4 58.7 35.9 61.9 81.5 DEIM-D-FINE-S [47] HGNetv2 2025 10.2 132 multi-scale 31.2 77.1 71.8 56.7 73.1 88.4 
+
+Mamba VMamba-T -FasterRcnn@1x [39] VMamba-T 2024 46.7 12 640 × 640 7.9 46.9 43.9 3.70 56.1 81.1 VMamba-T -FasterRcnn@1x [39] VMamba-T 2024 46.7 12 1333 × 800 3.0 64.1 60.0 34.5 66.0 82.1 MobileMamba-B1 -RetinaNet@1x [49] Mobile Mamba-B1 2025 25.4 12 640 × 640 11.8 58.5 48.2 21.4 52.1 80.4 MobileMamba-B1 -RetinaNet@1x [49] Mobile Mamba-B1 2025 25.4 12 1333 × 800 6.1 68.3 62.9 39.9 65.9 82.5 Mamba YOLO-M [40] ODMamba 2025 21.8 300 640 × 640 15.0 67.0 63.5 35.4 69.9 87.4 
+
+time scenarios, whereas DINO-4scale [37] (4.5 FPS) and De-formable DETR (6.2 FPS) fail to meet real-time requirements. Mamba-based models demonstrate a compromise between accuracy and efficiency; for instance, Mamba YOLO-M (15.0 FPS, 63.5% AP) balances detection performance and speed to a certain extent, indicating their potential for real-time detection tasks. The comparison across different input resolutions shows that higher resolution significantly benefits small-object detection. For example, when increasing the resolution of VMamba-T-FasterRCNN@1x from 640 ×640 to 1333 ×800 , AP s(%) rises from 3.7% to 34.5%, and AP 50:95 (%) improves by approxi-mately 16.1%. A similar trend is observed for MobileMamba-B1-RetinaNet@1x [49], whose AP s(%) increases from 21.4% to 39.9%. These results indicate that high-resolution input effectively alleviates the difficulty of recognizing distant small targets in maritime scenarios, albeit at the cost of substantial inference speed degradation (often halved or more). From the perspective of architectural design, CNN-based methods rely on local convolutional features and offer high efficiency and deployment friendliness, but are limited in modeling complex spatial relationships and small objects. Transformer-based methods significantly enhance detection accuracy through global modeling, particularly in dense and small-object scenarios, but suffer from high computational complexity and limited real-time capability. Mamba-based methods aim to model long-range dependencies with linear complexity, partially balancing efficiency and representation power; however, their discriminative capability under complex maritime target distributions still requires further improve-ment. Figs. 11 and 12 present the visualization results of different detection methods on WUTDet. From top to bottom, the images correspond to four typical maritime scenarios, namely anchorage, berth, port, and sailing, respectively, and each scene contains multiple ship targets. Overall, most detection algorithms can effectively recognize ship targets in these scenes; however, certain false positives and missed detections still occur under complex environments. Among the evalu-ated methods, DEIM-D-FINE-S demonstrates the most stable detection performance across different scenarios. From the perspective of different architectural paradigms, CNN-based detectors show relatively strong capability in handling over-lapping or densely distributed ships, but tend to miss small and 13 Port Anchorage Navigation Berthing 
+
+(e1) 
+
+(j1) 
+
+(d1) 
+
+(i1) 
+
+(c1) 
+
+(h1) 
+
+(b1) 
+
+(g1) 
+
+(a1) 
+
+(f1) 
+
+(e1) 
+
+(j1) 
+
+(d1) 
+
+(i1) 
+
+(c1) 
+
+(h1) 
+
+(b1) 
+
+(g1) 
+
+(a1) 
+
+(f1) 
+
+(e2) 
+
+(j2) 
+
+(d2) 
+
+(i2) 
+
+(c2) 
+
+(h2) 
+
+(b2) 
+
+(g2) 
+
+(a2) 
+
+(f2) 
+
+(e2) 
+
+(j2) 
+
+(d2) 
+
+(i2) 
+
+(c2) 
+
+(h2) 
+
+(b2) 
+
+(g2) 
+
+(a2) 
+
+(f2) 
+
+(e3) 
+
+(j3) 
+
+(d3) 
+
+(i3) 
+
+(c3) 
+
+(h3) 
+
+(b3) 
+
+(g3) 
+
+(a3) 
+
+(f3) 
+
+(e3) 
+
+(j3) 
+
+(d3) 
+
+(i3) 
+
+(c3) 
+
+(h3) 
+
+(b3) 
+
+(g3) 
+
+(a3) 
+
+(f3) 
+
+(e4) 
+
+(j4) 
+
+(d4) 
+
+(i4) 
+
+(c4) 
+
+(h4) 
+
+(b4) 
+
+(g4) 
+
+(a4) 
+
+(f4) 
+
+(e4) 
+
+(j4) 
+
+(d4) 
+
+(i4) 
+
+(c4) 
+
+(h4) 
+
+(b4) 
+
+(g4) 
+
+(a4) 
+
+(f4)  
+
+> Fig. 11. Visualization of detection results of different CNN-based object detection methods on WUTDet. CT denotes the prediction confidence score, whose value is set to the default threshold used for model visualization. The time displayed in the figure does not represent the actual image acquisition time. (a1-a4) represent CenterNet CT = 0.30; (b1-b4) represent YOLOX-S CT = 0.25; (c1-c4) represent YOLOv6-S CT = 0.40; (d1-d4) represent YOLOv8-S CT = 0.25; (e1-e4) represent YOLOv11-S CT = 0.25; (f1-f4) represent Hyper-YOLO-S CT = 0.25; (g1-g4) represent YOLOv12-S CT = 0.25; (h1-h4) represent YOLOv13-S CT = 0.25; (i1-i4) represent FBRT-YOLO-S CT = 0.25; (j1-j4) represent YOLO-MS-S CT = 0.30.
+
+distant targets. In contrast, Transformer-based detectors gener-ally outperform CNN-based methods in small-object detection, yet exhibit a higher miss rate in ship-overlapping scenarios. Mamba-based detectors show relatively weaker performance in both cases, with more missed detections for overlapping ships as well as distant small targets. In addition, it is worth noting that Deformable DETR and DAB-DETR-R50 also produce relatively more missed detections in some complex scenes, indicating that the robustness of current detection models under densely distributed ships and complicated maritime backgrounds still requires further improvement. 
+
+Performance of different methods under various scene conditions on WUTDet. To further investigate the adaptability and robustness of different detection methods under com-plex meteorological and illumination conditions, we conduct systematic evaluations on five representative sub-scenarios of WUTDet, including fog, glare, low-lightness, rain, and normal scenes. The quantitative results are reported in Table V. From an overall perspective, Transformer-based methods achieve the best or second-best performance across all sce-narios. In particular, DEIM-D-FINE-S attains AP 50:95 (%) 
+
+values of 72.9%, 70.7%, 72.9%, 65.5%, and 71.9% under fog, 14 Port Anchorage Navigation Berthing  
+
+> (p1)
+> (v1)
+> (o1)
+> (u1)
+> (n1)
+> (t1)
+> (m1)
+> (s1)
+> (l1)
+> (r1)
+> (k1)
+> (q1)
+> (p1)
+> (v1)
+> (o1)
+> (u1)
+> (n1)
+> (t1)
+> (m1)
+> (s1)
+> (l1)
+> (r1)
+> (k1)
+> (q1)
+> (p2)
+> (v2)
+> (o2)
+> (u2)
+> (n2)
+> (t2)
+> (m2)
+> (s2)
+> (l2)
+> (r2)
+> (k2)
+> (q2)
+> (p2)
+> (v2)
+> (o2)
+> (u2)
+> (n2)
+> (t2)
+> (m2)
+> (s2)
+> (l2)
+> (r2)
+> (k2)
+> (q2)
+> (p3)
+> (v3)
+> (o3)
+> (u3)
+> (n3)
+> (t3)
+> (m3)
+> (s3)
+> (l3)
+> (r3)
+> (k3)
+> (q3)
+> (p3)
+> (v3)
+> (o3)
+> (u3)
+> (n3)
+> (t3)
+> (m3)
+> (s3)
+> (l3)
+> (r3)
+> (k3)
+> (q3)
+> (p4)
+> (v4)
+> (o4)
+> (u4)
+> (n4)
+> (t4)
+> (m4)
+> (s4)
+> (l4)
+> (r4)
+> (k4)
+> (q4)
+> (p4)
+> (v4)
+> (o4)
+> (u4)
+> (n4)
+> (t4)
+> (m4)
+> (s4)
+> (l4)
+> (r4)
+> (k4)
+> (q4)
+> Fig. 12. Continuation of Fig. 11. Visualization of detection results of different Transformer- and Mamba-based object detection methods on WUTDet. CT denotes the prediction confidence score, whose value is set to the default threshold used for model visualization. (k1-k4) represent Deformable DETR CT = 0.30; (l1-l4) represent DAB-DETR-R50 CT = 0.30; (m1-m4) represent DINO-4scale CT = 0.30; (n1-n4) represent RT-DETR-R50VD-M CT = 0.60; (o1-o4) represent D-FINE-S CT = 0.40; (p1-p4) represent LW-DETR-S CT = 0.50; (q1-q4) represent DEIM-D-FINE-S CT = 0.50; (r1-r4) represent VMamba-T-FasterRcnn@1x CT = 0.30; (s1-s4) represent VMamba-T-FasterRcnn@1x CT = 0.30; (t1-t4) represent MobileMamba-B1-RetinaNet@1x CT = 0.30; (u1-u4) represent MobileMamba-B1-RetinaNet@1x CT = 0.30; (v1-v4) represent Mamba YOLO-M CT = 0.25.
+
+glare, low-lightness, rain, and normal conditions, respectively, exhibiting the most stable performance among all evaluated methods. This indicates that its globally modeled feature representations are more resilient to complex environmen-tal disturbances. D-FINE-S also maintains consistently high accuracy across all scenarios, further validating the superior cross-scenario generalization capability of Transformer-based detectors. Under fog conditions, all models experience performance degradation to varying degrees; however, Transformer-based methods show relatively smaller declines. For example, DEIM-D-FINE-S still achieves 72.9%, whereas the best-performing CNN-based method, YOLOX-S, reaches 69.9%. Mamba-based models exhibit clear degradation at low resolution: VMamba-T-FasterRCNN@1x with 640 ×640 input only achieves 48.2%, while its performance increases to 64.8% at 1333 ×800 res-olution, indicating that higher-resolution inputs can partially compensate for the loss of edge information caused by fog-induced blurring. Under glare conditions, strong specular reflections signif-icantly interfere with feature discrimination. Among CNN-based methods, YOLOX-S and YOLOv6-S achieve 66.6% and 65.3%, respectively, showing relatively stable behav-ior. Transformer-based methods still outperform others, with DEIM-D-FINE-S reaching 70.7%. In contrast, DAB-DETR-R50 only achieves 29.0% in this scenario, which is substan-15                                                                                                                                                                             
+
+> TABLE V PERFORMANCE OF DIFFERENT OBJECT DETECTION METHODS ON OUR DATASET UNDER DIFFERENT SCENARIOS .↑INDICATES THAT HIGHER VALUES CORRESPOND TO BETTER PERFORMANCE . B OLD INDICATES THE BEST RESULT ,AND UNDERLINING INDICATES THE SECOND -BEST RESULT .Category Method Input size AP 50:95 (%) ↑
+> Fog Glare Low-lightness Rain Normal CNN CenterNet [51] 640 ×640 58.2 53.7 61.7 45.4 53.6 YOLOX-S [33] 640 ×640 69.9 66.6 69.8 60.5 67.3 YOLOv6-S [42] 640 ×640 68.3 65.3 70.4 58.0 63.1 YOLOv8-S [41] 640 ×640 67.1 63.9 69.9 56.7 61.7 YOLOv11-S [41] 640 ×640 67.3 63.9 69.9 56.7 61.8 Hyper-YOLO-S [43] 640 ×640 67.3 64.0 70.0 57.2 62.4 YOLOv12-S [34] 640 ×640 67.1 63.8 69.7 56.4 61.5 YOLOv13-S [35] 640 ×640 65.9 62.4 68.8 55.1 60.4 FBRT-YOLO-S [44] 640 ×640 67.1 64.4 70.1 56.3 62.2 YOLO-MS-S [45] 640 ×640 62.6 59.3 67.3 49.8 57.3 Transformer Deformable DETR [13] multi-scale 61.2 56.5 61.8 47.0 56.3 DAB-DETR-R50 [36] multi-scale 31.0 29.0 35.9 19.3 27.1 DINO-4scale [37] multi-scale 66.9 65.2 67.5 58.0 65.2 RT-DETR-R50VD-M [14] multi-scale 68.5 65.5 69.8 58.8 65.6 D-FINE-S [38] multi-scale 72.4 70.3 72.9 65.3 71.5 LW-DETR-S [46] multi-scale 63.1 59.3 63.8 49.2 58.1 DEIM-D-FINE-S [47] multi-scale 72.9 70.7 72.9 65.5 71.9
+> Mamba VMamba-T-FasterRCNN@1x [39] 640 ×640 48.2 45.8 61.0 34.1 42.8 VMamba-T-FasterRCNN@1x [39] 1333 ×800 64.8 60.8 66.6 51.1 59.3 MobileMamba-B1-RetinaNet@1x [49] 640 ×640 55.2 48.4 61.7 37.7 46.9 MobileMamba-B1-RetinaNet@1x [49] 1333 ×800 65.8 62.6 68.3 53.5 62.6 Mamba YOLO-M [40] 640 ×640 67.9 64.8 70.4 57.9 62.8
+
+tially lower than other Transformer-based methods, suggesting considerable robustness differences among Transformer vari-ants when handling strong reflection interference. Under low-lightness conditions, the proportion of weak-texture and small targets increases, placing higher de-mands on feature representation capability. The advantage of Transformer-based architectures becomes more pronounced, with both DEIM-D-FINE-S and D-FINE-S achieving 72.9%, clearly outperforming CNN-based methods such as YOLOX-S at 69.8%. Mamba-based methods show stronger depen-dence on input resolution; for instance, MobileMamba-B1-RetinaNet@1x improves from 61.7% to 68.3% when the reso-lution is increased, indicating that fine-grained detail modeling still relies heavily on high-resolution inputs. Under rain conditions, performance degradation is observed across all methods due to raindrop occlusion and increased background noise. Transformer-based methods maintain a rela-tive advantage, with DEIM-D-FINE-S achieving 65.5%, which is notably higher than the best CNN-based result of YOLOX-S at 60.5%. Mamba-based models show limited improvement in this scenario; for example, VMamba-T-FasterRCNN@1x only reaches 51.1% at high resolution, revealing insufficient discriminative capability under severe occlusion. Under normal conditions, all methods achieve relatively higher performance. Transformer-based detectors remain dom-inant, with DEIM-D-FINE-S and D-FINE-S achieving 71.9% and 71.5%, respectively. The best CNN-based method, YOLOX-S, attains 67.3%, while Mamba YOLO-M achieves 62.8%. This indicates that, in the absence of strong envi-ronmental interference, the performance gap among different architectures narrows, although Transformer-based models still retain a consistent advantage. Overall, the multi-scenario experimental results demonstrate that Transformer-based architectures exhibit the strongest sta-bility and generalization capability under diverse meteorologi-cal and illumination conditions. CNN-based methods provide a favorable balance between robustness and inference efficiency, whereas Mamba-based detectors still suffer from noticeable performance bottlenecks under adverse environments. These findings further verify the effectiveness and challenge of WUTDet for evaluating model robustness in multi-scenario maritime environments. Figs. 13 and 14 present qualitative visualizations of different detection methods on various sub-test sets of WUTDet. From left to right, the scenes correspond to five typical maritime environments, namely fog, glare, low-lightness, rain, and nor-mal conditions. Overall, different environmental factors affect detection performance to varying degrees, among which the Rain scenario has the most significant impact on model perfor-mance. In addition, all categories of detection methods exhibit 16 (e1) 
+
+(j1) 
+
+(d1) 
+
+(i1) 
+
+(c1) 
+
+(h1) 
+
+(b1) 
+
+(g1) 
+
+(a1) 
+
+(f1) 
+
+(e1) 
+
+(j1) 
+
+(d1) 
+
+(i1) 
+
+(c1) 
+
+(h1) 
+
+(b1) 
+
+(g1) 
+
+(a1) 
+
+(f1) 
+
+(e2) 
+
+(j2) 
+
+(d2) 
+
+(i2) 
+
+(c2) 
+
+(h2) 
+
+(b2) 
+
+(g2) 
+
+(a2) 
+
+(f2) 
+
+(e2) 
+
+(j2) 
+
+(d2) 
+
+(i2) 
+
+(c2) 
+
+(h2) 
+
+(b2) 
+
+(g2) 
+
+(a2) 
+
+(f2) 
+
+(e3) 
+
+(j3) 
+
+(d3) 
+
+(i3) 
+
+(c3) 
+
+(h3) 
+
+(b3) 
+
+(g3) 
+
+(a3) 
+
+(f3) 
+
+(e3) 
+
+(j3) 
+
+(d3) 
+
+(i3) 
+
+(c3) 
+
+(h3) 
+
+(b3) 
+
+(g3) 
+
+(a3) 
+
+(f3) 
+
+(e4) 
+
+(j4) 
+
+(d4) 
+
+(i4) 
+
+(c4) 
+
+(h4) 
+
+(b4) 
+
+(g4) 
+
+(a4) 
+
+(f4) 
+
+(e4) 
+
+(j4) 
+
+(d4) 
+
+(i4) 
+
+(c4) 
+
+(h4) 
+
+(b4) 
+
+(g4) 
+
+(a4) 
+
+(f4) 
+
+(e5) 
+
+(j5) 
+
+(d5) 
+
+(i5) 
+
+(c5) 
+
+(h5) 
+
+(b5) 
+
+(g5) 
+
+(a5) 
+
+(f5) 
+
+(e5) 
+
+(j5) 
+
+(d5) 
+
+(i5) 
+
+(c5) 
+
+(h5) 
+
+(b5) 
+
+(g5) 
+
+(a5) 
+
+(f5) 
+
+> Glare Low -lightness Rain Normal  Fog
+
+Fig. 13. Visualization of detection results of different CNN-based object detection methods on WUTDet under various weather and illumination conditions. CT denotes the prediction confidence score, whose value is set to the default threshold used for model visualization. (a1-a5) represent CenterNet CT = 0.30; (b1-b5) represent YOLOX-S CT = 0.25; (c1-c5) represent YOLOv6-S CT = 0.40; (d1-d5) represent YOLOv8-S CT = 0.25; (e1-e5) represent YOLOv11-S CT = 0.25; (f1-f5) represent Hyper-YOLO-S CT = 0.25; (g1-g5) represent YOLOv12-S CT = 0.25; (h1-h5) represent YOLOv13-S CT = 0.25; (i1-i5) represent FBRT-YOLO-S CT = 0.25; (j1-j5) represent YOLO-MS-S CT = 0.30. 17 Fog Glare Low -lightness Rain Normal 
+
+(p1) 
+
+(v1) 
+
+(o1) 
+
+(u1) 
+
+(n1) 
+
+(t1) 
+
+(m1) 
+
+(s1) 
+
+(l1) 
+
+(r1) 
+
+(k1) 
+
+(q1) 
+
+(p1) 
+
+(v1) 
+
+(o1) 
+
+(u1) 
+
+(n1) 
+
+(t1) 
+
+(m1) 
+
+(s1) 
+
+(l1) 
+
+(r1) 
+
+(k1) 
+
+(q1) 
+
+(p2) 
+
+(v2) 
+
+(o2) 
+
+(u2) 
+
+(n2) 
+
+(t2) 
+
+(m2) 
+
+(s2) 
+
+(l2) 
+
+(r2) 
+
+(k2) 
+
+(q2) 
+
+(p2) 
+
+(v2) 
+
+(o2) 
+
+(u2) 
+
+(n2) 
+
+(t2) 
+
+(m2) 
+
+(s2) 
+
+(l2) 
+
+(r2) 
+
+(k2) 
+
+(q2) 
+
+(p3) 
+
+(v3) 
+
+(o3) 
+
+(u3) 
+
+(n3) 
+
+(t3) 
+
+(m3) 
+
+(s3) 
+
+(l3) 
+
+(r3) 
+
+(k3) 
+
+(q3) 
+
+(p3) 
+
+(v3) 
+
+(o3) 
+
+(u3) 
+
+(n3) 
+
+(t3) 
+
+(m3) 
+
+(s3) 
+
+(l3) 
+
+(r3) 
+
+(k3) 
+
+(q3) 
+
+(p4) 
+
+(v4) 
+
+(o4) 
+
+(u4) 
+
+(n4) 
+
+(t4) 
+
+(m4) 
+
+(s4) 
+
+(l4) 
+
+(r4) 
+
+(k4) 
+
+(q4) 
+
+(p4) 
+
+(v4) 
+
+(o4) 
+
+(u4) 
+
+(n4) 
+
+(t4) 
+
+(m4) 
+
+(s4) 
+
+(l4) 
+
+(r4) 
+
+(k4) 
+
+(q4) 
+
+(p5) 
+
+(v5) 
+
+(o5) 
+
+(u5) 
+
+(n5) 
+
+(t5) 
+
+(m5) 
+
+(s5) 
+
+(l5) 
+
+(r5) 
+
+(k5) 
+
+(q5) 
+
+(p5) 
+
+(v5) 
+
+(o5) 
+
+(u5) 
+
+(n5) 
+
+(t5) 
+
+(m5) 
+
+(s5) 
+
+(l5) 
+
+(r5) 
+
+(k5) 
+
+(q5) 
+
+Fig. 14. Continuation of Fig. 13. Visualization of detection results of different Transformer- and Mamba-based object detection methods on WUTDet under various weather and illumination conditions. CT denotes the prediction confidence score, whose value is set to the default threshold used for model visualization. (k1-k5) represent Deformable DETR CT = 0.30; (l1-l5) represent DAB-DETR-R50 CT = 0.30; (m1-m5) represent DINO-4scale CT = 0.30; (n1-n5) represent RT-DETR-R50VD-M CT = 0.60; (o1-o5) represent D-FINE-S CT = 0.40; (p1-p5) represent LW-DETR-S CT = 0.50; (q1-q5) represent DEIM-D-FINE-S CT = 0.50; (r1-r5) represent VMamba-T-FasterRcnn@1x CT = 0.30; (s1-s5) represent VMamba-T-FasterRcnn@1x CT = 0.30; (t1-t5) represent MobileMamba-B1-RetinaNet@1x CT = 0.30; (u1-u5) represent MobileMamba-B1-RetinaNet@1x CT = 0.30; (v1-v5) represent Mamba YOLO-M CT = 0.25. 18 
+
+TABLE VI PERFORMANCE OF DIFFERENT OBJECT DETECTION METHODS TRAINED ON DIFFERENT DATASETS AND EVALUATED ON THE SHIP -GEN DATASET .N OTE THAT THE INPUT SIZE OF MOBILE MAMBA -B1-R ETINA NET @1 X IS SET TO 640 ×640. ↑ INDICATES THAT HIGHER VALUES CORRESPOND TO BETTER PERFORMANCE . P URPLE HIGHLIGHTS RESULTS OBTAINED ON WUTD ET , AND BOLD INDICATES THE BEST RESULT .Method Training Set Testing Set AR 50:95 (%) ↑ AP 50:95 (%) ↑ AP S (%) ↑ AP M (%) ↑ AP L(%) ↑
+
+Category: CNN 
+
+Hyper-YOLO-S [43] WSODD Ship-GEN 34.7 26.9 3.5 23.5 45.1 
+
+WaterScence Ship-GEN 29.7 23.6 6.8 17.0 41.0 WUTDet Ship-GEN 46.2 38.8 25.9 43.0 41.3 YOLOv6-S [42] WSODD Ship-GEN 34.9 25.8 3.4 23.4 42.3 WaterScence Ship-GEN 33.6 25.3 7.3 18.2 44.1 
+
+WUTDet Ship-GEN 45.7 38.1 27.6 42.0 39.8 YOLOX-S [33] WSODD Ship-GEN 36.1 28.7 4.4 25.5 46.8 
+
+WaterScence Ship-GEN 28.0 22.2 8.4 14.0 40.3 WUTDet Ship-GEN 49.2 42.2 39.9 43.0 43.5 
+
+Category: Transformer 
+
+RT-DETR-R50VD-M [14] WSODD Ship-GEN 50.8 36.3 7.5 35.1 55.3 
+
+WaterScence Ship-GEN 42.8 28.8 12.9 19.7 47.4 WUTDet Ship-GEN 58.3 45.2 36.2 45.1 51.1 D-FINE-S [44] WSODD Ship-GEN 50.0 32.0 5.5 30.8 50.3 
+
+WaterScence Ship-GEN 41.0 25.3 10.3 17.0 43.7 WUTDet Ship-GEN 60.7 45.3 42.6 44.9 48.2 DEIM-D-FINE-S [47] WSODD Ship-GEN 49.3 31.9 5.4 29.5 51.3 
+
+WaterScence Ship-GEN 41.2 25.4 10.0 16.9 45.1 WUTDet Ship-GEN 61.2 46.3 44.6 45.4 49.6 
+
+Category: Mamba 
+
+MobileMamba-B1-RetinaNet@1x [49] WSODD Ship-GEN 31.2 23.3 2.0 17.7 41.6 
+
+WaterScence Ship-GEN 27.8 20.5 2.6 13.8 38.8 WUTDet Ship-GEN 39.7 28.1 14.0 29.9 36.4 Mamba YOLO-M [40] WSODD Ship-GEN 32.1 24.8 3.2 20.4 42.4 
+
+WaterScence Ship-GEN 29.8 23.5 7.9 17.1 39.8 WUTDet Ship-GEN 44.6 37.9 25.1 42.1 40.0 
+
+certain levels of missed detections in the Glare scenario, in-dicating that strong light reflections can significantly interfere with the recognition capability of detection models. Notably, MobileMamba-B1-RetinaNet @ 1× (640 ×640) demonstrates certain instability across different scenarios. For example, it produces false positives in the Fog scenario, missed detections under Glare conditions, and duplicate detections in the Low Light, Rain, and Normal scenarios. 
+
+Overall performance of different methods on Ship-GEN. To evaluate the generalization ability of different models under cross-distribution conditions, AP 50:95 (%) is adopted as the primary evaluation metric. Eight representative methods are selected from Table IV for comparison, including CNN-based methods (YOLOX-S, YOLOv6-S and Hyper-YOLO-S), Transformer-based methods (DEIM-D-FINE-S, D-FINE-S and RT-DETR-R50VD-M [14]), and Mamba-based methods (Mamba YOLO-M and MobileMamba-B1-RetinaNet@1x). The overall performance of these methods on Ship-GEN is reported in Table VI. From the overall accuracy measured by AP 50:95 (%) ,Transformer-based methods consistently achieve superior per-formance in cross-dataset scenarios. Specifically, when trained on WUTDet, DEIM-D-FINE-S obtains the highest AP 50:95 (%) 
+
+of 46.3%, followed by D-FINE-S (45.3%) and RT-DETR-R50VD-M (45.2%), which are markedly higher than those of CNN and Mamba methods. This demonstrates that the Transformer architecture exhibits stronger feature generaliza-tion capability and stability when facing distribution shifts. In comparison, the best-performing CNN method, YOLOX-S, achieves 42.2% after training on WUTDet, slightly inferior to Transformer-based approaches, while YOLOv6-S and Hyper-YOLO-S reach 38.1% and 38.8%, respectively, indicating a noticeable performance degradation of convolutional archi-tectures under cross-dataset conditions. Mamba-based models show relatively lower accuracy overall, with Mamba YOLO-M achieving 37.9% and MobileMamba-B1-RetinaNet@1x only 28.1%, suggesting that their discriminative capability for cross-dataset detection remains limited. 19 
+
+In terms of AR 50:95 (%) , Transformer-based methods also dominate. DEIM-D-FINE-S and D-FINE-S achieve 61.2% and 60.7%, respectively, which are significantly higher than the best CNN method YOLOX-S (49.2%) and Mamba YOLO-M (44.6%). This indicates that the Transformer architecture provides more stable target coverage across varying data distributions. Regarding scale-specific performance, Ship-GEN poses sub-stantial challenges for small-object detection. For AP s(%) ,Transformer-based methods exhibit clear advantages: DEIM-D-FINE-S and D-FINE-S achieve 44.6% and 42.6%, respec-tively, which are considerably higher than YOLOX-S (39.9%) and Mamba YOLO-M (25.1%). This confirms that global modeling mechanisms are more effective for adapting to small-scale ship targets in cross-dataset scenarios. For medium-sized objects (AP m(%) ), Transformer-based methods remain supe-rior, with DEIM-D-FINE-S and D-FINE-S reaching 45.4% and 44.9%, exceeding YOLOX-S (43.0%) and Mamba YOLO-M (42.1%). For large objects (AP l(%) ), performance gaps among different architectures become smaller; however, Transformer-based methods still retain an advantage, with RT-DETR-R50VD-M achieving 51.1% and DEIM-D-FINE-S achieving 49.6%, outperforming CNN and Mamba counterparts. From the perspective of training data impact on model generalization, all methods trained on WUTDet achieve sub-stantially better results than those trained on WSODD and Wa-terScene. For instance, YOLOX-S trained on WUTDet reaches an AP 50:95 (%) of 42.2%, representing improvements of 13.5 and 20.0% over WSODD (28.7%) and WaterScene (22.2%), respectively. Similarly, DEIM-D-FINE-S attains 46.3% when trained on WUTDet, compared with 31.9% on WSODD and 25.4% on WaterScene. These results indicate that WUTDet provides broader coverage in terms of target scale distribution, scene diversity, and imaging conditions, enabling models to learn more universal and robust discriminative features and thereby significantly enhancing cross-dataset generalization performance. Overall, experiments on Ship-GEN demonstrate that Trans-former architectures achieve the highest detection accuracy and stability under cross-distribution conditions; CNN-based methods maintain a favorable balance between accuracy and efficiency but exhibit weaker generalization than Transformers; and Mamba-based architectures still suffer from evident per-formance bottlenecks in cross-dataset detection tasks. These findings further validate the effectiveness of WUTDet in im-proving model generalization and highlight the value of Ship-GEN as a unified benchmark for evaluating model robustness under cross-dataset settings. VI. C ONCLUSION 
+
+To address the key limitations of existing ship detection datasets, including restricted scale and a low proportion of small-scale targets, this paper constructs and publicly releases a large-scale, high-resolution ship detection dataset, termed WUTDet. The dataset contains 100,576 images and 381,378 annotated ship instances, covering diverse meteorological con-ditions and operational scenarios, and thus exhibits substantial complexity and challenge. Based on WUTDet, we conduct a systematic evaluation of 20 baseline models from three mainstream detection paradigms, namely CNN-, Transformer-, and Mamba-based architectures. Experimental results show that Transformer-based models achieve the best performance in both overall detection accuracy and small-object detection, whereas CNN-based models retain a clear advantage in infer-ence efficiency. The emerging Mamba-based architectures, in turn, demonstrate promising potential in balancing detection accuracy and computational efficiency. In addition, cross-dataset experiments based on Ship-GEN further indicate that models trained on WUTDet exhibit stronger generalization capability under different data distributions, thereby validating the effectiveness of the proposed dataset in improving the reliability of ship visual perception systems. Although this work establishes a dataset benchmark and conducts a systematic evaluation of representative detection models, several directions remain worthy of further investiga-tion: 1) enriching the ship category annotations in WUTDet to support more fine-grained detection and recognition tasks; 2) extending WUTDet to additional vision tasks, such as instance segmentation and multi-object tracking, to better support com-plex perception requirements in maritime environments; and 3) designing more efficient detection models that can further improve the detection performance of small-scale ship targets in WUTDet while maintaining high inference efficiency. REFERENCES [1] J. Lin, P. Diekmann, C.-E. Framing, R. Zweigel, and D. Abel, “Maritime environment perception based on deep learning,” IEEE Trans. Intell. Transp. Syst. , vol. 23, no. 9, pp. 15 487–15 497, 2022. [2] A. M. Rekavandi, L. Xu, F. Boussaid, A.-K. Seghouane, S. Hoefs, and M. Bennamoun, “A guide to image-and video-based small object detection using deep learning: Case study of maritime surveillance,”                                                 
+
+> IEEE Trans. Intell. Transp. Syst. , 2025. [3] N. Wang, Y. Wang, Y. Feng, and Y. Wei, “Mdd-shipnet: Math-data integrated defogging for fog-occlusion ship detection,” IEEE Trans. Intell. Transp. Syst. , vol. 25, no. 10, pp. 15 040–15 052, 2024. [4] B. Zhang, J. Liu, R. W. Liu, and Y. Huang, “Deep-learning-empowered visual ship detection and tracking: Literature review and future direc-tion,” Eng. Appl. Artif. Intell. , vol. 141, p. 109754, 2025. [5] N. Wang, Y. Wang, Y. Feng, and Y. Wei, “Aodemar: Attention-aware occlusion detection of vessels for maritime autonomous surface ships,”
+> IEEE Trans. Intell. Transp. Syst. , vol. 25, no. 10, pp. 13 584–13 597, 2024. [6] S. Ren, K. He, R. Girshick, and J. Sun, “Faster r-cnn: Towards real-time object detection with region proposal networks,” Adv. Neural Inform. Process. Syst. , vol. 28, 2015. [7] J. Redmon and A. Farhadi, “Yolov3: An incremental improvement,”
+> arXiv preprint arXiv:1804.02767 , 2018. [8] A. Bochkovskiy, C.-Y. Wang, and H.-Y. M. Liao, “Yolov4: Op-timal speed and accuracy of object detection,” arXiv preprint arXiv:2004.10934 , 2020. [9] W. Liu, D. Anguelov, D. Erhan, C. Szegedy, S. Reed, C.-Y. Fu, and A. C. Berg, “Ssd: Single shot multibox detector,” in proc. ECCV .Springer, 2016, pp. 21–37. [10] A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez, Ł. Kaiser, and I. Polosukhin, “Attention is all you need,” Adv. Neural Inform. Process. Syst. , vol. 30, 2017. [11] A. Dosovitskiy, “An image is worth 16x16 words: Transformers for image recognition at scale,” arXiv preprint arXiv:2010.11929 , 2020. [12] N. Carion, F. Massa, G. Synnaeve, N. Usunier, A. Kirillov, and S. Zagoruyko, “End-to-end object detection with transformers,” in proc. ECCV .Springer, 2020, pp. 213–229. [13] X. Zhu, W. Su, L. Lu, B. Li, X. Wang, and J. Dai, “Deformable detr: Deformable transformers for end-to-end object detection,” arXiv preprint arXiv:2010.04159 , 2020. 20
+
+[14] Y. Zhao, W. Lv, S. Xu, J. Wei, G. Wang, Q. Dang, Y. Liu, and J. Chen, “Detrs beat yolos on real-time object detection,” in proc. IEEE CVPR ,2024, pp. 16 965–16 974. [15] A. Gu and T. Dao, “Mamba: Linear-time sequence modeling with selective state spaces,” in proc. COLM , 2024. [16] L. Zhu, B. Liao, Q. Zhang, X. Wang, W. Liu, and X. Wang, “Vision mamba: Efficient visual representation learning with bidirectional state space model,” arXiv preprint arXiv:2401.09417 , 2024. [17] Z. Shao, W. Wu, Z. Wang, W. Du, and C. Li, “Seaships: A large-scale precisely annotated dataset for ship detection,” IEEE Trans. Multimedia ,vol. 20, no. 10, pp. 2593–2604, 2018. [18] Z. Zhou, J. Sun, J. Yu, K. Liu, J. Duan, L. Chen, and C. P. Chen, “An image-based benchmark dataset and a novel object detector for water surface object detection,” Front. Neurorob. , vol. 15, p. 723336, 2021. [19] S. Yao, R. Guan, Z. Wu, Y. Ni, Z. Huang, R. W. Liu, Y. Yue, W. Ding, E. G. Lim, H. Seo et al. , “Waterscenes: A multi-task 4d radar-camera fusion dataset and benchmarks for autonomous driving on water surfaces,” IEEE Trans. Intell. Transp. Syst. , vol. 25, no. 11, pp. 16 584– 16 598, 2024. [20] D. K. Prasad, D. Rajan, L. Rachmawati, E. Rajabally, and C. Quek, “Video processing from electro-optical sensors for object detection and tracking in a maritime environment: A survey,” IEEE Trans. Intell. Transp. Syst. , vol. 18, no. 8, pp. 1993–2016, 2017. [21] Y. Zheng and S. Zhang, “Mcships: A large-scale ship dataset for detection and fine-grained categorization in the wild,” in proc. IEEE ICME . IEEE, 2020, pp. 1–6. [22] M. Raza, H. Prokopova, S. Huseynzade, S. Azimi, and S. Lafond, “Simuships-a high resolution simulation dataset for ship detection with precise annotations,” in proc. OCEANS . IEEE, 2022, pp. 1–5. [23] Y. Guo, R. W. Liu, J. Qu, Y. Lu, F. Zhu, and Y. Lv, “Asynchronous trajectory matching-based multimodal maritime data fusion for vessel traffic surveillance in inland waterways,” IEEE Trans. Intell. Transp. Syst. , vol. 24, no. 11, pp. 12 779–12 792, 2023. [24] N. Wang, Y. Wang, Y. Wei, B. Han, and Y. Feng, “Marine vessel detection dataset and benchmark for unmanned surface vehicles,” Appl. Ocean Res. , vol. 142, p. 103835, 2024. [25] M. Everingham, L. Van Gool, C. K. Williams, J. Winn, and A. Zisser-man, “The pascal visual object classes (voc) challenge,” Int. J. Comput. Vision , vol. 88, no. 2, pp. 303–338, 2010. [26] J. Deng, W. Dong, R. Socher, L.-J. Li, K. Li, and L. Fei-Fei, “Imagenet: A large-scale hierarchical image database,” in proc. IEEE CVPR . Ieee, 2009, pp. 248–255. [27] O. Russakovsky, J. Deng, H. Su, J. Krause, S. Satheesh, S. Ma, Z. Huang, A. Karpathy, A. Khosla, M. Bernstein et al. , “Imagenet large scale visual recognition challenge,” Int. J. Comput. Vision , vol. 115, no. 3, pp. 211–252, 2015. [28] T.-Y. Lin, M. Maire, S. Belongie, J. Hays, P. Perona, D. Ramanan, P. Doll´ ar, and C. L. Zitnick, “Microsoft coco: Common objects in context,” in proc. ECCV . Springer, 2014, pp. 740–755. [29] A. Kuznetsova, H. Rom, N. Alldrin, J. Uijlings, I. Krasin, J. Pont-Tuset, S. Kamali, S. Popov, M. Malloci, A. Kolesnikov et al. , “The open images dataset v4: Unified image classification, object detection, and visual relationship detection at scale,” Int. J. Comput. Vision , vol. 128, no. 7, pp. 1956–1981, 2020. [30] S. Shao, Z. Li, T. Zhang, C. Peng, G. Yu, X. Zhang, J. Li, and J. Sun, “Objects365: A large-scale, high-quality dataset for object detection,” in 
+
+proc. IEEE ICCV , 2019, pp. 8430–8439. [31] M. Kristan, V. S. Kenk, S. Kovaˇ ciˇ c, and J. Perˇ s, “Fast image-based ob-stacle detection from unmanned surface vehicles,” IEEE Trans. Cybern. ,vol. 46, no. 3, pp. 641–654, 2015. [32] Z. Cai and N. Vasconcelos, “Cascade r-cnn: Delving into high quality object detection,” in proc. IEEE CVPR , 2018, pp. 6154–6162. [33] Z. Ge, S. Liu, F. Wang, Z. Li, and J. Sun, “Yolox: Exceeding yolo series in 2021,” arXiv preprint arXiv:2107.08430 , 2021. [34] Y. Tian, Q. Ye, and D. Doermann, “Yolov12: Attention-centric real-time object detectors,” arXiv preprint arXiv:2502.12524 , 2025. [35] M. Lei, S. Li, Y. Wu, H. Hu, Y. Zhou, X. Zheng, G. Ding, S. Du, Z. Wu, and Y. Gao, “Yolov13: Real-time object detection with hypergraph-enhanced adaptive visual perception,” arXiv preprint arXiv:2506.17733 ,2025. [36] S. Liu, F. Li, H. Zhang, X. Yang, X. Qi, H. Su, J. Zhu, and L. Zhang, “Dab-detr: Dynamic anchor boxes are better queries for detr,” arXiv preprint arXiv:2201.12329 , 2022. [37] H. Zhang, F. Li, S. Liu, L. Zhang, H. Su, J. Zhu, L. M. Ni, and H.-Y. Shum, “Dino: Detr with improved denoising anchor boxes for end-to-end object detection,” arXiv preprint arXiv:2203.03605 , 2022. [38] Y. Peng, H. Li, P. Wu, Y. Zhang, X. Sun, and F. Wu, “D-fine: Redefine regression task in detrs as fine-grained distribution refinement,” arXiv preprint arXiv:2410.13842 , 2024. [39] Y. Liu, Y. Tian, Y. Zhao, H. Yu, L. Xie, Y. Wang, Q. Ye, J. Jiao, and Y. Liu, “Vmamba: Visual state space model,” Adv. Neural Inform. Process. Syst. , vol. 37, pp. 103 031–103 063, 2024. [40] Z. Wang, C. Li, H. Xu, X. Zhu, and H. Li, “Mamba yolo: A simple baseline for object detection with state space model,” in proc. AAAI ,vol. 39, no. 8, 2025, pp. 8205–8213. [41] G. Jocher, J. Qiu, and A. Chaurasia, “Ultralytics YOLO,” 2023. [Online]. Available: https://github.com/ultralytics/ultralytics [42] C. Li, L. Li, H. Jiang, K. Weng, Y. Geng, L. Li, Z. Ke, Q. Li, M. Cheng, W. Nie et al. , “Yolov6: A single-stage object detection framework for industrial applications,” arXiv preprint arXiv:2209.02976 , 2022. [43] Y. Feng, J. Huang, S. Du, S. Ying, J.-H. Yong, Y. Li, G. Ding, R. Ji, and Y. Gao, “Hyper-yolo: When visual object detection meets hypergraph computation,” IEEE Trans. Pattern Anal. Mach. Intell. , vol. 47, no. 4, pp. 2388–2401, 2024. [44] Y. Xiao, T. Xu, Y. Xin, and J. Li, “Fbrt-yolo: Faster and better for real-time aerial image detection,” in proc. AAAI , vol. 39, no. 8, 2025, pp. 8673–8681. [45] Y. Chen, X. Yuan, J. Wang, R. Wu, X. Li, Q. Hou, and M.-M. Cheng, “Yolo-ms: Rethinking multi-scale representation learning for real-time object detection,” IEEE Trans. Pattern Anal. Mach. Intell. , vol. 47, no. 6, pp. 4240–4252, 2025. [46] Q. Chen, X. Su, X. Zhang, J. Wang, J. Chen, Y. Shen, C. Han, Z. Chen, W. Xu, F. Li et al. , “Lw-detr: A transformer replacement to yolo for real-time detection,” arXiv preprint arXiv:2406.03459 , 2024. [47] S. Huang, Z. Lu, X. Cun, Y. Yu, X. Zhou, and X. Shen, “Deim: Detr with improved matching for fast convergence,” in proc. CVPR , 2025, pp. 15 162–15 171. [48] S. Ren, K. He, R. Girshick, and J. Sun, “Faster r-cnn: Towards real-time object detection with region proposal networks,” IEEE Trans. Pattern Anal. Mach. Intell. , vol. 39, no. 6, pp. 1137–1149, 2016. [49] H. He, J. Zhang, Y. Cai, H. Chen, X. Hu, Z. Gan, Y. Wang, C. Wang, Y. Wu, and L. Xie, “Mobilemamba: Lightweight multi-receptive visual mamba network,” in proc. CVPR , 2025, pp. 4497–4507. [50] T.-Y. Lin, P. Goyal, R. Girshick, K. He, and P. Doll´ ar, “Focal loss for dense object detection,” in proc. ICCV , 2017, pp. 2980–2988. [51] X. Zhou, D. Wang, and P. Kr¨ ahenb¨ uhl, “Objects as points,” arXiv preprint arXiv:1904.07850 , 2019.

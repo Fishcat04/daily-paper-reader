@@ -1,0 +1,865 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-05-04T14:14:04.546337+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 16,
+    "deep_cap": 6,
+    "deep_selected": 11,
+    "quick_candidates": 15,
+    "quick_skim_target": 11,
+    "quick_selected": 11
+  },
+  "deep_dive": [
+    {
+      "id": "2604.07759v1",
+      "source": "arxiv",
+      "title": "WUTDet: A 100K-Scale Ship Detection Dataset and Benchmarks with Dense Small Objects",
+      "abstract": "Ship detection for navigation is a fundamental perception task in intelligent waterway transportation systems. However, existing public ship detection datasets remain limited in terms of scale, the proportion of small-object instances, and scene diversity, which hinders the systematic evaluation and generalization study of detection algorithms in complex maritime environments. To this end, we construct WUTDet, a large-scale ship detection dataset. WUTDet contains 100,576 images and 381,378 annotated ship instances, covering diverse operational scenarios such as ports, anchorages, navigation, and berthing, as well as various imaging conditions including fog, glare, low-lightness, and rain, thereby exhibiting substantial diversity and challenge. Based on WUTDet, we systematically evaluate 20 baseline models from three mainstream detection architectures, namely CNN, Transformer, and Mamba. Experimental results show that the Transformer architecture achieves superior overall detection accuracy (AP) and small-object detection performance (APs), demonstrating stronger adaptability to complex maritime scenes; the CNN architecture maintains an advantage in inference efficiency, making it more suitable for real-time applications; and the Mamba architecture achieves a favorable balance between detection accuracy and computational efficiency. Furthermore, we construct a unified cross-dataset test set, Ship-GEN, to evaluate model generalization. Results on Ship-GEN show that models trained on WUTDet exhibit stronger generalization under different data distributions. These findings demonstrate that WUTDet provides effective data support for the research, evaluation, and generalization analysis of ship detection algorithms in complex maritime scenarios. The dataset is publicly available at: https://github.com/MAPGroup/WUTDet.",
+      "authors": [
+        "Junxiong Liang",
+        "Mengwei Bao",
+        "Tianxiang Wang",
+        "Xinggang Wang",
+        "An-An Liu",
+        "Ryan Wen Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-04-09T03:28:05+00:00",
+      "link": "https://arxiv.org/pdf/2604.07759v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "100K-scale ship detection dataset and benchmarks with dense small objects",
+      "llm_evidence_cn": "包含密集小目标的10万级船舶检测数据集与基准",
+      "llm_evidence": "包含密集小目标的10万级船舶检测数据集与基准",
+      "canonical_evidence": "包含密集小目标的10万级船舶检测数据集与基准",
+      "llm_tldr_en": "Presents WUTDet, a large-scale dataset and benchmark specifically focused on dense small ship detection.",
+      "llm_tldr_cn": "发布了WUTDet，一个专门针对密集小船检测的大规模数据集和基准。",
+      "llm_tldr": "发布了WUTDet，一个专门针对密集小船检测的大规模数据集和基准。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "benchmarking small object detection on public datasets",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2604.08038v1",
+      "source": "arxiv",
+      "title": "Beyond Mamba: Enhancing State-space Models with Deformable Dilated Convolutions for Multi-scale Traffic Object Detection",
+      "abstract": "In a real-world traffic scenario, varying-scale objects are usually distributed in a cluttered background, which poses great challenges to accurate detection. Although current Mamba-based methods can efficiently model long-range dependencies, they still struggle to capture small objects with abundant local details, which hinders joint modeling of local structures and global semantics. Moreover, state-space models exhibit limited hierarchical feature representation and weak cross-scale interaction due to flat sequential modeling and insufficient spatial inductive biases, leading to sub-optimal performance in complex scenes. To address these issues, we propose a Mamba with Deformable Dilated Convolutions Network (MDDCNet) for accurate traffic object detection in this study. In MDDCNet, a well-designed hybrid backbone with successive Multi-Scale Deformable Dilated Convolution (MSDDC) blocks and Mamba blocks enables hierarchical feature representation from local details to global semantics. Meanwhile, a Channel-Enhanced Feed-Forward Network (CE-FFN) is further devised to overcome the limited channel interaction capability of conventional feed-forward networks, whilst a Mamba-based Attention-Aggregating Feature Pyramid Network (A^2FPN) is constructed to achieve enhanced multi-scale feature fusion and interaction. Extensive experimental results on public benchmark and real-world datasets demonstrate the superiority of our method over various advanced detectors. The code is available at https://github.com/Bettermea/MDDCNet.",
+      "authors": [
+        "Jun Li",
+        "Yingying Shi",
+        "Zhixuan Ruan",
+        "Nan Guo",
+        "Jianhua Xu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-04-09T09:43:00+00:00",
+      "link": "https://arxiv.org/pdf/2604.08038v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "Enhances Mamba with Deformable Dilated Convolutions for small object detection in traffic scenes",
+      "llm_evidence_cn": "通过可变形扩张卷积增强Mamba以用于交通场景中的小目标检测",
+      "llm_evidence": "通过可变形扩张卷积增强Mamba以用于交通场景中的小目标检测",
+      "canonical_evidence": "通过可变形扩张卷积增强Mamba以用于交通场景中的小目标检测",
+      "llm_tldr_en": "This paper enhances state-space models to better capture small objects and local details in traffic scenes.",
+      "llm_tldr_cn": "本文增强了状态空间模型，以更好地捕捉交通场景中的小目标和局部细节。",
+      "llm_tldr": "本文增强了状态空间模型，以更好地捕捉交通场景中的小目标和局部细节。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2604.10210v1",
+      "source": "arxiv",
+      "title": "A3-FPN: Asymptotic Content-Aware Pyramid Attention Network for Dense Visual Prediction",
+      "abstract": "Learning multi-scale representations is the common strategy to tackle object scale variation in dense prediction tasks. Although existing feature pyramid networks have greatly advanced visual recognition, inherent design defects inhibit them from capturing discriminative features and recognizing small objects. In this work, we propose Asymptotic Content-Aware Pyramid Attention Network (A3-FPN), to augment multi-scale feature representation via the asymptotically disentangled framework and content-aware attention modules. Specifically, A3-FPN employs a horizontally-spread column network that enables asymptotically global feature interaction and disentangles each level from all hierarchical representations. In feature fusion, it collects supplementary content from the adjacent level to generate position-wise offsets and weights for context-aware resampling, and learns deep context reweights to improve intra-category similarity. In feature reassembly, it further strengthens intra-scale discriminative feature learning and reassembles redundant features based on information content and spatial variation of feature maps. Extensive experiments on MS COCO, VisDrone2019-DET and Cityscapes demonstrate that A3-FPN can be easily integrated into state-of-the-art CNN and Transformer-based architectures, yielding remarkable performance gains. Notably, when paired with OneFormer and Swin-L backbone, A3-FPN achieves 49.6 mask AP on MS COCO and 85.6 mIoU on Cityscapes. Codes are available at https://github.com/mason-ching/A3-FPN.",
+      "authors": [
+        "Meng'en Qin",
+        "Yu Song",
+        "Quanling Zhao",
+        "Xiaodong Yang",
+        "Yingtao Che",
+        "Xiaohui Yang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-04-11T13:38:40+00:00",
+      "link": "https://arxiv.org/pdf/2604.10210v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "Proposes A3-FPN to augment multi-scale feature representation and recognize small objects",
+      "llm_evidence_cn": "提出A3-FPN以增强多尺度特征表示并识别小目标",
+      "llm_evidence": "提出A3-FPN以增强多尺度特征表示并识别小目标",
+      "canonical_evidence": "提出A3-FPN以增强多尺度特征表示并识别小目标",
+      "llm_tldr_en": "A3-FPN improves multi-scale representation and small object detection via content-aware attention.",
+      "llm_tldr_cn": "A3-FPN通过内容感知注意力机制改进了多尺度表示和小目标检测。",
+      "llm_tldr": "A3-FPN通过内容感知注意力机制改进了多尺度表示和小目标检测。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "FPN and its variants for multi-scale object detection",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2604.14884v1",
+      "source": "arxiv",
+      "title": "FSDETR: Frequency-Spatial Feature Enhancement for Small Object Detection",
+      "abstract": "Small object detection remains a significant challenge due to feature degradation from downsampling, mutual occlusion in dense clusters, and complex background interference. To address these issues, this paper proposes FSDETR, a frequency-spatial feature enhancement framework built upon the RT-DETR baseline. By establishing a collaborative modeling mechanism, the method effectively leverages complementary structural information. Specifically, a Spatial Hierarchical Attention Block (SHAB) captures both local details and global dependencies to strengthen semantic representation. Furthermore, to mitigate occlusion in dense scenes, the Deformable Attention-based Intra-scale Feature Interaction (DA-AIFI) focuses on informative regions via dynamic sampling. Finally, the Frequency-Spatial Feature Pyramid Network (FSFPN) integrates frequency filtering with spatial edge extraction via the Cross-domain Frequency-Spatial Block (CFSB) to preserve fine-grained details. Experimental results show that with only 14.7M parameters, FSDETR achieves 13.9% APS on VisDrone 2019 and 48.95% AP50 tiny on TinyPerson, showing strong performance on small-object benchmarks. The code and models are available at https://github.com/YT3DVision/FSDETR.",
+      "authors": [
+        "Jianchao Huang",
+        "Fengming Zhang",
+        "Haibo Zhu",
+        "Tao Yan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-04-16T11:22:13+00:00",
+      "link": "https://arxiv.org/pdf/2604.14884v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "Frequency-spatial feature enhancement and spatial hierarchical attention for small object detection",
+      "llm_evidence_cn": "频率-空间特征增强和空间分层注意力用于小目标检测",
+      "llm_evidence": "频率-空间特征增强和空间分层注意力用于小目标检测",
+      "canonical_evidence": "频率-空间特征增强和空间分层注意力用于小目标检测",
+      "llm_tldr_en": "FSDETR enhances small object detection using frequency-spatial modeling and hierarchical attention.",
+      "llm_tldr_cn": "FSDETR通过频率-空间建模和分层注意力机制增强了小目标检测能力。",
+      "llm_tldr": "FSDETR通过频率-空间建模和分层注意力机制增强了小目标检测能力。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "spatial and channel attention for small object feature enhancement",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2604.19233v1",
+      "source": "arxiv",
+      "title": "Adaptive Slicing-Assisted Hyper Inference for Enhanced Small Object Detection in High-Resolution Imagery",
+      "abstract": "Deep learning-based object detectors have achieved remarkable success across numerous computer vision applications, yet they continue to struggle with small object detection in high-resolution aerial and satellite imagery, where dense object distributions, variable shooting angles, diminutive target sizes, and substantial inter-class variability pose formidable challenges. Existing slicing strategies that partition high-resolution images into manageable patches have demonstrated promising results for enlarging the effective receptive field of small targets; however, their reliance on fixed slice dimensions introduces significant redundant computation, inflating inference cost and undermining detection speed. In this paper, we propose \\textbf{Adaptive Slicing-Assisted Hyper Inference (ASAHI)}, a novel slicing framework that shifts the paradigm from prescribing a fixed slice size to adaptively determining the optimal number of slices according to image resolution, thereby substantially mitigating redundant computation while preserving beneficial overlap between adjacent patches. ASAHI integrates three synergistic components: (1)an adaptive resolution-aware slicing algorithm that dynamically generates 6 or 12 overlapping patches based on a learned threshold, (2)a slicing-assisted fine-tuning (SAF) strategy that constructs augmented training data comprising both full-resolution and sliced image patches, and (3)a Cluster-DIoU-NMS (CDN) post-processing module that combines the geometric merging efficiency of Cluster-NMS with the center-distance-aware suppression of DIoU-NMS to achieve robust duplicate elimination in crowded scenes. Extensive experiments on VisDrone2019 and xView, demonstrate that ASAHI achieves state-of-the-art performance with 56.8% on VisDrone2019-DET-val and 22.7% on xView-test, while reducing inference time by 20-25% compared to the baseline SAHI method.",
+      "authors": [
+        "Francesco Moretti",
+        "Yi Jin",
+        "Guiqin Mario"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-04-21T08:36:51+00:00",
+      "link": "https://arxiv.org/pdf/2604.19233v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "adaptive slicing-assisted hyper inference for enhanced small object detection",
+      "llm_evidence_cn": "自适应切片辅助超推理增强小目标检测",
+      "llm_evidence": "自适应切片辅助超推理增强小目标检测",
+      "canonical_evidence": "自适应切片辅助超推理增强小目标检测",
+      "llm_tldr_en": "Proposes an adaptive slicing strategy to improve small object detection in high-resolution aerial imagery.",
+      "llm_tldr_cn": "提出一种自适应切片策略，旨在提高高分辨率航空图像中的小目标检测性能。",
+      "llm_tldr": "提出一种自适应切片策略，旨在提高高分辨率航空图像中的小目标检测性能。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2604.21435v1",
+      "source": "arxiv",
+      "title": "UHR-DETR: Efficient End-to-End Small Object Detection for Ultra-High-Resolution Remote Sensing Imagery",
+      "abstract": "Ultra-High-Resolution (UHR) imagery has become essential for modern remote sensing, offering unprecedented spatial coverage. However, detecting small objects in such vast scenes presents a critical dilemma: retaining the original resolution for small objects causes prohibitive memory bottlenecks. Conversely, conventional compromises like image downsampling or patch cropping either erase small objects or destroy context. To break this dilemma, we propose UHR-DETR, an efficient end-to-end transformer-based detector designed for UHR imagery. First, we introduce a Coverage-Maximizing Sparse Encoder that dynamically allocates finite computational resources to informative high-resolution regions, ensuring maximum object coverage with minimal spatial redundancy. Second, we design a Global-Local Decoupled Decoder. By integrating macroscopic scene awareness with microscopic object details, this module resolves semantic ambiguities and prevents scene fragmentation. Extensive experiments on the UHR imagery datasets (e.g., STAR and SODA-A) demonstrate the superiority of UHR-DETR under strict hardware constraints (e.g., a single 24GB RTX 3090). It achieves a 2.8\\% mAP improvement while delivering a 10$\\times$ inference speedup compared to standard sliding-window baselines on the STAR dataset. Our codes and models will be available at https://github.com/Li-JingFang/UHR-DETR.",
+      "authors": [
+        "Jingfang Li",
+        "Haoran Zhu",
+        "Wen Yang",
+        "Jinrui Zhang",
+        "Fang Xu",
+        "Haijian Zhang",
+        "Gui-Song Xia"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-04-23T08:51:24+00:00",
+      "link": "https://arxiv.org/pdf/2604.21435v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "efficient end-to-end transformer-based detector for small objects in UHR imagery",
+      "llm_evidence_cn": "用于超高分辨率图像中小目标的高效端到端Transformer检测器",
+      "llm_evidence": "用于超高分辨率图像中小目标的高效端到端Transformer检测器",
+      "canonical_evidence": "用于超高分辨率图像中小目标的高效端到端Transformer检测器",
+      "llm_tldr_en": "Presents UHR-DETR, an efficient transformer-based detector for small objects in ultra-high-resolution remote sensing.",
+      "llm_tldr_cn": "提出UHR-DETR，一种用于超高分辨率遥感图像中小目标检测的高效Transformer检测器。",
+      "llm_tldr": "提出UHR-DETR，一种用于超高分辨率遥感图像中小目标检测的高效Transformer检测器。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "state of the art deep learning methods for small object detection",
+      "matched_requirement_id": "req-7",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2604.06332v1",
+      "source": "arxiv",
+      "title": "Telescope: Learnable Hyperbolic Foveation for Ultra-Long-Range Object Detection",
+      "abstract": "Autonomous highway driving, especially for long-haul heavy trucks, requires detecting objects at long ranges beyond 500 meters to satisfy braking distance requirements at high speeds. At long distances, vehicles and other critical objects occupy only a few pixels in high-resolution images, causing state-of-the-art object detectors to fail. This challenge is compounded by the limited effective range of commercially available LiDAR sensors, which fall short of ultra-long range thresholds because of quadratic loss of resolution with distance, making image-based detection the most practically scalable solution given commercially available sensor constraints. We introduce Telescope, a two-stage detection model designed for ultra-long range autonomous driving. Alongside a powerful detection backbone, this model contains a novel re-sampling layer and image transformation to address the fundamental challenges of detecting small, distant objects. Telescope achieves $76\\%$ relative improvement in mAP in ultra-long range detection compared to state-of-the-art methods (improving from an absolute mAP of 0.185 to 0.326 at distances beyond 250 meters), requires minimal computational overhead, and maintains strong performance across all detection ranges.",
+      "authors": [
+        "Parker Ewen",
+        "Dmitriy Rivkin",
+        "Mario Bijelic",
+        "Felix Heide"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-04-07T18:13:55+00:00",
+      "link": "https://arxiv.org/pdf/2604.06332v1",
+      "tags": [
+        "keyword:SOD"
+      ],
+      "llm_score": 9.5,
+      "llm_evidence_en": "detecting objects occupying only a few pixels at long ranges",
+      "llm_evidence_cn": "检测远距离仅占几个像素的目标",
+      "llm_evidence": "检测远距离仅占几个像素的目标",
+      "canonical_evidence": "检测远距离仅占几个像素的目标",
+      "llm_tldr_en": "Telescope is a two-stage model specifically designed for ultra-long-range detection of tiny objects.",
+      "llm_tldr_cn": "Telescope是一种专门为超远距离微小目标检测设计的两阶段模型。",
+      "llm_tldr": "Telescope是一种专门为超远距离微小目标检测设计的两阶段模型。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2604.15065v1",
+      "source": "arxiv",
+      "title": "Learning Where to Embed: Noise-Aware Positional Embedding for Query Retrieval in Small-Object Detection",
+      "abstract": "Transformer-based detectors have advanced small-object detection, but they often remain inefficient and vulnerable to background-induced query noise, which motivates deep decoders to refine low-quality queries. We present HELP (Heatmap-guided Embedding Learning Paradigm), a noise-aware positional-semantic fusion framework that studies where to embed positional information by selectively preserving positional encodings in foreground-salient regions while suppressing background clutter. Within HELP, we introduce Heatmap-guided Positional Embedding (HPE) as the core embedding mechanism and visualize it with a heatbar for interpretable diagnosis and fine-tuning. HPE is integrated into both the encoder and decoder: it guides noise-suppressed feature encoding by injecting heatmap-aware positional encoding, and it enables high-quality query retrieval by filtering background-dominant embeddings via a gradient-based mask filter before decoding. To address feature sparsity in complex small targets, we integrate Linear-Snake Convolution to enrich retrieval-relevant representations. The gradient-based heatmap supervision is used during training only, incurring no additional gradient computation at inference. As a result, our design reduces decoder layers from eight to three and achieves a 59.4% parameter reduction (66.3M vs. 163M) while maintaining consistent accuracy gains under a reduced compute budget across benchmarks. Code Repository: https://github.com/yidimopozhibai/Noise-Suppressed-Query-Retrieval",
+      "authors": [
+        "Yangchen Zeng",
+        "Zhenyu Yu",
+        "Dongming Jiang",
+        "Wenbo Zhang",
+        "Yifan Hong",
+        "Zhanhua Hu",
+        "Jiao Luo",
+        "Kangning Cui"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-04-16T14:28:36+00:00",
+      "link": "https://arxiv.org/pdf/2604.15065v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 9.5,
+      "llm_evidence_en": "Heatmap-guided Embedding Learning Paradigm for query retrieval in small-object detection",
+      "llm_evidence_cn": "用于小目标检测查询检索的热图引导嵌入学习范式",
+      "llm_evidence": "用于小目标检测查询检索的热图引导嵌入学习范式",
+      "canonical_evidence": "用于小目标检测查询检索的热图引导嵌入学习范式",
+      "llm_tldr_en": "Proposes a noise-aware positional-semantic fusion framework to enhance small-object detection in Transformers.",
+      "llm_tldr_cn": "提出一种噪声感知的位姿语义融合框架，以增强Transformer中的小目标检测。",
+      "llm_tldr": "提出一种噪声感知的位姿语义融合框架，以增强Transformer中的小目标检测。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "spatial and channel attention for small object feature enhancement",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2604.18632v1",
+      "source": "arxiv",
+      "title": "StomaD2: An All-in-One System for Intelligent Stomatal Phenotype Analysis via Diffusion-Based Restoration Detection Network",
+      "abstract": "Stomata play a crucial role in regulating plant physiological processes and reflecting environmental responses. However, accurate and high-throughput stomatal phenotyping remains challenging, as conventional approaches rely on destructive sampling and manual annotation, restricting large-scale and field deployment. To overcome these limitations, a noninvasive restoration-detection integrated framework, termed StomaD2, is developed to achieve accurate and fast stomatal phenotyping under complex imaging conditions. The framework incorporates a diffusion-based restoration module to recover degraded images and a specialized rotated object detection network tailored to the small, dense, and cluttered characteristics of stomata. The proposed network enhances feature representation through three key innovations: a column-wise structure for global feature interaction, context-aware resampling and reweighting mechanism to improve multi-scale consistency, and a feature reassembly module to boost discrimination against complex backgrounds. In extensive comparisons, StomaD2 demonstrated state-of-the-art performance. On public Maize and Wheat datasets, it achieved accuracies of 0.994 and 0.992, respectively, significantly outperforming existing benchmarks. When benchmarked against ten other advanced models, including Oriented Former and YOLOv12, StomaD2 achieved a top-tier F1-score/mAP of 0.989. The framework is integrated into a user-friendly, field-operable system that supports the fast extraction of eight stomatal phenotypes, such as density and conductance. Validated on more than 130 plant species, StomaD2's results highlight its strong generalizability and potential for large-scale phenotyping, plant physiology analysis, and precision agriculture applications.",
+      "authors": [
+        "Quanling Zhao",
+        "Meng'en Qin",
+        "Yanfeng Sun",
+        "Yuan Miao",
+        "Xiaohui Yang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "stat.AP"
+      ],
+      "published": "2026-04-18T17:33:03+00:00",
+      "link": "https://arxiv.org/pdf/2604.18632v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 9.5,
+      "llm_evidence_en": "specialized rotated object detection network tailored to small, dense, and cluttered characteristics",
+      "llm_evidence_cn": "针对小、密、乱特征定制的专用旋转目标检测网络",
+      "llm_evidence": "针对小、密、乱特征定制的专用旋转目标检测网络",
+      "canonical_evidence": "针对小、密、乱特征定制的专用旋转目标检测网络",
+      "llm_tldr_en": "Develops a restoration-detection framework with a specialized network for small stomatal phenotype analysis.",
+      "llm_tldr_cn": "开发了一个包含专用小目标检测网络的框架，用于植物气孔表型分析。",
+      "llm_tldr": "开发了一个包含专用小目标检测网络的框架，用于植物气孔表型分析。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2604.26806v1",
+      "source": "arxiv",
+      "title": "ViCrop-Det: Spatial Attention Entropy Guided Cropping for Training-Free Small-Object Detection",
+      "abstract": "Transformer-based architectures have established a dominant paradigm in global semantic perception; however, they remain fundamentally constrained by the profound spatial heterogeneity inherent in natural images. Specifically, the imposition of a uniform global receptive field across regions of varying information density inevitably leads to local feature degradation, particularly in dense conflict zones populated by microscopic targets. To address this mechanistic limitation, we propose ViCrop-Det, a training-free inference framework that introduces adaptive spatial trust region shrinkage. Inspired by the use of attention entropy in anomaly segmentation, ViCrop-Det leverages the detection decoder's cross-attention distribution as an endogenous probe. By utilizing Spatial Attention Entropy (SAE) to heuristically evaluate local spatial ambiguity, the framework executes dynamic spatial routing, allocating a fixed computational budget exclusively to regions exhibiting both high target saliency and high cognitive uncertainty. By shrinking the spatial trust region and injecting high-frequency localized observations, ViCrop-Det actively resolves spatial ambiguity and recovers fine-grained features without requiring architectural modifications. Extensive evaluations on VisDrone and DOTA-v1.5 demonstrate that ViCrop-Det yields competitive performance enhancements, consistently adding +1-3 mAP@50 to RT-DETR-R50 and Deformable DETR with a marginal 20-23\\% latency overhead. On MS COCO, $AP_{S}$ improves while $AP_{M}/AP_{L}$ remains stable, indicating precise fine-scale refinement without compromising the global spatial prior. Under compute-matched settings, our adaptive routing strategy comprehensively surpasses uniform slicing baselines, achieving a highly optimized accuracy-speed trade-off.",
+      "authors": [
+        "Hui Wang",
+        "Hongze Li",
+        "Wei Chen",
+        "Xiaojin Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-04-29T15:35:03+00:00",
+      "link": "https://arxiv.org/pdf/2604.26806v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 9.5,
+      "llm_evidence_en": "Spatial attention entropy guided cropping for training-free small-object detection",
+      "llm_evidence_cn": "空间注意力熵引导的裁剪技术用于免训练的小目标检测",
+      "llm_evidence": "空间注意力熵引导的裁剪技术用于免训练的小目标检测",
+      "canonical_evidence": "空间注意力熵引导的裁剪技术用于免训练的小目标检测",
+      "llm_tldr_en": "ViCrop-Det uses spatial attention entropy to adaptively crop images for better small object detection.",
+      "llm_tldr_cn": "ViCrop-Det利用空间注意力熵实现自适应图像裁剪，从而优化免训练的小目标检测。",
+      "llm_tldr": "ViCrop-Det利用空间注意力熵实现自适应图像裁剪，从而优化免训练的小目标检测。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "spatial and channel attention for small object feature enhancement",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "biorxiv-10-64898-2026-04-24-720764-v1",
+      "source": "biorxiv",
+      "title": "Multi-Scale Contextual Attention for Robust Crop and Pest Image Classification",
+      "abstract": "Image-based crop and pest recognition is considered useful for reducing the delay and cost of manual field scouting, therefore supporting timely intervention in precision-agriculture workflows. However, the real field imagery remains challenging due to the cluttered backgrounds, occlusions, illumination changes, and strong scale variation that are frequently observed across crops. The symptoms are often small or low-contrast, and pests may be partially hidden, which reduces the reliability when the setting is outside controlled environments. A unified multi-class crop-pest/condition recognition framework is presented, where a ResNet-50 backbone is utilized and enhanced with a Multi-Scale Contextual Attention (MSCA) module. The novelty is mainly considered to be achieved through the integration of explicit multi-scale contextual aggregation with lightweight joint channel and spatial attention by means of residual fusion, while the empirical evaluation was kept controlled under a fixed and reproducible protocol. A curated dataset of 21,404 field-style images covering 15 crop and pest/condition classes was compiled, and a leakage-aware fixed split with a held-out test set was adopted to support reproducibility. Augmentation was applied only to the training subset to improve robustness, although the validation data was not augmented in the same manner. On the held-out test set, balanced performance was achieved by the proposed approach, with about 0.93 accuracy and a macro-F1 score close to 0.94 being obtained, while established baselines such as EfficientNet, Vision Transformer, and attention-based CNN models were outperformed under identical evaluation settings. Controlled ablations were used to isolate the contribution of MSCA and augmentation under the same training configuration. These results indicate that lightweight multi-scale contextual attention is effective for crop and pest recognition under realistic field conditions, although some visually similar classes remained difficult.",
+      "authors": [
+        "Majid, M.",
+        "Tariq, H.",
+        "Mumtaz, I.",
+        "Kashif, M."
+      ],
+      "primary_category": "plant biology",
+      "categories": [
+        "plant biology"
+      ],
+      "published": "2026-04-28T00:00:00+00:00",
+      "link": "https://www.biorxiv.org/content/10.64898/2026.04.24.720764v1.full.pdf",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "multi-scale contextual attention for small or low-contrast symptoms and pests",
+      "llm_evidence_cn": "针对小型或低对比度病征和害虫的多尺度上下文注意力",
+      "llm_evidence": "针对小型或低对比度病征和害虫的多尺度上下文注意力",
+      "canonical_evidence": "针对小型或低对比度病征和害虫的多尺度上下文注意力",
+      "llm_tldr_en": "Enhances ResNet-50 with Multi-Scale Contextual Attention for robust crop and pest recognition.",
+      "llm_tldr_cn": "利用多尺度上下文注意力增强ResNet-50，用于作物和害虫识别。",
+      "llm_tldr": "利用多尺度上下文注意力增强ResNet-50，用于作物和害虫识别。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "spatial and channel attention for small object feature enhancement",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2604.09206v1",
+      "source": "arxiv",
+      "title": "Long-SCOPE: Fully Sparse Long-Range Cooperative 3D Perception",
+      "abstract": "Cooperative 3D perception via Vehicle-to-Everything communication is a promising paradigm for enhancing autonomous driving, offering extended sensing horizons and occlusion resolution. However, the practical deployment of existing methods is hindered at long distances by two critical bottlenecks: the quadratic computational scaling of dense BEV representations and the fragility of feature association mechanisms under significant observation and alignment errors. To overcome these limitations, we introduce Long-SCOPE, a fully sparse framework designed for robust long-distance cooperative 3D perception. Our method features two novel components: a Geometry-guided Query Generation module to accurately detect small, distant objects, and a learnable Context-Aware Association module that robustly matches cooperative queries despite severe positional noise. Experiments on the V2X-Seq and Griffin datasets validate that Long-SCOPE achieves state-of-the-art performance, particularly in challenging 100-150 m long-range settings, while maintaining highly competitive computation and communication costs.",
+      "authors": [
+        "Jiahao Wang",
+        "Zikun Xu",
+        "Yuner Zhang",
+        "Zhongwei Jiang",
+        "Chenyang Lu",
+        "Shuocheng Yang",
+        "Yuxuan Wang",
+        "Jiaru Zhong",
+        "Chuang Zhang",
+        "Shaobing Xu",
+        "Jianqiang Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-04-10T10:47:49+00:00",
+      "link": "https://arxiv.org/pdf/2604.09206v1",
+      "tags": [
+        "keyword:SOD"
+      ],
+      "llm_score": 8.5,
+      "llm_evidence_en": "Geometry-guided Query Generation module to accurately detect small, distant objects",
+      "llm_evidence_cn": "几何引导查询生成模块，用于准确检测远距离小目标",
+      "llm_evidence": "几何引导查询生成模块，用于准确检测远距离小目标",
+      "canonical_evidence": "几何引导查询生成模块，用于准确检测远距离小目标",
+      "llm_tldr_en": "Introduces a sparse framework for long-range 3D perception with modules specifically for small, distant objects.",
+      "llm_tldr_cn": "引入一种稀疏长程3D感知框架，包含专门针对远距离小目标的检测模块。",
+      "llm_tldr": "引入一种稀疏长程3D感知框架，包含专门针对远距离小目标的检测模块。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2604.22825v1",
+      "source": "arxiv",
+      "title": "SGP-SAM: Self-Gated Prompting for Transferring 3D Segment Anything Models to Lesion Segmentation",
+      "abstract": "Large segmentation foundation models such as the Segment Anything Model (SAM) have reshaped promptable segmentation in natural images, and recent efforts have extended these models to medical images and volumetric settings. However, directly transferring a 3D SAM-style model to lesion segmentation remains challenging due to (i) weak spatial representational capacity for small, irregular targets in intermediate features, and (ii) extreme foreground-background imbalance in 3D volumes.We propose SGP-SAM, a self-gated prompting framework for efficient and effective transfer to 3D lesion segmentation. Our key component, the Self-Gated Prompting Module (SGPM), performs conditional multi-scale spatial enhancement: a lightweight multi-channel gating unit predicts whether the current features require additional multi-scale fusion, and only then activates a Multi-Scale Feature Fusion Block to enrich spatial context. To further address small-lesion learning, we design a Zoom Loss that up-weights lesion-focused supervision by combining Dice and a voxel-balanced focal term.Experiments on MSD Liver Tumor and MSD Brain Tumor (enhancing tumor) show consistent gains over strong transfer baselines based on SAM-Med3D. On MSD Liver Tumor, SGP-SAM improves mDice by 7.3% over fine-tuning.",
+      "authors": [
+        "Zixuan Tang",
+        "Shen Zhao"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-04-19T10:22:04+00:00",
+      "link": "https://arxiv.org/pdf/2604.22825v1",
+      "tags": [
+        "keyword:SOD"
+      ],
+      "llm_score": 7.5,
+      "llm_evidence_en": "Multi-scale spatial enhancement for small, irregular targets in 3D medical volumes",
+      "llm_evidence_cn": "针对3D医学影像中小型不规则目标的多尺度空间增强",
+      "llm_evidence": "针对3D医学影像中小型不规则目标的多尺度空间增强",
+      "canonical_evidence": "针对3D医学影像中小型不规则目标的多尺度空间增强",
+      "llm_tldr_en": "SGP-SAM introduces multi-scale spatial enhancement to improve 3D lesion segmentation for small targets.",
+      "llm_tldr_cn": "SGP-SAM引入多尺度空间增强，提升了3D医学影像中小病灶目标的分割效果。",
+      "llm_tldr": "SGP-SAM引入多尺度空间增强，提升了3D医学影像中小病灶目标的分割效果。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "spatial and channel attention for small object feature enhancement",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2604.24224v1",
+      "source": "arxiv",
+      "title": "IMPA-Net: Meteorology-Aware Multi-Scale Attention and Dynamic Loss for Extreme Convective Radar Nowcasting",
+      "abstract": "Short-range prediction of convective precipitation from weather radar observations is essential for severe weather warnings. However, deep learning models trained with pixel-wise error metrics tend to produce overly smooth forecasts that suppress intense echoes critical for hazard detection. This issue is exacerbated by insufficient multi-scale feature interaction and suboptimal fusion of heterogeneous geophysical inputs. We propose IMPA-Net (Integrated Multi-scale Predictive Attention Network), a deterministic 0-2 hour nowcasting framework that addresses these limitations through meteorologically-informed designs at the input, architecture, and loss function levels. A parameter-free Spatial Mixer reorganizes heterogeneous input channels at the mesoscale-$γ$ neighborhood (~2 km) via deterministic channel permutation, providing a structured cross-field prior. An integrated multi-scale predictive attention module serves as the spatiotemporal translator, capturing dynamics from mesoscale-$β$ to mesoscale-$γ$ scales. A Meteorologically-Aware Dynamic Loss employs three-level asymmetric weighting -- adapting across training epochs, storm intensity, and forecast lead time -- to counteract regression-to-the-mean. Evaluated against seven baselines on a multi-source radar dataset over eastern China, IMPA-Net raises the Heidke Skill Score at $\\geq$45 dBZ from 0.049 (SimVP baseline) to 0.143 under matched settings. Relative to pySTEPS, it provides a better trade-off between severe-event detection and false-alarm control. Spectral analysis confirms preserved energy across mesoscale bands where competing methods show progressive smoothing. These improvements are shown within a single domain and convective regime; generalizability to other orographic and climatic regions remains to be tested.",
+      "authors": [
+        "Haofei Cui",
+        "Guangxin He",
+        "Juanzhen Sun",
+        "Jingjia Luo",
+        "Haonan Chen",
+        "Xiaoran Zhuang",
+        "Mingxuan Chen",
+        "Xian Xiao"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-04-27T09:30:07+00:00",
+      "link": "https://arxiv.org/pdf/2604.24224v1",
+      "tags": [
+        "keyword:SOD"
+      ],
+      "llm_score": 6.5,
+      "llm_evidence_en": "Integrated Multi-scale Predictive Attention Network and dynamic loss",
+      "llm_evidence_cn": "集成多尺度预测注意力网络与动态损失",
+      "llm_evidence": "集成多尺度预测注意力网络与动态损失",
+      "canonical_evidence": "集成多尺度预测注意力网络与动态损失",
+      "llm_tldr_en": "Proposes a multi-scale attention network and dynamic loss for radar nowcasting to prevent smoothing.",
+      "llm_tldr_cn": "提出多尺度注意力网络和动态损失，用于雷达外推预报以防止预测平滑。",
+      "llm_tldr": "提出多尺度注意力网络和动态损失，用于雷达外推预报以防止预测平滑。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2604.16696v1",
+      "source": "arxiv",
+      "title": "LOD-Net: Locality-Aware 3D Object Detection Using Multi-Scale Transformer Network",
+      "abstract": "3D object detection in point cloud data remains a challenging task due to the sparsity and lack of global structure inherent in the input. In this work, we propose a novel Multi-Scale Attention (MSA) mechanism integrated into the 3DETR architecture to better capture both local geometry and global context. Our method introduces an upsampling operation that generates high-resolution feature maps, enabling the network to better detect smaller and semantically related objects. Experiments conducted on the ScanNetv2 dataset demonstrate that our 3DETR + MSA model improves detection performance, achieving a gain of almost 1% in mAP@25 and 4.78% in mAP@50 over the baseline. While applying MSA to the 3DETR-m variant shows limited improvement, our analysis reveals the importance of adapting the upsampling strategy for lightweight models. These results highlight the effectiveness of combining hierarchical feature extraction with attention mechanisms in enhancing 3D scene understanding.",
+      "authors": [
+        "Mustaqeem Khan",
+        "Aidana Nurakhmetova",
+        "Wail Gueaieb",
+        "Abdulmotaleb El Saddik"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "eess.IV"
+      ],
+      "published": "2026-04-17T20:52:20+00:00",
+      "link": "https://arxiv.org/pdf/2604.16696v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 8.5,
+      "llm_evidence_en": "Multi-scale attention and upsampling for detecting smaller objects in 3D point clouds",
+      "llm_evidence_cn": "用于检测3D点云中较小对象的多尺度注意力和上采样技术",
+      "llm_evidence": "用于检测3D点云中较小对象的多尺度注意力和上采样技术",
+      "canonical_evidence": "用于检测3D点云中较小对象的多尺度注意力和上采样技术",
+      "llm_tldr_en": "LOD-Net uses multi-scale attention and upsampling to improve 3D small object detection in point clouds.",
+      "llm_tldr_cn": "LOD-Net通过多尺度注意力和上采样技术提升了点云中3D小目标的检测性能。",
+      "llm_tldr": "LOD-Net通过多尺度注意力和上采样技术提升了点云中3D小目标的检测性能。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2604.08711v1",
+      "source": "arxiv",
+      "title": "Deep Learning-Based Tracking and Lineage Reconstruction of Ligament Breakup",
+      "abstract": "The disintegration of liquid sheets into ligaments and droplets involves highly transient, multi-scale dynamics that are difficult to quantify from high-speed shadowgraphy images. Identifying droplets, ligaments, and blobs formed during breakup, along with tracking across frames, is essential for spray analysis. However, conventional multi-object tracking frameworks impose strict one-to-one temporal associations and cannot represent one-to-many fragmentation events. In this study, we present a two-stage deep learning framework for object detection and temporal relationship modeling across frames. The framework captures ligament deformation, fragmentation, and parent-child lineage during liquid sheet disintegration. In the first stage, a Faster R-CNN with a ResNet-50 backbone and Feature Pyramid Network detects and classifies ligaments and droplets in high-speed shadowgraphy recordings of an impinging Carbopol gel jet. A morphology-preserving synthetic data generation strategy augments the training set without introducing physically implausible configurations, achieving a held-out F1 score of up to 0.872 across fourteen original-to-synthetic configurations. In the second stage, a Transformer-augmented multilayer perceptron classifies inter-frame associations into continuation, fragmentation (one-to-many), and non-association using physics-informed geometric features. Despite severe class imbalance, the model achieves 86.1% accuracy, 93.2% precision, and perfect recall (1.00) for fragmentation events. Together, the framework enables automated reconstruction of fragmentation trees, preservation of parent-child lineage, and extraction of breakup statistics such as fragment multiplicity and droplet size distributions. By explicitly identifying children droplets formed from ligament fragmentation, the framework provides automated analysis of the primary atomization mode.",
+      "authors": [
+        "Vrushank Ahire",
+        "Vivek Kurumanghat",
+        "Mudasir Ganaie",
+        "Lipika Kabiraj"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-04-09T19:04:37+00:00",
+      "link": "https://arxiv.org/pdf/2604.08711v1",
+      "tags": [
+        "keyword:SOD"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "deep learning framework for object detection of droplets and ligaments",
+      "llm_evidence_cn": "用于液滴和韧带目标检测的深度学习框架",
+      "llm_evidence": "用于液滴和韧带目标检测的深度学习框架",
+      "canonical_evidence": "用于液滴和韧带目标检测的深度学习框架",
+      "llm_tldr_en": "Develops a two-stage deep learning framework for detecting and tracking multi-scale liquid fragments.",
+      "llm_tldr_cn": "开发了一个两阶段深度学习框架，用于检测和跟踪多尺度液体碎片。",
+      "llm_tldr": "开发了一个两阶段深度学习框架，用于检测和跟踪多尺度液体碎片。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "biorxiv-10-1101-2025-10-23-684152-v3",
+      "source": "biorxiv",
+      "title": "A novel attention mechanism for noise-adaptive and robust segmentation of microtubules in microscopy images",
+      "abstract": "BackgroundSegmenting cytoskeletal filaments in microscopy images is essential for studying their roles in cellular processes such as cell division and intracellular transport. However, this task is highly challenging due to the fine, densely packed, and intertwined nature of these structures. Imaging limitations--noise, low contrast, and uneven fluorescence--further complicate analysis. While deep learning has advanced segmentation of large, well-defined biological structures, its performance often degrades under such adverse conditions. Additional challenges include obtaining precise annotations for curvilinear structures and managing severe class imbalance during training.\n\nResultsWe introduce a novel noise-adaptive attention mechanism that extends the Squeeze-and-Excitation (SE) module to dynamically adjust to varying noise levels. Integrated into a U-Net decoder with residual encoder blocks, this yields ASE_Res_UNet, a lightweight yet high-performance model. To address annotation challenges, we developed a synthetic dataset generation strategy that ensures accurate annotations of fine filaments in noisy images, producing a synthetic dataset with two difficulty levels for segmentation benchmarking. We systematically evaluated loss functions and metrics to mitigate class imbalance, ensuring robust performance assessment. ASE_Res_UNet effectively segmented microtubules in noisy synthetic images, outperforming its ablated variants. It also demonstrated superior segmentation compared to models with alternative attention mechanisms or distinct architectures, while requiring fewer parameters, making it efficient for resource-constrained environments. Evaluation on a newly curated real microscopy dataset and a recently reannotated dataset highlighted ASE_Res_UNets effectiveness in segmenting microtubules beyond synthetic images. For these datasets, ASE_Res_UNet was competitive with a recent synthetic data-driven approach that shares two cytoskeleton pretrained models. Importantly, ASE_Res_UNet showed strong transferability to other curvilinear structures (blood vessels and nerves) across diverse imaging conditions.\n\nConclusionsThis work advances microtubule segmentation through three key contributions: (1) Providing two benchmark datasets (synthetic and real), addressing a critical gap in standardised evaluation resources for this task; (2) Introducing ASE_Res_UNet, a lightweight yet robust model combining noise-adaptive attention with residual learning; (3) Validating competitive performance across synthetic and real microscopy data. Additionally, we demonstrated the robustness and versatility of the proposed architecture across diverse curvilinear segmentation tasks, showcasing potential for broader applications in biological research and medical diagnosis.",
+      "authors": [
+        "Ait Laydi, A.",
+        "Cueff, L.",
+        "Crespo, M.",
+        "El Mourabit, Y.",
+        "Bouvrais, H."
+      ],
+      "primary_category": "bioinformatics",
+      "categories": [
+        "bioinformatics"
+      ],
+      "published": "2026-04-22T00:00:00+00:00",
+      "link": "https://www.biorxiv.org/content/10.1101/2025.10.23.684152v3.full.pdf",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.5,
+      "llm_evidence_en": "attention mechanism for fine, densely packed structures",
+      "llm_evidence_cn": "针对细小、密集结构的注意力机制",
+      "llm_evidence": "针对细小、密集结构的注意力机制",
+      "canonical_evidence": "针对细小、密集结构的注意力机制",
+      "llm_tldr_en": "Develops a noise-adaptive attention mechanism for segmenting fine curvilinear structures in microscopy.",
+      "llm_tldr_cn": "开发了一种噪声自适应注意力机制，用于分割显微镜图像中的细微曲线结构。",
+      "llm_tldr": "开发了一种噪声自适应注意力机制，用于分割显微镜图像中的细微曲线结构。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "spatial and channel attention for small object feature enhancement",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2604.10305v1",
+      "source": "arxiv",
+      "title": "Class-Adaptive Cooperative Perception for Multi-Class LiDAR-based 3D Object Detection in V2X Systems",
+      "abstract": "Cooperative perception allows connected vehicles and roadside infrastructure to share sensor observations, creating a fused scene representation beyond the capability of any single platform. However, most cooperative 3D object detectors use a uniform fusion strategy for all object classes, which limits their ability to handle the different geometric structures and point-sampling patterns of small and large objects. This problem is further reinforced by narrow evaluation protocols that often emphasize a single dominant class or only a few cooperation settings, leaving robust multi-class detection across diverse vehicle-to-everything interactions insufficiently explored. To address this gap, we propose a class-adaptive cooperative perception architecture for multi-class 3D object detection from LiDAR data. The model integrates four components: multi-scale window attention with learned scale routing for spatially adaptive feature extraction, a class-specific fusion module that separates small and large objects into attentive fusion pathways, bird's-eye-view enhancement through parallel dilated convolution and channel recalibration for richer contextual representation, and class-balanced objective weighting to reduce bias toward frequent categories. Experiments on the V2X-Real benchmark cover vehicle-centric, infrastructure-centric, vehicle-to-vehicle, infrastructure-to-infrastructure, and vehicle-to-infrastructure settings under identical backbone and training configurations. The proposed method consistently improves mean detection performance over strong intermediate-fusion baselines, with the largest gains on trucks, clear improvements on pedestrians, and competitive results on cars. These results show that aligning feature extraction and fusion with class-dependent geometry and point density leads to more balanced cooperative perception in realistic vehicle-to-everything deployments.",
+      "authors": [
+        "Blessing Agyei Kyem",
+        "Joshua Kofi Asamoah",
+        "Armstrong Aboah"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.ET"
+      ],
+      "published": "2026-04-11T18:08:50+00:00",
+      "link": "https://arxiv.org/pdf/2604.10305v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Handles different geometric structures and sampling patterns of small objects in 3D detection",
+      "llm_evidence_cn": "处理3D检测中小目标的不同几何结构和采样模式",
+      "llm_evidence": "处理3D检测中小目标的不同几何结构和采样模式",
+      "canonical_evidence": "处理3D检测中小目标的不同几何结构和采样模式",
+      "llm_tldr_en": "A class-adaptive cooperative perception framework for multi-class 3D object detection including small objects.",
+      "llm_tldr_cn": "一种用于多类别3D目标检测（包括小目标）的类自适应协作感知框架。",
+      "llm_tldr": "一种用于多类别3D目标检测（包括小目标）的类自适应协作感知框架。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2604.08893v1",
+      "source": "arxiv",
+      "title": "Adaptive Dual Residual U-Net with Attention Gate and Multiscale Spatial Attention Mechanisms (ADRUwAMS)",
+      "abstract": "Glioma is a harmful brain tumor that requires early detection to ensure better health results. Early detection of this tumor is key for effective treatment and requires an automated segmentation process. However, it is a challenging task to find tumors due to tumor characteristics like location and size. A reliable method to accurately separate tumor zones from healthy tissues is deep learning models, which have shown promising results over the last few years. In this research, an Adaptive Dual Residual U-Net with Attention Gate and Multiscale Spatial Attention Mechanisms (ADRUwAMS) is introduced. This model is an innovative combination of adaptive dual residual networks, attention mechanisms, and multiscale spatial attention. The dual adaptive residual network architecture captures high-level semantic and intricate low-level details from brain images, ensuring precise segmentation of different tumor parts, types, and hard regions. The attention gates use gating and input signals to compute attention coefficients for the input features, and multiscale spatial attention generates scaled attention maps and combines these features to hold the most significant information about the brain tumor. We trained the model for 200 epochs using the ReLU activation function on BraTS 2020 and BraTS 2019 datasets. These improvements resulted in high accuracy for tumor detection and segmentation on BraTS 2020, achieving dice scores of 0.9229 for the whole tumor, 0.8432 for the tumor core, and 0.8004 for the enhancing tumor.",
+      "authors": [
+        "Mohsen Yaghoubi Suraki"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-04-10T02:57:39+00:00",
+      "link": "https://arxiv.org/pdf/2604.08893v1",
+      "tags": [
+        "keyword:SOD"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Uses multiscale spatial attention mechanisms for detecting tumors of varying sizes",
+      "llm_evidence_cn": "使用多尺度空间注意力机制来检测不同大小的肿瘤",
+      "llm_evidence": "使用多尺度空间注意力机制来检测不同大小的肿瘤",
+      "canonical_evidence": "使用多尺度空间注意力机制来检测不同大小的肿瘤",
+      "llm_tldr_en": "ADRUwAMS uses multiscale spatial attention for medical image segmentation and small tumor detection.",
+      "llm_tldr_cn": "ADRUwAMS利用多尺度空间注意力进行医学图像分割和小肿瘤检测。",
+      "llm_tldr": "ADRUwAMS利用多尺度空间注意力进行医学图像分割和小肿瘤检测。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "spatial and channel attention for small object feature enhancement",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2604.04908v1",
+      "source": "arxiv",
+      "title": "HI-MoE: Hierarchical Instance-Conditioned Mixture-of-Experts for Object Detection",
+      "abstract": "Mixture-of-Experts (MoE) architectures enable conditional computation by activating only a subset of model parameters for each input. Although sparse routing has been highly effective in language models and has also shown promise in vision, most vision MoE methods operate at the image or patch level. This granularity is poorly aligned with object detection, where the fundamental unit of reasoning is an object query corresponding to a candidate instance. We propose Hierarchical Instance-Conditioned Mixture-of-Experts (HI-MoE), a DETR-style detection architecture that performs routing in two stages: a lightweight scene router first selects a scene-consistent expert subset, and an instance router then assigns each object query to a small number of experts within that subset. This design aims to preserve sparse computation while better matching the heterogeneous, instance-centric structure of detection. In the current draft, experiments are concentrated on COCO with preliminary specialization analysis on LVIS. Under these settings, HI-MoE improves over a dense DINO baseline and over simpler token-level or instance-only routing variants, with especially strong gains on small objects. We also provide an initial visualization of expert specialization patterns. We present the method, ablations, and current limitations in a form intended to support further experimental validation.",
+      "authors": [
+        "Vadim Vashkelis",
+        "Natalia Trukhina"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG"
+      ],
+      "published": "2026-04-06T17:52:58+00:00",
+      "link": "https://arxiv.org/pdf/2604.04908v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "DETR-style detection architecture for instance-conditioned object detection",
+      "llm_evidence_cn": "用于实例条件目标检测的DETR风格检测架构",
+      "llm_evidence": "用于实例条件目标检测的DETR风格检测架构",
+      "canonical_evidence": "用于实例条件目标检测的DETR风格检测架构",
+      "llm_tldr_en": "HI-MoE introduces a hierarchical mixture-of-experts approach for instance-level object detection.",
+      "llm_tldr_cn": "HI-MoE为实例级目标检测引入了分层混合专家方法。",
+      "llm_tldr": "HI-MoE为实例级目标检测引入了分层混合专家方法。",
+      "llm_tags": [
+        "query:sod:composite"
+      ],
+      "matched_query_tag": "query:sod:composite",
+      "matched_query_text": "Papers central to 小目标检测相关论文检索, especially work that connects or combines: deep learning methods for small object detection; FPN and its variants for multi-scale object detection; oversampling and augmentation strategies for small objects; spatial and channel attention for small object feature enhancement; multi-scale feature fusion techniques in computer vision; specialized loss functions for small object localization; state of the art deep learning methods for small object detection; benchmarking small object detection on public datasets.",
+      "matched_requirement_id": "req-composite-sod",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2604.21153v1",
+      "source": "arxiv",
+      "title": "Image-Based Malware Type Classification on MalNet-Image Tiny: Effects of Multi-Scale Fusion, Transfer Learning, Data Augmentation, and Schedule-Free Optimization",
+      "abstract": "This paper studies 43-class malware type classification on MalNet-Image Tiny, a public benchmark derived from Android APK files. The goal is to assess whether a compact image classifier benefits from four components evaluated in a controlled ablation: a feature pyramid network (FPN) for scale variation induced by resizing binaries of different lengths, ImageNet pretraining, lightweight augmentation through Mixup and TrivialAugment, and schedule-free AdamW optimization. All experiments use a ResNet18 backbone and the provided train/validation/test split. Reproducing the benchmark-style configuration yields macro-F1 (F1_macro) of 0.6510, consistent with the reported baseline of approximately 0.65. Replacing the optimizer with schedule-free AdamW and using unweighted cross-entropy increases F1_macro to 0.6535 in 10 epochs, compared with 96 epochs for the reproduced baseline. The best configuration combines pretraining, Mixup, TrivialAugment, and FPN, reaching F1_macro=0.6927, P_macro=0.7707, AUC_macro=0.9556, and L_test=0.8536. The ablation indicates that the largest gains in F1_macro arise from pretraining and augmentation, whereas FPN mainly improves P_macro, AUC_macro, and L_test in the strongest configuration.",
+      "authors": [
+        "Ahmed A. Abouelkhaire",
+        "Waleed A. Yousef",
+        "Issa Traor"
+      ],
+      "primary_category": "cs.CR",
+      "categories": [
+        "cs.CR"
+      ],
+      "published": "2026-04-22T23:45:44+00:00",
+      "link": "https://arxiv.org/pdf/2604.21153v1",
+      "tags": [
+        "keyword:SOD"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "evaluates FPN for scale variation and data augmentation on a public benchmark",
+      "llm_evidence_cn": "在公共基准上评估FPN处理尺度变化和数据增强的效果",
+      "llm_evidence": "在公共基准上评估FPN处理尺度变化和数据增强的效果",
+      "canonical_evidence": "在公共基准上评估FPN处理尺度变化和数据增强的效果",
+      "llm_tldr_en": "Studies FPN, augmentation, and multi-scale fusion for malware image classification on MalNet-Image Tiny.",
+      "llm_tldr_cn": "研究了FPN、增强和多尺度融合在恶意软件图像分类中的应用。",
+      "llm_tldr": "研究了FPN、增强和多尺度融合在恶意软件图像分类中的应用。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "FPN and its variants for multi-scale object detection",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "8plus"
+    },
+    {
+      "id": "2604.17024v1",
+      "source": "arxiv",
+      "title": "CAM3DNet: Comprehensively mining the multi-scale features for 3D Object Detection with Multi-View Cameras",
+      "abstract": "Query-based 3D object detection methods using multi-view images often struggle to efficiently leverage dynamic multi-scale information, e.g., the relationship between the object features and the geometric of the queries are not sufficiently learned, directly exploring the multi-scale spatiotemporal features will pay too many costs. To address these challenges, we propose CAM3DNet, a novel sparse query-based framework which combines three new modules, composite query (CQ), adaptive self-attention (ASA), and multi-scale hybrid sampling (MSHS). First, the core idea in the CQ module is a multi-scale projection strategy to transform 2D queries into 3D space. Second, the ASA module learns the interactions between the spatiotemporal multi-scale queries. Third, the MSHS module uses the deformable attention mechanism to sample multi-scale object information by considering multi-scales queries, pyramid feature maps, and 2D-camera prior knowledge. The entire model employs a backbone network and a feature pyramid network (FPN) as the encoder, then introduces a YOLOX and a DepthNet as a ROI\\_Head to produce CQ, and repeatedly utilizes ASA and MSHS as the decoder to gain detection features. Extensive experiments on the nuScenes, Waymo, and Argoverse benchmark datasets demonstrate the effectiveness of our CAM3DNet, and most existing camera-based 3D object detection methods are outperformed. Besides, we make comprehensive ablation studies to check the individual effect of CQ, ASA, and MSHS, as well as their cost of space and computation complexity.",
+      "authors": [
+        "Mingxi Pang",
+        "Dingheng Wang",
+        "Zekun Li",
+        "Zhenping Sun",
+        "Bo Wang",
+        "Zhihang Wang",
+        "Zhao-Xu Yang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-04-18T15:14:11+00:00",
+      "link": "https://arxiv.org/pdf/2604.17024v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "multi-scale feature mining and hybrid sampling for 3D detection",
+      "llm_evidence_cn": "用于3D检测的多尺度特征挖掘和混合采样",
+      "llm_evidence": "用于3D检测的多尺度特征挖掘和混合采样",
+      "canonical_evidence": "用于3D检测的多尺度特征挖掘和混合采样",
+      "llm_tldr_en": "Introduces CAM3DNet for 3D object detection using multi-scale projection and hybrid sampling modules.",
+      "llm_tldr_cn": "引入了CAM3DNet，通过多尺度投影和混合采样模块进行3D目标检测。",
+      "llm_tldr": "引入了CAM3DNet，通过多尺度投影和混合采样模块进行3D目标检测。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}

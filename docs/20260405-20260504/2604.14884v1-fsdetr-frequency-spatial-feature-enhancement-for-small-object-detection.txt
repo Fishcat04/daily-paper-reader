@@ -1,0 +1,190 @@
+Title: FSDETR: Frequency-Spatial Feature Enhancement for Small Object Detection
+
+URL Source: https://arxiv.org/pdf/2604.14884v1
+
+Published Time: Fri, 17 Apr 2026 01:02:37 GMT
+
+Number of Pages: 6
+
+Markdown Content:
+# FSDETR: Frequency-Spatial Feature Enhancement for Small Object Detection 
+
+Jianchao Huang, Fengming Zhang, Haibo Zhu and Tao Yan* 
+
+School of Artificial Intelligence and Computer Science, Jiangnan University, Wuxi, China 
+
+{6233112018, 6233110051, 6233152012 }@stu.jiangnan.edu.cn, yantao.ustc@gmail.com 
+
+Abstract —Small object detection remains a significant chal-lenge due to feature degradation from downsampling, mutual occlusion in dense clusters, and complex background interfer-ence. To address these issues, this paper proposes FSDETR, a frequency–spatial feature enhancement framework built upon the RT-DETR baseline. By establishing a collaborative modeling mechanism, the method effectively leverages complementary structural information. Specifically, a Spatial Hierarchical At-tention Block (SHAB) captures both local details and global dependencies to strengthen semantic representation. Further-more, to mitigate occlusion in dense scenes, the Deformable Attention-based Intra-scale Feature Interaction (DA-AIFI) fo-cuses on informative regions via dynamic sampling. Finally, the Frequency-Spatial Feature Pyramid Network (FSFPN) integrates frequency filtering with spatial edge extraction via the Cross-domain Frequency-Spatial Block (CFSB) to preserve fine-grained details. Experimental results show that with only 14.7M pa-rameters, FSDETR achieves 13.9% AP S on VisDrone 2019 and 48.95% AP tiny  
+
+> 50
+
+on TinyPerson, showing strong performance on small-object benchmarks. The code and models are available at https://github.com/YT3DVision/FSDETR. 
+
+Index Terms —Small object detection, Feature pyramid, Fre-quency–spatial feature enhancement, RT-DETR 
+
+I. I NTRODUCTION 
+
+Small object detection, particularly for targets smaller than 
+
+32 × 32 pixels in UAV imagery, remains a challenging task due to structural information loss during deep downsampling, mutual occlusion in dense scenes, and interference from complex backgrounds. These factors severely weaken the discriminative representation of tiny targets and make accurate localization more difficult. As shown in Fig. 1, improving small-object detection while maintaining model efficiency is still a challenging problem in practical applications. To address these limitations, this paper proposes FSDETR, a frequency-spatial feature enhancement framework built upon RT-DETR [1]. As illustrated in Fig. 2, the framework intro-duces three targeted improvements. First, the Spatial Hierar-chical Attention Block (SHAB) is integrated into the back-bone to strengthen long-range structural modeling. Second, the Deformable Attention-based Intra-scale Feature Interac-tion (DA-AIFI) module is employed to enhance geometric alignment for sparse targets. Third, the Frequency-Spatial Feature Pyramid Network (FSFPN) and its core unit, the Cross-domain Frequency-Spatial Block (CFSB), are designed to couple spatial edge extraction with learnable frequency filtering, thereby improving fine-grained detail preservation. 
+
+Tao Yan* is the corresponding author. 10 20 30 40 50 60 70  
+
+> Parameters (M)
+> 6
+> 7
+> 8
+> 9
+> 10
+> 11
+> 12
+> 13
+> 14
+> AP S (%)
+> Comparison on VisDrone2019 (AP S)
+> RT-DETR-R18 (Baseline)
+> RetinaNet
+> Faster RCNN-FPN Cascade-RCNN-FPN
+> YOLOv8m
+> YOLO10m
+> YOLO11m
+> YOLO12m
+> D-Fine-M
+> TPH-YOLOv5
+> RT-DETRv2
+> FSDETR (Ours)
+
+Fig. 1: Comparison of different object detection models on Vis-Drone2019. FSDETR achieves the highest AP s among models with comparable parameter sizes. 
+
+Extensive evaluations on the VisDrone 2019 [2] and TinyPerson [3] datasets demonstrate that FSDETR achieves 13.9% AP S and 48.95% AP tiny  
+
+> 50
+
+, showing strong performance on small-object benchmarks. These results validate the effec-tiveness of synergistic frequency-spatial modeling for small object detection. The main contributions of this paper are summarized as follows:  
+
+> •
+
+We design FSFPN and CFSB to enhance multi-scale aggregation and frequency-spatial feature representation for small objects.  
+
+> •
+
+We integrate SHAB and DA-AIFI to improve structural modeling and adaptive feature interaction with limited computational overhead.  
+
+> •
+
+Extensive experiments on the VisDrone 2019 and TinyPerson datasets demonstrate that FSDETR achieves competitive performance with clear gains on key small-object detection metrics. II. R ELATED WORK 
+
+Small object detection remains challenging because tiny targets usually contain limited discriminative pixels and are easily affected by background clutter, occlusion, and resolution degradation. Existing studies mainly improve performance through two directions. One direction enhances detail preser-vation by using multi-scale feature fusion or modified down-sampling operations, such as path aggregation strategies and SPD-based convolutional designs [4]–[6]. The other direction  
+
+> arXiv:2604.14884v1 [cs.CV] 16 Apr 2026 Fig. 2: The overall architecture of FSDETR. The framework comprises a hierarchical Backbone with SHAB and C2f blocks, followed by an Efficient Hybrid Encoder. The encoder employs DA-AIFI for intra-scale interaction and FSFPN with SPDConv and RepC3 blocks for cross-scale fusion. Uncertainty-minimal Query Selection initializes object queries for the Decoder & Head. Bottom panels illustrate detailed re-parameterized blocks (RepC3 and RepConv).
+
+introduces task-specific designs for dense or tiny targets to improve localization and feature discrimination under complex scenes [7], [8]. Although these methods have shown effec-tiveness, preserving fine-grained details during deep feature abstraction remains a critical difficulty. Transformer-based detectors have offered a new paradigm for object detection by modeling long-range dependencies and reducing hand-crafted components. RT-DETR [1] establishes a DETR-style baseline for real-time detection, and subse-quent studies such as RT-DETRv2 [9], CCD-DETR [10], and FDSI-RTDETR [11] further improve feature interaction and representation capability through sparse sampling and lightweight designs. Meanwhile, frequency-domain learning has shown advantages in capturing patterns and preserving high-frequency information. Representative studies such as FFC [12] and GFNet [13] show that frequency-based oper-ators can complement spatial representations by enhancing texture and structural cues. However, most DETR-based and frequency-domain methods still mainly rely on spatial-domain detection pipelines or are designed for general visual rep-resentation learning, and their integration into small object detectors remains insufficiently explored. This gap motivates the proposed FSDETR, which introduces frequency-spatial collaborative modeling into a DETR-based framework. III. METHOD 
+
+A. Overall Architecture 
+
+FSDETR follows the end-to-end detection paradigm of RT-DETR [1] while introducing targeted improvements in feature extraction and fusion for small object detection. As shown in Fig. 2, the backbone adopts an improved CSPNet [14] with sequential convolutions and C2f modules [15] to produce multi-scale features {P2, P 3, P 4, P 5}. SHAB is inserted into deep stages to enhance long-range structural modeling with limited overhead. The efficient hybrid encoder consists of DA-AIFI and FSFPN. DA-AIFI applies deformable attention [16] on high-level features to improve spatial alignment by adaptive sparse sampling, while FSFPN employs CFSB to enhance high-frequency cues such as edges and textures [12]. The enhanced features are then fed into the standard query selection module and Transformer decoder for prediction [1], [17]. 
+
+B. Spatial Hierarchical Attention Block 
+
+To mitigate feature erosion caused by progressive spatial downsampling [5] and address the computational redundancy in long-range dependency modeling [1], the improved CSPNet backbone integrates the Spatial Hierarchical Attention Block (SHAB), which is designed by refining the C2f structure [18]. As illustrated in Fig. 3, SHAB inherits the efficient cross-stage partial topology of the C2f module but substitutes its conventional bottleneck units with SHSA Blocks. Specifically, this design maintains a dual-branch pathway to facilitate gradient flow, while the embedded SHSA Blocks ( N = 1 )introduce a targeted self-attention mechanism to enhance deep representations with global context. The core design of this block is a symmetric channel partitioning strategy with a split ratio r = 0 .5. By applying Fig. 3: The structure of Spatial Hierarchical Attention Block. 
+
+attention modeling exclusively to a subset of channels to cap-ture global context while preserving the remaining channels via identity mapping, SHAB facilitates the establishment of long-range spatial dependencies with reduced computational complexity [19]. This structural design effectively retains fine-grained spatial details and mitigates the erosion of small-object features in deep stages without incurring significant computational overhead [20]. 
+
+C. Deformable Attention Intra-scale Feature Interaction 
+
+Standard Intra-scale Feature Interaction (AIFI) modules often suffer from background noise and limited geometric flexibility due to global Multi-Head Self-Attention [1], [3], [7]. To mitigate these constraints, we integrate DA-AIFI to adaptively focus on informative regions. Adopting the standard deformable attention formulation [16], the module aggregates features from a small set of K sampling points around a reference pq , rather than the entire feature map. Specifically, the output is computed as a weighted sum of sampled fea-tures, dynamically modulated by learnable offsets ∆pmqk and attention weights Amqk across M heads. By employing this sparse sampling mechanism, DA-AIFI effectively suppresses noise interference and reduces interaction complexity from 
+
+O(N 2) to O(N K ) (where K ≪ N ). This synergy of dy-namic receptive fields and geometric alignment significantly enhances geometric adaptability, leading to improved small object localization and detection precision. 
+
+D. Frequency-Spatial Feature Pyramid Network 
+
+FSFPN addresses semantic dilution and aliasing in small ob-ject detection by reconceptualizing the conventional pyramid as a signal restoration and enhancement module. Specifically, for low-level features P2, SPDConv [5] replaces strided con-volution to preserve critical spatial details via pixel remap-ping. In the top-down pathway, Soft Nearest Neighbor In-terpolation (SNI) replaces standard sampling [28], utilizing 
+
+α = Res (X)/Res (Y ) to adaptively mitigate the suppression of fine-grained textures. The core component of FSFPN is CFSB, illustrated in Fig. 4. This module functions as a hybrid perception unit that synergistically processes multi-dimensional information through parallel branches [12]. The spatial branch utilizes Scharr operators to capture local structural cues via horizontal (Gx) and vertical ( Gy ) components. The gradient-fused repre-sentation, denoted as Xgrad = Gx(X) + Gy (X), emphasizes object contours (or highlights geometric boundaries). where + denotes element-wise addition. To enhance feature robustness and preserve fine-grained spatial details, an internal residual connection is integrated, yielding the spatial enhanced feature: 
+
+Xspatial = Conv (Conv (Xgrad ) + X). (1)  
+
+> Fig. 4: The structure of Cross-domain Frequency-Spatial Block.
+
+The frequency-domain branch captures global spectral dis-tributions via the 2D Discrete Fourier Transform (DFT) [13]. In this domain, high-frequency components correspond to fine textures, while low-frequency components represent macro contours. A learnable convolutional layer acts as a filter mask 
+
+M to suppress background noise and enhance high-frequency target signals before feature reconstruction via the Inverse DFT (IDFT) [12]. The reconstructed frequency feature Xf req is formulated as: 
+
+Xf req = Conv (F−1(Conv (F(X)))) , (2) where F(·) and F−1(·) denote the 2D DFT and its inverse operation, respectively. Finally, CFSB employs an adaptive fusion mechanism to integrate dual-domain information. The spatial and frequency TABLE I: Comparison results on VisDrone 2019 dataset 
+
+Model Parameters (M) AP 50 (%) AP (%) AP S (%) AP M (%) AP L (%) RT-DETR-R18 (Baseline) [1] 20.0 36.3 20.8 11.3 30.5 37.8 RetinaNet [21] 36.51 27.6 16.4 6.0 27.4 42.7 Faster RCNN-FPN [22] 41.39 32.9 19.4 9.5 30.9 42.9 Cascade-RCNN-FPN [23] 69.29 32.6 19.7 9.9 30.9 40.6 YOLOv8m [18] 25.85 33.2 19.0 9.0 29.4 41.7 YOLOv10m [15] 15.32 34.5 19.5 9.7 30.0 41.4 YOLO11m [24] 20.04 35.0 20.3 9.8 31.2 41.3 YOLO12m [25] 20.11 33.6 19.2 9.4 29.8 38.6 D-Fine-M [26] 19.19 40.7 23.3 13.0 33.5 46.4 TPH-YOLOv5 [7] 61.73 29.6 17.3 6.8 28.3 52.8 
+
+RT-DETRv2 [9] 20.0 39.1 22.2 12.7 32.1 45.6 
+
+FSDETR (Ours) 14.7 40.5 22.7 13.9 33.8 43.5 
+
+TABLE II: Comparison results on TinyPerson dataset                                                                                       
+
+> Model AP tiny 150 AP tiny 250 AP tiny 350 AP tiny
+> 50 (%) AP small
+> 50 (%) AP tiny
+> 25 AP tiny
+> 75
+> RT-DETR-R18 (Baseline) [1] 24.56 43.22 48.30 42.44 58.06 69.33 4.35 RetinaNet [21] 11.47 36.36 43.32 30.82 43.38 57.33 2.64 Faster RCNN-FPN [22] 27.21 48.26 52.48 43.55 55.69 63.01 4.75 Adaptive FreeAnchor [27] 24.92 48.01 51.23 41.36 53.36 63.73 4.00 YOLOv8m [18] 21.45 42.80 44.10 38.65 54.20 67.40 3.20 YOLOv10m [15] 22.10 43.45 45.20 39.72 55.45 68.15 3.45 YOLO11m [24] 22.50 45.10 46.15 40.58 56.30 69.90 3.68 D-Fine-M [26] 26.92 48.55 51.42 47.28 63.10 70.55 4.95 RFLA [8] 29.70 49.35 55.34 45.31 57.53 65.07 4.97
+> FSDETR (Ours) 31.85 50.12 56.45 48.95 62.58 72.80 5.12
+
+branches are integrated through element-wise summation fol-lowed by a final convolutional layer for cross-channel inter-action. This mechanism allows the model to balance locally precise edge structures with globally significant frequency patterns, yielding the final output: 
+
+Xout = Conv (Xspatial + Xf req ). (3) By effectively modeling the interaction between spatial and frequency domains, CFSB significantly enhances the repre-sentation of small objects in complex environments. 
+
+E. Optimization of Loss Function 
+
+To enhance robustness against scale variations and sample imbalance, the total loss L integrates classification, regression, and geometric constraints: 
+
+L = λcls LV F L + λL1LL1 + λIoU LF ocaler -EIoU , (4) where λcls , λL1, and λIoU denote hyperparameters bal-ancing task contributions. For classification, Varifocal Loss (VFL) [29] is adopted via IoU-aware weighting to prioritize high-quality positives. For localization, L1 loss is coupled with Focaler-EIoU loss [30] to reconstruct gradients for challenging low-overlap samples. This multi-task optimization facilitates fine-grained spatial alignment and mitigates background noise for small objects. IV. E XPERIMENTS 
+
+A. Datasets and Implementation Details 
+
+Experiments are conducted on two benchmark datasets with extreme scale variation: VisDrone 2019 [2] and TinyPer-son [3]. VisDrone 2019 contains UAV images with dense small objects under complex backgrounds, while TinyPerson focuses on long-range pedestrian detection with targets typi-cally smaller than 20 × 20 pixels. FSDETR is implemented based on RT-DETR [1] and trained on an NVIDIA GeForce RTX 4060 Ti GPU using AdamW with an initial learning rate of 1 × 10 −4, cosine annealing, 200 epochs, and a batch size of 4. Loss weights are set to λcls = 2 , λL1 = 5 , and 
+
+λIoU = 2 . For TinyPerson, the official image-slicing strategy is used during training and testing, and NMS is applied to merge sub-image predictions. 
+
+B. Comparison with State-of-the-Art 
+
+To evaluate FSDETR, comparisons are performed against a diverse set of state-of-the-art detectors, including representa-tive CNN-based architectures, real-time YOLO variants, and Transformer-based models, alongside specialized algorithms optimized for small-scale targets. For a fair comparison, rep-resentative methods were reproduced under settings aligned as closely as possible with their official implementations and evaluation protocols. 
+
+1) Quantitative comparison: Experiments are evaluated us-ing standard COCO metrics and the official TinyPerson [3] evaluation protocols. As shown in Table I, FSDETR achieves (a) rtdetr (Baseline) (b) YOLO11m (c) D-Fine-M (d) Ours 
+
+Fig. 5: Visual error analysis on the VisDrone 2019 dataset across two typical traffic scenes. FSDETR (Ours) effectively reduces blue FN boxes in high-density areas through enhanced frequency-spatial modeling. Legend: TP (Green), FP (Red), FN (Blue).    
+
+> (a) Baseline (b) YOLO11m (c) D-Fine-M (d) Ours
+
+Fig. 6: Visual error analysis on the TinyPerson dataset. In these low-contrast seaside environments, FSDETR demonstrates superior target localization and lower false alarm rates (red boxes) for extremely small objects. Legend: TP (Green), FP (Red), FN (Blue). 
+
+a favorable balance between model complexity and detection accuracy. With only 14.7M parameters, representing a 26.5% reduction from the RT-DETR-R18 baseline [1], it attains the best AP S of 13.9% on VisDrone. On TinyPerson (Table II), FSDETR achieves the best AP tiny 150 of 31.85%, the best 
+
+AP tiny  
+
+> 50
+
+of 48.95%, and AP tiny  
+
+> 25
+
+of 72.80%. These results indi-cate that the proposed frequency-spatial enhancement strategy is effective for improving small-object detection. 
+
+2) Qualitative Comparison: Qualitative evaluations on Vis-Drone 2019 and TinyPerson (Figs. 5–6) highlight FSDETR’s robustness in challenging scenarios (Regions #1–#7). In Vis-Drone scenes (#1–#4), FSFPN effectively preserves weak sig-nals often lost during downsampling, while SHAB maintains high detection density through long-range dependency model-ing. Similarly, for sub-20 × 20 pixel targets in TinyPerson’s low-contrast environments (#5–#7), FSDETR mitigates feature blurring by integrating image slicing with high-frequency extraction. These observations align with the quantitative gains in AP S and AP tiny 150 , visually validating its precision and robustness in tiny object detection. 
+
+C. Ablation Study 
+
+The efficacy of FSDETR’s core components is validated through systematic ablation studies on the VisDrone 2019 dataset using RT-DETR-R18 [1] as the baseline, with re-sults detailed in Table III. Integrating SHAB yields a 1.2% improvement in AP 50 , demonstrating that lightweight self-attention effectively expands receptive fields and enhances the global context perception essential for distinguishing small targets. Subsequently, substituting the interaction mechanism with DA-AIFI [16] adaptively focuses on sparse, information-rich regions via dynamic sampling, enhancing localization accuracy and geometric adaptability with negligible overhead. 
+
+TABLE III: Ablation experiments on component effectiveness                                 
+
+> Exp. SHAB DA-AIFI FSFPN (CFSB) AP50 (%) AP (%) APS (%) 136.3 20.8 11.3 2✓37.5 21.5 11.9 3✓37.1 21.2 11.6 4✓38.2 21.9 12.5 5✓✓38.9 22.1 12.3 6✓✓✓40.5 22.7 13.9
+
+Notably, FSFPN with CFSB delivers the most substantial gain, increasing AP S and AP 50 by 1.2% and 1.9%, respec-tively. This confirms frequency-domain information comple-ments spatial features, mitigating the loss of high-frequency textures during deep feature fusion [12]. Ultimately, the com-plete architecture achieves a peak AP S of 13.9%, highlighting that the deep coupling of spatial semantics and frequency details is crucial for recovering faint signals from small objects. V. CONCLUSION This study proposes FSDETR to address the challenge of small-object feature degradation stemming from excessive spatial compression in deep neural networks. The proposed architecture integrates SHAB to expand receptive fields and employs DA-AIFI to achieve precise geometric alignment, thereby establishing robust long-range dependencies with min-imal computational overhead. Furthermore, FSFPN is intro-duced to leverage the deep coupling of spatial semantics and frequency-domain textures, explicitly capturing and am-plifying weak signals typically overlooked by conventional architectures. Ablation studies and comparative analyses on the VisDrone 2019 and TinyPerson datasets demonstrate that FSDETR, with only 14.7M parameters, achieves competi-tive performance with clear gains on key small-object met-rics. These experimental results validate the efficacy of the frequency-spatial collaborative strategy in enhancing detection precision and robustness for tiny targets in complex real-world environments. ACKNOWLEDGMENT 
+
+We acknowledge the use of Google Gemini [31] for text polishing and linguistic refinement. The generated content was verified by the authors to ensure accuracy and consistency. REFERENCES [1] H. Zhao, J. Zhang, Y. Zhao, P. Li, C.-C. Loy, D. Lin, and J. Jia, “DETRs beat YOLOs on real-time object detection,” in Proc. IEEE Conf. Comput. Vis. Pattern Recognit. (CVPR) , pp. 17063–17073, 2023. [2] D. Du, P. Zhu, L. Wen, X. Bian, H. Lin, Q. Hu, T. Peng, J. Zheng, X. Wang, Y. Zhang, L. Bo, H. Shi, R. Zhu, A. Kumar, A. Li, A. Zinol-layev, A. Askergaliyev, A. Schumann, B. Mao, B. Lee, C. Liu, C. Chen, C. Pan, C. Huo, D. Yu, D. Cong, D. Zeng, D. Reddy Pailla, D. Li, D. Wang, D. Cho, D. Zhang, F. Bai, G. Jose, G. Gao, G. Liu, H. Xiong, H. Qi, H. Wang, H. Qiu, H. Li, H. Lu, I. Kim, J. Kim, J. Shen, J. Lee, J. Ge, J. Xu, J. Zhou, J. Meier, J. Won Choi, J. Hu, J. Zhang, J. Huang, K. Huang, K. Wang, L. Sommer, L. Jin, and L. Zhang, “Visdrone-det2019: The vision meets drone object detection in image challenge results,” in Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) Workshops , Oct 2019. [3] X. Yu, Y. Gong, N. Jiang, Q. Ye, and Z. Han, “Scale match for tiny person detection,” in Proceedings of the IEEE/CVF winter conference on applications of computer vision , pp. 1257–1265, 2020. [4] S. Liu, L. Qi, H. Qin, J. Shi, and J. Jia, “Path aggregation network for instance segmentation,” in Proc. IEEE Conf. Comput. Vis. Pattern Recognit. (CVPR) , pp. 8759–8768, 2018. [5] R. Sunkara and T. Luo, “No more strided convolutions or pooling: A new CNN building block for low-resolution images and small objects,” in 
+
+European Conference on Machine Learning and Principles and Practice of Knowledge Discovery in Databases (ECML PKDD) , pp. 443–459, Sept. 2022. [6] J. Liu, T. Yan, X. Chen, Z. Zhang, C. Wang, and W. Huang, “Gcgp-yolo: Global-local and channel grouping perception network for small object detection based on yolov8,” in 2025 International Joint Conference on Neural Networks (IJCNN) , pp. 1–10, 2025. [7] X. Zhu, S. Lyu, X. Wang, and Q. Zhao, “Tph-yolov5: Improved yolov5 based on transformer prediction head for object detection on drone-captured scenarios,” in Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) Workshops , pp. 2778–2788, October 2021. [8] C. Xu, J. Wang, W. Yang, H. Yu, L. Yu, and G.-S. Xia, “Rfla: Gaussian receptive field based label assignment for tiny object detection,” in 
+
+European Conference on Computer Vision , pp. 526–543, Springer, 2022. [9] W. Lv, Y. Zhao, Q. Chang, K. Huang, G. Wang, and Y. Liu, “Rt-detrv2: Improved baseline with bag-of-freebies for real-time detection transformer,” 2024. [10] D. Wang, Y. Jiang, and S. Wang, “The improved algorithm of rt-detr based on multi-head attention mechanism,” in 2025 International Joint Conference on Neural Networks (IJCNN) , pp. 1–8, 2025. [11] T. Guo, Q. Song, Y. Xue, and F. Qiao, “Fdsi-rtdetr : A lightweight unmanned aerial vehicle (uav) aerial image small object detection network,” in 2025 International Joint Conference on Neural Networks (IJCNN) , pp. 1–8, 2025. [12] L. Chi, B. Jiang, and Y. Mu, “Fast fourier convolution,” in Adv. Neural Inf. Process. Syst. (NeurIPS) , vol. 33, pp. 4479–4490, 2020. [13] Y. Rao, W. Zhao, Z. Zhu, J. Lu, and J. Zhou, “Global filter networks for image classification,” Advances in neural information processing systems , vol. 34, pp. 980–993, 2021. [14] C.-Y. Wang, H.-Y. M. Liao, Y.-H. Wu, P.-Y. Chen, J.-W. Hsieh, and I.-H. Yeh, “Cspnet: A new backbone that can enhance learning capability of cnn,” in Proceedings of the IEEE/CVF conference on computer vision and pattern recognition workshops , pp. 390–391, 2020. [15] A. Wang, H. Chen, L. Liu, K. Chen, Z. Lin, J. Han, et al. , “Yolov10: Real-time end-to-end object detection,” Advances in Neural Information Processing Systems , vol. 37, pp. 107984–108011, 2024. [16] X. Zhu, W. Su, L. Lu, B. Li, X. Wang, and J. Dai, “Deformable DETR: Deformable transformers for end-to-end object detection,” in Proc. Int. Conf. Learn. Represent. (ICLR) , 2021. [17] H. Zhang, F. Li, S. Liu, L. Zhang, H. Su, J. Zhu, L. M. Ni, and H.-Y. Shum, “Dino: Detr with improved denoising anchor boxes for end-to-end object detection,” arXiv preprint arXiv:2203.03605 , 2022. [18] G. Jocher, J. Qiu, and A. Chaurasia, “Ultralytics YOLO,” Jan. 2023. [19] J. Chen, S.-h. Kao, H. He, W. Zhuo, S. Wen, C.-H. Lee, and S.-H. G. Chan, “Run, don’t walk: Chasing higher flops for faster neural networks,” arXiv preprint arXiv:2303.03667 , 2023. [20] W. Wang, E. Xie, X. Li, D.-P. Fan, K. Song, D. Liang, T. Lu, P. Luo, and L. Shao, “Pyramid vision transformer: A versatile backbone for dense prediction without convolutions,” in Proceedings of the IEEE/CVF international conference on computer vision , pp. 568–578, 2021. [21] T.-Y. Lin, P. Goyal, R. B. Girshick, K. He, and P. Doll´ ar, “Focal loss for dense object detection,” IEEE Transactions on Pattern Analysis and Machine Intelligence , vol. 42, pp. 318–327, 2017. [22] T.-Y. Lin, P. Doll´ ar, R. Girshick, K. He, B. Hariharan, and S. Belongie, “Feature pyramid networks for object detection,” in Proc. IEEE Conf. Comput. Vis. Pattern Recognit. (CVPR) , pp. 2117–2125, 2017. [23] Z. Cai and N. Vasconcelos, “Cascade r-cnn: Delving into high quality object detection,” in Proceedings of the IEEE conference on computer vision and pattern recognition , pp. 6154–6162, 2018. [24] G. Jocher and J. Qiu, “Ultralytics yolo11,” 2024. [25] Y. Tian, Q. Ye, and D. Doermann, “Yolo12: Attention-centric real-time object detectors,” arXiv preprint arXiv:2502.12524 , 2025. [26] Y. Peng, H. Li, P. Wu, Y. Zhang, X. Sun, and F. Wu, “D-fine: Redefine regression task in detrs as fine-grained distribution refinement,” 2024. [27] X. Zhang, F. Wan, C. Liu, R. Ji, and Q. Ye, “Freeanchor: Learning to match anchors for visual object detection,” arXiv , 2019. [28] H. Li, “Rethinking features-fused-pyramid-neck for object detection,” in 
+
+European Conference on Computer Vision , pp. 74–90, Springer, 2024. [29] H. Zhang, Y. Wang, F. Dayoub, and N. Sunderhauf, “Varifocalnet: An iou-aware dense object detector,” in Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pp. 8514–8523, 2021. [30] Y.-F. Zhang, W. Ren, Z. Zhang, Z. Jia, L. Wang, and T. Tan, “Focal and efficient iou loss for accurate bounding box regression,” Neurocomput-ing , vol. 506, pp. 146–157, 2022. [31] Google, “Gemini.” [Large language model]. Available: https://gemini. google.com, 2026. Accessed: Feb. 1, 2026.

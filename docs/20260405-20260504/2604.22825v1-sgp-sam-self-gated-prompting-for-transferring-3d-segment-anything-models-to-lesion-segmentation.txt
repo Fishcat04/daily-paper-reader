@@ -1,0 +1,277 @@
+Title: SGP-SAM: Self-Gated Prompting for Transferring 3D Segment Anything Models to Lesion Segmentation
+
+URL Source: https://arxiv.org/pdf/2604.22825v1
+
+Published Time: Tue, 28 Apr 2026 00:03:51 GMT
+
+Number of Pages: 10
+
+Markdown Content:
+# SGP-SAM: Self-Gated Prompting for Transferring 3D Segment Anything Models to Lesion Segmentation 
+
+Zixuan Tang and Shen Zhao 
+
+School of Intelligent Systems Engineering, Sun Yat-sen University, Shenzhen China. 
+
+zxtang0129@126.com 
+
+Abstract. Large segmentation foundation models such as the Segment Anything Model (SAM) have reshaped promptable segmentation in nat-ural images, and recent efforts have extended these models to medi-cal images and volumetric settings. However, directly transferring a 3D SAM-style model to lesion segmentation remains challenging due to (i) weak spatial representational capacity for small, irregular targets in in-termediate features, and (ii) extreme foreground–background imbalance in 3D volumes. We propose SGP-SAM , a self-gated prompting frame-work for efficient and effective transfer to 3D lesion segmentation. Our key component, the Self-Gated Prompting Module (SGPM) , per-forms conditional multi-scale spatial enhancement: a lightweight multi-channel gating unit predicts whether the current features require addi-tional multi-scale fusion, and only then activates a Multi-Scale Feature Fusion Block to enrich spatial context. To further address small-lesion learning, we design a Zoom Loss that up-weights lesion-focused super-vision by combining Dice and a voxel-balanced focal term. Experiments on MSD Liver Tumor and MSD Brain Tumor (enhancing tumor) show consistent gains over strong transfer baselines based on SAM-Med3D. On MSD Liver Tumor, SGP-SAM improves mDice by 7.3% over fine-tuning. 
+
+Keywords: Lesion segmentation · 3D medical imaging · Segment Any-thing · Prompt learning · Transfer learning 
+
+## 1 Introduction 
+
+Promptable segmentation has recently advanced rapidly due to foundation mod-els such as SAM [1] and its video extension SAM 2 [2]. In parallel, medical foundation segmentation models (e.g., MedSAM [3], MedSAM2 [4], and Medical SAM 2 [5]) have demonstrated promising generalization across modalities and anatomies [6, 7]. Despite this progress, transferring promptable segmentation to 3D lesion segmentation remains difficult [6]. Lesions (e.g., liver tumors and en-hancing brain tumors) typically occupy a very small portion of a volume and exhibit diverse, irregular morphologies; both properties amplify ambiguity un-der sparse prompts and challenge intermediate representations in a transformer image encoder [8, 9, 6].      
+
+> arXiv:2604.22825v1 [cs.CV] 19 Apr 2026 2Anonymized Author et al. Liver Tumor Brain Enhancing Tumor
+> Fig. 1. Lesion segmentation in medical images is highly challenging due to the small proportion of lesions and their complex structures. The area within the red box rep-resents liver tumor lesions which occupy a small proportion in CT images, while the area within the red box represents the complex-shaped brain enhancing tumor region.
+
+Existing medical SAM adaptations mainly follow two directions. One line fo-cuses on improving 2D medical segmentation by pretraining and then applying per-slice prompting or fine-tuning. Although effective in some settings, slice-wise processing does not fully leverage 3D spatial continuity and may require heavy interaction for volumetric annotation [10, 6, 11]. Another line modifies the ar-chitecture to process 3D volumes directly (e.g., SAM-Med3D [10]) and explores parameter-efficient transfer (e.g., Med-SA [12], 3DSAM-adapter [13]). However, lesion segmentation still suffers from two practical issue: (1) intermediate fea-tures may be spatially insufficient for capturing small and complex targets, espe-cially in early-to-mid encoder layers; (2) extreme class imbalance makes training unstable, causing the model to overfit easy background voxels [14, 6, 15, 8]. To address these issues, we propose SGP-SAM , a self-gated prompting strategy that improves spatial representation only when needed. Our SGPM 
+
+is inserted into the 3D image encoder and learns to decide whether a feature map should undergo additional multi-scale fusion. This conditional enhance-ment enriches spatial context for hard cases while avoiding unnecessary compu-tation on easy cases [16–18]. In addition, we introduce Zoom Loss to strengthen lesion-focused supervision by combining Dice loss [19] with a voxel-balanced focal term [20] and a lesion-size-dependent reweighting. Our contributions: 
+
+– We propose SGP-SAM , a self-gated prompting framework for transferring 3D SAM-style models to lesion segmentation with improved spatial repre-sentation and lesion-focused learning. 
+
+– We design the SGPM , where multi-channel gating predicts when to activate a Multi-Scale Feature Fusion Block for conditional spatial enhancement inside the 3D image encoder. 
+
+– We introduce Zoom Loss , which combines Dice Loss and voxel-balanced focal supervision with lesion-size-aware weighting, effectively handling the challenge of small lesion areas in 3D medical images by prioritizing their learning and mitigating the impact of easy background pixels. Title Suppressed Due to Excessive Length 3
+
+## 2 Related Work 
+
+2.1 Promptable segmentation foundation models 
+
+SAM [1] introduces a prompt-based paradigm that supports points, boxes, and masks. SAM 2 [2] extends this idea to images and videos with a streaming memory design. These models enable interactive segmentation with strong gen-eralization on natural images, inspiring medical adaptations [3, 6]. 
+
+2.2 Medical and 3D extensions of SAM 
+
+MedSAM [3] improves medical generalization through large-scale medical data curation and training. For 3D medical imaging, several approaches adapt SAM via architectural changes or parameter-efficient tuning. SAM-Med3D [21] ex-tends SAM-style components to volumetric data. Med-SA [12] proposes adapter-based transfer and introduces designs such as space-depth transpose for 3D adap-tation. 3DSAM-adapter [13] addresses holistic 2D-to-3D adaptation for prompt-able tumor segmentation. Beyond SAM-style adaptation, recent 3D foundation models such as SegVol [22] and VISTA3D [23] scale up 3D training and unify automatic and interactive workflows. 
+
+2.3 Conditional computation and gating 
+
+Conditional computation aims to allocate extra capacity to hard inputs while keeping efficiency. Gating and reparameterization tools (e.g., Gumbel-Softmax [16]) are widely used to enable differentiable discrete decisions. Motivated by this idea, we introduce gating inside the 3D image encoder to selectively apply multi-scale feature fusion only when intermediate features are predicted to be spatially in-sufficient. 
+
+## 3 Method 
+
+3.1 Overview 
+
+Figure 2 illustrates SGP-SAM. We build upon a 3D SAM-style backbone (e.g., SAM-Med3D [21]) consisting of (i) a 3D image encoder, (ii) a prompt encoder, and (iii) a mask decoder. Given a 3D medical volume X ∈ RH×W ×D , the im-age encoder outputs latent features F ∈ RHd×Wd×Dd×Cd . The prompt encoder converts point prompts into sparse embeddings S and dense embeddings D, and the mask decoder predicts the final mask ˆY ∈ [0 , 1] H×W ×D .Our key modification is the Self-Gated Prompting Module (SGPM) ,inserted at the beginning of selected transformer blocks in the 3D image encoder. SGPM predicts a gate value and conditionally activates a Multi-Scale Feature Fusion Block (MSFB) to enhance spatial representation. 4 Anonymized Author et al. Prompt   
+
+> Encoder
+> Mask
+> Decoder
+> Transformer Block
+> Transformer Block
+> Transformer Block
+> H-pool
+> W-pool
+> D-pool
+> C-pool
+> Gumbel-
+> Sigmoid
+> 1x1x1 Conv
+> 3x3x3 Conv
+> 5x5x5 Conv
+> Fusion
+> Convolution
+> Dice Loss
+> Voxel-Balanced
+> Focal Term
+> Lesion-Size-
+> Aware Weighting
+> MLP
+> MLP
+> MLP
+> MLP
+> Concate  Aggregate
+> 3D Image Encoder(SAM-style) Self-Gated Prompting Moudle(SGPM)
+> Multi-Channel Self-Gating Unit
+> Multi-Scale Feature Fusion Block(MSFB)
+> Zoom Loss
+> ···
+> g
+> gGated
+> Features
+> (1-g)
+> F
+> Loss
+> Predicated
+> 3D Mask
+> Groud
+> Truth Mask
+> Sparse/Dense
+> Embeddings
+> 3D Input
+> Volume
+> Prompts
+> (e.g.Points)
+> Self-Gated Prompting
+> Moudle(SGPM)
+> SGPM
+> SGPM
+
+Fig. 2. SGP-SAM pipeline. SGPM is inserted into the 3D image encoder. A multi-channel gating unit predicts whether to activate MSFB for multi-scale spatial enhance-ment. Zoom Loss strengthens lesion-focused supervision. 
+
+3.2 Self-Gated Prompting Module (SGPM) 
+
+SGPM contains: (i) a Multi-Channel Self-Gating Unit that estimates whether intermediate features need additional spatial enhancement, and (ii) an MSFB 
+
+that performs multi-scale fusion when activated. 
+
+Multi-Channel Self-Gating Unit Given F ∈ RHd×Wd×Dd×Cd , we compute dimension-wise summary vectors by mean pooling along complementary axes: 
+
+fX (x) = 1
+
+Q
+
+i̸=X Di
+
+X
+
+i̸=X
+
+F[i1, . . . , i X , . . . , i N ] ∈ RDX , (1) where X ∈ { H, W, D, C } represents the dimension being aggregated, fX (x) is the aggregated feature for dimension X, F[h, w, d, c ] is the data over all dimensions, Q
+
+i̸=X Di is the product of the sizes of all dimensions except X, and RDX is the feature dimension for the corresponding aggregated feature. Each summary is mapped to a scalar key by a small predictor (we use two-layer MLPs): 
+
+kX = ϕX (fX ), X ∈ { H, W, D, C } (2) where ϕ•(·) outputs a scalar. We aggregate these keys using learnable weights normalized by softmax: 
+
+α = softmax( a) ∈ R4, s = αH kH + αW kW + αD kD + αC kC , (3) where a is a learnable parameter vector and s is the gate logit. Title Suppressed Due to Excessive Length 5
+
+To make the gate differentiable while encouraging near-binary decisions, we adopt a Gumbel-Sigmoid estimator: 
+
+˜g = σ
+
+ s + log ϵ − log(1 − ϵ)
+
+T
+
+
+
+, ϵ ∼ U (0 , 1) , (4) where σ(·) is the sigmoid and T is a temperature. During training, we use ˜g ∈
+
+(0 , 1) ; during inference, we use a hard gate g = I[˜ g > 0.5] (straight-through can be used in training if desired). Finally, SGPM outputs 
+
+Fout = g · MSFB( F) + (1 − g) · F. (5) Intuitively, if the current features are predicted to be spatially insufficient (gate opens), MSFB enhances them; otherwise, features pass through unchanged. 
+
+Multi-Scale Feature Fusion Block (MSFB) MSFB enhances spatial con-text by applying parallel 3D convolutions at varying receptive fields to extract multi-scale information [8, 24, 9]. To reduce the computational burden, we first compress the channels: 
+
+Fc = Conv 1×1×1(F), Fc ∈ RHd×Wd×Dd×C′
+
+, (6) then we apply three convolutional branches of different kernel sizes: 
+
+F1 = Conv 1×1×1(Fc), F3 = Conv 3×3×3(Fc), F5 = Conv 5×5×5(Fc). (7) These outputs are fused by averaging, followed by a re-expansion of the channels through a 1 × 1 × 1 convolution: 
+
+Fms = ReLU 
+
+
+
+Conv 1×1×1
+
+ F1 + F3 + F5
+
+3
+
+ 
+
+, (8) where the fusion step can be viewed as a selective spatial enhancement mech-anism. In practice, SGPM ensures that this enhancement is applied selectively to challenging cases (such as small or highly irregular lesions) by dynamically activating the feature fusion process when required [16, 8]. 
+
+3.3 Zoom Loss 
+
+The Zoom Loss is designed to address the imbalance in 3D lesion segmentation by adjusting the importance of positive samples. It combines Dice Loss [19] with a voxel-balanced focal loss [20], where the importance of each voxel is dynamically re-weighted based on lesion size. The reweighting factor encourages the model to focus on smaller and more complex lesion areas, reducing the influence of easy background pixels [20, 8, 6]. The final loss is formulated as: 
+
+LV = − 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+[αy i(1 − pi)γ log( pi) + (1 − α)(1 − yi)pγi log(1 − pi)] (9) 6 Anonymized Author et al.                              
+
+> Table 1. Results on MSD Liver Tumor and MSD Brain Tumor (enhancing tumor).
+> Dataset Method Init. Model mIoU mDice
+> MSD Liver Tumor Pretrain SAM-Med3D [21] 0.2984 0.3993 Adapter SAM-Med3D [21] 0.4909 0.6145 Fine-tuning SAM-Med3D [21] 0.5353 0.6667
+> SGP-SAM (ours) SAM-Med3D [21] 0.5775 0.7151
+> MSD Brain Tumor Pretrain SAM-Med3D [21] 0.3576 0.4976 Adapter SAM-Med3D [21] 0.4589 0.6029 Fine-tuning SAM-Med3D [21] 0.4437 0.5841
+> SGP-SAM (ours) SAM-Med3D [21] 0.4653 0.6087
+
+where N is the total number of pixels in the three-dimensional data, yi and pi
+
+represent the actual label and the model’s predicted probability of being positive for the ith pixel, respectively. The parameters α and γ control the importance of positive samples and the focusing effect on small lesions. 
+
+## 4 Experiment 
+
+4.1 Dataset MSD Liver Tumor [25, 26] is one of the datasets used in the Medical Segmen-tation Decathlon challenge. Its training set consists of 3D CT images of the liver from 131 patients and corresponding annotations of liver tumors. Since the test set labels are not publicly available, we randomly split the training set: 80% of the data for training and 20% for testing. Preprocessing is the same as [27]. 
+
+MSD Brain Tumor [25, 28]. Its training set consists of 484 brain MRI images, featuring three types of labels: edema, enhancing tumor, and non-enhancing tu-mor. We chose the enhancing tumor, which has the most complex structures and presents the greatest segmentation challenge, as our target for experimentation. The test set labels for this dataset are also not publicly available, therefore, we randomly divided the training set, with 80% as training samples and 20% as test samples. We applied the same data preprocessing method to this dataset. 
+
+4.2 Implementation Details 
+
+All methods were trained with a learning rate of 8e-4 for 40 epochs, and we mon-itored the loss to ensure training convergence. All experiments were conducted on an Nvidia 4090. Moreover, since the model requires points as prompts for proper segmentation, for the datasets used, we fixed a set of prompt points for each test sample. All methods were tested using the same set of prompt points to ensure fairness during testing. Title Suppressed Due to Excessive Length 7Input GT Pretrain Fine tune Adapter ours  
+
+> Brain  Tumor  Liver  Tumor
+> Fig. 3. The visualization results demonstrate that our SGP-SAM method achieves better segmentation performance, whether for liver tumors that constitute a smaller proportion or brain tumors with complex shapes and ambiguous boundaries.
+
+4.3 Comparisons with Related Methods 
+
+The comparative experiments demonstrate the superiority of our approach [10]. We compare our method to the baseline, which consists of the pre-trained SAM-Med3D [21] model enhanced through fine-tuning. After training our SGP-SAM model with Zoom Loss on the MSD Liver Tumor dataset, significant improve-ments are achieved in both IoU and Dice metrics, reaching 0.5775 and 0.7151, respectively. Compared to the SAM-Med3D pre-trained model enhanced only through fine-tuning techniques, our method achieves an increase of 7.8% in mIoU and 7.3% in mDice. For the MSD Brain Tumor dataset, compared to the fine-tuning method, we also achieved a 4.9% improvement in mIoU and a 4.2% improvement in mDice. The visualization results further demonstrate the effectiveness of our method. As shown in Fig. 3, for liver tumors with small proportions and blurry bound-aries, thanks to the design of our Zoom Loss, the model can pay more attention to smaller lesion areas and achieve more accurate segmentation. For brain tumors with complex structures and ambiguous boundaries, our proposed SGPM module plays a pivotal role. By extracting features at multiple scales using compressed information from various dimensions, the module enriches the representation of features which helps improve the segmentation performance of these lesion areas. 
+
+4.4 Ablation Studies 
+
+Ablation results on the MSD Liver Tumor dataset show the effectiveness of SGPM and Zoom Loss. As shown in Tab. 2, SGPM increased mIoU to 0.5585 and 8 Anonymized Author et al. 1-3 1-6 1-9 1-12                   
+
+> 0.66
+> 0.67
+> 0.68
+> 0.69
+> 0.70
+> 0.71
+> 0.72
+> mDice
+> Fine-tuning
+> 10-12 7-12 4-12 1-12
+> (a) Add at the end.
+> 1-3 1-6 1-9 1-12
+> 0.66
+> 0.67
+> 0.68
+> 0.69
+> 0.70
+> 0.71
+> 0.72
+> Fine-tuning
+> 10-12 7-12 4-12 1-12
+> (b) Add at the begining.
+> 1-3 1-6 1-9 1-12
+> 0.66
+> 0.67
+> 0.68
+> 0.69
+> 0.70
+> 0.71
+> 0.72
+> Fine-tuning
+> 10-12 7-12 4-12 1-12
+> (c) Add both.
+> top bottom bottom top
+
+Fig. 4. Ablation study on SGPM depth and position. (a) SGPM is added at the end of the block. (b) SGPM is added at the beginning of the block. (c) SGPM is added on both sides of the block. ”i − j” denotes that the SGPM is embedded from the i-th layer to the j-th layer of the image encoder. Note: 1-th layer of the Image Encoder is the bottommost layer. 
+
+Table 2. Ablation study results on SGPB and Zoom Loss 
+
+Settings mIoU mDice 
+
+Baseline 0.5353 0.6667 Baseline + SGPM 0.5585 (+4.3%) 0.6931 (+4.9%) Baseline + SGPM + Zoom Loss 0.5775 (+7.8%) 0.7151 (+7.3%) 
+
+Dice to 0.6931. Combining SGPM and Zoom Loss further improved performance, with mIoU and Dice reaching 0.5775 and 0.7151, respectively. The ablation study on SGPM depth and position (Fig. 4) reveals that (1) model performance improves with the SGPM module; (2) adding SGPM from bottom to top layers is more effective, enhancing spatial representation in early layers; (3) placing SGPM at the beginning of the block yields the best perfor-mance. Hence, optimal lesion segmentation is achieved when SGPM is added at the end of each block. 
+
+## 5 Conclusion 
+
+We propose SGP-SAM, which utilizes the Self-Gated Prompt Module (SGPM) to dynamically decide the need for multi-scale feature aggregation based on spa-tial information. This enhances feature expressiveness for better representation of medical lesions. Additionally, Zoom Loss, combining Dice Loss and a voxel-balanced loss, addresses the challenge of small lesion areas by prioritizing their learning while reducing the influence of easy background pixels. Title Suppressed Due to Excessive Length 9
+
+## References 
+
+1. Alexander Kirillov, Eric Mintun, Nikhila Ravi, Hanzi Mao, Chloe Rolland, Laura Gustafson, Tete Xiao, Spencer Whitehead, Alexander C Berg, Wan-Yen Lo, et al. Segment anything. arXiv:2304.02643, 2023. 2. Nikhila Ravi, Valentin Gabeur, Yuan-Ting Hu, Ronghang Hu, Chaitanya Ryali, Tengyu Ma, Haitham Khedr, Roman Rädle, Chloe Rolland, Laura Gustafson, et al. Sam 2: Segment anything in images and videos. arXiv preprint arXiv:2408.00714, 2024. 3. Jun Ma, Yuting He, Feifei Li, Lin Han, Chenyu You, others, and Bo Wang. Segment anything in medical images. Nature Communications, 15(1):654, 2024. 4. Jun Ma, Zongxin Yang, Sumin Kim, Bihui Chen, Mohammed Baharoon, Adibvafa Fallahpour, Reza Asakereh, Hongwei Lyu, and Bo Wang. Medsam2: Segment anything in 3d medical images and videos. arXiv preprint arXiv:2504.03600, 2025. 5. Jiayuan Zhu, Abdullah Hamdi, Yunli Qi, Yueming Jin, and Junde Wu. Medical sam 2: Segment medical images as video via segment anything model 2. arXiv preprint arXiv:2408.00874, 2024. 6. Mudassar Ali, Tong Wu, Haoji Hu, Qiong Luo, Dong Xu, Weizeng Zheng, Neng Jin, Chen Yang, and Jincao Yao. A review of the segment anything model (sam) for medical image analysis: Accomplishments and perspectives. Computerized Medical Imaging and Graphics, 119:102473, 2025. 7. Jay N Paranjape, Shameema Sikder, S Swaroop Vedula, and Vishal M Patel. S-sam: Svd-based fine-tuning of segment anything model for medical image segmentation. In International Conference on Medical Image Computing and Computer-Assisted Intervention, pages 720–730. Springer, 2024. 8. Xinhua Xu, Yuhang Wen, Lu Zhao, Yi Zhang, Youjun Zhao, Zixuan Tang, Ziduo Yang, and Calvin Yu-Chian Chen. Cares-unet: Content-aware residual unet for lesion segmentation of covid-19 from chest ct images. Medical physics, 48(11):7127– 7140, 2021. 9. Zixuan Tang, Bin Chen, An Zeng, Mengyuan Liu, and Shen Zhao. Progressive deep snake for instance boundary extraction in medical images. Expert Systems with Applications, 249:123590, 2024. 10. Haoyu Wang, Sizheng Guo, Jin Ye, Zhongying Deng, Junlong Cheng, Tianbin Li, Jianpin Chen, Yanzhou Su, Ziyan Huang, Yiqing Shen, et al. Sam-med3d: a vision foundation model for general-purpose segmentation on volumetric medical images. IEEE Transactions on Neural Networks and Learning Systems, 2025. 11. Kaiwen Huang, Tao Zhou, Huazhu Fu, Yizhe Zhang, Yi Zhou, Chen Gong, and Dong Liang. Learnable prompting sam-induced knowledge distillation for semi-supervised medical image segmentation. IEEE Transactions on Medical Imaging, 44(5):2295–2306, 2025. 12. Junyi Wu, Rui Fu, Heng Fang, et al. Med-sa: Parameter-efficient tuning of segment anything model for medical image analysis. Medical Image Analysis, 102:103547, 2025. 13. Shizhan Gong, Yuan Zhong, Wenao Ma, Jinpeng Li, Zhao Wang, Jingyang Zhang, Pheng-Ann Heng, and Qi Dou. 3dsam-adapter: Holistic adaptation of sam from 2d to 3d for promptable tumor segmentation. Medical Image Analysis, 98:103324, 2024. 14. Tianrun Chen, Lanyun Zhu, Chaotao Ding, Runlong Cao, Shangzhan Zhang, Yan Wang, Zejian Li, Lingyun Sun, Papa Mao, and Ying Zang. Sam fails to seg-ment anything?–sam-adapter: Adapting sam in underperformed scenes: Camou-flage, shadow, and more. arXiv:2304.09148, 2023. 10 Anonymized Author et al. 15. Junde Wu, Ziyue Wang, Mingxuan Hong, Wei Ji, Huazhu Fu, Yanwu Xu, Min Xu, and Yueming Jin. Medical sam adapter: Adapting segment anything model for medical image segmentation. Medical image analysis, 102:103547, 2025. 16. Eric Jang, Shixiang Gu, and Ben Poole. Categorical reparameterization with gumbel-softmax. arXiv:1611.01144, 2016. 17. Neil Houlsby, Andrei Giurgiu, Stanislaw Jastrzebski, Bruna Morrone, Quentin De Laroussilhe, Andrea Gesmundo, Mona Attariyan, and Sylvain Gelly. Parameter-efficient transfer learning for nlp. In International Conference on Machine Learning, pages 2790–2799. PMLR, 2019. 18. Shumeng Li, Lei Qi, Qian Yu, Jing Huo, Yinghuan Shi, and Yang Gao. Stitch-ing, fine-tuning, and re-training: A sam-enabled framework for semi-supervised 3d medical image segmentation. IEEE Transactions on Medical Imaging, 44(10):3909– 3923, 2025. 19. Fausto Milletari, Nassir Navab, and Seyed-Ahmad Ahmadi. V-net: Fully convolu-tional neural networks for volumetric medical image segmentation. In 2016 fourth international conference on 3D vision (3DV), pages 565–571. Ieee, 2016. 20. Tsung-Yi Lin, Priya Goyal, Ross Girshick, Kaiming He, and Piotr Dollár. Focal loss for dense object detection. In Proceedings of the IEEE international conference on computer vision, pages 2980–2988, 2017. 21. Haoyu Wang, Sizheng Guo, Jin Ye, Zhongying Deng, et al. Sam-med3d: Towards general-purpose segmentation models for volumetric medical images, 2023. 22. Yuxiang Du, Jin Ye, Zhongying Deng, et al. Segvol: Universal and interactive volu-metric medical image segmentation. In Advances in Neural Information Processing Systems (NeurIPS), 2024. 23. Yufan He, Pengfei Guo, Yucheng Tang, Andriy Myronenko, Vishwesh Nath, Ziyue Xu, Dong Yang, Can Zhao, Benjamin Simon, Mason Belue, Stephanie Harmon, Baris Turkbey, Daguang Xu, and Wenqi Li. Vista3d: A unified segmentation foun-dation model for 3d medical imaging. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), pages 20863–20873, June 2025. 24. Ali Hatamizadeh, Vishwesh Nath, Yucheng Tang, Dong Yang, Holger Roth, and Daguang Xu. Swin unetr: Swin transformers for semantic segmentation of brain tumors in mri images. arXiv:2201.01266, 2022. 25. Amber L Simpson, Michela Antonelli, Spyridon Bakas, Michel Bilello, Keyvan Fara-hani, Bram Van Ginneken, Annette Kopp-Schneider, Bennett A Landman, Geert Litjens, Bjoern Menze, et al. A large annotated medical image dataset for the development and evaluation of segmentation algorithms. arXiv:1902.09063, 2019. 26. Patrick Bilic, Patrick Christ, Hongwei Bran Li, Eugene Vorontsov, Avi Ben-Cohen, Georgios Kaissis, Adi Szeskin, Colin Jacobs, Gabriel Efrain Humpire Mamani, Gabriel Chartrand, et al. The liver tumor segmentation benchmark (lits). Medical Image Analysis, 84:102680, 2023. 27. Fabian Isensee, Paul F Jaeger, Simon AA Kohl, Jens Petersen, and Klaus H Maier-Hein. nnu-net: a self-configuring method for deep learning-based biomedical image segmentation. Nature methods, 18(2):203–211, 2021. 28. Bjoern H Menze, Andras Jakab, Stefan Bauer, Jayashree Kalpathy-Cramer, Key-van Farahani, Justin Kirby, Yuliya Burren, Nicole Porz, Johannes Slotboom, Roland Wiest, et al. The multimodal brain tumor image segmentation benchmark (brats). IEEE transactions on medical imaging, 34(10):1993–2024, 2014.

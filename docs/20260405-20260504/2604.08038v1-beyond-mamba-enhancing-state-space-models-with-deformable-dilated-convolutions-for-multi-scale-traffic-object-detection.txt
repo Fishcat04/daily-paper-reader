@@ -1,0 +1,474 @@
+Title: Beyond Mamba: Enhancing State-space Models with Deformable Dilated Convolutions for Multi-scale Traffic Object Detection
+
+URL Source: https://arxiv.org/pdf/2604.08038v1
+
+Published Time: Fri, 10 Apr 2026 01:31:35 GMT
+
+Number of Pages: 20
+
+Markdown Content:
+# Highlights 
+
+## Beyond Mamba: Enhancing State-space Models with Deformable Dilated Convolutions for Multi-scale Traffic Object Detection 
+
+Jun Li, Yingying Shi, Zhixuan Ruan, Nan Guo, Jianhua Xu 
+
+• We propose a Mamba with Deformable Dilated Convolution detection Network (MDDCNet) for object detection in complex traffic scenarios. MDDCNet features a well-designed hierarchical hybrid backbone containing successive MDDCNet and Mamba blocks. 
+
+• Within our MDDCNet and Mamba blocks, we develop a channel-enhanced feedforward network (CE-FFN) to enable adaptive channel reweighting while preserving strong local spatial modeling. 
+
+• For detection neck, we propose an Attention-Aggregating Feature Pyramid Network ( 𝐴 2FPN) by combining channel-wise, spatial-wise and contextual attention modules (CSCA), which allows dynamic feature interaction and fusion. 
+
+• With data collected from real-world surveillance cameras, we construct a Real-world Traffic Object Detection (RTOD) dataset. Incorporating more object variances and higher scenario complexities, it serves as a challenging benchmark to evaluate the model generalizability and scalability in real-world scenarios. 
+
+• Extensive experimental evaluations on both public and real-world datasets demonstrate the superiority of MDDCNet to a wide range of mainstream detection models, which verifies the effectiveness and practicability of our method. 
+
+> arXiv:2604.08038v1 [cs.CV] 9 Apr 2026
+
+# Beyond Mamba: Enhancing State-space Models with Deformable Dilated Convolutions for Multi-scale Traffic Object Detection 
+
+## Jun Li ∗, Yingying Shi, Zhixuan Ruan, Nan Guo and Jianhua Xu 
+
+School of Computer and Electronic Information, Nanjing Normal University, 210023, China 
+
+A R T I C L E I N F O 
+
+Keywords :State-space Models Multi-Scale Deformable Dilated Con-volutions Hierarchical Feature Representation Channel-Enhanced Feed-Forward Net-work Attention-Aggregating Feature Pyra-mid Network 
+
+A B S T R A C T 
+
+In a real-world traffic scenario, varying-scale objects are usually distributed in a cluttered background, which poses great challenges to accurate detection. Although current Mamba-based methods can efficiently model long-range dependencies, they still struggle to capture small objects with abundant local details, which hinders joint modeling of local structures and global semantics. Moreover, state-space models exhibit limited hierarchical feature representation and weak cross-scale interaction due to flat sequential modeling and insufficient spatial inductive biases, leading to sub-optimal performance in complex scenes. To address these issues, we propose a Mamba with Deformable Dilated Convolutions Network (MDDCNet) for accurate traffic object detection in this study. In MDDCNet, a well-designed hybrid backbone with successive Multi-Scale Deformable Dilated Convolution (MSDDC) blocks and Mamba blocks enables hierarchical feature representation from local details to global semantics. Meanwhile, a Channel-Enhanced Feed-Forward Network (CE-FFN) is further devised to overcome the limited channel interaction capability of conventional feed-forward networks, whilst a Mamba-based Attention-Aggregating Feature Pyramid Network ( 𝐴 2FPN) is constructed to achieve enhanced multi-scale feature fusion and interaction. Extensive experimental results on public benchmark and real-world datasets demonstrate the superiority of our method over various advanced detectors. The code is available at https://github.com/Bettermea/MDDCNet .
+
+## 1. Introduction 
+
+With the rapid development of intelligent transportation systems and autonomous driving technology, target detection in complex traffic scenes has become an important research direction in computer vision Wang, Liu, Yi and Jiang (2025a); Zhao, Tang, Shen, Supeni and Rahim (2024). However, accurate and efficient object detection in complex traffic scenes is still challenged by significant variances in diverse object classes including including vehicles, pedestrians, cyclists, and traffic signs irregularly distributed in scattered background. Recent years have witnessed dramatic progress made in deep detection models which are typically represented by convolutional neural networks (CNNs) Girshick, Donahue, Darrell and Malik (2014); Girshick (2015); Ren, He, Girshick and Sun (2016). In particular, YOLO-series detectors have undergone continuous evolution since its introduction, achieving tremendous success due to their efficient end-to-end detection framework and multiscale feature fusion mechanism Zhao et al. (2024). Nevertheless, YOLO-like detection methods still suffer from limited long-range dependency modeling capability and fail to capture global contextual information, since they primarily rely on the local receptive fields of CNNs for feature modeling with inherent inductive biases. In complex traffic scenarios involving dense distributions of small objects in cluttered background, these methods are still prone to missed detections with false alarms, restricting further improvements in detection performance. To compensate for the above-mentioned limitations, Vision Transformer (ViT) leverages the self-attention mechanism for effectively capturing global contextual information, exhibiting superior long-range modeling capability. Carion, Massa, Synnaeve et al. (2020); Zhu, Su, Lu et al. (2020); Meng, Chen, Fan, Zeng, Li, Yuan, Sun and Wang (2021); Gao, Zhang, Zhang, Liu, Yin, Xu and Kong (2025). Additionally, hybrid architectures combining ViT with CNNs have been developed to strengthen model’s global modeling. However, the self-attention mechanism in ViT incurs quadratic computational complexity, resulting in significant computational overhead for dense object detection tasks and posing great challenges to deployment of real-time traffic applications. 
+
+> ∗
+
+Corresponding author 
+
+lijuncst@njnu.edu.cn (J. Li) 
+
+> ORCID
+
+(s): 
+
+: Preprint submitted to Elsevier Page 1 of 19 Recently, Mamba Gu and Dao (2024); Hatamizadeh and Kautz (2025); Yang, Chen, Espinosa, Ericsson, Wang, Liu and Crowley (2024); Pei, Huang and Xu (2025) architecture based on the State Space Model (SSM) has emerged as a promising paradigm alternative to ViT. By employing a selective state space mechanism, it achieves long-sequence modeling with linear time complexity, maintaining high computational efficiency while demonstrating robust global modeling capabilities. In real-world traffic scenarios, fine-grained local structures are crucial for accurate localization of varying-scale objects with dense distributions. Therefore, it is insufficient to adequately capture detailed local information with sequential mechanism of Mamba, while pure convolutional operations struggle to effectively model global semantic relationships. Consequently, it is necessary to develop a collaborative framework that simultaneously accounts for both local detail modeling and global contextual representation in complex traffic scenes characterized by substantial multi-scale variations. In this study, we have proposed a hybrid architecture for accurate multi-scale traffic detection termed as MDDCNet, which is short for Mamba with Deformable Dilated Convolution Network. Achieving CNN-Mamba synergy, our MDDCNet constructs a hierarchical hybrid backbone consisting of consecutive Multi-Scale Deformable Dilated Convolution (MSDDC) and Mamba blocks. In the high-resolution shallow stages, modeling local spatial structures with scale variations is strengthened with MSDDC blocks, whilst Mamba blocks based on a selective state space modeling module are embedded, allowing efficient modeling of long-range dependencies and global semantic information in the low-resolution deeper stages. Furthermore, a Channel-Enhanced Feed-Forward Network (CE-FFN) is designed to improve feature representation capability through the collaboration of local depthwise convolution and global channel attention. To promote the cross-scale feature fusion and interaction, an attention-enhanced Feature Pyramid Network based on Mamba is constructed to achieve dynamic fusion and optimization of multi-scale features comprehensively. These designs collectively contribute to improving the overall detection performance of the proposed model in complex traffic scenarios. To summarize, main contributions of this study are fivefold as follows: 
+
+• In this study, we have proposed a novel detection framework termed MDDCNet tailored for traffic object detection. Within MDDCNet, a hierarchical hybrid backbone containing successive MDDCNet and Mamba blocks is well-designed, such that our framework can simultaneously capture local cues and model long-range dependencies. 
+
+• Within our MDDCNet and Mamba blocks, we have developed a channel-enhanced feedforward network (CE-FFN) to enable adaptive channel reweighting while preserving strong local spatial modeling. This allows our model to enjoy discriminative feature representation and hierarchical information interaction. 
+
+• For detection neck, we have proposed an Attention-Aggregating Feature Pyramid Network ( 𝐴 2FPN) based on Mamba. By combining channel-wise, spatial-wise and contextual attention modules (CSCA), our 𝐴 2FPN enables dynamic feature fusion, significantly benefiting accurate detection of varying-scale objects in complex traffic scenario. 
+
+• With data collected from real-world surveillance cameras, we construct a Real-world Traffic Object Detection (RTOD) dataset. Different from existing mainstream public datasets, RTOD incorporates more object variances and higher scenario complexities, thereby serving as a challenging benchmark to evaluate the model generaliz-ability and scalability in real-world traffic scenarios. 
+
+• Extensive experimental evaluations on both public and real-world datasets demonstrate the superiority of MDDCNet to a wide range of mainstream detection models, which verifies the effectiveness and practicability of our method. 
+
+## 2. Related work 
+
+2.1. YOLO series algorithms 
+
+Originated from Redmon, Divvala, Girshick and Farhadi (2016), the YOLO-series detection models formulate object detection as a unified regression framework for prioritizing efficiency and end-to-end inference, facilitating practical detection tasks Ren et al. (2016). Generally comprising feature extraction backbone, multi-scale fusion neck, and detection head for prediction, the YOLO architecture has evolved rapidly by introducing numerous advanced designs, including batch normalization Redmon and Farhadi (2017), residual learning, multi-scale detection Redmon and Farhadi (2018), as well as the effective structures, e.g., CSPDarknet53 Bochkovskiy, Wang and Liao (2020) and   
+
+> :Preprint submitted to Elsevier Page 2 of 19
+
+the lightweight focus module Zhang, Guo, Wu et al. (2022); Sohan, Sai Ram and Rami Reddy (2024). However, in complex traffic scenarios, YOLO models suffer from insufficient adaptive feature weighting, and their inherent lightweight design impairs the perception of local fine-grained details. While recent state-space model integrations like MambaYOLO Wang, Li, Xu, Zhu and Li (2025b) improve the model capability in global modeling, they still struggle to simultaneously capture fine local details and achieve cross-scale semantic alignment. 
+
+2.2. Mamba-based detector 
+
+Mamba Gu and Dao (2024) is a state-space model that captures long-range dependencies via hidden state evolution. Its continuous parameters are discretized via zero-order hold, allowing efficient recurrent or parallel global convolution formulations. Recent vision adaptations include Vision Mamba Zhu, Liao, Zhang, Wang, Liu and Wang (2024) with a bidirectional processing mechanism, VMamba Liu, Tian, Zhao, Yu, Xie, Wang, Ye, Jiao and Liu (2024) with a cross-scan strategy, and MambaVision Hatamizadeh and Kautz (2025) that integrates self-attention in a hybrid architecture. In object detection, Mamba alleviates the limitations of CNNs in limited receptive fields and Transformers incurring quadratic complexity by combining linear complexity with effective long-range modeling. Since early 2024, Mamba-based detectors have rapidly evolved. ViM Zhu et al. (2024) introduced bidirectional SSM for 2D images. LocalMamba Huang, Pei, You, Wang, Qian and Xu (2024) performed SSM within local windows, outperforming Swin Transformer. VMamba Liu et al. (2024) introduced Cross-Scan Module for spatial capture. EfficientVMamba Pei et al. (2025) reduced cost via dilated convolution sampling. PlainMamba Yang et al. (2024) demonstrated strong capacity with streamlined design. Beyond backbones, Mamba enables efficient detection heads, as exemplified by MambaYOLO, with extensions to video and remote sensing, e.g., RS-Mamba Chen, Chen, Liu, Li, Zou and Shi (2024)). In summary, Mamba-based detectors offer linear complexity and strong long-range modeling, showcasing significant potential for complex traffic scenarios requiring global contextual understanding. 
+
+2.3. Attention-based feature interaction 
+
+Channel attention methods, such as ECA Wang, Wu, Zhu, Li, Zuo and Hu (2020) and MLCA Wan, Lu, Shen, Xu, Lang and Ren (2023), enhance discriminative features by modeling inter-channel dependencies, while spatial attention mechanisms (e.g., the spatial attention module in CBAM Woo, Park, Lee and Kweon (2018)) focus on target regions and contextual information. Their integration enables comprehensive feature enhancement, demonstrating robust detection performance in complex scenarios. For multi-scale detection, such attention mechanisms are widely incorporated into feature pyramid networks to mitigate cross-scale semantic gaps, allowing dynamic feature recalibration that boosts the detection accuracy of small and scale-variant objects. However, mainstream attention-based feature interaction schemes, which usually built upon convolutions or self-attention, incur heavy computational overhead, making it difficult to balance global context modeling and efficiency. Therefore, achieving effective cross-scale feature interaction and contextual enrichment with low computation remains a critical challenge for object detection in complex traffic scenarios. 
+
+## 3. Methodology 
+
+Densely distributed multi-scale objects in complex traffic scenes are prone to cluttered background, thereby exhibiting significant variances in appearances. To achieve accurate detection of multi-scale traffic objects, we propose a novel detector termed MDDCNet which is short for Mamba with Deformable Dilated Convolutions Network in this study, which will be detailed as follows. 
+
+3.1. Framework 
+
+The overall framework of our MDDCNet is shown in Fig. 1. Within MDDCNet, we devise a hierarchical backbone network with hybrid CNN-Mamba architecture from scratch. In backbone, a Multi-Scale Deformable Dilated Convolution module (MSDDC) is designed to enhance the local details and deformation modeling capability in the shallow high-resolution stage introduces, whilst the Mamba Block based on the selective state-space model is employed to efficiently capture the global contextual semantics with linear computational complexity the in deep low-resolution stage. With the resulting feature maps, an Attention-Aggregating Feature Pyramid Network ( 𝐴 2FPN) based on Mamba Block is designed to dynamically enhance multi-scale feature interaction by fusing spatial-wise, channel-wise and contextual attention. Final detection head is imposed on the attention enhanced features, achieving end-to-end object detection.   
+
+> :Preprint submitted to Elsevier Page 3 of 19 CSCA
+> Mamba
+> Block
+> CSCA
+> Mamba Block
+> Mamba Block
+> Mamba
+> Block
+> Mamba
+> Block
+> CSCA
+> CSCA
+> CSCA
+> CSCA
+> CSCA
+> head
+> head
+> head
+> conv
+> conv
+> （b）
+
+A2FPN  （c）Detection Head    
+
+> SPPF
+> Stem  MSDDC
+> Block
+> MSDDC
+> Block
+> DownSample
+> DownSample
+> Mamba
+> Block
+> Mamba
+> Block
+> DownSample Input Stage 1 Stage 2
+> （a）Hybrid Backbone
+> C3
+> C4
+> C5
+> P3
+> P4
+> P5
+> Upsample
+> Upsample
+> Stage 3 Stage 4
+
+Figure 1: The model architecture of our proposed MDDCNet which comprises Hybrid Backbone (a), Attention-Aggregating Feature Pyramid Network ( 𝐴 2FPN) (b) and Detection Head (c). 
+
+3.2. Hybrid Backbone Network 
+
+To handle the challenge of multi-scale object distribution and contextual dependency in complex traffic scenarios, we propose a hierarchical CNN-Mamba hybrid backbone to simultaneously capture local details and model global semantics. As shown in Fig. 2, the backbone consists of successive Multi-Scale Deformable Dilated Convolutions (MSDDC) blocks in the shallow high-resolution stages and Mamba blocks in the deep low-resolution stages. Given the input image 𝑋 ∈ ℝ𝐻 ×𝑊 ×3 , it undergoes convolution embedding and batch normalization processing to generate the initial feature sequence, whilst a learnable position embedding is superimposed. The backbone network consists of four progressive downsampling stages (Stage 1-4), and in each stage, different feature processing strategies are executed: 
+
+𝐻 𝑙 =
+
+{
+
+MSDDC-Block (𝑋 𝑙 −1 ) + 𝑋 𝑙 −1 , Stage ∈ [1 , 2] 
+
+Mamba-Block (𝑋 𝑙 −1 ) + 𝑋 𝑙 −1 , Stage ∈ [3 , 4] (1) In the first place, we develop Multi-Scale Deformable Dilated Convolution (MSDDC) module to focus on local perception, since feature maps at high-resolution stages encode abundant spatial details. To be specific, multi-branch 
+
+: Preprint submitted to Elsevier Page 4 of 19 Stem  MSDDC                          
+
+> Block
+> × D 1
+> MSDDC
+> Block
+> × D 2
+> DownSample
+> DownSample
+> Mamba
+> Block
+> × D 3
+> Mamba
+> Block
+> × D 4
+> DownSample Input Stage 1
+> H× W× 3H/4× W /4× C 1H/8× W /8× C 2H/16 × W /16 × C 3H/32 × W /32 × C 4
+> DWConv 3×3
+> Layer Norm
+> Batch Norm
+> CE -FFN
+> MSDDC Mamba
+> （b）MSDDC /Mamba Block
+> Conv 3×3
+> offset
+> DeformConv
+> 3×3
+> dilation =1
+> DeformConv
+> 3×3
+> dilation =2
+> DeformConv
+> 3×3
+> dilation =4
+> Conv 1×1
+> （c）MSDDC Module
+> （a）Hybrid Backbone
+> SPPF
+> C
+> CConcatenation
+> Stage 2Stage 3Stage 4
+> MaxPooling
+> MaxPooling
+> MaxPooling
+> Conv 1×1
+> Conv 1×1
+> C
+> （d）SPPF
+
+Figure 2: Illustration of the hybrid backbone network consisting of successive MSDDC and Mamba blocks. 
+
+Table 1 
+
+Configurations of different model variants in our MDDCNet family. Model variants MDDCNet-N MDDCNet-T MDDCNet-B Embed. Dim. [16, 32, 64, 128] [32, 64, 128, 256] [64, 128, 256, 512] Stage 1 (H/4 × W/4) MSDDC × 3 MSDDC × 3 MSDDC × 3Stage 2 (H/8 × W/8) MSDDC × 3 MSDDC × 3 MSDDC × 3Stage 3 (H/16 × W/16) Mamba × 9 Mamba × 9 Mamba × 12 Stage 4 (H/32 × W/32) Mamba × 3 Mamba × 3 Mamba × 3Params (M) 4.8 6.6 18.0 FLOPs (G) 10.2 12.9 39.6 
+
+convolutions with deformable sampling within MSDDC can capture local texture and edge features, thereby providing fundamental geometric information for small object detection. In the latter low-resolution stages, feature responses encode larger receptive fields of the input image, thus carrying high-level semantic information. For global modeling, Mamba block is introduced to capture cross-region long-range dependencies through selective state-space matrices while maintaining linear sequence complexity, facilitating real-time target understanding in complex traffic scenarios. This cascaded backbone design provides a progressive feature learning pipeline from characterizing low-level local details to encoding high-level global semantics, thus allowing both accurate small-object detection and comprehensive complex scene understanding. In particular, we develop a family of MDDCNet models with varying model sizes to facilitate model scalability for practical applications. As presented in Table 1, the scale of our MDDCNet grows with gradually increasing channel dimensions and cascaded blocks, yielding three variants, namely the lightweight MDDCNet-N, medium-sized MDDCNet-T and larger MDDCNet-B. 
+
+: Preprint submitted to Elsevier Page 5 of 19 3.2.1. MSDDC Module 
+
+In MSDDC block, we design a Multi-Scale Deformable Dilated Convolution Module (MSDDC) as shown in Fig. 2(c), allowing the shallow layers of the network to perceive local details and multi-scale targets in traffic scenes. Compared to traditional CNNs, simple multi-scale convolutions or deformable convolutions, MSDDC achieves the synergy of both multi-scale receptive fields and deformable adaptive sampling, facilitating object detection in complex traffic scenes. Given the input feature 𝑋 𝑙 −1 , the processing pipeline of MSDDC module includes three steps as follows. 
+
+Offset Generation In order to realize adaptive sampling of deformable convolution, a spatial offset Δ𝑃 is obtained by 3 × 3 convolution as: 
+
+Δ𝑃 = Conv 3×3 (𝑋 𝑡 −1 ) (2) where Δ𝑃 ∈ ℝ𝐻 ×𝑊 ×18 to the two-dimensional offsets of all the sampling points of each 3 × 3 convolution kernel. Compared to the fixed sampling of traditional CNNs, MSDDC can adaptively adjust the convolution kernel positions according to the object shape, thus improving the robustness to vehicle appearance changes, partial occlusions, and non-rigid objects. 
+
+Parallel Multi-scale Deformable Dilated Convolutions In order to capture cross-scale features, three parallel branches of deformable convolutions with dilation rates 𝑑 ∈ {1 , 2, 4} are designed, each using the same offset Δ𝑃 :
+
+𝐹 𝑑 = DeformConv 𝑑 
+
+> 3×3
+
+(𝑋 𝑖 −1 , Δ𝑃 ), 𝑑 ∈ {1 , 2, 4} (3) On the one hand, traditional multi-scale convolutions only obtain different receptive fields through different convolution kernels or dilation rates, whereas the sampling location is fixed and insensitive to object shape changes. On the other hand, simple deformable convolutions can achieve adaptive sampling, whereas they usually operate only at a single scale, which makes it difficult to simultaneously take into account the information of both close and distant objects. In contrast, our MSDDC integrate both multi-scale convolution and deformable convolution to comprehensively capture important cues ranging from local details of the near vehicle to the overall contour of the distant object, thereby providing rich basic features for subsequent detection. 
+
+Multi-scale Fusion The outputs of the three branches are concatenated along the channel dimension, then fused and downsampled via a 1 × 1 convolution to produce the final features: 
+
+𝐹 MSDDC = Conv 1×1 
+
+(Concat (𝐹 1, 𝐹 2, 𝐹 4)) (4) 
+
+3.2.2. Mamba Module 
+
+In latter stages in our backbone network, Mamba module based on the selective SSM is introduced to replace the traditional Transformer architecture with self-attention mechanism, such as efficient long sequence modeling can be achieved. With the help of the selective scanning mechanism, Mamba is able to efficiently capture global long-range dependencies, such as the road topology, relative vehicle positions, and motion relationships in the traffic scenarios, while maintaining linear computational complexity. More importantly, it is complementary to the shallow MSDDC module, allowing our network to achieve both fine-grained local perception and global semantic understanding in complex traffic scenarios, thus significantly boosting the detection performance. 
+
+3.2.3. CE-FFN 
+
+Traditional Feedforward Network (FFN) in ViT lacks explicit local spatial modeling, making it difficult to characterize fine-grained details such as vehicle edges and contours in complex traffic scenarios. Moreover, its vulnerability to object scale variances and cluttered backgrounds further impairs its feature representation ability. Taking advantage of Channel Aggregation (CA) block, we design a Channel-Enhanced Feedforward Network (CE-FFN) as illustrated in Fig. 3(c). The proposed CE-FFN incorporates a global branch complementary to the local branch based on the CA block to achieve local-global collaborative modeling, which significantly enhances the feature representation capacity. Given the input feature 𝑋 ∈ ℝ𝐶 ×𝐻 ×𝑊 , the proposed CE-FFN is formulated as:       
+
+> :Preprint submitted to Elsevier Page 6 of 19 GELU
+> Conv 1× 1
+> （a）FFN （b）FFN with CA Block
+> Conv 1× 1
+> DWConv 3× 3
+> GELU
+> Conv 1× 1
+> DWConv 3× 3
+> GELU
+> GELU
+> subtract
+> GAP
+> Sigmoid
+> （c）Channel Enhanced FFN (CE -FFN )
+> Conv 1× 1
+> Conv 1× 1
+> GELU
+> subtract
+> Conv 1× 1
+> rr
+> Conv 1× 1
+> Conv 1× 1 Conv 1× 1
+
+Figure 3: Comparison of our proposed CE-FFN (c) and the vanilla FFN (a) and FFN with CA-Block (b). 
+
+𝑌 = GELU (DWConv 3×3 
+
+(Conv 1×1 (𝑋 ))) 
+
+𝐹 CE_FFN = Conv 1×1 
+
+(𝐹 global (𝑌 ) + 𝐹 local (𝑌 )) + 𝑋 (5) Inheriting the idea of local aggregation from CA Block, the local branch is formulated as: 
+
+𝐹 local = 𝑟 ⊙ (𝑌 − GELU (Conv 1×1 (𝑌 )) ) + 𝑌 (6) Through channel transformation with a residual modulation mechanism, the local branch enhances the local structure and detailed features of the object-aware region while suppressing redundant background noise. Moreover, the devised global branch obtains global semantic embedding via global average pooling and generates channel-wise weights to guide feature recalibration, which is formulated as: 
+
+𝐹 global = 𝜎 (Conv 1×1 (GAP (𝑌 )) ) (7) where 𝜎 (⋅) denotes the Sigmoid activation function and GAP refer to the global average pooling operation. As a complement to the local branch based on the CA block, the global branch can effectively model global contextual information, thereby enhancing the model ability to capture scale variations and global semantic relationships. Fig. 3 intuitively compares three different architectures of vanilla FFN, FFN with CA block and our CE-FFN. It is shown that the proposed CE-FFN preserves the channel modeling capability of the vanilla FFN and local perception of the CA block, whilst strengthening the global semantic awareness, thus alleviating the limitation of background interference caused by relying only on local cues. This advantage of CE-FFN is manifested in simultaneously characterizing the structural details of nearby large vehicles and enhancing the semantic perception of distant small objects. By achieving local-global synergy, it further suppresses irrelevant interference in complex and cluttered background conditions. 
+
+: Preprint submitted to Elsevier Page 7 of 19 GAP                  
+
+> GMP
+> Concat Sigmoid
+> LAP GAP Conv 1dUNAP UNAP
+> Conv 1d
+> Average
+> Pooling Conv 3×3Upsampling Sigmoid
+> Concat
+> SA
+> MLCA
+> SC
+> GAP Global Average Pooling GMP Global Max Pooling LAP Local Average Pooling
+
+X  
+
+> UNAP Anti -average Po oling
+
+Figure 4: Our proposed Contextual-Spatial-Channel Attention (CSCA) synergy module. Comprising three complementary attention branches, it leverages an attention-aggregating mechanism for comprehensively strengthening feature discrimi-native power, which significantly benefits multi-scale feature fusion and interaction. 
+
+3.3. Attention-Aggregating Feature Pyramid Network (A 2FPN) 
+
+To maintain both high-level semantics and low-level cues in multi-scale traffic object detection, we construct a Mamba-based Attention-Aggregating Feature Pyramid Network ( 𝐴 2FPN) as the detection neck by embedding Mamba blocks into the conventional FPN architecture, thus facilitating global context enhancement and long-range dependencies modeling across varying-scale features. Moreover, we develop a Contextual-Spatial-Channel Attention (CSCA) synergy module via an attention-aggregating mechanism. As illustrated in Fig. 4, our CSCA module integrates three complementary attention branches, namely Spatial Attention (SA) branch, Mixed Local Channel Attention (MLCA) branch, and scale Self-Calibration (SC) branch, into the cross-scale FPN fusion and layer-wise output features, achieving adaptive modulation of spatial, channel and scale information. Within CSCA module, the first SA branch models discriminative spatial regions in the feature maps, which allows the network to focus on the key structural locations of traffic objects, e.g., vehicles and pedestrians. It further enhances object localization accuracy while suppressing interference from complex backgrounds. The second MLCA branch extends traditional channel modeling based on global average pooling by incorporating local spatial awareness. This enables the network to capture both global semantic dependencies and local inter-channel response variations. Compared to traditional channel attention mechanisms such as CA Wang et al. (2020) that only rely on global statistical information, MLCA Wan et al. (2023) can more effectively retain the semantic channels related to small objects and local details, avoiding excessive smoothing of fine-grained semantics during multi-scale fusion, thereby improving the accuracy and robustness of channel attention. The third SC branch introduces multi-scale contextual information to 
+
+: Preprint submitted to Elsevier Page 8 of 19 (a) (b)  
+
+> Figure 5: Statistics of KITTI dataset in traffic object categories (a) and scale distributions (b).
+
+dynamically modulate the fused features, enabling the network to adaptively calibrate its semantic distribution during cross-scale feature interaction, thereby enhancing cross-scale consistency and overall perception ability. The three complementary attention are aggregated, providing comprehensive feature enhancement and collabo-ratively benefiting multi-scale feature interaction. Given the input feature 𝑋 ∈ ℝ𝐶 ×𝐻 ×𝑊 , CSCA adopts a residual structure to fuse the attention-enhanced features as follows: 
+
+𝑌 = Conv 1×1 (Concat (SA (𝑋 ), MLCA (𝑋 ))) ⊙ SC (𝑋 ) + 𝑋 (8) where ⊙ denotes element-wise multiplication, while SA( ⋅), MLCA( ⋅), and SC( ⋅) respectively represent the output of three attention branches. 
+
+## 4. Experiments 
+
+4.1. Datasets 
+
+In our experiments, we have carried out extensive experimental evaluations on both public KITTI dataset and real-world RTOD dataset. As one of the most widely used public benchmarks in autonomous driving and computer vision, KITTI covers a wide range of common traffic object categories, e.g., car, van, pedestrian, which exhibit significant scale variances in spatial distribution as shown in Fig. 5. To further evaluate our method in practical applications, we construct and annotate a new dataset named RTOD (Real-world Traffic Object Detection). The dataset consists of 1,180 high-quality images sampled from real-time traffic surveillance videos captured on urban streets in a large city, reflecting typical real-world deployment scenarios. Compared to existing public datasets, our RTOD dataset further expands the object categories in traffic scenes to ten typical classes including car, van, bus, truck, person, cycle, plate, traffic light, traffic sign and others, thereby providing a more diverse distribution of current urban traffic participants as shown in Fig. 6a. Moreover, the images in RTOD pose greater challenges to accurate detection, since they are directly collected from real-world scenes, thus showcasing more dramatic variances in illumination, weather and viewpoint. Due to the the elevated camera positions and wide field of view, most objects appear at small scales as illustrated in Fig. 6b, making it more difficult to distinguish them from cluttered background. Therefore, it is well-suited for assessing the model practicability and generalization ability in real-world scenarios. Fig. 7 illustrates representative images in RTOD dataset.      
+
+> :Preprint submitted to Elsevier Page 9 of 19 (a) (b)
+> Figure 6: Statistics of our RTOD dataset in traffic object categories (a) and scale distributions (b).
+> Figure 7: Example images in RTOD dataset.
+
+4.2. Experimental Setup 
+
+Both datasets are randomly partitioned into training, validation, and test sets with a ratio of 8:1:1 for respective model training, hyperparameter tuning, and performance evaluation. Moreover, both accuracy and efficiency metrics are involved for performance measure, including precision score, recall rate, mAP, FLOPs and FPS (Frame Per Second). For data preprocessing, all the input images are uniformly resized to 640 × 640 pixels to ensure consistent input dimensions. In the training stage, the Mosaic data augmentation strategy is adopted to enhance the model’s generalization ability and robustness, particularly in scenarios involving dense and small objects. During the training process, the momentum is set to 0.937, the initial learning rate to 0.01, while the batch size to 32. Additionally, stochastic gradient descent (SGD) is employed for the optimizer. To ensure adequate convergence, the model is trained for 150 epochs on the KITTI dataset and 300 epochs on the RTOD dataset. In our comparative studies, the competing methods include various mainstream detectors based on CNN and Mamba architectures, such as the YOLO-series detection models Redmon and Farhadi (2018); Zhang et al. (2022); Sohan et al. (2024); Wang, Yeh and Mark Liao (2024); Khanam and Hussain (2024); Tian, Ye and Doermann (2025); Lei, Li, Wu et al. (2025), and MambaYOLO Wang et al. (2025b). In implementation, all the experiments are conducted on a desktop with a RTX 3090 GPU using PyTorch framework. 
+
+4.3. Main results 
+
+Table 2 presents the results of our proposed MDDCNet and a comparison of different mainstream detectors on the KITTI dataset. It can be observed that MDDCNet achieves consistent superiority to other competitors. In particular,   
+
+> :Preprint submitted to Elsevier Page 10 of 19 Table 2
+> Comprehensive comparison on the KITTI Dataset. The results of our method are highlighted in bold.
+
+Detectors P(%) R(%) mAP@50(%) mAP@50-95(%) Params(M) FLOPs(G) FPS YOLOv3t 87.7 75.3 82.1 58.3 12.1 18.9 67.52 YOLOv5n 91.3 77.8 88.5 63.3 2.5 7.2 80.64 YOLOv6s 89.8 76.4 85.3 60.6 4.2 11.9 80.65 YOLOv8n 90.5 80.9 89.5 65.1 3.0 8.2 85.32 YOLOv8s 93.1 87.6 93.3 73.0 11.1 28.5 66.67 YOLOv10n 83.7 79.1 85.9 62.5 2.7 8.4 90.50 YOLOv10s 91.2 85.6 91.9 71.2 8.0 24.5 70.66 YOLOv11n 88.2 79.6 88.4 74.9 2.6 6.3 90.90 YOLOv12n 90.6 77.4 86.9 62.0 2.5 5.8 89.28 YOLOv13n 88.4 81.4 88.7 65.9 2.4 6.2 87.72 MambaYOLO-T 92.2 84.7 91.6 69.9 5.9 13.6 73.76 
+
+MDDCNet-N 90.3 84.7 92.0 68.3 4.8 10.2 76.33 MDDCNet-T 95.3 86.1 93.3 72.3 6.6 12.9 73.02 MDDCNet-B 95.3 89.2 94.1 74.3 18.0 39.6 50.65 
+
+> Table 3
+> Comparison of different detectors across various categories on the KITTI dataset (mAP@50%).
+
+## Detectors Car Van Truck Tram Pedestrian Cyclist Misc 
+
+## YOLOv3t 88.7 86.9 97.3 87.8 68.8 65.8 79.7 YOLOv5n 95.2 91.5 96.9 92.2 76.5 80.7 86.4 YOLOv6s 94.9 87.9 95.6 91.0 76.7 73.9 77.1 YOLOv8n 95.7 93.1 95.8 92.0 79.3 78.6 92.0 YOLOv8s 97.3 96.8 98.8 94.3 84.8 85.8 95.2 YOLOv10n 94.7 90.3 96.2 91.0 73.0 77.0 79.2 YOLOv10s 96.7 95.7 98.2 94.5 83.3 84.0 91.2 YOLOv11n 95.5 92.1 96.4 91.1 77.0 79.4 87.6 YOLOv12n 94.9 90.2 94.6 94.3 75.2 78.8 80.6 YOLOv13n 95.4 91.2 97.4 90.8 79.2 80.1 86.7 MambaYOLO-T 96.9 94.9 97.0 94.2 83.7 83.4 91.0 
+
+## MDDCNet-N 96.8 94.7 99.1 96.1 82.5 81.1 93.8 MDDCNet-T 97.6 96.4 99.1 94.4 86.6 85.2 94.0 MDDCNet-B 97.5 96.8 98.4 98.2 86.5 87.1 94.2 
+
+even our lightweight MDDCNet-N model outperforms MambaYOLO-T by 0.4% mAP@50 with fewer parameters and faster inference speed. Moreover, MDDCNet-T reports 93.3% mAP@50 with only 6.6M parameters and 12.9G FLOPs, surpassing MambaYOLO-T by 1.7% with comparable computational overhead. This advantage also holds when compared to YOLO detectors, showcasing the strong competitiveness of our MDDCNet models against state-of-the-art YOLO variants. Our larger variant MDDCNet-B obtains the highest 94.1% mAP@50 while maintaining favorable inference efficiency. Notably, YOLOv8s also achieves 93.3% mAP@50, yet with almost 2 × computational costs of our MDDCNet-T. Table 3 provides a detailed comparison of the detection accuracy across different categories in the KITTI dataset for various models. It can be seen that our varying-scale MDDCNet models unanimously exceed 94% mAP@50       
+
+> :Preprint submitted to Elsevier Page 11 of 19 (a) (b)
+> (c) (d)
+> (e) (f)
+> Figure 8: PR curves of YOLOv8n (a), YOLOv10n (b), YOLOv11n (c), YOLOv12n (d), YOLOv13n (e) and our MDDCNet-T (f) on the KITTI dataset.
+
+when detecting vehicle-related objects (car, van, truck, tram), indicating that the proposed method has stronger modeling capabilities and discriminative capabilities. For small-object categories such as pedestrians and cyclists, our MDDCNet-T model outperforms YOLOv10s by approximately 3% and 1% respectively, effectively mitigating the issue of small-target missed detection. This validates the model’s enhanced ability to capture fine-grained features and contextual information.   
+
+> :Preprint submitted to Elsevier Page 12 of 19 Table 4
+> Comprehensive comparison of different models on the RTOD Dataset.
+
+## Detectors P(%) R(%) mAP@50(%) mAP@50-95(%) FPS 
+
+## YOLOv5n 87.5 76.1 82.1 57.6 46.18 YOLOv6s 84.3 73.3 79.2 55.2 48.82 YOLOv8n 89.9 79.1 84.3 60.6 55.56 YOLOv9t 83.9 77.3 81.2 57.9 51.28 YOLOv11n 87.1 78.9 84.3 60.1 55.25 YOLOv12n 89.2 77.4 81.7 58.0 52.36 YOLOv13n 85.8 71.8 80.0 55.9 54.35 MambaYOLO-T 88.3 77.2 82.5 60.4 42.73 
+
+## MDDCNet-N 88.5 78.2 82.4 61.6 52.08 MDDCNet-T 90.2 77.5 85.3 61.6 45.06 
+
+Fig. 8 presents Precision-Recall (PR) curves of YOLOv8n, YOLOv10n, YOLOv11n, YOLOv12n, YOLOv13n, and our MDDCNet-T on the KITTI dataset for comparison. It can be seen that the MDDCNet achieves the highest AUC (Area Under the Curve), while maintaining more stable detection performance across different confidence thresholds. In contrast, some YOLO models demonstrate a significant decrease in precision at high recall rates, which tends to introduce more false positives. This result indicates that our MDDCNet enjoys stronger robustness in discriminating object confidence and distinguishing between positive and negative samples, thus effectively improving the overall detection reliability. In addition to the evaluations on the public KITTI dataset, additional experiments are carried out on our self-constructed RTOD dataset to evaluate the practicability of our MDDCNet. Table 4 presents comprehensive comparison of our method and different lightweight object detection models on the RTOD dataset. It can be observed that our efficient MDDCNet-T achieves superior performance on the RTOD dataset, reporting the highest 85.3% mAP@50 and 61.6% mAP@50-95 with 2 ×∼ 3× inference speed of mainstream YOLO detectors. Furthermore, our MDDCNet-T not only beats the other competing detectors with superior comprehensive performance but excels in class-specific detection accuracy as shown in Table 5. These results sufficiently demonstrate the promising potential of our MDDCNet framework in achieving preferable tradeoff between accuracy and efficiency for practical applications. Fig. 9 presents a comparison of PR curves of four different models on the RTOD dataset. Consistent with the results on KITTI dataset, the PR curve of our MDDCNet is generally smoother and maintains relatively high Precision even at high recall rates. This verifies the advantages of our method in effectively reducing both false positives and missed detections. In contrast, the precision of the other lightweight models declines more rapidly as recall increases, indicating that they fail to distinguish between positive and negative samples in complex traffic scenarios. 
+
+4.4. Ablation experiments 
+
+In this section, we have conducted extensive ablation studies to explore the effect of key modules on our model performance. Notably, all the ablation experiments are carried out on the KITTI dataset. 
+
+Backbone network To explore the efficacy of different building blocks within our hybrid Backbone, we design and validate four different hybrid architectures, i.e., a backbone with only MSDDC blocks, a backbone with only Mamba blocks, and two hybrid variants with different module sequences. As shown in Table 6, our designed [MSDDC, MSDDC, Mamba, Mamba] backbone brings the highest 92.1% mAP@50 and 69.7% mAP@50-95 accuracies with only 5M parameters. These results verify that the complementary advantages between local cues and global semantics can be achieved by capturing local details features (e.g., vehicle edges and textures) via MSDDC Blocks in the shallow stages, followed by employing Mamba Block in the deeper stages to model long-range spatial dependencies (e.g., distant small targets and road structural context). This highly resembles the inherent human visual perception process in which the capture of low-level features typically precedes the generation of high-level semantics. In contrast, swapping   
+
+> :Preprint submitted to Elsevier Page 13 of 19
+
+(a) (b) 
+
+(c) (d) 
+
+Figure 9: PR curves of YOLOv8n (a), YOLOv13n (b), MambaYOLO-T (c), and our MDDCNet-T (d) on the RTOD dataset. 
+
+Table 5 
+
+Comparison of different detectors across various categories on the RTOD dataset (mAP@50%). 
+
+Detectors Car Van Bus Truck Person Cycle Plate Traffic light Traffic sign Others 
+
+YOLOv5n 95.7 87.2 96.9 84.2 71.0 89.1 10.0 98.3 94.5 94.1 YOLOv6s 94.9 79.9 97.8 78.5 67.1 89.8 2.1 97.7 94.1 89.8 YOLOv8n 95.9 87.1 99.4 87.6 72.7 87.5 21.4 97.7 94.1 99.5 YOLOv9t 95.6 87.1 98.6 82.6 67.4 89.9 8.6 97.9 88.3 95.9 YOLOv11n 95.6 86.2 96.8 88.7 71.9 91.1 23.3 97.9 93.5 97.4 YOLOv12n 95.4 86.9 97.7 86.0 70.8 90.0 0.3 98.0 94.9 96.7 YOLOv13n 94.5 82.3 97.3 82.2 63.8 85.9 9.2 98.1 87.4 99.5 MambaYOLO-T 94.9 78.5 96.2 91.2 73.9 88.7 25.6 97.9 92.0 85.7 
+
+MDDCNet-N 94.8 79.4 96.4 96.5 73.0 88.0 18.5 97.4 94.6 85.7 MDDCNet-T 96.4 90.2 97.7 87.2 77.5 91.0 22.5 98.2 92.9 99.0 
+
+the order of MSDDC and Mamba blocks yields inferior performance, which fully suggests that the perceptual sequence plays a crucial role in accurate object recognition and detection. 
+
+MSDDC module As shown in Table 7, we explore the impact of different Dilation Rate (DR) settings within our MSDDC module on our model performance. It can be clearly observed that the setting of 1, 2, 4 achieves the highest 92.1% mAP@50, while maintaining a compact network and unchanged computational complexity. The results reveal that a more balanced receptive field expansion across different scales and enhanced multi-scale feature 
+
+: Preprint submitted to Elsevier Page 14 of 19 Table 6 
+
+> Ablation experiments on backbone structures.
+
+Backbone architectures mAP@50(%) mAP@50-95(%) Params(M) FLOPs(G) 
+
+[MSDDC,MSDDC,MSDDC,MSDDC] 91.6 68.4 7.4 13.4 [Mamba,Mamba,Mamba,Mamba] 91.5 69.7 4.9 11.1 [Mamba,Mamba,MSDDC,MSDDC] 91.7 69.1 7.3 12.9 
+
+[MSDDC,MSDDC,Mamba,Mamba] 92.1 69.7 5.0 11.6 
+
+> Table 7
+> Ablation experiments on the Dilation Rates (DR) in our MSDDC module.
+
+Setting P(%) R(%) mAP@50(%) mAP@50-95(%) Params(M) FLOPs(G) 
+
+DR=1,2,3 92.2 84.7 91.6 69.9 5.0 11.6 DR=1,3,5 91.5 84.8 91.9 68.6 5.0 11.6 
+
+DR=1,2,4 93.4 83.9 92.1 69.7 5.0 11.6 
+
+> Table 8
+> Ablation experiments on different attention mechanisms.
+
+Attention P(%) R(%) mAP@50(%) mAP@50-95(%) Params(M) FLOPs(G) 
+
+Concat 92.2 84.7 91.5 69.7 4.9 11.1 MLCA-only 91.6 83.4 91.2 69.4 5.0 11.3 RCSSC 92.8 86.4 91.8 71.3 5.3 12.0 
+
+CSCA 93.9 85.4 92.5 71.1 5.5 11.6                                     
+
+> Table 9
+> Ablation experiments on different FFN structures.
+> Methods P(%) R(%) mAP@50(%) mAP@50-95(%) Params(M) FLOPs(G)
+> Vanilla FFN 92.2 84.7 91.5 69.7 4.9 11.1 CA Block 92.0 84.2 91.7 69.9 5.3 11.5 Residual CA Block 91.0 85.7 91.8 69.4 5.3 11.6 Gated CA Block 91.2 85.3 92.0 69.6 5.5 11.7 CE-FFN 94.2 84.0 92.3 70.0 5.7 11.8
+
+representation capability can be obtained with a reasonable setting of DR combination. Therefore, the proposed structure can simultaneously improve detection accuracy and inference efficiency without increasing computational overhead, providing an effective solution for real-time traffic object detection. 
+
+CE-FFN module Additionally, we compare our designed CE-FFN with other FFN structures as presented in Table 9. It is clearly shown that our CE-FFN exceeds the others by reporting the highest 92.3% mAP@50 and 70.0% mAP@50-95, which suggests that CE-FFN not only inherits the strong representation capability from CA block via channel attention but also employs a complementary global branch to further strengthen feature interaction, thereby enabling local-global collaborative modeling is achieved to boost detection accuracy. Although residual CA block and gated CA block are capable of capturing local details with enhanced representation, they only extend the vanilla CA block with residual connections or gating mechanisms without introducing explicit global context modeling, thus exhibiting inferior performance compared to our CE-FFN. 
+
+CSCA module To delve into the impact of attention mechanism in FPN, we have systematically compared four attention strategies, namely direct attention concatenation, MLCA-only, RCSSCYuan, Qin, Yan, Yang, Yang, Akhtar and Zhou (2025), and our CSCA module. As shown in Table 8, our proposed CSCA achieves the best performance of 92.5% mAP@50, which consistently the other attention strategies. This result demonstrates that CSCA can                                                 
+
+> :Preprint submitted to Elsevier Page 15 of 19 Table 10
+> Comprehensive ablation experiments of our MDDCNet model.
+> Modules P(%) R(%) mAP@50(%) mAP@50-95(%) Params(M) FLOPs(G) CE-FFN MSDDC CSCA
+> 92.5 84.3 91.5 69.7 4.9 11.1
+> ✓94.2 84.0 92.3 70.0 5.7 11.8
+> ✓93.4 83.9 92.1 69.7 5.0 11.6
+> ✓93.9 85.4 92.5 71.1 5.5 11.6
+> ✓✓92.2 85.8 92.8 69.3 6.0 12.2
+> ✓✓✓95.3 86.1 93.3 72.3 6.6 12.9
+
+comprehensively capture discriminative spatial-wise and channel-wise details as well as contextual information, enabling adaptive synergy of multi-scale features and substantially benefits cross-scale feature interaction. In contrast, the other attention strategies fail to sufficiently model comprehensive feature interactions, thereby exhibiting degraded performance. For example, MLCA-only attention overlooks discriminative spatial information and cannot capture multi-scale contextual dependencies, leading to insufficient feature fusion and limited detection performance. 
+
+Comprehensive ablation studies In addition to the above-mentioned experiments, we further explore the individual influence of the three modules (MSDDC, CE-FFN, CSCA) on the model performance to provide a comprehensive insight. Utilizing our MDDCNet architecture excluding any aforementioned module as the baseline, each module is progressively incorporated to construct different models. As demonstrated in Table 10, introducing MSDDC module into the baseline increases mAP@50 from 91.5% to 92.1%, showcasing the benefit of MSDDC in handling scale variances and appearance deformation in complex traffic scenes. When the CE-FFN module is embedded into the backbone, a 0.8% mAP@50 improvement can be observed, which implies that CE-FFN is capable of strengthening cross-channel interaction and thus significantly contributes to object detection in complex scenarios. Moreover, integrating CSCA module is also conducive to accurate detection, suggesting that 1% performance boost can be obtained by adaptively fusing contextual-spatial-channel attention enhanced features. In particular, the complete model achieves the highest detection accuracy with only slight increase in computational overhead. This verifies the effectiveness of each module’s design and demonstrates the significant advantage of synergistic optimization for object detection in traffic scenes. 
+
+4.5. Qualitative evaluations 
+
+To intuitively demonstrate the superiority of the proposed method, we have qualitatively compared our MDDCNet with the latest YOLOv13n detector on both datasets. As illustrated in Fig. 10, our MDDCNet outperforms YOLOv13n by achieving more accurate results with fewer missed detections. Specifically, YOLOv13n fails to recognize the distant cars, the partially occluded cyclist and the standing pedestrian, whereas our MDDCNet accurately detects these targets with high confidence. On the real-world RTOD dataset, the advantage of our method is sufficiently manifested in accurate cross-scale object detection with better robustness as shown in Fig. 11. For example, in a lightly foggy scenario (the second row), MDDCNet is capable of accurately identifying multi-scale objects ranging from close-range person and car plate to distant walking pedestrian. In particular, even the partial occluded traffic light can still be detected by our model with a high confidence score. In contrast, YOLOv13n misses the traffic light and car plate, whilst misclassified the person as the car. In other cases, our MDDCNet also excels at accurately detecting distant tiny objects, e.g., can and person, both of which are missed in the detection results obtained by YOLOv13n. 
+
+## 5. Conclusion 
+
+In this study, we propose a Mamba with Deformable Dilated Convolutions Network (MDDCNet) for multi-scale object detection in complex traffic scenarios. Our MDDCNet features a hybrid CNN-Mamba backbone to achieve the synergy of local perception and global modeling. In particular, the Multi-Scale Deformable Dilated Convolution (MSDDC) blocks in shallow stages can capture fine-grained local details while exhibiting certain robustness to scale variations and geometric deformations. Meanwhile, the Mamba blocks in deep stages model global semantics via long-range context modeling while maintaining linear computational complexity. Within both MSDDC and Mamba   
+
+> :Preprint submitted to Elsevier Page 16 of 19
+
+(a) YOLOv13n  (b) Ours Figure 10: Qualitative comparison of YOLOv13n and our MDDCNet on the KITTI dataset. Our MDDCNet demonstrates superior performance with fewer missed detections. 
+
+blocks, our carefully designed Channel-Enhanced FeedForward Network (CE-FFN) module further strengthens inter-channel interaction. Moreover, we devise an Attention-Aggregating Feature Pyramid Network ( 𝐴 2FPN) to facilitate effective multi-scale feature fusion and interaction. Extensive comparative and ablation experiments conducted on both public benchmarks and real-world dataset validate the advantages of our model against a wide range of state-of-the-art detectors, demonstrating the promise and the potential of our method for real-world traffic detection applications. 
+
+## Acknowledgments 
+
+This work was supported by the National Natural Science Foundation of China under Grant No. 62173186 and 62076134. 
+
+## References 
+
+Bochkovskiy, A., Wang, C.Y., Liao, H.Y.M., 2020. Yolov4: Optimal speed and accuracy of object detection. arXiv preprint arXiv:2004.10934 . Carion, N., Massa, F., Synnaeve, G., et al., 2020. End-to-end object detection with transformers, in: European Conference on Computer Vision (ECCV), pp. 213–229. Chen, K., Chen, B., Liu, C., Li, W., Zou, Z., Shi, Z., 2024. Rsmamba: Remote sensing image classification with state space model. IEEE Geoscience and Remote Sensing Letters 21, 1–5. Gao, T., Zhang, Y., Zhang, Z., Liu, H., Yin, K., Xu, C., Kong, H., 2025. Bhvit: Binarized hybrid vision transformer, in: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR), pp. 3563–3572. Girshick, R., 2015. Fast r-cnn, in: Proceedings of the IEEE International Conference on Computer Vision (ICCV), pp. 1440–1448. Girshick, R., Donahue, J., Darrell, T., Malik, J., 2014. Rich feature hierarchies for accurate object detection and semantic segmentation, in: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR), pp. 580–587. Gu, A., Dao, T., 2024. Mamba: Linear-time sequence modeling with selective state spaces, in: First conference on language modeling. Hatamizadeh, A., Kautz, J., 2025. Mambavision: A hybrid mamba-transformer vision backbone, in: Proceedings of the Computer Vision and Pattern Recognition Conference, pp. 25261–25270. Huang, T., Pei, X., You, S., Wang, F., Qian, C., Xu, C., 2024. Localmamba: Visual state space model with windowed selective scan, in: European conference on computer vision, Springer. pp. 12–22. Khanam, R., Hussain, M., 2024. Yolov11: An overview of the key architectural enhancements. arXiv preprint arXiv:2410.17725 . Lei, M., Li, S., Wu, Y., et al., 2025. Yolov13: Real-time object detection with hypergraph-enhanced adaptive visual perception. arXiv preprint arXiv:2506.17733 . 
+
+: Preprint submitted to Elsevier Page 17 of 19 (a) YOLOv13n  (b) Ours Figure 11: Qualitative comparison of YOLOv13n and our MDDCNet on the RTOD dataset. It can be observed that our method outperforms YOLOv13n by achieving more accurate results with fewer missed targets and lower false positive rates. 
+
+Liu, Y., Tian, Y., Zhao, Y., Yu, H., Xie, L., Wang, Y., Ye, Q., Jiao, J., Liu, Y., 2024. Vmamba: Visual state space model. Advances in neural information processing systems 37, 103031–103063. Meng, D., Chen, X., Fan, Z., Zeng, G., Li, H., Yuan, Y., Sun, L., Wang, J., 2021. Conditional detr for fast training convergence, in: Proceedings of the IEEE/CVF international conference on computer vision, pp. 3651–3660. Pei, X., Huang, T., Xu, C., 2025. Efficientvmamba: Atrous selective scan for light weight visual mamba, in: Proceedings of the AAAI conference on artificial intelligence, pp. 6443–6451. Redmon, J., Divvala, S., Girshick, R., Farhadi, A., 2016. You only look once: Unified, real-time object detection, in: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR), pp. 779–788. Redmon, J., Farhadi, A., 2017. Yolo9000: Better, faster, stronger, in: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR), pp. 7263–7271. Redmon, J., Farhadi, A., 2018. Yolov3: An incremental improvement. arXiv preprint arXiv:1804.02767 . Ren, S., He, K., Girshick, R., Sun, J., 2016. Faster r-cnn: Towards real-time object detection with region proposal networks. IEEE Transactions on Pattern Analysis and Machine Intelligence 39, 1137–1149. Sohan, M., Sai Ram, T., Rami Reddy, C.V., 2024. A review on yolov8 and its advancements, in: International Conference on Data Intelligence and Cognitive Informatics, pp. 529–545. 
+
+: Preprint submitted to Elsevier Page 18 of 19 Tian, Y., Ye, Q., Doermann, D., 2025. Yolov12: Attention-centric real-time object detectors. arXiv preprint arXiv:2502.12524 . Wan, D., Lu, R., Shen, S., Xu, T., Lang, X., Ren, Z., 2023. Mixed local channel attention for object detection. Engineering Applications of Artificial Intelligence 123, 106442. Wang, C.Y., Yeh, I.H., Mark Liao, H.Y., 2024. Yolov9: Learning what you want to learn using programmable gradient information, in: European conference on computer vision, Springer. pp. 1–21. Wang, Q., Wu, B., Zhu, P., Li, P., Zuo, W., Hu, Q., 2020. Eca-net: Efficient channel attention for deep convolutional neural networks, in: Proceedings of the IEEE/CVF conference on computer vision and pattern recognition, pp. 11534–11542. Wang, Y., Liu, Y., Yi, R., Jiang, Y., 2025a. Real-time traffic object detection algorithm with deep stochastic configuration networks. Information Sciences 700, 121848. Wang, Z., Li, C., Xu, H., Zhu, X., Li, H., 2025b. Mamba yolo: A simple baseline for object detection with state space model, in: Proceedings of the AAAI Conference on Artificial Intelligence, pp. 8205–8213. Woo, S., Park, J., Lee, J.Y., Kweon, I.S., 2018. Cbam: Convolutional block attention module, in: Proceedings of the European conference on computer vision (ECCV), pp. 3–19. Yang, C., Chen, Z., Espinosa, M., Ericsson, L., Wang, Z., Liu, J., Crowley, E.J., 2024. Plainmamba: Improving non-hierarchical mamba in visual recognition. arXiv preprint arXiv:2403.17695 . Yuan, S., Qin, H., Yan, X., Yang, S., Yang, S., Akhtar, N., Zhou, H., 2025. Ascnet: Asymmetric sampling correction network for infrared image destriping. IEEE Transactions on Geoscience and Remote Sensing . Zhang, Y., Guo, Z., Wu, J., et al., 2022. Real-time vehicle detection based on improved yolov5. Sustainability 14, 12274. Zhao, R., Tang, S.H., Shen, J., Supeni, E.E.B., Rahim, S.A., 2024. Enhancing autonomous driving safety: A robust traffic sign detection and recognition model TSD-YOLO. Signal Processing 225, 109619. Zhu, L., Liao, B., Zhang, Q., Wang, X., Liu, W., Wang, X., 2024. Vision mamba: Efficient visual representation learning with bidirectional state space model. arXiv preprint arXiv:2401.09417 . Zhu, X., Su, W., Lu, L., et al., 2020. Deformable detr: Deformable transformers for end-to-end object detection. arXiv preprint arXiv:2010.04159 . 
+
+: Preprint submitted to Elsevier Page 19 of 19
