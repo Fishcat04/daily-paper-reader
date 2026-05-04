@@ -26,43 +26,48 @@ subscriptions:
     diff_threshold_pct: 15
   keyword_recall_mode: or
   intent_profiles:
-    - tag: SOD
-      description: 小目标检测相关论文检索
+    - tag: LW SOD
+      description: 轻量化小目标检测相关论文检索
       enabled: true
       paper_sources:
         - arxiv
         - biorxiv
       keywords:
+        - keyword: lightweight object detection
+          keyword_cn: 轻量化目标检测
+          query: lightweight neural network architectures for object detection
         - keyword: small object detection
           keyword_cn: 小目标检测
-          query: deep learning methods for small object detection
+          query: detection algorithms for small and tiny objects
+        - keyword: efficient CNN
+          keyword_cn: 高效卷积神经网络
+          query: efficient convolutional neural networks for computer vision
         - keyword: feature pyramid network
           keyword_cn: 特征金字塔网络
-          query: FPN and its variants for multi-scale object detection
-        - keyword: data augmentation
-          keyword_cn: 数据增强
-          query: oversampling and augmentation strategies for small objects
+          query: FPN and feature fusion for small object detection
         - keyword: attention mechanism
           keyword_cn: 注意力机制
-          query: spatial and channel attention for small object feature enhancement
-        - keyword: multi-scale features
-          keyword_cn: 多尺度特征
-          query: multi-scale feature fusion techniques in computer vision
-        - keyword: loss function
-          keyword_cn: 损失函数
-          query: specialized loss functions for small object localization
+          query: attention mechanisms for enhancing small object features
+        - keyword: tiny object detection
+          keyword_cn: 微小目标检测
+          query: specialized algorithms for tiny target detection
       intent_queries:
-        - query: state of the art deep learning methods for small object detection
-          query_cn: 最先进的小目标检测深度学习方法
+        - query: state of the art lightweight small object detection papers
+          query_cn: 轻量化小目标检测的前沿论文
           enabled: true
           source: manual
           note: ''
-        - query: benchmarking small object detection on public datasets
-          query_cn: 在公开数据集上的小目标检测基准测试
+        - query: efficient neural network architectures for tiny target detection
+          query_cn: 用于微小目标检测的高效神经网络架构
           enabled: true
           source: manual
           note: ''
-      updated_at: '2026-05-04T14:06:29.615Z'
+        - query: recent advances in lightweight small object detection
+          query_cn: 轻量化小目标检测的最新进展
+          enabled: true
+          source: manual
+          note: ''
+      updated_at: '2026-05-04T14:09:17.659Z'
 source_backends:
   arxiv:
     papers_table: arxiv_papers
