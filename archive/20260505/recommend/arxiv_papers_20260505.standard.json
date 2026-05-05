@@ -1,0 +1,494 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-05-05T20:42:15.415890+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 1,
+    "deep_cap": 6,
+    "deep_selected": 1,
+    "quick_candidates": 13,
+    "quick_skim_target": 11,
+    "quick_selected": 11
+  },
+  "deep_dive": [
+    {
+      "id": "2604.27293v1",
+      "source": "arxiv",
+      "title": "Student Classroom Behavior Recognition Based on Improved YOLOv8s",
+      "abstract": "In classroom teaching, student behavior can reflect their learning state and classroom participation, which is of great significance for teaching quality analysis. To address the problems of dense student targets, numerous small objects, frequent occlusions, and imbalanced class distribution in real classroom scenes, this paper proposes an improved student classroom behavior recognition model named ALC-YOLOv8s based on YOLOv8s. The model introduces SPPF-LSKA to enhance contextual feature extraction, employs CFC-CRB and SFC-G2 to optimize multi-scale feature fusion, and incorporates ATFLoss to improve the learning ability for minority classes and hard samples. Experimental results show that compared with the baseline model, the improved model achieves increases of 1.8% in mAP50 and 2.1% in mAP50-95. Compared with several mainstream detection methods, the proposed model can well meet the requirements of automatic student behavior recognition in complex classroom scenarios.",
+      "authors": [
+        "Xiang Gao",
+        "Shuai Hang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.CY"
+      ],
+      "published": "2026-04-30T01:13:25+00:00",
+      "link": "https://arxiv.org/pdf/2604.27293v1",
+      "tags": [
+        "keyword:SOD"
+      ],
+      "llm_score": 9.5,
+      "llm_evidence_en": "Addresses numerous small objects in classroom scenes using multi-scale feature fusion and specialized loss.",
+      "llm_evidence_cn": "针对教室场景中的大量小目标，采用多尺度特征融合和专门的损失函数进行优化。",
+      "llm_evidence": "针对教室场景中的大量小目标，采用多尺度特征融合和专门的损失函数进行优化。",
+      "canonical_evidence": "针对教室场景中的大量小目标，采用多尺度特征融合和专门的损失函数进行优化。",
+      "llm_tldr_en": "Improves YOLOv8s for classroom behavior detection by optimizing multi-scale fusion and contextual extraction.",
+      "llm_tldr_cn": "通过优化多尺度融合和上下文提取，改进YOLOv8s以用于教室行为检测。",
+      "llm_tldr": "通过优化多尺度融合和上下文提取，改进YOLOv8s以用于教室行为检测。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2605.01365v1",
+      "source": "arxiv",
+      "title": "VoxAfford: Multi-Scale Voxel-Token Fusion for Open-Vocabulary 3D Affordance Detection",
+      "abstract": "Open-vocabulary 3D affordance detection requires localizing interaction regions on point clouds given novel affordance descriptions. Recent methods extend multimodal large language models (MLLMs) with special output tokens that are decoded into segmentation masks. However, these tokens are produced through autoregressive generation, which models sequential dependencies rather than spatial neighborhood relations, leaving them semantically rich but spatially impoverished for 3D localization. We propose Voxel-enhanced Affordance detection (VoxAfford), which bypasses this bottleneck by injecting multi-scale geometric features from a frozen pre-trained 3D VQVAE encoder into the output tokens after generation. Each output token uses its affordance semantics as a query to retrieve relevant geometric patterns from its paired voxel scale via cross-attention, with a learned compatibility gate controlling the injection strength. The enhanced tokens are then aggregated into a spatially-aware affordance prompt through semantic-conditioned attention and propagated alongside per-point features to generate the final mask. Experiments on open-vocabulary affordance detection tasks show that VoxAfford achieves state-of-the-art performance with approximately an 8% improvement in mIoU, and real robot experiments confirm zero-shot transfer to novel objects.",
+      "authors": [
+        "Haowen Sun",
+        "Shaolong Zhang",
+        "Mingyang Li",
+        "Chengzhong Ma",
+        "Xinzhe Chen",
+        "Qiongjie Cui",
+        "Xingyu Chen",
+        "Zeyang Liu",
+        "Xuguang Lan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.RO"
+      ],
+      "published": "2026-05-02T10:21:13+00:00",
+      "link": "https://arxiv.org/pdf/2605.01365v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.5,
+      "llm_evidence_en": "multi-scale geometric feature injection for 3D localization",
+      "llm_evidence_cn": "用于3D定位的多尺度几何特征注入",
+      "llm_evidence": "用于3D定位的多尺度几何特征注入",
+      "canonical_evidence": "用于3D定位的多尺度几何特征注入",
+      "llm_tldr_en": "VoxAfford uses multi-scale voxel-token fusion to improve 3D affordance localization in open-vocabulary settings.",
+      "llm_tldr_cn": "VoxAfford利用多尺度体素-令牌融合来改进开放词汇设置下的3D功能性区域定位。",
+      "llm_tldr": "VoxAfford利用多尺度体素-令牌融合来改进开放词汇设置下的3D功能性区域定位。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.00894v1",
+      "source": "arxiv",
+      "title": "Dino-NestedUNet: Unlocking Foundation Vision Encoders for Pathology Tumor Bulk Segmentation via Dense Decoding",
+      "abstract": "Vision foundation models (VFMs), such as DINOv3, provide rich semantic representations that are promising for computational pathology. However, many current adaptations pair frozen VFMs with lightweight decoders, creating a capacity mismatch that often limits boundary fidelity for infiltrative tumor bulk segmentation. This paper presents Dino-NestedUNet, a framework that couples a pre-trained DINOv3 encoder with a Nested Dense Decoder. Instead of sparse skip connections and linear upsampling, the proposed decoder forms a dense grid of intermediate pathways to enable continuous feature reuse and multi-scale recalibration, aligning high-level semantics with low-level morphological textures during reconstruction. We evaluate Dino-NestedUNet on three histopathology cohorts (multi-center CHTN, institutional OSU, and CAMELYON16) and observe consistent improvements over UNet++ and standard Dino-UNet variants, particularly under cross-domain shift. To further assess external generalization, we perform zero-shot evaluation by training on CHTN and directly testing on unseen TIGER WSIBULK and OSU CRC cohorts without fine-tuning. These results suggest that dense decoding is a key ingredient for unlocking foundation encoders in boundary-sensitive pathology segmentation.",
+      "authors": [
+        "Tianyang Wang",
+        "Ziyu Su",
+        "Abdul Rehman Akbar",
+        "Usama Sajjad",
+        "Usman Afzaal",
+        "Lina Gokhale",
+        "Charles Rabolli",
+        "Wei Chen",
+        "Anil Parwani",
+        "Muhammad Khalid Khan Niazi"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-04-27T23:22:14+00:00",
+      "link": "https://arxiv.org/pdf/2605.00894v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.5,
+      "llm_evidence_en": "Uses a Nested Dense Decoder for continuous feature reuse and multi-scale recalibration.",
+      "llm_evidence_cn": "使用嵌套密集解码器进行持续特征重用和多尺度重新校准。",
+      "llm_evidence": "使用嵌套密集解码器进行持续特征重用和多尺度重新校准。",
+      "canonical_evidence": "使用嵌套密集解码器进行持续特征重用和多尺度重新校准。",
+      "llm_tldr_en": "Proposes Dino-NestedUNet for pathology segmentation using dense multi-scale feature decoding.",
+      "llm_tldr_cn": "提出Dino-NestedUNet，利用密集多尺度特征解码进行病理分割。",
+      "llm_tldr": "提出Dino-NestedUNet，利用密集多尺度特征解码进行病理分割。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.02169v1",
+      "source": "arxiv",
+      "title": "Heterogeneous Model Fusion for Privacy-Aware Multi-Camera Surveillance via Synthetic Domain Adaptation",
+      "abstract": "We propose HeroCrystal, a novel privacy-preserving framework for multi-camera domain-adaptive object detection, addressing challenges such as data privacy, class imbalance, and heterogeneous architectures. Our framework consists of three key stages. In the Generated Stage, we introduce a one-shot, target-aware diffusion-based generation module that learns visual style from a single target-domain image while leveraging prompt-based control to synthesize specific object instances. Unlike conventional style transfer-based methods that require large target datasets and ignore semantic-level discrepancies, our approach enables privacy-preserving augmentation to reduce ethical concerns, and introduces controllable rare object generation to mitigate long-tailed category degradation. In the Federated Stage, we employ probabilistic Faster R-CNN on the client side to improve localization accuracy, and a dynamic model contrastive strategy to suppress domain-specific bias. The server side performs model fusion across heterogeneous architectures without accessing raw data. Finally, in the Distilled Stage, we propose an inconsistent categories integration algorithm to resolve label inconsistency and architecture heterogeneity across clients. Extensive experiments on multiple cross-domain detection benchmarks demonstrate that our method outperforms existing multi-source domain adaptation and federated learning baselines under multi-class, privacy-preserving settings. Our method improves mAP by +2.1% over prior privacy-preserving approaches and achieves a new state-of-the-art mAP of 33.4%, highlighting the effectiveness of HeroCrystal in enabling practical multi-camera AI surveillance systems.",
+      "authors": [
+        "Peggy Joy Lu",
+        "Wei-Yu Chen",
+        "Yao-Tsung Huang",
+        "Vincent Shin-Mu Tseng"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.DC",
+        "cs.LG"
+      ],
+      "published": "2026-05-04T02:58:21+00:00",
+      "link": "https://arxiv.org/pdf/2605.02169v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.5,
+      "llm_evidence_en": "diffusion-based generation for privacy-preserving augmentation and rare object synthesis",
+      "llm_evidence_cn": "基于扩散生成的隐私保护增强和稀有目标合成",
+      "llm_evidence": "基于扩散生成的隐私保护增强和稀有目标合成",
+      "canonical_evidence": "基于扩散生成的隐私保护增强和稀有目标合成",
+      "llm_tldr_en": "A framework for domain-adaptive object detection using synthetic data to handle rare objects and privacy.",
+      "llm_tldr_cn": "一种利用合成数据处理稀有目标和隐私问题的领域自适应目标检测框架。",
+      "llm_tldr": "一种利用合成数据处理稀有目标和隐私问题的领域自适应目标检测框架。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "oversampling and augmentation strategies for small objects",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "biorxiv-10-1101-2024-03-15-585250-v4",
+      "source": "biorxiv",
+      "title": "Celldetective: an AI-enhanced image analysis tool for unraveling dynamic cell interactions",
+      "abstract": "Analysis of multimodal and multidimensional data capturing dynamic interactions between diverse cell populations is a current challenge in bioimaging, especially in the context of immunology and immunotherapy research. Here, we introduce Celldetective, an open-source Python-based software tool designed for high-performance, end-to-end analysis of image-based in vitro immune and immunotherapy assays. Celldetective is purpose-built for multicondition, 2D multi-channel time-lapse microscopy of mixed cell populations. Although it is optimised for the needs of immunology assays, it is nevertheless broadly applicable to any biological system involving interacting cell populations. The software seamlessly integrates AI-based segmentation, tracking, and automated single-cell event detection, all within an intuitive graphical interface that supports interactive visualisation, annotation, and training options. We showcase its capabilities with original datasets of single immune effector cell interactions with an activating surface mediated by bispecific antibodies, and pairwise interactions in antibody-dependent cell cytotoxicity events.",
+      "authors": [
+        "Torro, R.",
+        "Diaz Bello, B.",
+        "El Arawi, D.",
+        "Dervanova, K.",
+        "Ammer, L.",
+        "Dupuy, F.",
+        "Chames, P.",
+        "Sengupta, K.",
+        "Limozin, L."
+      ],
+      "primary_category": "bioinformatics",
+      "categories": [
+        "bioinformatics"
+      ],
+      "published": "2026-05-04T00:00:00+00:00",
+      "link": "https://www.biorxiv.org/content/10.1101/2024.03.15.585250v4.full.pdf",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.5,
+      "llm_evidence_en": "AI-based segmentation for small cell populations in microscopy",
+      "llm_evidence_cn": "显微镜下小细胞群体的AI分割",
+      "llm_evidence": "显微镜下小细胞群体的AI分割",
+      "canonical_evidence": "显微镜下小细胞群体的AI分割",
+      "llm_tldr_en": "Celldetective provides an AI-enhanced tool for segmenting and tracking interacting cell populations in bioimaging.",
+      "llm_tldr_cn": "Celldetective提供了一个AI增强工具，用于在生物成像中分割和跟踪相互作用的细胞群体。",
+      "llm_tldr": "Celldetective提供了一个AI增强工具，用于在生物成像中分割和跟踪相互作用的细胞群体。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.02764v1",
+      "source": "arxiv",
+      "title": "FoR-Net: Learning to Focus on Hard Regions for Efficient Semantic Segmentation",
+      "abstract": "We present FoR-Net, a lightweight architecture for semantic segmentation that focuses on identifying and enhancing hard regions. Instead of relying on heavy global modeling, FoR-Net adopts an efficient strategy that selectively emphasizes informative regions through a learned importance map and a Top-K activation mechanism. Specifically, a selector module predicts region-wise importance, enabling the model to focus on challenging areas such as thin structures and object boundaries. Multi-scale reasoning is achieved using convolutional branches with different receptive fields, allowing diverse spatial context aggregation. We evaluate FoR-Net on the Cityscapes benchmark under limited computational resources. Despite its lightweight design and standard training configuration, FoR-Net achieves competitive performance and demonstrates improved consistency in challenging regions. These results suggest that region-focused reasoning provides a simple yet effective inductive bias for efficient semantic segmentation.",
+      "authors": [
+        "Hsin-Jui Pan",
+        "Sheng-Wei Chan",
+        "Meng-Qian Li",
+        "Chun-Po Shen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-04T16:05:37+00:00",
+      "link": "https://arxiv.org/pdf/2605.02764v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.5,
+      "llm_evidence_en": "multi-scale reasoning and spatial context aggregation for thin structures",
+      "llm_evidence_cn": "针对细微结构的多尺度推理和空间上下文聚合",
+      "llm_evidence": "针对细微结构的多尺度推理和空间上下文聚合",
+      "canonical_evidence": "针对细微结构的多尺度推理和空间上下文聚合",
+      "llm_tldr_en": "FoR-Net uses multi-scale branches and importance maps to enhance segmentation of hard, thin structures.",
+      "llm_tldr_cn": "FoR-Net通过多尺度分支和重要性图增强对困难细微结构的分割。",
+      "llm_tldr": "FoR-Net通过多尺度分支和重要性图增强对困难细微结构的分割。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "biorxiv-10-64898-2026-04-23-720370-v1",
+      "source": "biorxiv",
+      "title": "Exposure to naturalistic occlusion promotes generalized, human-like robustness in deep neural networks",
+      "abstract": "Human object recognition is robust to challenging conditions, such as when ones view of an object is fragmented due to an occluding foreground object. In comparison, deep neural networks (DNNs) are typically more susceptible to occlusion, suggesting that human vision relies on distinct mechanisms. Here, we investigated the role of visual diet in the emergence of these mechanisms by asking whether human-like robustness might arise in DNNs when trained with image datasets that better reflect the properties of occlusion in natural vision. We trained convolutional and transformer DNNs to classify clear images only, images augmented with artificial occluders (i.e., geometric shapes) or natural occluders (objects segmented from photographs). We then evaluated DNN occlusion robustness and compared their performance profiles with 30 human participants. We found that DNNs trained with artificial occluders remained vulnerable to natural occlusion and exhibited less human-like performance than those trained with natural occlusion. Our findings suggest that human robustness to visual occlusion arises from learning to disentangle natural objects from each other rather than simply learning to recognize objects from partial views. They also imply that commonly used forms of artificial occlusion are unsuitable for the evaluation or promotion of robustness to real-world occlusion in DNNs.",
+      "authors": [
+        "Coggan, D. D.",
+        "Tong, F."
+      ],
+      "primary_category": "neuroscience",
+      "categories": [
+        "neuroscience"
+      ],
+      "published": "2026-04-27T00:00:00+00:00",
+      "link": "https://www.biorxiv.org/content/10.64898/2026.04.23.720370v1.full.pdf",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.5,
+      "llm_evidence_en": "training with naturalistic occluders to improve object recognition robustness",
+      "llm_evidence_cn": "使用自然遮挡物训练以提高目标识别鲁棒性",
+      "llm_evidence": "使用自然遮挡物训练以提高目标识别鲁棒性",
+      "canonical_evidence": "使用自然遮挡物训练以提高目标识别鲁棒性",
+      "llm_tldr_en": "Investigates how training with naturalistic occlusion data improves the robustness of deep neural networks.",
+      "llm_tldr_cn": "研究了使用自然遮挡数据进行训练如何提高深度神经网络的鲁棒性。",
+      "llm_tldr": "研究了使用自然遮挡数据进行训练如何提高深度神经网络的鲁棒性。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "oversampling and augmentation strategies for small objects",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2604.26893v2",
+      "source": "arxiv",
+      "title": "Graph-based Semantic Calibration Network for Unaligned UAV RGBT Image Semantic Segmentation and A Large-scale Benchmark",
+      "abstract": "Fine-grained RGBT image semantic segmentation is crucial for all-weather unmanned aerial vehicle (UAV) scene understanding. However, UAV RGBT image semantic segmentation faces two coupled challenges: cross-modal spatial misalignment caused by sensor parallax and platform vibration, and severe semantic confusion among fine-grained ground objects under top-down aerial views. To address these issues, we propose a Graph-based Semantic Calibration Network (GSCNet) for unaligned UAV RGBT image semantic segmentation. Specifically, we design a Feature Decoupling and Alignment Module (FDAM) that decouples each modality into shared structural and private perceptual components and performs deformable alignment in the shared subspace, enabling robust spatial correction with reduced modality appearance interference. Moreover, we propose a Semantic Graph Calibration Module (SGCM) that explicitly encodes the hierarchical taxonomy and co-occurrence regularities among ground-object categories in UAV scenes into a structured category graph, and incorporates these priors into graph-attention reasoning to calibrate predictions of visually similar and rare categories. In addition, we construct the Unaligned RGB-Thermal Fine-grained (URTF) benchmark, to the best of our knowledge, the largest and most fine-grained benchmark for unaligned UAV RGBT image semantic segmentation, containing over 25,000 image pairs across 61 semantic categories with realistic cross-modal misalignment. Extensive experiments on URTF demonstrate that GSCNet significantly outperforms state-of-the-art methods, with notable gains on fine-grained categories. The dataset is available at https://github.com/mmic-lcl/Datasets-and-benchmark-code.",
+      "authors": [
+        "Fangqiang Fan",
+        "Zhicheng Zhao",
+        "Xiaoliang Ma",
+        "Chenglong Li",
+        "Jin Tang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-04-29T17:01:38+00:00",
+      "link": "https://arxiv.org/pdf/2604.26893v2",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "UAV aerial views and fine-grained ground object segmentation",
+      "llm_evidence_cn": "无人机航拍视角与细粒度地面目标分割",
+      "llm_evidence": "无人机航拍视角与细粒度地面目标分割",
+      "canonical_evidence": "无人机航拍视角与细粒度地面目标分割",
+      "llm_tldr_en": "Proposes GSCNet for unaligned UAV RGBT segmentation to handle fine-grained objects in top-down views.",
+      "llm_tldr_cn": "提出GSCNet用于非对齐无人机RGBT分割，解决俯视视角下的细粒度目标识别问题。",
+      "llm_tldr": "提出GSCNet用于非对齐无人机RGBT分割，解决俯视视角下的细粒度目标识别问题。",
+      "llm_tags": [
+        "query:sod:composite"
+      ],
+      "matched_query_tag": "query:sod:composite",
+      "matched_query_text": "Papers central to 小目标检测相关论文检索, especially work that connects or combines: deep learning methods for small object detection; FPN and its variants for multi-scale object detection; oversampling and augmentation strategies for small objects; spatial and channel attention for small object feature enhancement; multi-scale feature fusion techniques in computer vision; specialized loss functions for small object localization; state of the art deep learning methods for small object detection; benchmarking small object detection on public datasets.",
+      "matched_requirement_id": "req-composite-sod",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.01924v1",
+      "source": "arxiv",
+      "title": "SimPB++: Simultaneously Detecting 2D and 3D Objects from Multiple Cameras",
+      "abstract": "Simultaneous perception of 2D objects in perspective view and 3D objects in Bird's Eye View (BEV) is challenging for multi-camera autonomous driving. Existing two-stage pipelines use 2D results only as a one-time cue for 3D detection. We propose SimPB++, which simultaneously detects 2D objects in perspective and 3D objects in BEV from multiple cameras. It unifies both tasks into an end-to-end model with a hybrid decoder architecture, coupling multi-view 2D and 3D decoders interactively. Two novel modules enable deep interaction: Dynamic Query Allocation adaptively assigns 2D queries to 3D candidates, and Adaptive Query Aggregation refines 3D representations using multi-view 2D features, forming a cyclic 3D-2D-3D refinement. For multi-view 2D detection, we use Query-group Attention for intra-group communication. We also design a Crop-and-Scale strategy for long-range perception and a Propagating Denoising strategy with an auxiliary RoI detector. SimPB++ supports mixed supervision with 2D-only and fully annotated data, reducing reliance on expensive 3D labels. Experiments show state-of-the-art performance on nuScenes for both tasks and strong long-range detection (up to 150m) on Argoverse2.",
+      "authors": [
+        "Yingqi Tang",
+        "Zhaotie Meng",
+        "Erkang Cheng",
+        "Haibin Ling"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-03T15:10:38+00:00",
+      "link": "https://arxiv.org/pdf/2605.01924v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Multi-view 2D and 3D feature interaction and refinement",
+      "llm_evidence_cn": "多视图2D与3D特征交互与精炼",
+      "llm_evidence": "多视图2D与3D特征交互与精炼",
+      "canonical_evidence": "多视图2D与3D特征交互与精炼",
+      "llm_tldr_en": "Simultaneously detects 2D and 3D objects using a hybrid decoder for multi-view feature interaction.",
+      "llm_tldr_cn": "利用混合解码器进行多视图特征交互，实现2D和3D目标的同步检测。",
+      "llm_tldr": "利用混合解码器进行多视图特征交互，实现2D和3D目标的同步检测。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.02866v1",
+      "source": "arxiv",
+      "title": "Laplacian Frequency Interaction Network for Rural Thematic Road Extraction",
+      "abstract": "Rural thematic road network construction aims to extract topological road structures from movement trajectory images of agricultural machinery. However, this task faces challenges where downsampling methods commonly used in existing studies tend to blur the sparse high-frequency road structures, and the heavy noise from dense field operations often leads to fragmented or redundant topologies in the extracted networks. To address these challenges, we propose LFINet, a Laplacian Frequency Interaction Network. The network begins with a Laplacian Multi-scale Separator (LMS) to decouple the image into low-frequency semantic contexts and high-frequency structural details. These components are then processed by the Cross-Frequency Interaction Block (CFIB) through a dual-pathway architecture in which a High-Frequency Block (HFB) refines local structures while a Spatial Transformer (ST) captures global semantics. Subsequently, a Frequency Gated Modulation (FGM) mechanism integrates the features from pathways by leveraging semantic contexts to calibrate the structural details. Finally, a Progressive Reconstruction Decoder iteratively fuses multi-scale features to ensure topological consistency. Experiments conducted on a real-world agricultural trajectories dataset from Henan Province, China, show that LFINet establishes a new state-of-the-art. Specifically, it achieves an F1-score of 92.54% and an IoU of 86.12%, surpassing the second-ranked method by 0.64% and 1.1%, respectively. This confirms its capability to effectively construct topological road networks from noisy and sparse field data.",
+      "authors": [
+        "Baiyan Chen",
+        "Weixin Zhai"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-04T17:39:55+00:00",
+      "link": "https://arxiv.org/pdf/2605.02866v1",
+      "tags": [
+        "keyword:SOD"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Laplacian Multi-scale Separator for structural details and semantic context",
+      "llm_evidence_cn": "用于结构细节和语义上下文的拉普拉斯多尺度分离器",
+      "llm_evidence": "用于结构细节和语义上下文的拉普拉斯多尺度分离器",
+      "canonical_evidence": "用于结构细节和语义上下文的拉普拉斯多尺度分离器",
+      "llm_tldr_en": "Proposes LFINet using multi-scale separation and frequency interaction for extracting fine road structures.",
+      "llm_tldr_cn": "提出LFINet，利用多尺度分离和频率交互技术提取精细的道路结构。",
+      "llm_tldr": "提出LFINet，利用多尺度分离和频率交互技术提取精细的道路结构。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.02137v1",
+      "source": "arxiv",
+      "title": "FLoRA: Fusion-Latent for Optical Reconstruction and Flood Area Segmentation via Cross-Modal Multi-Task Distillation Network",
+      "abstract": "Accurate flood water mapping is critical for disaster management, yet current methods struggle to fully exploit the potential of spaceborne imagery. Optical data offers high interpretability but is limited by environmental conditions, whereas SAR provides reliable all-weather coverage with reduced visual interpretability. FLoRA (Fusion Latent for Optical Reconstruction and Area Segmentation) is a cross-modal multi-task framework that jointly reconstructs high-fidelity optical imagery and segments flood water regions from Sentinel 1 SAR by fusing the complementary strengths of optical and SAR data. During training, a lightweight optical teacher (driven by RGB and NDVI priors) provides pyramidal features that guide SAR representations into a fusion latent space via multiscale windowed cross attention and FiLM conditioning, with gated residuals preventing overcorrection. This design enables multi-task learning across two complementary objectives: (a) SAR-to-optical translation for fine-grained RGB reconstruction and (b) flood water region segmentation for hydrologic interpretation. The dual decoders are optimized using Charbonnier SSIM for structural fidelity, edge FFT magnitude losses for spectral realism, and Dice BCE hydrology-aware edge alignment for precise flood water delineation. A feature distillation constraint further aligns fused SAR features with the optical teacher's manifold. Evaluations on SEN1FLOODS11, DEEPFLOOD, and SEN12MS demonstrate that FLoRA surpasses fusion baselines in PSNR, SSIM, and LPIPS, demonstrating that multi-modal fusion within a teacher-guided latent space yields semantically faithful and physically consistent flood-water intelligence from spaceborne observations.",
+      "authors": [
+        "Jagrati Talreja",
+        "Tewodros Syum Gebre",
+        "Leila Hashemi-Beni"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-05-04T01:37:25+00:00",
+      "link": "https://arxiv.org/pdf/2605.02137v1",
+      "tags": [
+        "keyword:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "pyramidal feature distillation for cross-modal segmentation",
+      "llm_evidence_cn": "用于跨模态分割的金字塔特征蒸馏",
+      "llm_evidence": "用于跨模态分割的金字塔特征蒸馏",
+      "canonical_evidence": "用于跨模态分割的金字塔特征蒸馏",
+      "llm_tldr_en": "FLoRA uses multi-scale pyramidal feature distillation for cross-modal flood area segmentation.",
+      "llm_tldr_cn": "FLoRA利用多尺度金字塔特征蒸馏进行跨模态洪水区域分割。",
+      "llm_tldr": "FLoRA利用多尺度金字塔特征蒸馏进行跨模态洪水区域分割。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "biorxiv-10-1101-2025-09-15-676250-v3",
+      "source": "biorxiv",
+      "title": "CenSegNet: a generalist high-throughput deep learning framework for centrosome phenotyping at spatial and single-cell resolution in heterogeneous tissues",
+      "abstract": "Centrosome abnormalities (CA) are a hallmark of epithelial cancers, yet their spatial complexity and phenotypic heterogeneity remain poorly resolved due to limitations in conventional image analysis. We present CenSegNet (Centrosome Segmentation Network), a modular deep learning framework for high-resolution, context-aware segmentation of centrosomes and epithelial architecture across diverse tissue types. Integrating a dual-branch architecture with uncertainty-guided refinement, CenSegNet achieves state-of-the-art performance and generalisability across both immunofluorescence and immunohistochemistry modalities, outperforming existing models in accuracy and morphological fidelity. Applied to tissue microarrays (TMAs) containing 911 breast cancer sample cores from 127 patients, CenSegNet enables the first large-scale, spatially resolved quantification of numerical and structural CA at single-cell resolution. These CA subtypes are mechanistically uncoupled, exhibiting distinct spatial distributions, age-dependent dynamics, and associations with histological tumour grade, hormone receptor status, genomic alterations, and nodal involvement. Structural CA levels are additionally associated with overall survival, supporting the clinical relevance of spatially resolved CA patterns. Discordant CA profiles at tumour margins are linked to local aggressiveness and stromal remodelling. To support broad adoption and reproducibility, CenSegNet is released as an open-source Python library. Together, our findings establish CenSegNet as a scalable, generalisable platform for spatially resolved centrosome phenotyping in intact tissues, enabling systematic dissection of the biology of this organelle and its dysregulation in cancer and other epithelial diseases.",
+      "authors": [
+        "Cheng, J.",
+        "Fan, K.",
+        "Bailey, M.",
+        "Du, X.",
+        "Jena, R.",
+        "Savva, C.",
+        "Reed, E.",
+        "Gou, M.",
+        "Zuo, P.",
+        "Beers, S.",
+        "Cutress, R.",
+        "Cai, X.",
+        "Elias, S."
+      ],
+      "primary_category": "cell biology",
+      "categories": [
+        "cell biology"
+      ],
+      "published": "2026-05-04T00:00:00+00:00",
+      "link": "https://www.biorxiv.org/content/10.1101/2025.09.15.676250v3.full.pdf",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "deep learning framework for high-resolution segmentation of small centrosomes",
+      "llm_evidence_cn": "用于小中心体高分辨率分割的深度学习框架",
+      "llm_evidence": "用于小中心体高分辨率分割的深度学习框架",
+      "canonical_evidence": "用于小中心体高分辨率分割的深度学习框架",
+      "llm_tldr_en": "CenSegNet provides a deep learning framework for high-throughput segmentation of small centrosomes in tissues.",
+      "llm_tldr_cn": "CenSegNet提供了一个用于组织中小中心体高通量分割的深度学习框架。",
+      "llm_tldr": "CenSegNet提供了一个用于组织中小中心体高通量分割的深度学习框架。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}

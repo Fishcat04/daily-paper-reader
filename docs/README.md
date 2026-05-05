@@ -6,73 +6,58 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-05-04
-- 运行时间：2026-05-04 20:54:26 UTC
+- 最新运行日期：2026-05-05
+- 运行时间：2026-05-05 20:44:42 UTC
 - 运行状态：成功
-- 本次总论文数：17
-- 精读区：6
+- 本次总论文数：12
+- 精读区：1
 - 速读区：11
 
 ### 今日简报（AI）
-今日精选 17 篇视觉感知前沿论文，深度解析了从课堂行为识别到边缘端微小目标检测的技术突破。
-重点推荐改进型 YOLOv8s 在教育场景的高精度应用，以及 DenseScout 针对边缘平台微小目标筛选的软硬协同优化方案。
-建议读者关注视觉算法在医疗、教学等垂直领域的落地实践，并探索边缘计算下的模型轻量化趋势。
-- 详情：[/202605/04/README](/202605/04/README)
+今日深度解析 12 篇视觉感知前沿论文，重点聚焦改进 YOLOv8s 在智慧课堂行为识别中的高精度应用。
+核心突破在于通过模型优化显著提升了学生行为监测的准确率，并同步探索了 3D 开放词汇检测与隐私保护监控新方案。
+建议优先研读 9.5 分的 YOLOv8s 改进案例，学习如何针对特定垂直场景进行算法深度调优。
+- 详情：[/202605/05/README](/202605/05/README)
 
 ### 精读区论文标签
-1. [Student Classroom Behavior Recognition Based on Improved YOLOv8s](/202605/04/2604.27293v1-student-classroom-behavior-recognition-based-on-improved-yolov8s)  
-   标签：评分：10.0/10、query:sod
-   evidence：改进的YOLOv8s用于处理大量小目标和多尺度特征融合
-2. [DenseScout: Algorithm-System Co-design for Budgeted Tiny Object Selection on Edge Platforms](/202605/04/2604.25300v1-densescout-algorithm-system-co-design-for-budgeted-tiny-object-selection-on-edge-platforms)  
-   标签：评分：9.0/10、query:sod
-   evidence：边缘平台上的预算受限微小目标选择
-3. [ResAF-Net: An Anchor-Free Attention-Based Network for Tree Detection and Agricultural Mapping in Palestine](/202605/04/2604.23653v1-resaf-net-an-anchor-free-attention-based-network-for-tree-detection-and-agricultural-mapping-in-palestine)  
-   标签：评分：8.5/10、query:sod
-   evidence：结合特征融合和多头自注意力机制，用于卫星图像中的树木检测
-4. [Instance Awareness of Multi-class Semantic Segmentation Loss Functions](/202605/04/2604.24276v1-instance-awareness-of-multi-class-semantic-segmentation-loss-functions)  
-   标签：评分：8.0/10、query:sod
-   evidence：实例敏感损失函数确保小病灶产生与大病灶相同的梯度
-5. [Lightweight Distillation of SAM 3 and DINOv3 for Edge-Deployable Individual-Level Livestock Monitoring and Longitudinal Visual Analytics](/202605/04/2604.27128v1-lightweight-distillation-of-sam-3-and-dinov3-for-edge-deployable-individual-level-livestock-monitoring-and-longitudinal-visual-analytics)  
-   标签：评分：8.0/10、query:sod
-   evidence：用于多尺度蒸馏的特征金字塔网络(FPN)学生编码器
-6. [UHR-Net: An Uncertainty-Aware Hypergraph Refinement Network for Medical Image Segmentation](/202605/04/2604.28095v1-uhr-net-an-uncertainty-aware-hypergraph-refinement-network-for-medical-image-segmentation)  
-   标签：评分：8.0/10、query:sod
-   evidence：针对小病灶的几何感知复制粘贴增强
+1. [Student Classroom Behavior Recognition Based on Improved YOLOv8s](/202605/05/2604.27293v1-student-classroom-behavior-recognition-based-on-improved-yolov8s)  
+   标签：评分：9.5/10、query:sod
+   evidence：针对教室场景中的大量小目标，采用多尺度特征融合和专门的损失函数进行优化。
 
 ### 速读区论文标签
-1. [VDLF-Net: Variational Feature Fusion for Adaptive and Few-Shot Visual Learning](/202605/04/2604.23641v1-vdlf-net-variational-feature-fusion-for-adaptive-and-few-shot-visual-learning)  
+1. [VoxAfford: Multi-Scale Voxel-Token Fusion for Open-Vocabulary 3D Affordance Detection](/202605/05/2605.01365v1-voxafford-multi-scale-voxel-token-fusion-for-open-vocabulary-3d-affordance-detection)  
+   标签：评分：7.5/10、query:sod
+   evidence：用于3D定位的多尺度几何特征注入
+2. [Heterogeneous Model Fusion for Privacy-Aware Multi-Camera Surveillance via Synthetic Domain Adaptation](/202605/05/2605.02169v1-heterogeneous-model-fusion-for-privacy-aware-multi-camera-surveillance-via-synthetic-domain-adaptation)  
+   标签：评分：7.5/10、query:sod
+   evidence：基于扩散生成的隐私保护增强和稀有目标合成
+3. [FoR-Net: Learning to Focus on Hard Regions for Efficient Semantic Segmentation](/202605/05/2605.02764v1-for-net-learning-to-focus-on-hard-regions-for-efficient-semantic-segmentation)  
+   标签：评分：7.5/10、query:sod
+   evidence：针对细微结构的多尺度推理和空间上下文聚合
+4. [Graph-based Semantic Calibration Network for Unaligned UAV RGBT Image Semantic Segmentation and A Large-scale Benchmark](/202605/05/2604.26893v2-graph-based-semantic-calibration-network-for-unaligned-uav-rgbt-image-semantic-segmentation-and-a-large-scale-benchmark)  
    标签：评分：7.0/10、query:sod
-   evidence：带有变分特征融合的多尺度CNN骨干网络用于少样本学习
-2. [Focus on What Matters: Two-Stage ROI-Aware Refinement for Anatomy-Preserving Fetal Ultrasound Reconstruction](/202605/04/2604.23839v1-focus-on-what-matters-two-stage-roi-aware-refinement-for-anatomy-preserving-fetal-ultrasound-reconstruction)  
+   evidence：无人机航拍视角与细粒度地面目标分割
+5. [Laplacian Frequency Interaction Network for Rural Thematic Road Extraction](/202605/05/2605.02866v1-laplacian-frequency-interaction-network-for-rural-thematic-road-extraction)  
    标签：评分：7.0/10、query:sod
-   evidence：针对小解剖区域的ROI感知细化及基于梯度的损失校准
-3. [FUN: A Focal U-Net Combining Reconstruction and Object Detection for Snapshot Spectral Imaging](/202605/04/2604.27653v1-fun-a-focal-u-net-combining-reconstruction-and-object-detection-for-snapshot-spectral-imaging)  
+   evidence：用于结构细节和语义上下文的拉普拉斯多尺度分离器
+6. [CenSegNet: a generalist high-throughput deep learning framework for centrosome phenotyping at spatial and single-cell resolution in heterogeneous tissues](/202605/05/biorxiv-10-1101-2025-09-15-676250-v3-censegnet-a-generalist-high-throughput-deep-learning-framework-for-centrosome-phenotyping-at-spatial-and-single-cell-resolution-in-heterogeneous-tissues)  
    标签：评分：7.0/10、query:sod
-   evidence：用于快照光谱成像实时目标检测的Focal U-Net
-4. [Edge AI for Automotive Vulnerable Road User Safety: Deployable Detection via Knowledge Distillation](/202605/04/2604.26857v1-edge-ai-for-automotive-vulnerable-road-user-safety-deployable-detection-via-knowledge-distillation)  
+   evidence：用于小中心体高分辨率分割的深度学习框架
+7. [Dino-NestedUNet: Unlocking Foundation Vision Encoders for Pathology Tumor Bulk Segmentation via Dense Decoding](/202605/05/2605.00894v1-dino-nestedunet-unlocking-foundation-vision-encoders-for-pathology-tumor-bulk-segmentation-via-dense-decoding)  
    标签：评分：6.5/10、query:sod
-   evidence：基于YOLO的弱势道路使用者检测，这些目标在交通场景中通常表现为小目标
-5. [Image Classification via Random Dilated Convolution with Multi-Branch Feature Extraction and Context Excitation](/202605/04/2604.25188v1-image-classification-via-random-dilated-convolution-with-multi-branch-feature-extraction-and-context-excitation)  
+   evidence：使用嵌套密集解码器进行持续特征重用和多尺度重新校准。
+8. [Celldetective: an AI-enhanced image analysis tool for unraveling dynamic cell interactions](/202605/05/biorxiv-10-1101-2024-03-15-585250-v4-celldetective-an-ai-enhanced-image-analysis-tool-for-unraveling-dynamic-cell-interactions)  
+   标签：评分：6.5/10、query:sod
+   evidence：显微镜下小细胞群体的AI分割
+9. [Exposure to naturalistic occlusion promotes generalized, human-like robustness in deep neural networks](/202605/05/biorxiv-10-64898-2026-04-23-720370-v1-exposure-to-naturalistic-occlusion-promotes-generalized-human-like-robustness-in-deep-neural-networks)  
+   标签：评分：6.5/10、query:sod
+   evidence：使用自然遮挡物训练以提高目标识别鲁棒性
+10. [SimPB++: Simultaneously Detecting 2D and 3D Objects from Multiple Cameras](/202605/05/2605.01924v1-simpb-simultaneously-detecting-2d-and-3d-objects-from-multiple-cameras)  
    标签：评分：6.0/10、query:sod
-   evidence：多分支随机空洞卷积用于多尺度上下文信息
-6. [Edge-Cloud Collaborative Reconstruction via Structure-Aware Latent Diffusion for Downstream Remote Sensing Perception](/202605/04/2604.25319v1-edge-cloud-collaborative-reconstruction-via-structure-aware-latent-diffusion-for-downstream-remote-sensing-perception)  
+   evidence：多视图2D与3D特征交互与精炼
+11. [FLoRA: Fusion-Latent for Optical Reconstruction and Flood Area Segmentation via Cross-Modal Multi-Task Distillation Network](/202605/05/2605.02137v1-flora-fusion-latent-for-optical-reconstruction-and-flood-area-segmentation-via-cross-modal-multi-task-distillation-network)  
    标签：评分：6.0/10、query:sod
-   evidence：恢复下游目标检测所需的结构细节
-7. [GateMOT: Q-Gated Attention for Dense Object Tracking](/202605/04/2604.26353v1-gatemot-q-gated-attention-for-dense-object-tracking)  
-   标签：评分：6.0/10、query:sod
-   evidence：用于拥挤场景下密集目标跟踪的Q门控注意力
-8. [Uncertainty-Aware Pedestrian Attribute Recognition via Evidential Deep Learning](/202605/04/2604.26873v1-uncertainty-aware-pedestrian-attribute-recognition-via-evidential-deep-learning)  
-   标签：评分：6.0/10、query:sod
-   evidence：交叉注意力和空间先验掩码用于捕获细粒度局部特征
-9. [Graph-based Semantic Calibration Network for Unaligned UAV RGBT Image Semantic Segmentation and A Large-scale Benchmark](/202605/04/2604.26893v1-graph-based-semantic-calibration-network-for-unaligned-uav-rgbt-image-semantic-segmentation-and-a-large-scale-benchmark)  
-   标签：评分：6.0/10、query:sod
-   evidence：针对航拍视角下细粒度地面目标的特征解耦与对齐
-10. [Real-Time Frame- and Event-based Object Detection with Spiking Neural Networks on Edge Neuromorphic Hardware: Design, Deployment and Benchmark](/202605/04/2605.00146v1-real-time-frame--and-event-based-object-detection-with-spiking-neural-networks-on-edge-neuromorphic-hardware-design-deployment-and-benchmark)  
-   标签：评分：6.0/10、query:sod
-   evidence：在帧和事件数据集上对基于SNN的目标检测进行基准测试
-11. [Unsupervised Denoising of Real Clinical Low Dose Liver CT with Perceptual Attention Networks](/202605/04/2605.00793v1-unsupervised-denoising-of-real-clinical-low-dose-liver-ct-with-perceptual-attention-networks)  
-   标签：评分：6.0/10、query:sod
-   evidence：用于多尺度特征提取的U-Net结构和用于特征融合的注意力机制
+   evidence：用于跨模态分割的金字塔特征蒸馏
 
 
 <div class="dpr-home-promo-card">

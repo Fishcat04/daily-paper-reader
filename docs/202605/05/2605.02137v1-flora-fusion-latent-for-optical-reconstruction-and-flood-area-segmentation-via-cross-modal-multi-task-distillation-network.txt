@@ -1,0 +1,769 @@
+Title: FLoRA: Fusion-Latent for Optical Reconstruction and Flood Area Segmentation via Cross-Modal Multi-Task Distillation Network
+
+URL Source: https://arxiv.org/pdf/2605.02137v1
+
+Published Time: Tue, 05 May 2026 01:30:31 GMT
+
+Number of Pages: 12
+
+Markdown Content:
+> 1
+
+# FLoRA: Fusion-Latent for Optical Reconstruction and Flood Area Segmentation via Cross-Modal Multi-Task Distillation Network 
+
+Jagrati Talreja, Tewodros Syum Gebre, Leila Hashemi-Beni 
+
+Abstract —Accurate flood-water mapping is critical for disaster management, yet current methods struggle to fully exploit the potential of spaceborne imagery. Optical data offers high inter-pretability but is limited by environmental conditions, whereas SAR provides reliable all-weather coverage with reduced visual interpretability. FLoRA (Fusion-Latent for Optical Reconstruc-tion & Area Segmentation) is a cross-modal multi-task frame-work that jointly reconstructs high-fidelity optical imagery and segments flood-water regions from Sentinel-1 SAR by fusing the complementary strengths of optical and SAR data. During training, a lightweight optical teacher (driven by RGB and NDVI priors) provides pyramidal features that guide SAR representa-tions into a fusion-latent space via multi-scale windowed cross-attention and FiLM conditioning, with gated residuals preventing over-correction. This design enables multi-task learning across two complementary objectives: (i) SAR-to-optical translation for fine-grained RGB reconstruction and (ii) flood-water region segmentation for hydrologic interpretation. The dual decoders are optimized using Charbonnier + SSIM for structural fidelity, edge + FFT-magnitude losses for spectral realism, and Dice + BCE + hydrology-aware edge alignment for precise flood-water delineation. A feature-distillation constraint further aligns fused SAR features with the optical teacher’s manifold. Evaluations on SEN1FLOODS11, DEEPFLOOD, and SEN12MS demonstrate that FLoRA surpasses fusion baselines in PSNR, SSIM, and LPIPS, demonstrating that multi-modal fusion within a teacher-guided latent space yields semantically faithful and physically consistent flood-water intelligence from spaceborne observations. 
+
+https://github.com/JagratiTalreja01/FLoRA Index Terms —SAR–optical data fusion, Multi-modal multi-task deep learning, Optical reconstruction, Flood-water segmen-tation, Remote sensing. 
+
+I. I NTRODUCTION 
+
+Floods remain among the most frequent and devastating natural disasters, responsible for extensive economic losses and significant impacts on human life and infrastructure [1]. Rapid and reliable flood-water mapping from satellite imagery is critical for early response, damage assessment, and long-term mitigation planning [2]. However, the remote sensing modalities for this task are optical imagery [3], [4] and synthetic aperture radar (SAR) [5]. Each suffers from inherent 
+
+> This research is funded by the National Science Foundation (NSF) grant 2401942 and by National Aeronautics and Space Administration (NASA). Jagrati Talreja is with Geomatics Program, College of Science and Tech-nology, North Carolina A&T Technical State University, Greensboro, North Carolina 27411, USA. Tewodros Syum Gebre is with Geomatics Program, College of Science and Technology, North Carolina A&T Technical State University, Greensboro, North Carolina 27411, USA. Leila Hashemi Beni (corresponding author) is with Geomatics Program, College of Science and Technology, North Carolina A&T Technical State University, Greensboro, North Carolina 27411, USA. She is also with Institute for Water, Environment and Health, United Nations University, Richmond Hill, Ontario, Canada. E-mail:lhashemibeni@ncat.edu
+
+limitations [6]. Optical sensors, such as those aboard Sentinel-2, provide visually interpretable reflectance information, but their usability degrades sharply under heavy cloud cover or nighttime conditions [7], [8]. Conversely, SAR sensors, like Sentinel-1, operate day and night and penetrate clouds and rain, offering dependable temporal coverage, but the backscat-ter data are difficult to interpret visually and often lack intuitive semantic cues about surface materials or flood-water extents [5], [9]. Existing data fusion strategies have made progress toward combining these complementary sensing modalities [10]–[12]. Yet, most current models treat SAR-to-optical translation and flood-water segmentation as separate tasks, trained with independent objectives [13], [14]. Translation networks such as CycleGAN [15] or pix2pix [16] focus on reconstructing optical appearance but disregard hydrological semantics. Seg-mentation models such as U-Net [17] or Swin-Transformer [18] variants exploit SAR textures for water delineation but ignore the spectral realism of optical space. These isolated approaches overlook the physical coupling between reflectance reconstruction and flood-water region understanding, leading to either visually plausible but hydrologically inconsistent outputs or accurate masks that lack interpretability [19]. To bridge this gap, we propose FLoRA (Fusion-Latent for Optical Reconstruction and Flood-Water Area Segmentation), a cross-modal multi-task distillation framework that learns a shared latent representation from SAR and optical domains. Instead of fusing raw pixels or concatenated features, FLoRA introduces a fusion-latent space where SAR features are dynamically aligned with optical priors through multi-scale windowed cross-attention and Feature-wise Linear Modulation (FiLM) conditioning. A lightweight optical teacher, driven by RGB and NDVI cues, guides the SAR encoder toward perceptually consistent features, while gated residuals prevent over-correction from noisy priors. Within this unified architecture, two decoders operate jointly: one reconstructs high-fidelity optical imagery, and the other segments flood-water regions. By enforcing structural and spectral consistency (via Charbonnier + SSIM + FFT losses) alongside hydrology-aware delineation (Dice + BCE + edge alignment), FLoRA achieves both visual realism and physical accuracy. A feature-distillation constraint further en-sures that the fused SAR representation remains semantically anchored to the optical teacher’s manifold, enabling general-ization across datasets and seasons. Extensive experiments on DEEPFLOOD [20], SEN1FLOODS11 [21] and SEN12MS [22] demonstrate that FLoRA significantly outperforms prior fusion baselines in PSNR, SSIM, LPIPS, and Dice metrics. Qualitative 
+
+> arXiv:2605.02137v1 [cs.CV] 4 May 2026 2
+
+analyses show that the model recovers fine spatial details of flooded and non-flooded regions while reconstructing realistic RGB structure. In summary, FLoRA establishes a new direction for cross-modal flood intelligence by unifying translation and segmentation through teacher-guided latent fusion, moving a step closer toward physically consistent, semantically interpretable disaster mapping from spaceborne observations. 
+
+Scope and Terminology Clarification: It is important to distinguish between flood mapping (typically a change detection task requiring pre- and post-event imagery) and 
+
+flood-water body segmentation (a state detection task). While FLoRA operates on single-temporal post-disaster SAR-optical pairs, we frame the task as flood-water segmentation . In the context of rapid disaster response, pre-event baselines are not always immediately available or perfectly registered. Therefore, robustly segmenting all water bodies, including temporary inundation, from a single noisy SAR acquisition, guided by optical priors, serves as a critical first-order ap-proximation for flood-water extent mapping. Throughout this work, the term “flood-water segmentation” refers to this robust extraction of water surfaces within flood-prone regions. The three main contributions of FLoRA are as follows:  
+
+> •
+
+Unified Cross-Modal Framework: FLoRA jointly per-forms SAR-to-optical translation and flood-water seg-mentation in one multi-task distillation architecture, re-placing separate task-specific models while preserving both visual realism and hydrologic accuracy.  
+
+> •
+
+Fusion-Latent Space with Optical Guidance: A shared fusion-latent space aligns SAR features with optical pri-ors through windowed cross-attention and FiLM condi-tioning. A lightweight optical teacher (RGB + NDVI) refines SAR representations using gated residuals to limit noise.  
+
+> •
+
+Physically and Perceptually Consistent Training: Acomposite loss, structural–spectral reconstruction (Char-bonnier, SSIM, FFT) + hydrology-aware segmentation (Dice, BCE, edge terms) drives both spectral fidelity and hydrologic correctness, achieving state-of-the-art results on DEEPFLOOD, SEN1FLOODS11, and SEN12MS. II. R ELATED WORK 
+
+Flood mapping methods [23], [24] have evolved signif-icantly from early physics-based thresholding and spectral indices to modern deep learning and cross-modal fusion frameworks. This section reviews the major directions of prior research, grouped into: (i) early flood-water mapping and single-modal deep learning, (ii) cross-modal fusion for joint reconstruction and segmentation, (iii) multi-task learning and student-teacher distillation, and (iv) need for unified cross-modal multi-task fusion. 
+
+A. Early Flood-Water Mapping and Single-Modal Deep Learning 
+
+Traditional flood-water mapping relied on statistical and spectral techniques such as the Normalized Difference Water Index (NDWI) and Modified NDWI (MNDWI) to delineate water bodies [25]. While computationally simple and in-terpretable, these methods perform poorly in heterogeneous landscapes, mixed land cover, and shadowed regions [26]. The introduction of deep learning revolutionized flood-water mapping by allowing neural networks to learn spatial hierar-chies and contextual patterns directly from raw imagery [27]. Architectures such as U-Net [17], SegNet [28], and ResU-Net [29] demonstrated substantial improvements in flood-water segmentation, particularly using Sentinel-1 SAR data. These convolutional networks exploit spatial context to distin-guish flooded and non-flooded regions effectively. Recently, transformer-based models such as [30] and Swin-Transformer [18] have further improved performance by capturing long-range dependencies and global contextual information. How-ever, these single-modal models remain constrained. Optical models fail in cloudy or nighttime conditions, while SAR-based models, though robust, struggle to provide visually or semantically interpretable results due to the absence of spectral cues. 
+
+B. Cross-Modal Fusion and SAR-to-Optical Translation 
+
+To address the limitations of single modalities, recent stud-ies have explored fusion strategies that combine SAR and optical imagery [31]. Early fusion approaches concatenated pixel-level [32] or feature-level representations [33], while more advanced techniques applied attention mechanisms, gat-ing networks, or adaptive weighting to merge features from both sensors [34]. Despite these improvements, many fusion methods still fail to fully exploit the complementary nature of the modalities, especially the spectral semantics provided by optical data. With the rise of Generative Adversarial Networks (GANs), image-to-image translation frameworks such as CycleGAN [15] and Pix2Pix [16] introduced new possibilities for trans-lating SAR images into optical space. These models treat SAR-to-optical translation as a form of cross-domain style transfer, improving visual realism and interpretability. How-ever, they often neglect the hydrological semantics critical for flood-water analysis. As a result, their reconstructed optical outputs may appear visually convincing but fail to represent the true flood-water extent or water dynamics. Moreover, these translation models typically optimize only for image appearance, without integrating flood-water segmentation as a concurrent learning objective, which limits their generalization and practical utility in disaster scenarios [13], [35]. 
+
+C. Multi-Task Learning and Teacher-Student Distillation 
+
+Multi-task learning (MTL) has emerged as a powerful paradigm for improving model generalization by jointly op-timizing multiple related objectives. In the context of re-mote sensing, MTL frameworks [36] have demonstrated that shared latent representations between tasks such as image reconstruction and segmentation can improve both accuracy and feature consistency. By learning from complementary objectives, models can better capture both the geometric and semantic structure of the scene. 3   
+
+> Fig. 1. Overview of the proposed FLoRA (Fusion-Latent for Optical Reconstruction and Flood-Water Area Segmentation) framework.
+
+Teacher-student frameworks extend this idea further by using feature distillation to guide learning across modalities. In such settings, a teacher model, typically trained on optical imagery, provides high-level guidance to a SAR-based student network [37]. This supervision enables the SAR model to capture more semantically meaningful representations that align with optical visual cues [38]. While effective, most of these approaches address either the translation or segmentation problem in isolation, rather than optimizing both jointly, thus failing to capture the coupled nature of visual reconstruction and hydrological interpretation. 
+
+D. The Need for Unified Cross-Modal Multi-Task Fusion 
+
+Despite the progress in both flood-water segmentation and SAR-to-optical translation, existing models largely treat these problems separately. SAR-based segmentation approaches, from early thresholding [39] to modern architectures such as U-Net [17] and Swin-Transformer [18], are effective at identifying flooded areas but rely solely on the statistical and textural properties of backscatter. This makes it difficult to distinguish between visually similar surfaces such as flooded vegetation, urban reflections, or saturated soil. Conversely, op-tical reconstruction models generate visually plausible imagery but often fail to preserve hydrological consistency, producing outputs that do not align with true flood-water dynamics. These challenges emphasize the need for a unified frame-work that integrates both modalities and tasks within a single learning paradigm. Such a cross-modal multi-task approach should align optical priors with SAR features, ensuring that visually realistic reconstructions correspond to physically ac-curate flood-water boundaries. The combination of spectral information from optical imagery and the geometric and temporal consistency of SAR can significantly improve inter-pretability and reliability. Our proposed framework, FLoRA , directly addresses this gap by introducing a cross-modal multi-task learning strategy that fuses SAR and optical representations within a shared latent space. Through joint optimization of optical recon-struction and flood-water segmentation, FLoRA achieves both high visual fidelity and hydrologically consistent flood-water mapping. III. M ETHODOLOGY 
+
+Flood-water mapping from spaceborne data poses two major challenges: the spectral ambiguity of SAR backscatter and the lack of cloud-free optical imagery during disasters. The pro-posed FLoRA (Fusion-Latent for Optical Reconstruction and Flood-Water Area Segmentation) framework addresses these issues through a cross-modal multi-task distillation net-work that unifies SAR and optical feature spaces. By con-structing a fusion-latent space that captures both the geometric properties of SAR and the semantic richness of optical data, FLoRA jointly reconstructs realistic optical imagery and seg-ments flood-water regions in a physically consistent manner. 
+
+Figure 1 illustrates the overall data flow of FLoRA. Given SAR input and optional optical priors, features are first extracted by modality-specific encoders. These features are aligned within a fusion-latent space using windowed cross-attention, FiLM conditioning, and gated residual fusion. The fused representation is then shared across two gradient-decoupled decoders for optical reconstruction and floodwater segmentation. 
+
+Let S ∈ R2×H×W denote the Sentinel-1 SAR input (VV, VH) and P ∈ RCp×H×W represent the optical prior, such as Sentinel-2 RGB or NDVI. The network learns a mapping 
+
+F (S, P ) −→ ( bY , cM ), (1) where bY is the reconstructed optical image and cM is the predicted flood-water mask. 
+
+Pipeline summary: 
+
+(S, P ) → Encoders → F usionLatent → (DEC RGB , DEC M ask )
+
+(2) 4
+
+The core of FLoRA is the fusion-latent space , which aligns features from both modalities through multi-scale windowed cross-attention, Feature-wise Linear Modulation (FiLM) and gated residual fusion. To stabilize optimization, FLoRA intro-duces gradient-decoupled dual decoders and a teacher–student distillation that transfers optical semantics into SAR represen-tations. 
+
+A. Encoders and Teacher Paths a) SAR Encoder.: A U-Net-like encoder progressively extracts structural features from SAR backscatter: 
+
+{s1, s2, s3, xm} = Enc SAR (S), (3) where s1 ∈ RB× H   
+
+> 2×W
+> 2
+
+, s2 ∈ R2B× H   
+
+> 4×W
+> 4
+
+, s3 ∈ R4B× H   
+
+> 8×W
+> 8
+
+,and xm ∈ R8B× H   
+
+> 8×W
+> 8
+
+.
+
+These encoder outputs provide multi-scale features that serve as inputs to the fusion-latent alignment module. b) Optical Teacher Pyramid.: A lightweight optical teacher extracts hierarchical features from P :
+
+P = {p1, p2, p3, p4} = Teach( P ), (4) where pℓ ∈ R(2 ℓ−1B)× H   
+
+> 2ℓ×W
+> 2ℓ
+
+. When optical priors are unavail-able, a SAR-driven prior predictor Prior( S) provides surrogate guidance. This design ensures the same fusion process can be used in both training and inference. The teacher is implemented as a lightweight convolutional feature pyramid (Conv–GroupNorm–SiLU blocks with pro-gressive pooling) as seen in Figure 2, that provides multi-scale guidance features rather than final predictions. These priors guide SAR feature alignment inside the fusion-latent space through cross-attention and FiLM conditioning. When optical priors are unavailable, a SAR-driven prior predictor Prior( S) generates surrogate prior features with the same pyramid structure: 
+
+{p1, p2, p3, p4} = Prior( S), (5) allowing the same fusion pathway to be used during both training (optical-guided) and inference (SAR-only) without architectural changes. 
+
+B. Fusion-Latent Space: Cross-Modal Alignment 
+
+SAR and optical modalities differ significantly in signal distribution: SAR encodes geometric and backscatter structure, while optical data contain semantic and spectral cues. Direct concatenation of these modalities can lead to feature-space mismatches and noisy gradients. To address this, FLoRA introduces a dedicated fusion-latent space that harmonizes both modalities at multiple scales using three complemen-tary operations: (i) localized windowed cross-attention , (ii) adaptive FiLM conditioning , and (iii) confidence-aware gated residual fusion . Together, these mechanisms ensure that the SAR encoder benefits from optical priors without losing its inherent geometric integrity. 𝑹 (𝑩 ×𝑯                        
+
+> 𝟐 ×𝑾
+> 𝟐 )
+> 𝑹 (𝟐𝑩 ×𝑯
+> 𝟒 ×𝑾
+> 𝟒 )
+> 𝑹 (𝟒𝑩 ×𝑯
+> 𝟖 ×𝑾
+> 𝟖 )
+> 𝑹 (𝟖𝑩 ×𝑯
+> 𝟏𝟔 ×𝑾
+> 𝟏𝟔 )
+> ∈𝑹 (𝑩 ×𝑯
+> 𝟐 ×𝑾
+> 𝟐 )
+> ∈𝑹 (𝟐 𝑩 ×𝑯
+> 𝟒 ×𝑾
+> 𝟒 )
+> ∈𝑹 (𝟒 𝑩 ×𝑯
+> 𝟖 ×𝑾
+> 𝟖 )
+> ∈𝑹 (𝟖 𝑩 ×𝑯
+> 𝟏𝟔 ×𝑾
+> 𝟏𝟔 )
+> Fig. 2. Architecture of the lightweight optical teacher pyramid. Given optical priors P, the teacher extracts hierarchical guidance features {p1,p2,p3,p4}
+> at multiple scales, which are used to guide SAR feature fusion in the latent space.
+
+a) Windowed Cross-Attention: At each feature scale ℓ,the SAR encoder produces intermediate feature maps f sar  
+
+> ℓ
+
+∈
+
+RC×Hℓ×Wℓ , while the optical teacher (or prior predictor) produces f opt  
+
+> ℓ
+
+∈ RC×Hℓ×Wℓ of the same spatial resolution. Windowed cross-attention is applied using non-overlapping local windows of size w = 8 and h = 4 attention heads at all pyramid levels. Given query features from the SAR encoder and key/value features from the optical prior pyramid, attention is computed independently within each 8 × 8 spatial window to improve computational efficiency and preserve local spatial structure. The window size is chosen empirically as a balance between local contextual modeling and compu-tational cost. Unlike Swin Transformer, our implementation does not employ relative positional bias. Spatial consistency is instead preserved through the convolutional encoder hierarchy and multi-scale fusion design. These maps are first linearly projected into query , key , and value tensors: 
+
+Q = WQ ∗f sar  
+
+> ℓ
+
+, K = WK ∗f opt  
+
+> ℓ
+
+, V = WV ∗f opt  
+
+> ℓ
+
+, (6) where WQ, WK , and WV are 1×1 convolutional projections and ∗ denotes convolution. Q encodes what the SAR modality seeks to learn, while K and V represent the optical domain’s reference information. To capture local spatial correspondences efficiently, the feature maps are partitioned into non-overlapping windows of size w×w. Within each window i, attention is computed as 
+
+Attn( Qi, Ki, Vi) = softmax 
+
+ QiK⊤
+
+> i
+
+√dh
+
+
+
+Vi, (7) where dh is the feature dimension per attention head. This localized design restricts correspondence learning to spatially relevant neighborhoods, critical for terrain-dependent flood-water patterns, while reducing computational cost. All at-tended patches are then aggregated and projected back to full resolution: 
+
+zxattn  
+
+> ℓ
+
+= WO ∗Fold  {Attn( Qi, Ki, Vi)}i
+
+, (8) where WO is an output projection and Fold( ·) reassembles the windowed outputs. The resulting tensor zxattn  
+
+> ℓ
+
+thus embeds each 5
+
+SAR feature with context-aware optical semantics, creating a locally aligned latent representation. 
+
+b) FiLM Conditioning: Even after attention alignment, SAR and optical features differ statistically due to distinct imaging mechanisms. To adaptively calibrate SAR features using optical priors, FLoRA employs Feature-wise Linear Modulation (FiLM) . This mechanism learns channel-wise scal-ing and shifting parameters (γℓ, β ℓ) from the optical features: 
+
+[γℓ, β ℓ] = Φ( f opt  
+
+> ℓ
+
+), zfilm  
+
+> ℓ
+
+= zxattn  
+
+> ℓ
+
+⊙ (1 + tanh( γℓ)) + βℓ.
+
+(9) Here, Φ( ·) is a small convolutional subnetwork that predicts modulation coefficients, ⊙ denotes element-wise multiplica-tion, and tanh( ·) stabilizes the scaling factor around unity. Intuitively, γℓ controls the amplitude of feature channels based on optical cues (e.g., vegetation, water, or urban patterns), while βℓ introduces additive corrections. FiLM therefore acts as a learned normalization that brings SAR activations closer to their optical counterparts without overwriting physical struc-tures such as backscatter boundaries. 
+
+c) Gated Residual Fusion: Although cross-attention and FiLM help align modalities, over-reliance on optical priors can distort physically valid SAR cues (e.g., flooded areas under cloud cover). To address this, FLoRA introduces a confidence-aware gate that determines how strongly optical corrections should influence the fused representation: 
+
+fℓ = f sar  
+
+> ℓ
+
++ gℓ ⊙  zfilm  
+
+> ℓ
+
+− f sar 
+
+> ℓ
+
+, gℓ = σ(Wg ∗f sar  
+
+> ℓ
+
+), (10) where σ(·) is the sigmoid activation producing a gating tensor 
+
+gℓ ∈ [0 , 1] C×Hℓ×Wℓ that reflects the model’s confidence in optical information. If the SAR signal is reliable (e.g., low speckle and clear surface backscatter), the gate suppresses corrections; when the signal is ambiguous (e.g., shadow or flooded vegetation), the gate allows stronger optical influ-ence. The final fused feature fℓ thus adaptively integrates both modalities, preserving SAR’s geometric fidelity while inheriting optical semantics. 
+
+d) Multi-Scale Fusion Summary: This process is applied hierarchically across four pyramid levels, yielding the multi-scale latent set 
+
+F = {f1, f2, f3, f4}, (11) where shallower levels ( f1, f2) capture fine-grained texture alignment and deeper levels ( f3, f4) encode contextual hydro-logical consistency. The resulting fusion-latent space provides a compact, semantically aligned representation that supports both optical reconstruction and flood-water segmentation tasks downstream. The resulting fused features are passed to the multi-task decoders. 
+
+C. Multi-Task Learning with Gradient Decoupling 
+
+The two objectives in FLoRA-optical reconstruction and flood-water segmentation exhibit inherently different opti-mization tendencies. While reconstruction prioritizes spectral and textural fidelity, segmentation emphasizes geometric and boundary accuracy. Na¨ ıvely training both heads from the same latent features often causes gradient conflict , where competing updates destabilize the shared encoder. To mitigate this, FLoRA introduces gradient decoupling ,which selectively blocks gradient flow between decoders. Let 
+
+F denote the fused multi-scale features from the fusion-latent space, and sg( ·) the stop-gradient operator that halts back-propagation. The features used by each decoder are defined as: 
+
+Fseg =
+
+(
+
+sg( F), if seg_from_rgb=True ,
+
+F, otherwise, 
+
+Frgb =
+
+(
+
+sg( F), if rgb_from_seg=True ,
+
+F, otherwise. (12) By default, FLoRA sets seg_from_rgb=True , ensur-ing segmentation gradients are blocked from the shared encoder. This allows the reconstruction branch to govern cross-modal alignment (learning optical semantics), while the segmentation head focuses on spatial delineation with-out perturbing the shared representation. Conversely, setting 
+
+rgb_from_seg=True can prioritize hydrologic structure in joint learning scenarios. This simple gating mechanism effectively disentangles task supervision while preserving semantic coupling through shared features. To avoid competing optimization objectives between recon-struction and segmentation, gradient decoupling is introduced before the dual decoders. 
+
+D. Dual Decoder Design 
+
+The fusion-latent representation F feeds two specialized decoders that learn complementary objectives under the de-coupling regime. 
+
+a) RGB Decoder (Optical Reconstruction).: The RGB decoder Dec RGB employs progressive upsampling with skip connections to recover fine-grained spatial detail and spectral consistency: bY = σ(Dec RGB (Frgb )) , (13) where bY ∈ R3×H×W is the reconstructed optical image and 
+
+σ(·) is a sigmoid activation. This branch is trained using struc-tural and spectral consistency losses (Charbonnier, SSIM, FFT, edge), promoting realistic reflectance reconstruction aligned with optical priors. 
+
+b) Mask Decoder (Flood-Water Segmentation).: The mask decoder Dec Mask mirrors the RGB decoder’s structure but outputs a single-channel flood-water probability map: 
+
+cM = σ(Dec Mask (Fseg )) . (14) It is supervised via Dice, BCE, and hydrology-aware edge losses, focusing on precise boundary delineation of flooded areas. Together, the two decoders act as cooperative learners: the reconstruction path enforces spectral realism and contextual awareness, while the segmentation path constrains spatial and hydrologic structure. Their joint optimization within the decoupled regime ensures that shared features remain se-mantically rich yet physically interpretable, enabling FLoRA to generate visually consistent and hydrologically reliable outputs. 6
+
+E. Loss Formulation a) Reconstruction Losses: To ensure optical realism and spatial coherence, we use: 
+
+Lcharb = 1
+
+HW 
+
+X q
+
+( bY − Y )2 + ϵ, (15) 
+
+Lssim = 1 − SSIM 3×3( bY , Y ), (16) 
+
+Lfft = log |F ( ¯Y )| − log |F ( ¯bY )| 1, (17) 
+
+Ledge = ∥∇ ¯bY ∥2 − ∥∇ ¯Y ∥2 1. (18) The reconstruction loss is 
+
+LRGB = λcLcharb + λsLssim + λf Lfft + λeLedge . (19) 
+
+b) Segmentation Losses: Flood-water delineation accu-racy is encouraged by combining overlap, pixel, and boundary constraints: 
+
+Ldice = 1 − 2⟨ cM , M ⟩∥ cM ∥1 + ∥M ∥1 + ϵ , (20) 
+
+Lbce = − 1
+
+HW 
+
+X  M log cM + (1 − M ) log(1 − cM ),
+
+(21) 
+
+Lhydro = 1
+
+|B| 
+
+X
+
+> (u,v )∈B
+
+
+
+1 − cos ∠(∇ ¯bY (u, v ), ∇ ¯S(u, v )) 
+
+
+
+.
+
+(22) The combined segmentation objective is: 
+
+LSEG = μdLdice + μbLbce + μhLhydro . (23) 
+
+c) Feature Distillation: A teacher–student loss enforces alignment of fused SAR features with the optical manifold: 
+
+Ldistill =
+
+> 4
+
+X
+
+> ℓ=1
+
+∥fℓ − sg( pℓ)∥1. (24) 
+
+d) Overall Objective: The total training loss is the weighted sum: 
+
+Ltotal = LRGB + LSEG + η Ldistill . (25) In summary, FLoRA introduces a cross-modal fusion-latent framework that bridges the spectral–structural features be-tween SAR and optical imagery. By coupling multi-scale attention, FiLM conditioning, and gradient-decoupled dual decoding, the model jointly reconstructs semantically accurate optical reflectance and hydrologically consistent flood-water masks. Teacher-guided feature distillation anchors the learning process to physically meaningful priors, enabling FLoRA to produce semantically faithful and physically coherent flood intelligence even under SAR-only conditions. IV. E XPERIMENTS AND RESULTS 
+
+A. Datasets 
+
+The proposed FLoRA framework was evaluated on two benchmark datasets: DEEPFLOOD [20], SEN1FLOODS11 [21], and SEN12MS [22], covering diverse flood events and geographic conditions. 
+
+DEEPFLOOD [20] provides Sentinel-1, Sentinel-2, UAV, DEM, and water-index layers across multiple North Carolina flood events. We use its SAR VV, SAR VH, optical, and water-index data for evaluating reconstruction and segmenta-tion. 
+
+SEN1FLOODS11 [21] provides globally distributed Sentinel-1 (VV/VH) and Sentinel-2 pairs with flood annotations. It contains approximately 4,446 training and 1,050 test tiles at 512 × 512 resolution. We use the hand-labeled subset for supervised SAR-to-optical translation and flood-water segmentation experiments. 
+
+SEN12MS [22] consists of over 180,000 co-registered Sentinel-1/2 patches of size 256 × 256 across four seasonal subsets. In this work, we use only the winter subset (about 43,000 patches), which offers stronger SAR–optical contrast and supports more robust cross-modal learning. 
+
+B. Training and Experimental Setup 
+
+All images were resampled to 10 m resolution, normalized to [0 , 1] , and tiled into 256 ×256 patches. Models were trained for 1000 epochs using Python 3.10 and PyTorch>1.10 
+
+with mixed-precision on an NVIDIA RTX 4090 GPU and NVIDIA A4000 GPU. The AdamW optimizer was used with an initial learning rate of 1 × 10 −4 and cosine decay over 200 epochs. Unless otherwise stated, loss weighting followed a ratio of LRGB : LSeg = 1 : 0.5. All baseline models were re-trained using the same training/validation/test splits, input resolution, and preprocessing pipeline. For segmentation comparisons, all models receive identical Sentinel-1 SAR inputs (VV, VH) without additional optical priors. For SAR-to-optical translation baselines (MT GAN [41], Nice GAN [42], TS2O [43], CycleGAN [15], and pix2pix [16]), training follows their original loss formulations while maintaining a unified data protocol for fair comparison. 
+
+Evaluation Metrics: We evaluate both reconstruction and segmentation performance using standard quantitative metrics. For optical reconstruction, we report PSNR, SSIM, and LPIPS to jointly measure pixel-level fidelity, structural similarity, and perceptual quality. For flood-water segmentation, mul-tiple complementary metrics are used, including IoU, Dice, Precision, Recall, and F1 score. IoU and Dice quantify re-gion overlap, while Precision and Recall characterize false-positive and false-negative behavior, respectively. The F1 score is additionally reported as the harmonic mean of Precision and Recall to provide a balanced assessment under class imbalance. Reporting this set of metrics ensures consistent and comprehensive evaluation across datasets and allows fair comparison with prior remote sensing studies. All metrics were averaged over 1,000 validation tiles per dataset. 
+
+C. Quantitative Results 
+
+FLoRA is compared against both classical and recent SAR-to-optical translation methods, including U-Net, MT GAN [41], Nice GAN [42], TS2O [43], CycleGAN [15], TransUNet [40], and pix2pix [16]. For flood-water segmentation, compar-isons include U-Net [17], MSResNet [44], TransUNet [40], and GAN-based fusion baselines. Tables I–III report optical reconstruction performance, while Tables IV–VI present flood-water segmentation results. 7                                                         
+
+> TABLE I OPTICAL RECONSTRUCTION PERFORMANCE ON SEN1FLOODS11 [21]
+> DATASET .
+> Method PSNR ↑SSIM ↑LPIPS ↓
+> U-Net [17] 22.81 0.6413 0.701 MT GAN [41] 23.28 0.6648 0.695 Nice GAN [42] 23.59 0.6792 0.686 TS2O [43] 24.01 0.6912 0.681 CycleGAN [15] 24.12 0.7045 0.674 TransUNet [40] 25.38 0.7216 0.662 pix2pix [16] 29.56 0.7428 0.587
+> FLoRA (ours) 33.61 0.8124 0.4533
+> TABLE II OPTICAL RECONSTRUCTION PERFORMANCE ON SEN12MS [22] DATASET .
+> Method PSNR ↑SSIM ↑LPIPS ↓
+> U-Net [17] 21.64 0.5914 0.693 MT GAN [41] 21.82 0.6012 0.689 Nice GAN [42] 22.36 0.6112 0.681 TS2O [43] 22.92 0.6214 0.674 CycleGAN [15] 23.52 0.6328 0.663 TransUNet [40] 25.71 0.6742 0.651 pix2pix [16] 26.88 0.7011 0.576
+> FLoRA (ours) 28.31 0.7530 0.4273
+
+For GAN-based translation baselines, segmentation masks are obtained by attaching the same segmentation decoder used in FLoRA to ensure consistent comparison. FLoRA yields an average gain over all datasets of +2 .6 dB in PSNR and +8 % in IoU over the strongest baseline (TransUNet). The improvement in LPIPS indicates perceptu-ally more realistic reconstructions, while higher Dice scores demonstrate better delineation of flood-water boundaries. 
+
+D. Qualitative Analysis 
+
+Figures 3, 4, and 5 present representative qualitative com-parisons between FLoRA and competing methods across the SEN1FLOODS11 [21], SEN12MS [22], and DEEPFLOOD [20] datasets. The results include both optical reconstruction and flood-water segmentation outputs. To improve interpretability, each figure includes annotated regions (red and green boxes) highlighting challenging scenar-ios such as shoreline boundaries and regions with ambiguous SAR backscatter. Arrows and descriptive labels are used to explicitly indicate these regions. Ground-truth flood-water masks are displayed alongside predicted masks, which are thresholded to binary, to enable direct and consistent visual comparison. From these examples, FLoRA produces visually sharper and more spatially consistent reconstructions relative to baseline methods. In the annotated regions, competing models often exhibit blurred boundaries or false detections, while FLoRA generally maintains boundary continuity and reduces false positives, particularly in regions with low backscatter or complex land cover. These qualitative observations align with quantitative improvements in LPIPS and Dice metrics reported in Tables I-VI.                                                                  
+
+> TABLE III OPTICAL RECONSTRUCTION PERFORMANCE ON THE DEEPFLOOD [20]
+> DATASET .
+> Method PSNR ↑SSIM ↑LPIPS ↓
+> U-Net [17] 22.18 0.6037 0.685 MT GAN [41] 22.56 0.6118 0.673 Nice GAN [42] 23.16 0.6325 0.664 TS2O [43] 23.75 0.6431 0.652 CycleGAN [15] 24.05 0.6512 0.648 TransUNet [40] 26.14 0.6895 0.629 pix2pix [16] 27.92 0.7243 0.552
+> FLoRA (ours) 28.47 0.7416 0.4819
+> TABLE IV SEGMENTATION PERFORMANCE ON SEN1FLOODS11 [21] DATASET .
+> Method IoU ↑Dice ↑Precision ↑Recall ↑F1 ↑
+> U-Net [17] 0.57 0.58 0.55 0.60 0.57 MSResNet [44] 0.59 0.61 0.65 0.66 0.62 TransUNet [40] 0.61 0.60 0.68 0.73 0.70 CycleGAN [15] 0.63 0.62 0.70 0.75 0.72 pix2pix [16] 0.66 0.64 0.72 0.77 0.74
+> FLoRA (ours) 0.71 0.68 0.77 0.79 0.78
+
+E. Model Complexity vs. Reconstruction Performance 
+
+Figure 6 presents the trade-off between reconstruction ac-curacy and model complexity for the evaluated methods on SEN1FLOODS11 [21] dataset. While GAN- and transformer-based baselines improve performance over U-Net, they do so at the cost of increased parameter counts without proportional gains in PSNR. In contrast, FLoRA achieves the highest reconstruction accuracy with a comparatively compact model size, occupying the most favorable position in the performance–complexity space. This demonstrates that the proposed fusion-aware latent reconstruction effectively balances accuracy and efficiency, making it well-suited for large-scale remote sensing applica-tions. 
+
+F. Performance and Efficiency Analysis 
+
+Table VII summarizes reconstruction accuracy, segmenta-tion performance, and computational complexity. While GAN-and transformer-based methods improve over U-Net, they require substantially higher FLOPs without proportional gains. FLoRA achieves the highest PSNR and IoU while maintain-ing lower computational cost than both GAN- and transformer-based baselines, demonstrating an effective balance between accuracy and efficiency. This makes FLoRA well suited for large-scale and resource-constrained remote sensing applica-tions. 
+
+G. Ablation Study 
+
+To analyze the contribution of each component, we per-formed controlled ablation experimets: 
+
+1) Ablation study on different components of FLoRA: The ablation results in Table VIII confirm that FiLM conditioning enhances spectral realism, teacher-guided fusion improves structural coherence, and gradient decoupling stabilizes multi-task optimization. 8SAR Composite 
+
+Bands (VV,VH) 
+
+Ground Truth 
+
+RGB Composite 
+
+Bands 1 -3
+
+Prediction 
+
+U-Net 
+
+Prediction 
+
+Pix2pix 
+
+Prediction 
+
+FLoRA (Ours) 
+
+Prediction Mask 
+
+FLoRA (Ours) 
+
+Prediction Mask 
+
+U-Net 
+
+Prediction Mask 
+
+Pix2PixP 
+
+PSNR/LPIPS 
+
+-/-
+
+PSNR/LPIPS 
+
+-/-
+
+PSNR/LPIPS 
+
+18.24/0.6436 
+
+PSNR/LPIPS 
+
+20.12/0.5542 
+
+PSNR/LPIPS 
+
+22.16/0.4958 
+
+IoU /Dice 
+
+0.54/0.61 
+
+IoU /Dice 
+
+0. 59 /0. 68 
+
+IoU /Dice 
+
+0. 64 /0.7 6
+
+Optical Reconstruction Prediction  Segmentation Mask Prediction  
+
+> Loss of
+> detail
+> False
+> positive s
+> Sharp
+> boundary
+> preserve dFalse
+> positives
+> False
+> positives
+> False
+> positives
+> reduced
+
+IoU /Dice 
+
+--/--
+
+Ground Truth 
+
+Mask 
+
+Red box → Curved shoreline boundary 
+
+Green box → Ambiguous/low -contrast region 
+
+> Shoreline
+> boundary
+> Shoreline
+> boundary
+
+Fig. 3. Visual comparison of SAR-to-Optical translation and flood-water segmentation on SEN1FLOODS11 [21] dataset. Predicted masks are thresholded to binary (threshold = 0.5) for consistent comparison with ground-truth masks. Optical Reconstruction Prediction  Segmentation Mask Prediction 
+
+Red box → Curved shoreline boundary 
+
+Green box → Ambiguous/low -contrast region 
+
+PSNR/LPIPS 
+
+-/-
+
+PSNR/LPIPS 
+
+-/-
+
+PSNR/LPIPS 
+
+17.11/0.6885 
+
+PSNR/LPIPS 
+
+18.12/0.5912 
+
+PSNR/LPIPS 
+
+21.24/0.5124 
+
+IoU/Dice 
+
+0.55/0.64 
+
+IoU/Dice 
+
+0. 58 /0.6 8
+
+IoU/Dice 
+
+0.6 2/0.7 2
+
+SAR Composite 
+
+Bands (VV,VH) 
+
+Ground Truth 
+
+RGB Composite 
+
+Bands 1 -3
+
+Prediction 
+
+U-Net 
+
+Prediction 
+
+Pix2pix 
+
+Prediction 
+
+FLoRA (Ours) 
+
+Prediction Mask 
+
+FLoRA (Ours) 
+
+Prediction Mask 
+
+U-Net 
+
+Prediction Mask 
+
+Pix2PixP 
+
+Ground Truth 
+
+Mask 
+
+IoU/Dice 
+
+--/--
+
+> Loss of
+> details
+> Blurred
+> boundary
+> Sharp
+> Boundary
+> preserve d
+> False
+> positives
+> False
+> positives
+> False
+> positives
+> reduced
+> Shoreline
+> boundary
+> Shoreline
+> boundary
+
+Fig. 4. Visual comparison of SAR-to-Optical translation and flood-water segmentation on SEN12MS [22] dataset. Predicted masks are thresholded to binary (threshold = 0.5) for consistent comparison with ground-truth masks. Optical Reconstruction Prediction  Segmentation Mask Prediction Red box → Curved shoreline boundary 
+
+Green box → Ambiguous /low -contrast region 
+
+PSNR/LPIPS 
+
+-/-
+
+PSNR/LPIPS 
+
+-/-
+
+PSNR/LPIPS 
+
+15.15/0.7214 
+
+PSNR/LPIPS 
+
+19.34/0.6634 
+
+PSNR/LPIPS 
+
+20.15/0.6836 
+
+IoU/Dice 
+
+0.51/0.62 
+
+IoU /Dice 
+
+0.5 6/0.6 3
+
+IoU /Dice 
+
+0.6 2/0.7 4
+
+SAR Composite 
+
+Bands (VV,VH) 
+
+Ground Truth RGB 
+
+Composite Bands 
+
+1-3
+
+Prediction 
+
+U-Net 
+
+Prediction 
+
+Pix2pix 
+
+Prediction 
+
+FLoRA (Ours) 
+
+Prediction Mask 
+
+FLoRA (Ours) 
+
+Prediction Mask 
+
+U-Net 
+
+Prediction Mask 
+
+Pix2PixP 
+
+IoU/Dice 
+
+--/--
+
+Ground Truth Mask 
+
+> Loss of
+> Detail
+> Blurred
+> boundary
+> Sharp
+> boundary
+> preserve d
+> False
+> positives
+> False
+> positives
+> False
+> positives
+> reduced Shoreline
+> boundary
+> Shoreline
+> boundary
+
+Fig. 5. Visual comparison of SAR-to-Optical translation and flood-water segmentation on DEEPFLOOD [20] dataset. Predicted masks are thresholded to binary (threshold = 0.5) for consistent comparison with ground-truth masks. TABLE V SEGMENTATION PERFORMANCE ON SEN12MS [22] DATASET .
+
+Method IoU ↑ Dice ↑ Precision ↑ Recall ↑ F1 ↑
+
+U-Net [17] 0.49 0.53 0.56 0.51 0.53 MSResNet [44] 0.51 0.56 0.57 0.59 0.56 TransUNet [40] 0.53 0.62 0.59 0.64 0.61 CycleGAN [15] 0.55 0.63 0.61 0.66 0.63 pix2pix [16] 0.58 0.65 0.63 0.68 0.65 
+
+FLoRA (ours) 0.63 0.69 0.68 0.71 0.69 
+
+2) Segmentation Accuracy and Confusion Analysis: Figure 7 illustrates that FLoRA maintains low false alarms and misses for flooded vs. non-flooded pixels. Results on SEN12MS [22] show slightly better class balance, indicating stronger 
+
+TABLE VI SEGMENTATION PERFORMANCE ON THE DEEPFLOOD [20] DATASET .
+
+Method IoU ↑ Dice ↑ Precision ↑ Recall ↑ F1 ↑
+
+U-Net [17] 0.51 0.55 0.58 0.54 0.56 MSResNet [44] 0.52 0.57 0.59 0.63 0.61 TransUNet [40] 0.55 0.61 0.62 0.66 0.64 CycleGAN [15] 0.57 0.63 0.64 0.68 0.66 pix2pix [16] 0.60 0.66 0.66 0.70 0.68 
+
+FLoRA (ours) 0.64 0.71 0.71 0.74 0.72 
+
+generalization. 
+
+3) Inference Time Analysis: We report average inference time measured under identical hardware conditions (NVIDIA RTX 4090, batch size = 4, 256×256 input) for FLoRA in 9                                  
+
+> Fig. 6. Model Parameters vs Optical Resconstruction Performance on SEN1FLOODS11 [21] dataset. TABLE VII COMPARISON OF RECONSTRUCTION ACCURACY ,SEGMENTATION PERFORMANCE ,AND COMPUTATIONAL COMPLEXITY . FLOP S AND
+> MULTIPLY –A DDS ARE REPORTED FOR A SINGLE FORWARD PASS AT A FIXED INPUT RESOLUTION .
+> Method PSNR ↑IoU ↑FLOPs (G) ↓Multi-Adds (G) ↓
+> U-Net [17] 22.81 0.57 18.6 9.3 CycleGAN [15] 24.12 0.63 42.8 21.4 TransUNet [15] 25.38 0.61 55.6 27.8 pix2pix [16] 29.56 0.66 34.1 17.0
+> FLoRA (ours) 33.61 0.71 29.4 14.7
+
+comparison to other SOTA methods. As shown in Table IX, FLoRA achieves favorable efficiency compared to transformer-based baselines while maintaining superior reconstruction and segmentation performance. This demonstrates that the proposed fusion-latent design improves accuracy without in-troducing prohibitive runtime overhead. Table IX presents a joint comparison of reconstruction accuracy, segmentation per-formance, and computational efficiency on SEN1FLOODS11 [21]. While U-Net [17] provides the fastest inference, its reconstruction and segmentation performance are limited. Transformer-based TransUNet [40] incurs significantly higher computational cost without proportional performance gains. FLoRA achieves the best trade-off, delivering superior recon-struction quality and segmentation accuracy with moderate runtime overhead. 
+
+H. Analysis and Discussion 
+
+Beyond quantitative improvements, it is important to under-stand why FLoRA consistently outperforms baseline models across datasets. 
+
+Perceptual Improvements (LPIPS): FLoRA achieves con-sistent improvements in LPIPS, indicating improved percep-tual realism rather than merely reduced pixel error. This improvement stems from the fusion-latent design. Windowed cross-attention aligns SAR structural cues with optical seman-tic representations at local scales, while FiLM conditioning reduces statistical mismatch between modalities. Addition-ally, FFT and edge-based losses enforce spectral consistency                                                        
+
+> TABLE VIII ABLATION STUDY ON DIFFERENT COMPONENTS OF FL ORA OVER THE
+> SEN1FLOODS11 [21] D ATASET .
+> Configuration PSNR ↑SSIM ↑IoU ↑
+> w/o FiLM Conditioning 25.1 0.6311 0.66 w/o Optical Teacher Distillation 24.7 0.6124 0.65 w/o Gradient Decoupling 26.2 0.6728 0.68
+> Full FLoRA 27.9 0.7212 0.71
+> TABLE IX PERFORMANCE ,MODEL COMPLEXITY ,AND INFERENCE EFFICIENCY COMPARISON ON THE SEN1FLOODS11 [21] DATASET . I NFERENCE TIME IS MEASURED ON AN NVIDIA RTX 4090 GPU ( BATCH SIZE = 1, INPUT SIZE = 256 ×256).
+> Method PSNR ↑LPIPS ↓Dice ↑Params (M) ↓Inference Time (ms) ↓
+> U-Net [17] 22.81 0.7010 0.61 31.2 12.4 CycleGAN [15] 24.12 0.6740 0.66 47.5 17.2 Pix2Pix [16] 29.56 0.5870 0.74 54.7 18.6 TransUNet [40] 25.38 0.6620 0.69 105.3 34.8
+> FLoRA (Ours) 33.61 0.4533 0.79 68.9 22.7
+
+and boundary sharpness. Together, these mechanisms enable reconstruction of visually coherent textures that CNN-only and GAN-based baselines often fail to recover. Interestingly, FLoRA maintains superior LPIPS despite stronger GAN base-lines, suggesting that fusion-latent guidance improves percep-tual realism beyond adversarial learning alone. 
+
+Component Contribution: Ablation results (Table VIII) clarify the role of each component. Removing FiLM causes the largest degradation in reconstruction quality, confirming its importance in cross-modal statistical alignment. Eliminating teacher distillation reduces both reconstruction and segmenta-tion performance, indicating that semantic guidance stabilizes the fusion representation. Gradient decoupling primarily im-proves multi-task stability; without it, competing objectives degrade segmentation accuracy. These findings suggest that cross-attention provides structural alignment, FiLM ensures feature calibration, and gradient decoupling balances joint optimization. 
+
+Scenario-Based Advantages: Qualitative results (Figures 3-5) show that FLoRA provides clearer benefits in challenging conditions. In urban scenes, strong SAR reflections often lead to false flood-water detections in baseline models; the gated fu-sion mechanism suppresses such errors by selectively integrat-ing optical semantics. In vegetated or agricultural floodplains, where SAR backscatter is ambiguous, cross-modal alignment improves discrimination between inundated vegetation and wet soil. These cases highlight the advantage of structured fusion over simple feature concatenation. The winter subset of SEN12MS was selected to provide a controlled experimental setting with stronger SAR-optical consistency and reduced seasonal domain shift and isolate cross-modal fusion behavior. While multi-season evaluation is important for assessing full generalization, such analysis is beyond the scope of this work and is left for future study. Seasonal variability introduces additional domain shift that is orthogonal to the primary focus of this study, namely cross-modal fusion and joint optimization. Overall, the fusion-latent space enables semantically aligned 10 
+
+Fig. 7. Confusion matrices for FLoRA. 
+
+and physically consistent representations that benefit both optical reconstruction and flood-water segmentation, explain-ing the consistent improvements observed across metrics and datasets. V. C ONCLUSION 
+
+We presented FLoRA , a unified cross-modal framework that jointly performs SAR-to-optical reconstruction and flood-water segmentation within a single model. By leveraging a fusion-latent representation guided by an optical teacher, FiLM-based feature alignment, and multi-scale cross-attention, FLoRA helps bridge the modality gap between SAR and optical imagery, improving both spectral realism and struc-tural consistency. Extensive evaluations on SEN1FLOODS11, SEN12MS, and DEEPFLOOD demonstrate consistent gains over CNN-, GAN-, and transformer-based baselines in recon-struction quality, segmentation accuracy, and computational efficiency. These results highlight the effectiveness of fusion-aware latent learning for robust flood-water mapping, particu-larly in scenarios where optical data are limited or unavailable. ACKNOWLEDGMENTS 
+
+This work is supported by NASA award 80NSSC23M0051 and NSF Award 2401942. REFERENCES [1] B. Jongman et al. , “Increasing stress on disaster-risk finance due to large floods,” Nature Climate Change , vol. 4, no. 4, pp. 264–268, 2014. [2] G. J. P. Schumann and P. D. Bates, “The need for a high-accuracy, open-access global DEM,” Frontiers in Earth Science , vol. 6, p. 225, 2018. [3] M. Drusch et al. , “Sentinel-2: ESA’s optical high-resolution mission for GMES operational services,” Remote Sensing of Environment , vol. 120, pp. 25–36, 2012. [4] M. Chini et al. , “Sentinel-1 InSAR coherence to detect floodwater in urban areas: Houston and Hurricane Harvey as a test case,” Remote Sensing , vol. 11, no. 2, p. 107, 2019. [5] R. Torres et al. , “GMES Sentinel-1 mission,” Remote Sensing of Envi-ronment , vol. 120, pp. 9–24, 2012. [6] L. Pulvirenti et al. , “Flood monitoring using multi-temporal COSMO-SkyMed data: Image segmentation and signature interpretation,” Remote Sensing of Environment , vol. 115, no. 4, pp. 990–1002, 2011. [7] N. Gorelick et al. , “Google Earth Engine: Planetary-scale geospatial analysis for everyone,” Remote Sensing of Environment , vol. 202, pp. 18–27, 2017. [8] E. Ramsey III et al. , “Limitations and potential of satellite imagery to monitor environmental response to coastal flooding,” J. Coastal Res. ,vol. 28, no. 2, pp. 457–476, 2012. [9] R. Manavalan, “SAR image analysis techniques for flood area map-ping—Literature survey,” Earth Sci. Informatics , vol. 10, no. 1, pp. 1–14, 2017. [10] S. Mahyoub et al. , “Fusing of optical and synthetic aperture radar (SAR) remote sensing data: A systematic literature review (SLR),” Int. Arch. Photogramm. Remote Sens. Spatial Inf. Sci. , vol. 42, pp. 127–138, 2019. [11] M. Fawakherji and L. Hashemi-Beni, “Multi-Head Encoder-Decoder Deep Learning Architecture for Flood Segmentation and Mapping Through Multi-Sensor Data Fusion,” in IGARSS 2024–IEEE Int. Geosci. Remote Sens. Symp. , 2024, pp. 1191–1195. [12] M. Fawakherji and L. Hashemi-Beni, “Flood detection and mapping through multi-resolution sensor fusion: integrating UAV optical imagery and satellite SAR data,” Geomatics, Natural Hazards and Risk , vol. 16, no. 1, p. 2493225, 2025. [13] P. Wang et al. , “MT GAN: A SAR-to-optical image translation method for cloud removal,” ISPRS J. Photogramm. Remote Sens. , vol. 225, pp. 180–195, 2025. [14] F. Pech-May et al. , “Segmentation and visualization of flooded areas through sentinel-1 images and U-net,” IEEE J. Sel. Topics Appl. Earth Observ. Remote Sens. , vol. 17, pp. 8996–9008, 2024. [15] J.-Y. Zhu et al. , “Unpaired image-to-image translation using cycle-consistent adversarial networks,” in Proc. IEEE Int. Conf. Comput. Vis. ,2017, pp. 2223–2232. [16] P. Isola et al. , “Image-to-image translation with conditional adversarial networks,” in Proc. IEEE Conf. Comput. Vis. Pattern Recog. , 2017, pp. 1125–1134. [17] O. Ronneberger, P. Fischer, and T. Brox, “U-net: Convolutional networks for biomedical image segmentation,” in MICCAI , 2015, pp. 234–241. [18] Z. Liu et al. , “Swin transformer: Hierarchical vision transformer using shifted windows,” in Proc. IEEE/CVF Int. Conf. Comput. Vis. , 2021, pp. 10012–10022. [19] X. Ma, X. Zhang, and M.-O. Pun, “A crossmodal multiscale fusion network for semantic segmentation of remote sensing data,” IEEE J. Sel. Topics Appl. Earth Observ. Remote Sens. , vol. 15, pp. 3463–3474, 2022. [20] M. Fawakherji et al. , “DeepFlood for inundated vegetation high-resolution dataset for accurate flood mapping and segmentation,” Sci-entific Data , vol. 12, no. 1, p. 271, 2025. [21] D. Bonafilia et al. , “Sen1Floods11: A georeferenced dataset to train and test deep learning flood algorithms for sentinel-1,” in Proc. IEEE/CVF CVPR Workshops , 2020, pp. 210–211. [22] M. Schmitt, L. H. Hughes, C. Qiu, and X. X. Zhu, “SEN12MS–A curated dataset of georeferenced multi-spectral sentinel-1/2 imagery for deep learning and data fusion,” arXiv:1906.07789 , 2019. [23] J. McGlade et al. , Global Assessment Report on Disaster Risk Reduction 2019 . UNDRR, 2019. 11 
+
+[24] L. Hashemi-Beni and A. A. Gebrehiwot, “Flood extent mapping: An integrated method using deep learning and region growing using UAV optical data,” IEEE J. Sel. Topics Appl. Earth Observ. Remote Sens. ,vol. 14, pp. 2127–2135, 2021. [25] S. K. McFeeters, “The use of the Normalized Difference Water Index (NDWI) in the delineation of open water features,” Int. J. Remote Sens. ,vol. 17, no. 7, pp. 1425–1432, 1996. [26] L. Ji, L. Zhang, and B. Wylie, “Analysis of dynamic thresholds for the normalized difference water index,” Photogramm. Eng. Remote Sens. ,vol. 75, no. 11, pp. 1307–1317, 2009. [27] X. X. Zhu et al. , “Deep learning in remote sensing: A comprehensive review and list of resources,” IEEE Geosci. Remote Sens. Mag. , vol. 5, no. 4, pp. 8–36, 2017. [28] V. Badrinarayanan, A. Kendall, and R. Cipolla, “Segnet: A deep con-volutional encoder-decoder architecture for image segmentation,” IEEE Trans. Pattern Anal. Mach. Intell. , vol. 39, no. 12, pp. 2481–2495, 2017. [29] Z. Zhang, Q. Liu, and Y. Wang, “Road extraction by deep residual U-net,” IEEE Geosci. Remote Sens. Lett. , vol. 15, no. 5, pp. 749–753, 2018. [30] J. Yang et al. , “Instance segmentation of LiDAR data with vision transformer model in support inundation mapping under forest canopy environment,” 2023. [31] A. Salem and L. Hashemi-Beni, “Inundated vegetation mapping using SAR data: A comparison of polarization configurations of UAVSAR L-band and Sentinel C-band,” Remote Sensing , vol. 14, no. 24, p. 6374, 2022. [32] S. C. Kulkarni and P. P. Rege, “Pixel level fusion techniques for SAR and optical images: A review,” Information Fusion , vol. 59, pp. 13–29, 2020. [33] L. Yuan and G. Zhu, “Research on remote sensing image classification based on feature level fusion,” Int. Arch. Photogramm. Remote Sens. Spatial Inf. Sci. , vol. 42, pp. 2185–2189, 2018. [34] M. Fauvel et al. , “Advances in spectral-spatial classification of hyper-spectral images,” Proc. IEEE , vol. 101, no. 3, pp. 652–675, 2012. [35] A. Meraner et al. , “Cloud removal in Sentinel-2 imagery using a deep residual neural network and SAR-optical data fusion,” ISPRS J. Photogramm. Remote Sens. , vol. 166, pp. 333–346, 2020. [36] H. Shen et al. , “Coupling model-and data-driven methods for remote sensing image restoration and fusion: Improving physical interpretabil-ity,” IEEE Geosci. Remote Sens. Mag. , vol. 10, no. 2, pp. 231–249, 2022. [37] J. Fan et al. , “A novel multiscale adaptive binning phase congruency feature for SAR and optical image registration,” IEEE Trans. Geosci. Remote Sens. , vol. 60, pp. 1–16, 2022. [38] H. Song, C. Wei, and Z. Yong, “Efficient knowledge distillation for remote sensing image classification: a CNN-based approach,” Int. J. Web Inf. Syst. , vol. 20, no. 2, pp. 129–158, 2024. [39] N. Otsu, “A threshold selection method from gray-level histograms,” 
+
+Automatica , vol. 11, no. 285–296, pp. 23–27, 1975. [40] J. Zheng et al. , “Based on Trans-Unet remote sensing image segmen-tation network model,” in 2025 5th Int. Conf. Artif. Intell., Big Data Algorithms (CAIBDA) , 2025, pp. 1425–1428. [41] P. Wang et al. , “MT GAN: A SAR-to-optical image translation method for cloud removal,” ISPRS J. Photogramm. Remote Sens. , vol. 225, pp. 180–195, 2025. [42] R. Chen et al. , “Reusing discriminators for encoding: Towards unsuper-vised image-to-image translation,” in Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. (CVPR) , 2020, pp. 8168–8177. [43] J. Zhang et al. , “TS2O: A token-based two-stage generative architecture for SAR-to-optical translation,” IEEE J. Sel. Topics Appl. Earth Observ. Remote Sens. , vol. 18, pp. 26949–26960, 2025. [44] B. Adhikari et al. , “MsResNet: Multi-scale edge-enhanced ResNet for RGB-T image segmentation,” in Int. Conf. Image Process. Vision Eng. ,2025, pp. 59–75. 
+
+JAGRATI TALREJA (Graduate Member, IEEE) received the B.Tech. degree in Electronics and Com-munication Engineering from Pranveer Singh Insti-tute of Technology, Kanpur, Uttar Pradesh, India, in 2019. She pursued and successfully completed a five-year integrated Ph.D. in Electrical Engineering at Chulalongkorn University, Bangkok, Thailand, in 2024. Dr. Jagrati is currently a Postdoctoral Researcher at North Carolina A&T State University, Greensboro, NC, USA. She is working on projects funded by NASA and the National Science Foundation (NSF), focusing on the devel-opment and application of deep learning algorithms and advanced geospatial techniques for analyzing satellite and UAV imagery in flood mapping and disaster assessment. Her research interests include Electrical Engineering, Remote Sensing, Satellite Image Processing, Neural Networks, and Machine Learning, with a particular emphasis on deep learning for image super-resolution, multimodal data fusion, and SAR-to-optical image translation and Quantum Computing. She has hands-on expertise in designing hybrid CNN–Transformer architectures, GAN-based frameworks, and transfer learn-ing models for geospatial applications. 
+
+TEWODROS SYUM GEBRE holds a B.S. in Hydraulic Engineering from Arba Minch University, Ethiopia, in 2009, an M.S. in Civil (Road and Transport) Engineering from Addis Ababa Univer-sity, Ethiopia, in 2014, and a Ph.D in Applied Science and Technology at North Carolina A&T State University, USA, in 2025. His expertise spans developing machine learning models for automating traffic management, image and both structure and unstructured data analysis, and system development. He is currently a Postdoctoral Researcher at North Carolina A&T State University, in AI and ML applications for smart cities and Infrastructure Resilience. He worked on a Microsoft-funded project developing AI-based traffic monitoring systems using transformer models and UAV imagery. He is a former member of the NC-CAV Center, supported by the North Carolina Department of Transportation. He received the G. Herbert Stout Award for Best Student Paper at the North Carolina GIS (NCGIS) Conference and was awarded the Excellence Scholarship from 2021 to 2024. He also received Microsoft’s AFMR grant for the 2023–2024 period. 12 
+
+LEILA HASHEMI-BENI received the B.S.degree in civil-surveying engineering (geomatics) from the University of Isfahan, the M.S. degree in civil-surveying engineering (photogrammetry/remote sensing) from the University of Tehran, and the Ph.D. degree in geospatial information system from Laval University. She is an Associate Professor and the Director of the NASA-funded Institute for Harnessing Data Science for Environment Management, North Carolina A&T State University. She is a PI/a Co-PI on many projects supported by NASA, NSF, NOAA, Microsoft, North Carolina Collaboratory, and North Carolina DoT. Her research on AI-based traffic monitoring systems using generative pre-trained transformer models and high-resolution UAV imagery is supported by Microsoft’ Accelerating Foundation Models Research Program. She is a Co-PI on the NC Transportation Center of Excellence on Connected and Autonomous Vehicle Technology (NC-CAV) funded by North Carolina Department of Transportation. Her research experience and interests include geospatial data science, UAV and satellite remote sensing, multi temporal and multisource data fusion and image classification, 3-D data modeling, automatic matching and change detection between various datasets, and developing GIS and remote sensing methodologies for environmental management. She has served as a proposal panelist and a reviewer for many U.S. and international funding organizations. She has served as the chair/the co-chair or as a scientific committee member for many national or international conferences/workshops. She is serving as the Co-Chair of LiDAR, Laser Altimetry and Sensor Integration Working Group, International Society of Photogrammetry and Remote Sensing (ISPRS).

@@ -1,0 +1,158 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.02169v1/fig-001.webp",
+      "caption": "Figure 3: (a) Style-aware personalization: adapting the diffusion model to the target domain using instance- and generic prompts. (b) Class-aware generation: synthesizing target-style images guided by prompts that combine domain style and specific object categories; long-tailed categories are shown here for illustration.",
+      "page": 11,
+      "index": 1,
+      "width": 814,
+      "height": 583
+    },
+    {
+      "url": "assets/figures/arxiv/2605.02169v1/fig-002.webp",
+      "caption": "Table 6: Ablation study on CK→B showing the effect of each component.",
+      "page": 25,
+      "index": 2,
+      "width": 814,
+      "height": 193
+    },
+    {
+      "url": "assets/figures/arxiv/2605.02169v1/fig-003.webp",
+      "caption": "Figure 6: AP differences from the PT[51] baseline under category-specific generation. Red/blue cells indicate gains/drops. Each row is a generated category, each column an evaluated class. Yellow frames highlight self-impact or related improvements.",
+      "page": 26,
+      "index": 3,
+      "width": 814,
+      "height": 514
+    },
+    {
+      "url": "assets/figures/arxiv/2605.02169v1/fig-004.webp",
+      "caption": "Figure 5: The trend of APs for the CK→B setting by using only the standard FedAvg baseline , where Cityscapes (C) and KITTI (K) serve as source domains and BDD100K (B) is the target. The yellow and blue bars indicate the results of local models using Cityscapes, KITTI, respectively. The green line gives the APs of the global model after fusing the client models.",
+      "page": 15,
+      "index": 4,
+      "width": 698,
+      "height": 249
+    },
+    {
+      "url": "assets/figures/arxiv/2605.02169v1/fig-005.webp",
+      "caption": "Table 10: Comparison of different model fusion strategies, FedAvg and FedProx, under CK→B and SKF→C.",
+      "page": 30,
+      "index": 5,
+      "width": 810,
+      "height": 316
+    },
+    {
+      "url": "assets/figures/arxiv/2605.02169v1/fig-006.webp",
+      "caption": "Table 9: Ablation Study: ∆ AP50 = FedMA - FedAvg across two datasets",
+      "page": 29,
+      "index": 6,
+      "width": 825,
+      "height": 236
+    },
+    {
+      "url": "assets/figures/arxiv/2605.02169v1/fig-007.webp",
+      "caption": "Table 4: Quantitative Results for Multi-Source Domain Adaptation (CK→B).",
+      "page": 22,
+      "index": 7,
+      "width": 810,
+      "height": 468
+    },
+    {
+      "url": "assets/figures/arxiv/2605.02169v1/fig-008.webp",
+      "caption": "Figure 9: Communication costs of FedAvg and FedMA over training rounds using VGG16 and ResNet50 backbones.",
+      "page": 34,
+      "index": 8,
+      "width": 490,
+      "height": 327
+    },
+    {
+      "url": "assets/figures/arxiv/2605.02169v1/fig-009.webp",
+      "caption": "Table 2: Notation Definitions",
+      "page": 10,
+      "index": 9,
+      "width": 808,
+      "height": 865
+    },
+    {
+      "url": "assets/figures/arxiv/2605.02169v1/fig-010.webp",
+      "caption": "Table 3: Summary of datasets used in the two experimental scenes. Scene (a): Sim10k, KITTI, Foggy→ Cityscapes. Scene (b): Cityscapes, KITTI→ BDD100K. Only diffusiongenerated target-style data [O] are used for training. Original target-domain datasets are used only for evaluation (validation split) or for one-shot style reference. [O] denotes one-shot diffusion, i.e., 100 synthetic images per class generated from a single reference image. Validation datasets (e.g., Cityscapes-val and BDD100K-val) refer specifically to the validation splits of the original datasets, used exclusively for evaluation.",
+      "page": 14,
+      "index": 10,
+      "width": 814,
+      "height": 220
+    },
+    {
+      "url": "assets/figures/arxiv/2605.02169v1/fig-011.webp",
+      "caption": "Figure 1: Comparison of the object distribution between the Cityscapes [6] and BDD100K [7] datasets, and the corresponding cross-domain detection performance (mAP) from Cityscapes to BDD100K using FRCNN [8], DA-Faster [9], and Strong-Weak [10]",
+      "page": 3,
+      "index": 11,
+      "width": 570,
+      "height": 398
+    },
+    {
+      "url": "assets/figures/arxiv/2605.02169v1/fig-012.webp",
+      "caption": "Figure 10: The effect of using ICI on SKF→C for (a) FedAvg, (b) FedMA, (c) FedCoin, and (d) HeroCrystal, where green boxes represent true positives and yellow boxes represent false negatives.",
+      "page": 35,
+      "index": 12,
+      "width": 814,
+      "height": 543
+    },
+    {
+      "url": "assets/figures/arxiv/2605.02169v1/fig-013.webp",
+      "caption": "Table 7: Quantitative comparison of generation quality among different generation strategies on the Cityscapes dataset.",
+      "page": 28,
+      "index": 13,
+      "width": 814,
+      "height": 199
+    },
+    {
+      "url": "assets/figures/arxiv/2605.02169v1/fig-014.webp",
+      "caption": "Figure 4: In the generated stage, we employ target-aware data generation to synthesize specific objects under a specified style. (a) Target-style reference image from the target domain; (b) Image generated from the same prompt without style adaptation; (c) Image generated with the learned target style; (d) Image generated with both the target style and a specified object (e.g., bus).",
+      "page": 13,
+      "index": 14,
+      "width": 814,
+      "height": 186
+    },
+    {
+      "url": "assets/figures/arxiv/2605.02169v1/fig-015.webp",
+      "caption": "Figure 2: Overview of the system architecture.",
+      "page": 8,
+      "index": 15,
+      "width": 814,
+      "height": 502
+    },
+    {
+      "url": "assets/figures/arxiv/2605.02169v1/fig-016.webp",
+      "caption": "Table 1: Comparison between our works and existing methods across various functionalities.",
+      "page": 4,
+      "index": 16,
+      "width": 969,
+      "height": 227
+    },
+    {
+      "url": "assets/figures/arxiv/2605.02169v1/fig-017.webp",
+      "caption": "Figure 8: Distribution of pseudo-labels generated by Faster R-CNN and Probabilistic Faster R-CNN on (a) CK→B and (b) SKF→C. Bars indicate the proportion of true positives (TP), false negatives (FN), and false positives (FP), highlighting differences in pseudo-label quality.",
+      "page": 32,
+      "index": 17,
+      "width": 731,
+      "height": 915
+    },
+    {
+      "url": "assets/figures/arxiv/2605.02169v1/fig-018.webp",
+      "caption": "Figure 7: Qualitative examples of generated images in BDD100K. (a)Person. (b)Car.",
+      "page": 27,
+      "index": 18,
+      "width": 660,
+      "height": 361
+    },
+    {
+      "url": "assets/figures/arxiv/2605.02169v1/fig-019.webp",
+      "caption": "Table 5: Quantitative Results for Multi-Source Domain Adaptation (SKF→C ).",
+      "page": 24,
+      "index": 19,
+      "width": 810,
+      "height": 465
+    }
+  ]
+}

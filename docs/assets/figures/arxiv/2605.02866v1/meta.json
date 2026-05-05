@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.02866v1/fig-001.webp",
+      "caption": "Fig. 2: Visual comparison with state-of-the-art methods.",
+      "page": 5,
+      "index": 1,
+      "width": 1076,
+      "height": 363
+    },
+    {
+      "url": "assets/figures/arxiv/2605.02866v1/fig-002.webp",
+      "caption": "TABLE I: Quantitative Comparison of Different Methods",
+      "page": 4,
+      "index": 2,
+      "width": 529,
+      "height": 229
+    },
+    {
+      "url": "assets/figures/arxiv/2605.02866v1/fig-003.webp",
+      "caption": "Fig. 1: Overview of the LFINet. (a) The main pipeline consists of the Laplacian Multi-scale Separator, Cross-Frequency Interaction Block (CFIB), and Progressive Reconstruction Decoder (PRD). (b) The High-Frequency Block (HFB) utilizes cascaded depth-wise convolutions for multi-scale feature extraction. (c) The Frequency Gated Modulation (FGM) module synergizes low- and high-frequency components using semantic gating. (d) Detailed structure of the Conv Stage.",
+      "page": 2,
+      "index": 3,
+      "width": 1076,
+      "height": 714
+    },
+    {
+      "url": "assets/figures/arxiv/2605.02866v1/fig-004.webp",
+      "caption": "Fig. 4: Road network results in Nanyang, Henan, China.",
+      "page": 6,
+      "index": 4,
+      "width": 529,
+      "height": 287
+    }
+  ]
+}
