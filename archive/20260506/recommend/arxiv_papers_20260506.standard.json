@@ -1,0 +1,285 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-05-06T20:49:17.510462+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 7,
+    "quick_skim_target": 11,
+    "quick_selected": 7
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2605.03968v1",
+      "source": "arxiv",
+      "title": "Label-Efficient School Detection from Aerial Imagery via Weakly Supervised Pretraining and Fine-Tuning",
+      "abstract": "Accurate school detection is essential for supporting education initiatives, including infrastructure planning and expanding internet connectivity to underserved areas. However, many regions around the world face challenges due to outdated, incomplete, or unavailable official records. Manual mapping efforts, while valuable, are labor-intensive and lack scalability across large geographic areas. To address this, we propose a weakly supervised framework for school detection from aerial imagery that minimizes the need for human annotations while supporting global mapping efforts. Our method is specifically designed for low-data regimes, where manual annotations are extremely scarce. We introduce an automatic labeling pipeline that leverages sparse location points and semantic segmentation to generate infrastructure masks from which we generate bounding boxes. Using these automatically labeled images, we train our detectors on a first training stage to learn a representation of what schools look like, then using a small set of manually labeled images, we fine-tune the previously trained models on this clean dataset. This two stage training pipeline enables large-scale and strong detection in low-data setting of school infrastructure with minimal supervision. Our results demonstrate strong object detection performance, particularly in the low-data regime, where the models achieve promising results using only 50 manually labeled images, significantly reducing the need for costly annotations. This framework supports education and connectivity initiatives worldwide by providing an efficient and extensible approach to mapping schools from space. All models, training code and auto-labeled data will be publicly released to foster future research and real-world impact.",
+      "authors": [
+        "Zakarya Elmimouni",
+        "Fares Fourati",
+        "Mohamed-Slim Alouini"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-05-05T16:51:28+00:00",
+      "link": "https://arxiv.org/pdf/2605.03968v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "school detection from aerial imagery with small object characteristics",
+      "llm_evidence_cn": "具有小目标特征的航空图像学校检测",
+      "llm_evidence": "具有小目标特征的航空图像学校检测",
+      "canonical_evidence": "具有小目标特征的航空图像学校检测",
+      "llm_tldr_en": "A weakly supervised framework for detecting schools in aerial imagery, addressing small object challenges in remote sensing.",
+      "llm_tldr_cn": "一种用于航空图像学校检测的弱监督框架，解决了遥感中的小目标挑战。",
+      "llm_tldr": "一种用于航空图像学校检测的弱监督框架，解决了遥感中的小目标挑战。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.03437v1",
+      "source": "arxiv",
+      "title": "Learning Discriminative Signed Distance Functions from Multi-scale Level-of-detail Features for 3D Anomaly Detection",
+      "abstract": "Detecting anomalies from 3D point clouds has received increasing attention in the field of computer vision, with some group-based or point-based methods achieving impressive results in recent years. However, learning accurate point-wise representations for 3D anomaly detection faces great challenges due to the large scale and sparsity of point clouds. In this study, a surface-based method is proposed for 3D anomaly detection, which learns a discriminative signed distance function using multi-scale level-of-detail features. We first present a Noisy Points Generation (NPG) module to generate different types of noise, thereby facilitating the learning of discriminative features by exposing abnormal points. Then, we introduce a Multi-scale Level-of-detail Feature (MLF) module to capture multi-scale information from a point cloud, which provides both fine-grained local and coarse-grained global feature information. Finally, we design an Implicit Surface Discrimination (ISD) module that leverages the extracted multi-scale features to learn an implicit surface representation of point clouds, which effectively trains a signed distance function to distinguish between abnormal and normal points. Experimental results demonstrate that the proposed method achieves an average object-level AUROC of 92.1\\% and 85.9\\% on the Anomaly-ShapeNet and Real3D-AD datasets, outperforming the current best approach by 2.1\\% and 3.6\\%, respectively. Codes are available at https://anonymous.4open.science/r/DLF-3AD-DA61.",
+      "authors": [
+        "Haibo Xiao",
+        "Hanzhe Liang",
+        "Jie Zhou",
+        "Jinbao Wang",
+        "Can Gao"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-05-05T07:16:47+00:00",
+      "link": "https://arxiv.org/pdf/2605.03437v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.5,
+      "llm_evidence_en": "multi-scale level-of-detail features for anomaly detection",
+      "llm_evidence_cn": "用于异常检测的多尺度细节特征",
+      "llm_evidence": "用于异常检测的多尺度细节特征",
+      "canonical_evidence": "用于异常检测的多尺度细节特征",
+      "llm_tldr_en": "Uses multi-scale features and noise generation to detect anomalies in 3D point clouds.",
+      "llm_tldr_cn": "利用多尺度特征和噪声生成技术检测 3D 点云中的异常。",
+      "llm_tldr": "利用多尺度特征和噪声生成技术检测 3D 点云中的异常。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.03456v1",
+      "source": "arxiv",
+      "title": "VL-SAM-v3: Memory-Guided Visual Priors for Open-World Object Detection",
+      "abstract": "Open-world object detection aims to localize and recognize objects beyond a fixed closed-set label space. It is commonly divided into two categories, i.e., open-vocabulary detection, which assumes a predefined category list at test time, and open-ended detection, which requires generating candidate categories during the inference. Existing methods rely primarily on coarse textual semantics and parametric knowledge, which often provide insufficient visual evidence for fine-grained appearance variation, rare categories, and cluttered scenes. In this paper, we propose VL-SAM-v3, a unified framework that augments open-world detection with retrieval-grounded external visual memory. Specifically, once candidate categories are available, VL-SAM-v3 retrieves relevant visual prototypes from a non-parametric memory bank and transforms them into two complementary visual priors, i.e., sparse priors for instance-level spatial anchoring and dense priors for class-aware local context. These priors are integrated with the original detection prompts via Memory-Guided Prompt Refinement, enabling a shared retrieval-and-refinement mechanism that supports open-vocabulary and open-ended inference.Extensive zero-shot experiments on LVIS show that VL-SAM-v3 consistently improves detection performance under both open-vocabulary and open-ended inference, with particularly strong gains on rare categories.Moreover, experiments with a stronger open-vocabulary detector (i.e., SAM3) validate the generality of the proposed retrieval-and-refinement mechanism.",
+      "authors": [
+        "Chih-Chung Liu",
+        "Zhiwei Lin",
+        "Yongtao Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-05T07:44:03+00:00",
+      "link": "https://arxiv.org/pdf/2605.03456v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.5,
+      "llm_evidence_en": "Open-world object detection for fine-grained appearance and cluttered scenes",
+      "llm_evidence_cn": "针对细粒度外观和复杂场景的开放世界目标检测",
+      "llm_evidence": "针对细粒度外观和复杂场景的开放世界目标检测",
+      "canonical_evidence": "针对细粒度外观和复杂场景的开放世界目标检测",
+      "llm_tldr_en": "VL-SAM-v3 uses visual memory to improve open-world detection for rare categories and cluttered scenes.",
+      "llm_tldr_cn": "VL-SAM-v3利用视觉记忆提升开放世界中稀有类别和复杂场景的检测能力。",
+      "llm_tldr": "VL-SAM-v3利用视觉记忆提升开放世界中稀有类别和复杂场景的检测能力。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2604.26404v1",
+      "source": "arxiv",
+      "title": "Decoupled Prototype Matching with Vision Foundation Models for Few-Shot Industrial Object Detection",
+      "abstract": "Industrial object detection systems typically rely on large annotated datasets, which are expensive to collect and challenging to maintain in industrial scenarios where the inventory of objects changes frequently. This work addresses the challenge of few-shot object detection in such industrial scenarios, where only a limited number of labeled samples are available for newly introduced objects. We present a detection framework that leverages vision foundation models to recognize objects with minimal supervision. The method constructs class prototypes from a small set of reference samples by extracting feature representations. For a given query scene during inference, object regions are generated using a segmentation model, and feature embeddings are extracted and matched with class prototypes using similarity matching. We evaluate the detection method on three established industrial datasets from the Benchmark for 6D Object Pose Estimation benchmark following the official 2D object detection evaluation protocol. We demonstrate competitive detection performance, improving AP by 6.9% compared to the state-of-the-art training-free detection methods. Furthermore, the presented method is able to onboard new objects using only a few reference images, without requiring any CAD models or large annotated datasets. These properties make the approach well-suited for real-world industrial applications.",
+      "authors": [
+        "Hari Prasanth S. M.",
+        "Nilusha Jayawickrama",
+        "Risto Ojala"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-04-29T08:16:01+00:00",
+      "link": "https://arxiv.org/pdf/2604.26404v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "few-shot industrial object detection using vision foundation models",
+      "llm_evidence_cn": "使用视觉基础模型的少样本工业目标检测",
+      "llm_evidence": "使用视觉基础模型的少样本工业目标检测",
+      "canonical_evidence": "使用视觉基础模型的少样本工业目标检测",
+      "llm_tldr_en": "Addresses few-shot industrial object detection by leveraging vision foundation models and prototype matching.",
+      "llm_tldr_cn": "利用视觉基础模型和原型匹配解决工业场景下的少样本目标检测问题。",
+      "llm_tldr": "利用视觉基础模型和原型匹配解决工业场景下的少样本目标检测问题。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2604.26893v2",
+      "source": "arxiv",
+      "title": "Graph-based Semantic Calibration Network for Unaligned UAV RGBT Image Semantic Segmentation and A Large-scale Benchmark",
+      "abstract": "Fine-grained RGBT image semantic segmentation is crucial for all-weather unmanned aerial vehicle (UAV) scene understanding. However, UAV RGBT image semantic segmentation faces two coupled challenges: cross-modal spatial misalignment caused by sensor parallax and platform vibration, and severe semantic confusion among fine-grained ground objects under top-down aerial views. To address these issues, we propose a Graph-based Semantic Calibration Network (GSCNet) for unaligned UAV RGBT image semantic segmentation. Specifically, we design a Feature Decoupling and Alignment Module (FDAM) that decouples each modality into shared structural and private perceptual components and performs deformable alignment in the shared subspace, enabling robust spatial correction with reduced modality appearance interference. Moreover, we propose a Semantic Graph Calibration Module (SGCM) that explicitly encodes the hierarchical taxonomy and co-occurrence regularities among ground-object categories in UAV scenes into a structured category graph, and incorporates these priors into graph-attention reasoning to calibrate predictions of visually similar and rare categories. In addition, we construct the Unaligned RGB-Thermal Fine-grained (URTF) benchmark, to the best of our knowledge, the largest and most fine-grained benchmark for unaligned UAV RGBT image semantic segmentation, containing over 25,000 image pairs across 61 semantic categories with realistic cross-modal misalignment. Extensive experiments on URTF demonstrate that GSCNet significantly outperforms state-of-the-art methods, with notable gains on fine-grained categories. The dataset is available at https://github.com/mmic-lcl/Datasets-and-benchmark-code.",
+      "authors": [
+        "Fangqiang Fan",
+        "Zhicheng Zhao",
+        "Xiaoliang Ma",
+        "Chenglong Li",
+        "Jin Tang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-04-29T17:01:38+00:00",
+      "link": "https://arxiv.org/pdf/2604.26893v2",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "multi-modal feature decoupling and alignment for aerial views",
+      "llm_evidence_cn": "针对航空视野的多模态特征解耦与对齐",
+      "llm_evidence": "针对航空视野的多模态特征解耦与对齐",
+      "canonical_evidence": "针对航空视野的多模态特征解耦与对齐",
+      "llm_tldr_en": "Proposes a graph-based network for UAV image segmentation to handle semantic confusion in top-down aerial views.",
+      "llm_tldr_cn": "提出一种基于图的无人机图像分割网络，解决俯视航空视野中的语义混淆问题。",
+      "llm_tldr": "提出一种基于图的无人机图像分割网络，解决俯视航空视野中的语义混淆问题。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.03642v1",
+      "source": "arxiv",
+      "title": "The Detector Teaches Itself: Lightweight Self-Supervised Adaptation for Open-Vocabulary Object Detection",
+      "abstract": "Open-vocabulary object detection aims to recognize objects from an open set of categories, which leverages vision-language models (VLMs) pre-trained on large-scale image-text data. The cooperative paradigm combines an object detector with a VLM to achieve zero-shot recognition of novel objects. However, VLMs pre-trained on full images often struggle to capture local object details, limiting their effectiveness when applied to region-level detection. We present Decoupled Adaptivity Training (DAT), a self-supervised fine-tuning approach to improve VLMs for cooperative model-based object detection. Given a cooperative model consists of a closed-set detector and a VLM, we first construct a region-aware pseudo-labeled dataset using a pre-trained closed-set object detector, in which regions corresponding to novel objects may be present but remain unlabeled or mislabeled. We then fine-tune the visual backbone of the VLM in a decoupled manner, which enhances local feature alignment while preserving global semantic knowledge via weight interpolation. DAT is a plug-and-play module that requires no inference overhead and fine-tunes less than 0.8M parameters. Experiments on the COCO and LVIS datasets show that DAT consistently improves detection performance on both novel and known categories, establishing a new state of the art in cooperative open-vocabulary detection.",
+      "authors": [
+        "Yazhe Wan",
+        "Changjae Oh"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-05T11:14:30+00:00",
+      "link": "https://arxiv.org/pdf/2605.03642v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "capturing local object details for region-level detection",
+      "llm_evidence_cn": "捕获区域级检测的局部对象细节",
+      "llm_evidence": "捕获区域级检测的局部对象细节",
+      "canonical_evidence": "捕获区域级检测的局部对象细节",
+      "llm_tldr_en": "Improves vision-language models for region-level detection by capturing local object details via self-supervision.",
+      "llm_tldr_cn": "通过自监督学习改进视觉语言模型，增强其捕获区域级检测局部细节的能力。",
+      "llm_tldr": "通过自监督学习改进视觉语言模型，增强其捕获区域级检测局部细节的能力。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "biorxiv-10-1101-2025-09-19-677346-v4",
+      "source": "biorxiv",
+      "title": "PlanktonFlow : hands-on deep-learning classification of plankton images for biologists",
+      "abstract": "High throughput image-acquisition devices tremendously increase our capacity to observe biodiversity. However, for many biologists, the high-performance deep learning models that are needed to make biological sense out of very-large image sets remain difficult to implement.\n\nTo fill this gap in biologists toolkit, we developed PlanktonFlow, a Python pipeline that streamlines the automation of plankton-image taxonomic assignment. PlanktonFlow makes it easy for inexperienced users to run a whole sequence of (i) automated image pre-processing and augmentation of rare classes, (ii) training up to four different high-performance convolution neural networks (CNNs: ResNet, DenseNet, EfficientNet, and YOLO), (iii) computing model classification-performance metrics so as to choose the best-performing model, and (iv) running inference on novel image sets. PlanktonFlow further includes routines to easily fine tune model hyper-parameters and optimize models performances.\n\nUsing a tutorial style, we demonstrate the usage of PlanktonFlow to analyse freshwater-plankton images produced with the FlowCAM, comparing the relative classification performances of the four optimized CNN architectures. For a baseline comparison with a reference tool used by plankton biologists, we further assessed the classification performances of the EcoTaxa web-service when used without any eye validation in a pure-prediction mode. In line with a previous study on a benchmark plankton dataset, we found that EfficientNet-B5 achieved the highest macro-averaged F1 Score, outperforming other CNN models, which all surpassed EcoTaxa. Hyper-parameter optimization was key to improving model performances.\n\nTo ease an appropriation and further developments by the community, PlanktonFlow is open source, comes with a detailed documentation, and has a modular structure. We foresee that future work could integrate new deep-learning architectures (e.g., vision transformers, semi-supervised learning), and test the pipeline on images produced by other devices or from other taxonomic groups.",
+      "authors": [
+        "Walter, H.",
+        "Gorzerino, C.",
+        "Collinet, M.",
+        "Porcon, B.",
+        "Martignac, F.",
+        "Edeline, E."
+      ],
+      "primary_category": "ecology",
+      "categories": [
+        "ecology"
+      ],
+      "published": "2026-04-29T00:00:00+00:00",
+      "link": "https://www.biorxiv.org/content/10.1101/2025.09.19.677346v4.full.pdf",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Automated image augmentation of rare classes for plankton classification",
+      "llm_evidence_cn": "针对浮游生物分类中稀有类别的自动图像增强",
+      "llm_evidence": "针对浮游生物分类中稀有类别的自动图像增强",
+      "canonical_evidence": "针对浮游生物分类中稀有类别的自动图像增强",
+      "llm_tldr_en": "PlanktonFlow provides a pipeline for plankton classification including augmentation for rare classes.",
+      "llm_tldr_cn": "PlanktonFlow提供了一个浮游生物分类流水线，包含针对稀有类别的增强策略。",
+      "llm_tldr": "PlanktonFlow提供了一个浮游生物分类流水线，包含针对稀有类别的增强策略。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "oversampling and augmentation strategies for small objects",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

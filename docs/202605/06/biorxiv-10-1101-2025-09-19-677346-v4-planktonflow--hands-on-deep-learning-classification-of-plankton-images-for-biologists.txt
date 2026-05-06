@@ -1,0 +1,1522 @@
+Title: PlanktonFlow : hands-on deep-learning classification of plankton images for biologists
+
+URL Source: https://www.biorxiv.org/content/10.1101/2025.09.19.677346v4.full.pdf
+
+Number of Pages: 21
+
+Markdown Content:
+# PlanktonFlow : hands-on deep-learning classification of plankton images for biologists 
+
+# Hugo Walter 1, Caroline Gorzerino 1, Marc Collinet 1,Béatrice Porcon 1, François Martignac 1, and Eric Edeline 1
+
+# https://doi.org/10.1101/2025.09.19.677346 
+
+# Abstract 
+
+High throughput image-acquisition devices tremendously increase our capacity to ob-serve biodiversity. However, for many biologists, the high-performance deep learning models that are needed to make biological sense out of very-large image sets remain difficult to implement. To fill this gap in biologists’ toolkit, we developed PlanktonFlow, a Python pipeline that streamlines the automation of plankton-image taxonomic assignment. PlanktonFlow makes it easy for inexperienced users to run a whole sequence of (i) automated image pre-processing and augmentation of rare classes, (ii) training up to four different high-performance convolution neural networks (CNNs: ResNet, DenseNet, EfficientNet, and YOLO), (iii) computing model classification-performance metrics so as to choose the best-performing model, and (iv) running inference on novel image sets. PlanktonFlow further includes routines to easily fine tune model hyper-parameters and optimize model’s performances. Using a tutorial style, we demonstrate the usage of PlanktonFlow to analyse freshwater-plankton images produced with the FlowCAM, comparing the relative clas-sification performances of the four optimized CNN architectures. For a baseline com-parison with a reference tool used by plankton biologists, we further assessed the clas-sification performances of the EcoTaxa web-service when used without any eye valida-tion in a pure-prediction mode. In line with a previous study on a benchmark plankton dataset, we found that EfficientNet-B5 achieved the highest macro-averaged F1 Score, outperforming other CNN models, which all surpassed EcoTaxa. Hyper-parameter op-timization was key to improving model performances. To ease an appropriation and further developments by the community, PlanktonFlow is open source, comes with a detailed documentation, and has a modular structure. We foresee that future work could integrate new deep-learning architectures (e.g., vision transformers, semi-supervised learning), and test the pipeline on images produced by other devices or from other taxonomic groups. 
+
+Keywords: Computer vision, Image classification, Python, Plankton Classification. 
+
+1DECOD (Ecosystem Dynamics and Sustainability), INRAE, IFREMER, Institut Agro, Rennes, France. 
+
+Correspondence 
+
+Eric.Edeline@inrae.fr 
+
+> 1
+> .CC-BY-NC 4.0 International license made available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is The copyright holder for this preprint this version posted April 29, 2026. ;https://doi.org/10.1101/2025.09.19.677346 doi: bioRxiv preprint
+
+2 Hugo Walter et al. 
+
+Introduction 2
+
+High-throughput biodiversity monitoring, as enabled by modern automatic sensors, provides 3
+
+us with an unprecedented capacity to track rich, multidimensional data streams and, ultimately, 4
+
+to accurately understand and forecast ecological dynamics across broad spatial and temporal 5
+
+scales (Besson et al., 2022, Weinstein, 2018). In aquatic systems, a diversity of imaging-in-flow 6
+
+and camera systems now capture a wide spectrum of plankton sizes and taxonomic diversity. 7
+
+Submersible, high-frequency instruments like the Imaging FlowCytobot (Olson and Sosik, 2007), 8
+
+the Dual Scripps Plankton Camera (DSPC, Merz et al., 2021) or the Underwater Vision Profiler 9
+
+(UVP, Picheral et al., 2010) operate autonomously in situ to capture continuous records of plank-10 
+
+ton. In parallel, benchtop imaging flow cytometers for plankton, such as the FlowCAM ® (Sieracki 11 
+
+et al., 1998) or the PlanktoScope (Pollina et al., 2022), are widely used to analyse water samples 12 
+
+ex-situ in the laboratory or under shipboard settings. 13 
+
+However, the volume and heterogeneity of images produced by these machines often ex-14 
+
+ceed the routine-processing capacity of traditional analysis workflows, and thus create bottle-15 
+
+necks that hinder scientific progress. Softwares shipped with commercial instruments (for ex-16 
+
+ample, FlowCAM’s VisualSpreadsheet) typically require substantial manual curation and make 17 
+
+it impossible to process large datasets (Owen et al., 2022). To scale up classification, the Lab-18 
+
+oratoire d’Océanographie de Villefranche developed EcoTaxa, a web-based platform intended 19 
+
+for computer-assisted image classification, which is now the standard tool used by biologists for 20 
+
+plankton analysis (Irisson et al., 2022; Picheral et al., 2025). 21 
+
+EcoTaxa provides a user-friendly collaborative graphical interface. Based on a validated dataset, 22 
+
+EcoTaxa predicts an object class using random forests fed with multiple image features, includ-23 
+
+ing convolution neural networks (CNNs)-extracted features (see Figure S1, Walter et al., 2025). 24 
+
+Predicted classes are then intended to be eye-validated. However, when projects are so large 25 
+
+that they surpass human-validation capacities, one may use EcoTaxa without any further eye 26 
+
+validation in a "pure-prediction mode", which consists of either using directly the classification 27 
+
+provided by random forests, or of retaining only images with the highest random-forest pre-28 
+
+diction score (Faillettaz et al., 2016). Unfortunately however, EcoTaxa lacks prediction-quality 29 
+
+metrics (accuracy, recall, confusion matrix...), making it difficult to assess its performances in a 30 
+
+pure-prediction mode. 31 
+
+At the same time, recent studies show on various benchmark plankton datasets that mod-32 
+
+ern deep-learning approaches (CNNs, Vision Transformers) can achieve classification accuracies 33 
+
+that potentially surpass those achieved by EcoTaxa (Kyathanahally et al., 2021, Kyathanahally 34 
+
+et al., 2022, Eerola et al., 2024). However, several obstacles prevent the adoption of these novel 35 
+
+methods by EcoTaxa users. The codes and data used to run novel methods are sometimes pub-36 
+
+licly available, but these scripts may run proprietary software (Lumini and Nanni, 2019), and/or 37 
+
+their documentation may be too limited for beginners to be able to adapt the scripts to their 38 
+
+own needs (e.g., Kyathanahally et al., 2021, Kraft et al., 2022, Kyathanahally et al., 2022). In fact, 39 
+
+the computational/engineering overhead required to train, deploy and maintain robust models 40 
+
+in operational settings are often beyond-of-reach for non-specialists. Another hindrance to the 41 
+
+reutilization of published scripts is their frequent lack of routines for image pre-treatment (e.g., 42 
+
+augmentation of rare classes) or performance measurements (but see Maracani et al., 2023). Yet, 43 
+
+performance comparison among architectures is crucial because variation among datasets often 44 
+
+precludes a direct transfer of methods among instruments and environments, a problem known 45 
+
+2
+
+> .CC-BY-NC 4.0 International license made available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is The copyright holder for this preprint this version posted April 29, 2026. ;https://doi.org/10.1101/2025.09.19.677346 doi: bioRxiv preprint
+
+Hugo Walter et al. 3as "dataset shifts" (Chen et al., 2025), and also because severe class imbalance due to rare taxa 46 
+
+imposes custom-trained models. For all these reasons, modern deep-learning methods remain 47 
+
+beyond of reach to many biologists. 48 
+
+To fill this gap in biologists’ toolkit, we developed PlanktonFlow, a novel pipeline that stream-49 
+
+lines deep-learning annalysis of large plankton image sets. The pipeline ships with transparent, 50 
+
+reproducible training recipes, clear step-by-step instructions, and all of the configuration files 51 
+
+needed to adapt the pipeline to other instruments or taxa. From an already-built dataset of 52 
+
+manually-labelled images, PlanktonFlow was designed to make it easy for beginners to: 53 
+
+• pre-treat their labelled images for scale-bar removel (optional), 54 
+
+• augment the number of images for rare classes in their dataset (optional), 55 
+
+• train up to four different CNNs on their dataset and compare their performances. Specif-56 
+
+ically, users can choose either pretrained CNNs ready for immediate use, or to automati-57 
+
+cally train a CNN on their own dataset, choosing among ResNet, DenseNet, EfficientNet, 58 
+
+and YOLO architectures. PlanktonFlow further allows for hyperparameter tuning of the 59 
+
+enclosed CNNs. 60 
+
+• Extensively evaluate and compare models classification performances. 61 
+
+• Run predictions from the best-performing model on a novel dataset. 62 
+
+To demonstrate the usage of PlanktonFlow, we here implement the whole pipeline on a 63 
+
+dataset of labelled plankton images from our own freshwater mesocosm experiments. Images of 64 
+
+ethanol-fixed samples were produced using the FlowCAM, and were manually-labelled using Ex-65 
+
+oTaxa and a single eye validation. We deliberately chose not to work with a benchmark dataset, 66 
+
+because benchmarks are less likely to represent the whole diversity of object classes encoun-67 
+
+tered under operational conditions. Compared to benchmark datasets, our custom dataset was 68 
+
+maybe more difficult to classifify, which would decrease the absolute performances of classifiers, 69 
+
+but would not influence their relative performances. 70 
+
+As a baseline for performance comparison, we use EcoTaxa in a pure-prediction mode, so as 71 
+
+to test for an expected added value of modern classifiers compared to a standard classification 72 
+
+tool used by plankton biologists. 73 
+
+Material and methods 74 
+
+Dataset 75 
+
+Raw dataset. The plankton image dataset used in this study was acquired from a long-term meso-76 
+
+cosm experiment on the effects of invasive crayfish on freshwater ecosystems (Dézerald et al., 77 
+
+2023). 12 outdoor, fishless mesocosms were installed in 2020 at the PEARL, the INRAE experi-78 
+
+mental platform for aquatic ecology and ecotoxicology (U3E) located in Rennes, France (Platform 79 
+
+PEARL). The mesocosms were initially seeded with pond sediments, such that a rich vegetal and 80 
+
+animal community rapidly developed. Organisms were also free to colonise mesocosms by aerial 81 
+
+dispersal. In 2021, red swamp crayfish ( Procambarus clarkii ) were introduced in eight mesocosms 82 
+
+and soon eradicated all the vegetation. Monthly water samples were taken from the 12 meso-83 
+
+cosms in 2022 and 2023 (24 months). Hence, our image dataset contained diverse plankton taxa 84 
+
+from both vegetated and non-vegetated natural freshwater ecosystems. 85 
+
+Imaging was performed using the FlowCAM (Fluid Imaging Technologies Inc.), a high-throughput 86 
+
+imaging cytometer designed for particle analysis in liquid media. In image-based studies, the tax-87 
+
+onomic resolution attainable by either humans or deep-learning methods critically depends on 88 
+
+3
+
+> .CC-BY-NC 4.0 International license made available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is The copyright holder for this preprint this version posted April 29, 2026. ;https://doi.org/10.1101/2025.09.19.677346 doi: bioRxiv preprint
+
+4 Hugo Walter et al. image resolution. To increase the image resolution of our dataset, we used two separate Flow-89 
+
+CAM instruments optimized for different organismal size ranges: a FlowCAM 8110 dedicated 90 
+
+to microplankton (50 to 200 μm) and a FlowCAM Macro dedicated to macroplankton (0.2 to 91 
+
+2mm ). High-resolution images in .tiff format produced by the FlowCAMs were segmented using 92 
+
+versions 8.22 to 8.26 of the ZooProcess ImageJ macro (Jalabert et al., 2025), that returned low-93 
+
+resolution images (approximately 400 by 400 px ), each containing one object. The objects ex-94 
+
+hibited a wide spectrum of visual complexity, including variations in pose, orientation, occlusion, 95 
+
+transparency, and morphological deformation. This heterogeneity reflected the natural complex-96 
+
+ity of water samples including target planktonic organisms, non-target biological material (e.g., 97 
+
+terrestrial organisms), and detritus and other particles. 98 
+
+The low-resolution images produced by ZooProcess are the raw material used to build the 99 
+
+dataset and to feed PlanktonFlow. Images were uploaded to EcoTaxa for 100% manual construc-100 
+
+tion of our dataset of labelled images (i.e., none of the models assessed below previously "saw" 101 
+
+the data). In building the dataset, we retained a large number of classes reflecting the whole 102 
+
+diversity of objects effectively encountered, rather than reducing the label space to ease sub-103 
+
+sequent automatic classification. We also chose not to double-check the dataset for labelling 104 
+
+errors (a highly time-consuming task), because our goal was not to establish a new benchmark 105 
+
+reference model or benchmark model comparison, but rather to develop an operational pipeline. 106 
+
+Therefore, our dataset is not a reference dataset like is, for instance, WHOI-Plankton (Orenstein 107 
+
+et al., 2015). 108 
+
+Figure 1 – Raw class distribution after pruning rare classes and before data augmentation. The inset shows sample images of zooplankton from freshwater mesocosms. 
+
+Data pre-processing. To ensure the reliability and statistical relevancy of the training data, we 109 
+
+applied a pruning strategy that removed extremely rare classes. The dataset exhibited a strongly 110 
+
+skewed class distribution, which is typical of ecological samples: the top 33 most abundant taxa 111 
+
+4
+
+> .CC-BY-NC 4.0 International license made available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is The copyright holder for this preprint this version posted April 29, 2026. ;https://doi.org/10.1101/2025.09.19.677346 doi: bioRxiv preprint
+
+Hugo Walter et al. 5accounted for over 70% of all annotated images, while the remaining 73 taxa collectively con-112 
+
+tributed the remaining 30%. Specifically, any class with fewer than 100 manually-labelled images 113 
+
+was excluded from the final dataset. This decision was motivated by two factors: (1) very low 114 
+
+sample sizes tend to introduce high-variance gradients that hinder stable model convergence, 115 
+
+and (2) such elusive organisms are rarely meaningful ecologically and often will not be used in 116 
+
+later intended research. However, quantifying rare taxa using deep learning is possible, and sim-117 
+
+ply requires to label more images for these taxa (here a suggested N=100), provided that enough 118 
+
+images are available in the whole image set. 119 
+
+After pruning, the number of valid classes was reduced from Noriginal =106 to Nfinal =76, with 120 
+
+the removed classes contributing marginally to the overall image volume (Figure 1). Among the 121 
+
+76 classes, 51 were taxonomic classes including six species (e.g., Brachionus calyciflorus ), 28 gen-122 
+
+era (e.g., Chydorus ), seven families (e.g., Daphniidae), one infra-class (Oligochaeta), four classes 123 
+
+(e.g., Copepoda), one infra-order (Cladocera), two orders (e.g., Cyclopoida), and two Phyla (e.g., 124 
+
+Rotifera) (see Figure S2 in Walter et al., 2025). 125 
+
+A critical preprocessing step in the pipeline involved detecting and removing scale bars that 126 
+
+were embedded in some of the original images. Inconsistency in the presence of scale bars was 127 
+
+due to varying settings in our use of the different versions of ZooProcess. To prevent data leakage 128 
+
+due to the model learning scale bars rather than biological features, we implemented an auto-129 
+
+mated pipeline to remove scale bars. Initial tests using traditional computer vision techniques 130 
+
+(template matching) proved unreliable due to slight inter-image variability in the scale bar’s pixel 131 
+
+rendering and contrast. We therefore fine-tuned a YOLOv8 object detection model for this task. 132 
+
+On a held-out test set (N=160), the model achieved 100% precision and recall, with zero false 133 
+
+positives or false negatives. Since scale bars in our images did not overlap with the plankton 134 
+
+objects, this perfect detection rate ensured that all artifacts were completely removed without 135 
+
+compromising biological data. 136 
+
+Finally, the pre-processed image set was split into three disjoint subsets in a stratified manner 137 
+
+across the 76 classes, ensuring that rare classes remained proportionally represented similarly 138 
+
+across all subsets: 70% for training (90,723 images), 20% for validation (25,921 images), and 10% 139 
+
+for testing (12,961 images). 140 
+
+Data Augmentation. The performances of deep learning models often deteriorate when exposed 141 
+
+to imbalanced training distributions, especially in multi-class settings with sparse and heteroge-142 
+
+neous categories. In the context of our plankton classification task, pronounced class imbalance 143 
+
+was observed across taxa, primarily due to natural ecological abundance gradients. To mitigate 144 
+
+this issue and to enhance the model’s generalization capability, we implemented a class-aware 145 
+
+data augmentation strategy aimed at selectively enriching under-represented categories in the 146 
+
+training dataset. 147 
+
+Specifically, we augmented data using the Albumentations library (Buslaev et al., 2018), 148 
+
+where each transformation is applied independently with a given probability. The transforma-149 
+
+tions included horizontal flipping (50%), vertical flipping (20%), 90-degree rotation (30%), bright-150 
+
+ness and contrast adjustment (40%), and hue/saturation modulation (30%). Since these opera-151 
+
+tions are sampled separately, multiple augmentations may be applied to the same image. 152 
+
+To standardise the training distribution, we defined an augmentation threshold of 1,500 im-153 
+
+ages per class. For any class below this threshold, we calculated the required number of synthetic 154 
+
+5
+
+> .CC-BY-NC 4.0 International license made available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is The copyright holder for this preprint this version posted April 29, 2026. ;https://doi.org/10.1101/2025.09.19.677346 doi: bioRxiv preprint
+
+6 Hugo Walter et al. samples to produce, and we distributed the augmentation load across the available original im-155 
+
+ages using a capped multiplier (maximum 10 augmentations per original). This process ensured 156 
+
+a controlled and balanced enrichment of the dataset while maintaining fidelity to the original 157 
+
+morphological patterns. 158 
+
+The class-aware data augmentation strategy was applied exclusively to the training set. As a 159 
+
+result, the final dataset partitions used for model training and evaluation were as follows: 160 
+
+• D train : Training Set: 159,687 images (original + augmented), 161 
+
+• D val : Validation Set: 25,921 images (original only), 162 
+
+• D test : Test Set: 12,961 images (original only). 163 
+
+Model architectures 164 
+
+The problem of dataset shifts makes it crucial to evaluate different deep-learning architec-165 
+
+tures on the dataset at hand (Chen et al., 2025). To illustrate PlanktonFlow’s capabilities on this 166 
+
+task, we compared the classification performances of four different CNN models, all of which are 167 
+
+enclosed in PlanktonFlow: ResNet (He et al., 2016), DenseNet (Huang et al., 2018), EfficientNet 168 
+
+(Tan and Le, 2020) and YOLOv11 (Khanam and Hussain, 2024). 169 
+
+We chose ResNet in our candidate-model set for its use of residual connections, which fa-170 
+
+cilitates gradient flow and enables the training of deep networks without degradation. Variants 171 
+
+like ResNet-50 offer a solid balance between accuracy and resource use, making them a com-172 
+
+mon baseline for transfer learning. DenseNet connects each layer to every other layer in a feed-173 
+
+forward manner, improving gradient propagation and promoting feature reuse. This architec-174 
+
+ture achieves strong generalization with fewer parameters, making it well-suited for complex 175 
+
+but data-limited tasks. EfficientNet applies compound scaling to jointly optimize network depth, 176 
+
+width, and input resolution, achieving high accuracy with fewer parameters and FLOPs (Float-177 
+
+ing Point Operations, measure computational complexity). Its scalable variants (B0–B7) offer 178 
+
+flexibility between speed and performance, with smaller models enabling fast prototyping. Fi-179 
+
+nally, YOLO is a multi-task CNN that is advertised by its deveopers to excel at object detection, 180 
+
+tracking, instance segmentation, image classification, and pose estimation tasks 1. We included 181 
+
+YOLOV11 in our panel of CNNs because it is arguably the most user-friendly deep learning 182 
+
+workflow, and as such it is easily accessible to beginners. 183 
+
+For a baseline comparison with the standard tool used by many plankton biologists, we fur-184 
+
+ther measured the classification performances provided by EcoTaxa in a pure-prediction mode 185 
+
+withtout any further human validation. All four deep-learning architectures were subject to the 186 
+
+exact same training, validation and testing procedures with Dtrain , Dval and Dtest , respectively 187 
+
+(see Supplementary Information, Walter et al., 2025). In contast, because the platform makes it 188 
+
+impossible to have a validation step, EcoTaxa was trained on Dtrain with deep features extracted 189 
+
+using the zoocam_2022_04_06 model, and tested on Dval and Dtest grouped together. 190 
+
+Model performance metrics 191 
+
+To comprehensively assess classification performances among the different model architec-192 
+
+tures, we employed multiple standard metrics: accuracy, precision, recall, and F1 Score (described 193 
+
+in details below). These metrics were necessary during both model optimization (see Model op-194 
+
+timization strategies) and final performance comparison among optimized models (see Results). 195 
+
+> 1https:/ /github.com/ultralytics/ultralytics
+
+6
+
+> .CC-BY-NC 4.0 International license made available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is The copyright holder for this preprint this version posted April 29, 2026. ;https://doi.org/10.1101/2025.09.19.677346 doi: bioRxiv preprint
+
+Hugo Walter et al. 7Model optimization was based exclusively on performances measured on the validation set Dval ,196 
+
+while final performance comparison among optimized models was evaluated a single time on the 197 
+
+held-out test set Dtest .198 
+
+To provide insight into both overall and per-class performance, perfromance metrics were 199 
+
+calculated in both macro-averaged and weighted-averaged forms. These metrics were computed 200 
+
+using the scikit-learn library (Pedregosa et al., 2011), a standard in machine learning. 201 
+
+Accuracy measures the proportion of correctly classified samples over all samples. In this 202 
+
+work, we report both top-1 accuracy (Acc@1) and top-5 accuracy (Acc@5): 203 
+
+(1) Acc@k = 1
+
+N
+
+> N
+
+∑
+
+> i=1
+
+1( yi ∈ ^Y (k) 
+
+> i
+
+), 
+
+where N is the total number of samples, yi is the ground truth label, and ^Y (k) 
+
+> i
+
+is the set of the 204 
+
+model’s top-k predicted class labels for sample i. When k = 1 , this reduces to standard (top-1) 205 
+
+accuracy. 1 denotes the indicator function. 206 
+
+Precision for a class c is defined as the ratio of true positives (TP) to the sum of true positives 207 
+
+and false positives (FP): 208 
+
+(2) Precision c = TP c
+
+TP c + FP c
+
+.
+
+In the multiclass setting, TP c denotes the number of samples correctly predicted as belonging 209 
+
+to class c. FP c counts the samples incorrectly predicted as class c.210 
+
+Recall (also called sensitivity) for class c measures the ratio of true positives to the sum of true 211 
+
+positives and false negatives FN c , which correspond to samples of class c that were mistakenly 212 
+
+classified as another class: 213 
+
+(3) Recall c = TP c
+
+TP c + FN c
+
+.
+
+F1 Score for class c is the harmonic mean of precision and recall: 214 
+
+(4) F1 c = 2 × Precision c × Recall c
+
+Precision c + Recall c
+
+.
+
+Macro-averaged metrics compute the unweighted mean across classes: 215 
+
+(5) Metric macro = 1
+
+C
+
+> C
+
+∑
+
+> c=1
+
+Metric c ,
+
+where C is the number of classes. 216 
+
+Weighted-averaged metrics weight each class metric by its support (number of true samples 217 
+
+in that class): 218 
+
+(6) Metric weighted = 1
+
+N
+
+> C
+
+∑
+
+> c=1
+
+nc × Metric c ,
+
+where nc is the number of samples in class c.219 
+
+In datasets with strong class imbalance such as the PlanktonFlow dataset, the choice of a 220 
+
+method to average evaluation metrics is critical to reliably assess model performances. Metrics 221 
+
+such as accuracy summarize performance over all samples and therefore primarily reflect per-222 
+
+formance on the most abundant classes. In our dataset, common taxa such as Daphniidae are 223 
+
+represented by far more images than rarer taxa such as some Rotifera. Consequently, a model 224 
+
+7
+
+> .CC-BY-NC 4.0 International license made available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is The copyright holder for this preprint this version posted April 29, 2026. ;https://doi.org/10.1101/2025.09.19.677346 doi: bioRxiv preprint
+
+8 Hugo Walter et al. that performs well on these dominant taxa could achieve a high overall accuracy even if it mis-225 
+
+classifies many samples belonging to rare taxa. 226 
+
+A similar limitation applies to weighted-averaged metrics (Equation 6) because each class 227 
+
+contributes proportionally to its number of samples ( nc ). As a result, classes with many observa-228 
+
+tions have a much larger influence on the final performance metric than rare classes. In highly 229 
+
+imbalanced ecological datasets, this can obscure poor performance on taxa that are represented 230 
+
+by relatively few images. To mitigate this issue, we assessed model performances using macro-231 
+
+averaged metrics (Equation 5), which average metrics with equal weight across classes, thus en-232 
+
+suring that the classifier is penalized for poor performance on rare taxa. Specifically, we selected 233 
+
+the macro-averaged F1 Score ( F 1macro ) as our primary metric for comparing model performances. 234 
+
+Model optimization strategies 235 
+
+All four CNN models were initialized by their developers with weights pre-trained on Ima-236 
+
+geNet, a large and generic dataset of non-planktonic images. Classically, initialization precedes 237 
+
+a second step of model fine-tuning on a specialized dataset, an appraoch known as transfer 238 
+
+learning from an out-of-domain source. Transfer learning has been demonstrated to be highly 239 
+
+effective for plankton classification (Maracani et al., 2023). However, classic fine-tuning based 240 
+
+on standard loss functions tends to favour majority classes and may fail to generalize to rare 241 
+
+or difficult classes, which is a problem for plankton that includes many rare classes as well as 242 
+
+classes that may overlap greatly in morphology. 243 
+
+To address this problem, we augmented classic fine tuning with extra optimization steps, 244 
+
+including specialized loss functions to handle class imbalance and challenging samples, as well 245 
+
+as hyperparameter tuning to identify optimal learning configurations (see below). Specifically, 246 
+
+we optimized ResNet, DenseNet and EfficientNet, but we did not optimize YOLO as we chose 247 
+
+this architecture to demonstrate the performances of an out-of-the-box deep-learning solution. 248 
+
+EcoTaxa does not allow any model optimization by the user. 249 
+
+Loss Functions. A loss function quantifies how well the model’s predictions match the true labels. 250 
+
+Conceptually, it can be thought of as a supervisory signal: the model attempts to minimize this 251 
+
+loss to improve its predictions. Different loss functions emphasize different aspects of learning 252 
+
+and can be critical in datasets characterized by class imbalance or high intra-class variability. 253 
+
+A common baseline is the standard cross-entropy loss LCE (Equation 7). It treats each class 254 
+
+equally and penalizes incorrect predictions proportionally to the predicted probability assigned 255 
+
+to the true class: 256 
+
+(7) LCE = −
+
+> C
+
+∑
+
+> c=1
+
+yc log(^ yc ). 
+
+Here, yc represents the ground-truth one-hot label for class c, and ^yc is the model’s predicted 257 
+
+probability for that class. While effective in balanced datasets, this formulation tends to under-258 
+
+perform in the presence of rare classes, which are given equal treatment to frequent classes 259 
+
+despite their limited representation. 260 
+
+Thus, to correct this, the weighted cross-entropy loss LWCE (Equation 8) introduces class-261 
+
+specific weights wc to counteract this imbalance : 262 
+
+8
+
+> .CC-BY-NC 4.0 International license made available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is The copyright holder for this preprint this version posted April 29, 2026. ;https://doi.org/10.1101/2025.09.19.677346 doi: bioRxiv preprint
+
+Hugo Walter et al. 9(8) LWCE = −
+
+> C
+
+∑
+
+> c=1
+
+wc · yc log(^ yc ). 
+
+In this approach, weights are typically set inversely proportional to class frequency, effec-263 
+
+tively amplifying the contribution of rare classes during training. This ensures that the model 264 
+
+allocates sufficient learning capacity to under-represented taxa, reducing bias toward the domi-265 
+
+nant classes. 266 
+
+Another approach is to use Focal Loss Lfocal (Equation 9) which further improves model per-267 
+
+formance by emphasizing difficult examples (Lin et al., 2018) : 268 
+
+(9) Lfocal = −
+
+> C
+
+∑
+
+> c=1
+
+αc (1 − ^yc )γ · yc log(^ yc ). 
+
+The modulating factor (1 − ^yc )γ dynamically reduces the loss contribution of well-classified 269 
+
+"easy" examples and focuses learning on misclassified or rare instances. Here, γ is a focusing 270 
+
+parameter that controls the degree of emphasis on difficult cases, while αc allows optional per-271 
+
+class weighting. This loss function is particularly useful when both class imbalance and intra-class 272 
+
+variability are present, as it directs learning towards the most challenging examples. 273 
+
+Finally, Label Smoothing (Equations 10 and 11) is a regularization technique that reduces 274 
+
+overconfidence in predictions and encourages better generalization (Szegedy et al., 2015) : 275 
+
+(10) ˜yc =
+
+
+
+1 − ϵ if c = y  
+
+> ϵ
+> C−1
+
+otherwise .
+
+The corresponding cross-entropy loss with label smoothing becomes: 276 
+
+(11) LCE+LS = −
+
+> C
+
+∑
+
+> c=1
+
+˜yc log(^ yc ). 
+
+In Equation 10, the smoothing parameter ϵ determines the fraction of probability mass re-277 
+
+distributed to other classes. By avoiding assigning full probability mass to a single class, label 278 
+
+smoothing mitigates the tendency of the model to make overconfident predictions, which is 279 
+
+particularly important when some classes are visually similar. For implementation details on con-280 
+
+sidered loss functions described below, see Supplementary Information (Walter et al., 2025). 281 
+
+Hyperparameters: the knobs that control learning. Hyperparameters are parameters that define 282 
+
+the configuration of the learning process but are not directly learned from the data. They play a 283 
+
+critical role in determining how effectively a model can be trained and how well it generalizes to 284 
+
+unseen data. Conceptually, hyperparameters can be thought of as ‘knobs’ that adjust how the 285 
+
+model learns, analogous to changing the focus when examining a specimen under a microscope. 286 
+
+Key hyperparameters include : 287 
+
+• Learning rate: the step size used to update the model’s parameters at each iteration, 288 
+
+affecting convergence speed and stability. 289 
+
+• Batch size: the number of images processed before updating the model parameters, which 290 
+
+influences the variance of gradient estimates and memory usage. 291 
+
+9
+
+> .CC-BY-NC 4.0 International license made available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is The copyright holder for this preprint this version posted April 29, 2026. ;https://doi.org/10.1101/2025.09.19.677346 doi: bioRxiv preprint
+
+10 Hugo Walter et al. 
+
+Parameter Type Values / Range 
+
+model_name Categorical {“efficientnet”, “densenet”, “resnet”} model_variant Categorical Model variants (see Table 2) 
+
+loss_type Categorical {“weighted”, “focal”, “Cross-Entropy + Label Smoothing”} focal_alpha Continuous [0.1, 0.5] 
+
+focal_gamma Continuous [1.0, 3.0] 
+
+use_per_class_alpha Boolean {true, false} labelsmoothing_epsilon Continuous [0.05, 0.2] 
+
+optimizer Categorical {“adamw”, “adam”} learning_rate Discrete {1 × 10 −7, 5 × 10 −7, 1 × 10 −6, ... , 2 × 10 −1}
+
+weight_decay Discrete {1 × 10 −7, 5 × 10 −7, 1 × 10 −6, ... , 2 × 10 −1}
+
+Table 1 – Hyperparameter search space explored during tuning 
+
+• Optimizer type: the algorithm used to perform parameter updates, such as Adam or 292 
+
+AdamW, which differ in how the model adjusts weights. 293 
+
+• Weight decay: a regularization term that discourages overly large parameter values, help-294 
+
+ing to prevent overfitting. 295 
+
+Table 1 provides a detailed overview of the hyperparameters we considered during optimiza-296 
+
+tion, while Table 2 lists the model variants and their approximate number of parameters. Due to 297 
+
+the large number of hyperparameters and their complex interactions, manually selecting an op-298 
+
+timal configuration is challenging. To address this problem, we employed Bayesian optimization 299 
+
+via Weights & Biases Sweeps (W&B, Biewald, 2020), an automated approach that efficiently ex-300 
+
+plores the hyperparameter space and identifies the settings that maximize the Macro-averaged 301 
+
+F1 Score on the validation set Dval . Bayesian optimization was chosen over traditional grid or 302 
+
+random search methods due to its efficiency in navigating large hyperparameter spaces with 303 
+
+fewer training runs, a critical factor given the computational constraints. 304 
+
+Model Variant Approx. # Parameters 
+
+EfficientNet b2 9 million b3 12 million b4 19 million b5 30 million ResNet 18 11.7 million 34 21.8 million 50 25.6 million 101 44.5 million 152 60.2 million DenseNet 121 8 million 161 28.7 million 169 14.1 million 201 20 million 
+
+Table 2 – Details of model variants and their approximate number of parameters. We chose model variants that were adapted to our hardware environment (see below). 
+
+For each hyperparameter set, models were trained for a fixed number of epochs and batch 305 
+
+size, set to 30 and 64, respectively. An epoch corresponds to a full pass of the training dataset 306 
+
+10 
+
+> .CC-BY-NC 4.0 International license made available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is The copyright holder for this preprint this version posted April 29, 2026. ;https://doi.org/10.1101/2025.09.19.677346 doi: bioRxiv preprint
+
+Hugo Walter et al. 11 
+
+Dtrain through the network, and 30 epochs were found sufficient to achieve convergence in per-307 
+
+formance while minimizing the risk of overfitting. The batch size refers to the number of training 308 
+
+samples processed simultaneously before updating the model weights. A batch size of 64 was 309 
+
+chosen to optimize the throughput of our hardware setup, ensuring efficient utilization of compu-310 
+
+tational resources without compromising training stability. Details of the learning rate scheduler 311 
+
+and early stopping strategy are provided in the Supplementary Information (Walter et al., 2025). 312 
+
+Hardware and Software Environment 313 
+
+All experiments were conducted on a workstation running Ubuntu 24.04.2 LTS (Noble Num-314 
+
+bat). The system was equipped with an NVIDIA Quadro RTX 6000 GPU featuring 24 GB of 315 
+
+VRAM. The GPU was utilized at nearly full capacity during training, as indicated by the nvidia-smi 316 
+
+output, with over 20 GB of memory used by the training process. The driver version used was 317 
+
+570.133.07, along with CUDA 12.8. 318 
+
+The training environment was managed via python 3.12.3 and relied heavily on GPU accel-319 
+
+eration for faster convergence of deep learning models. The use of a professional-grade GPU 320 
+
+ensured minimal training time, which is crucial when performing hyperparameter optimization 321 
+
+and model evaluation across multiple configurations. 322 
+
+Results 323 
+
+Best-model hyperparameters 324 
+
+The best-performing configuration for each architecture was identified among the set of 325 
+
+parameters that were explored by the Bayesian search (see Methods Hyperparameters). Ta-326 
+
+ble 3 reports the final settings retained for ResNet-152, DenseNet-161, and EfficientNet-B5. Al-327 
+
+though the three models converged toward broadly similar training regimes, subtle but meaning-328 
+
+ful differences emerged in the optimal optimization strategy. In particular, ResNet and DenseNet 329 
+
+achieved their best performance when trained with the AdamW optimizer, whereas EfficientNet 330 
+
+performed best with the classical Adam variant, consistent with prior reports that adaptive opti-331 
+
+mizers interact differently with depth and width scaling (Dogo et al., 2022). Likewise, EfficientNet 332 
+
+favored a slightly larger label-smoothing parameter ( ε = 0.12 ) compared to ResNet ( ε = 0.05 ) and 333 
+
+DenseNet ( ε = 0.06 ), suggesting that additional regularization improved its generalization across 334 
+
+diverse classes. The optimal learning rates and weight decay values also varied by architecture, 335 
+
+highlighting the importance of architecture-specific tuning rather than relying on a single stan-336 
+
+dardized recipe. 337 
+
+Table 3 – Best hyperparameters for each model architecture on the validation set Dval .                            
+
+> Model Variant Optimizer Loss Learning Rate Batch Size Epochs Weight Decay ResNet ResNet-152 AdamW Label Smoothing ( ε=0.05) 1e-6 64 30 5e-7 DenseNet DenseNet-161 AdamW Label Smoothing ( ε=0.06) 1e-6 64 30 1e-3 EfficientNet EfficientNet-B5 Adam Label Smoothing ( ε=0.12) 1e-5 64 30 1e-4
+
+Relative model performances and comparison with EcoTaxa 338 
+
+Table 4 presents the evaluation metrics on the held-out test set Dtest for each selected model 339 
+
+alongside EcoTaxa. 340 
+
+11 
+
+> .CC-BY-NC 4.0 International license made available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is The copyright holder for this preprint this version posted April 29, 2026. ;https://doi.org/10.1101/2025.09.19.677346 doi: bioRxiv preprint
+
+12 Hugo Walter et al. 
+
+Table 4 – Performance metrics on the test set for all models. Metrics include weighted and macro-averaged recall ( Rw , Rm), precision ( Pw , Pm), F1 Score ( F 1w , F 1m), and top-1 and top-5 accuracy ( Acc @1 , Acc @5 ). For definitions of the metrics, see Section Model performance metrics. NB.: Acc @5 is not available for Ecotaxa, which provides only one predicted class per image. 
+
+Model Rw Rm Pw Pm F1 w F1 m Acc@1 Acc@5 ResNet 86.15% 84.74% 85.76% 84.39% 85.77% 84.33% 86.53% 98.88% DenseNet 86.59% 84.72% 86.24% 84.89% 86.27% 84.58% 86.40% 98.97% 
+
+EfficientNet 88.07% 86.25% 87.76% 87.16% 87.69% 86.20% 87.90% 98.47% YOLO 83.35% 82.62% 82.82% 80.49% 82.42% 80.67% 83.33% 98.43% EcoTaxa 81.91% 80.31% 81.89% 79.78% 81.11% 79.12% 81.91% NA ResNet, DenseNet and EfficientNet, the three models that were optimized on our dataset, 341 
+
+stood out from the crowd. EfficientNet demonstrated the best overall performance across all 342 
+
+metrics. In particular, EfficientNet achieved the highest macro-averaged F1 Score, suggesting a 343 
+
+high ability to generalize across both frequent and rare classes. While EcoTaxa offered a strong 344 
+
+traditional baseline, it lagged behind deep learning models, particularly-so in class-balanced met-345 
+
+rics. Notably, it was surpassed by EfficientNet by a margin of +7.08 percentage points in F 1macro ,346 
+
+highlighting the high potential of optimized deep learning models to automate plankton classifi-347 
+
+cation. To see EfficientNet’s F1 Score for all classes, see Figure S2 (Walter et al., 2025). 348 
+
+Figure 2 – Scatter plot of per-class F1 Score versus class support in the test set Dtest for each model. Rare classes generally perform worse, but some achieve strong F1 Scores 
+
+12 
+
+> .CC-BY-NC 4.0 International license made available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is The copyright holder for this preprint this version posted April 29, 2026. ;https://doi.org/10.1101/2025.09.19.677346 doi: bioRxiv preprint
+
+Hugo Walter et al. 13 
+
+Per-class analysis 349 
+
+While overall performance metrics provide a useful high-level summary, they often obscure 350 
+
+important class-level behaviors—particularly in imbalanced datasets like ours. This section inves-351 
+
+tigates prediction dynamics at the class level to uncover specific strengths and weaknesses of 352 
+
+the evaluated models. 353 
+
+Class Support vs. F1 Score. To investigate whether class frequency impacted model performance, 354 
+
+we used linear regressions of per-class F1 Scores against their corresponding support. As shown 355 
+
+in Figure 2, regression lines were nearly flat for all models, and adjusted R2 were low, indicating 356 
+
+almost no explanatory power. This shows that class frequency alone was not a strong predictor 357 
+
+of classification quality, and suggests that the PlanktonFlow procedure was efficient at alleviating 358 
+
+the classification problems that arise from class imbalance (a formal test of this hypothesis would 359 
+
+require to run the analysis without the pre-processing procedure). 360 
+
+Figure 3 – Per-model F1 Scores for the 10 worst-performing classes. 
+
+Worst Performing Classes. To better understand model weaknesses, we analysed the ten lowest-361 
+
+performing classes per model in terms of F1 Score. Poor performance was often observed in 362 
+
+classes with high intra-class variability (e.g., "detritus", "multiple organisms", "Insecta"), or among 363 
+
+overlapping classes like "Cladocera" and "damaged_Cladocera" (Figure 3). Nested taxonomic 364 
+
+groups were also difficult to classify due to their inherent morphological similarity (e.g., both 365 
+
+"Daphniidae" and "Ceriodaphnia" are taxonomically nested in "Cladocera", Figure 3). While the 366 
+
+specific failing classes differ across models, some categories appear recurrently among the bot-367 
+
+tom ten, suggesting inherent classification difficulty (e.g., multiple-rotifera). 368 
+
+Top confused class pairs. To uncover systematic sources of misclassification, we identified the 369 
+
+five most confused class pairs for each model by examining off-diagonal elements in the con-370 
+
+fusion matrices (Figure 4). Again, we observed that top most confused class pairs are classes 371 
+
+with high intra-class variability, with the leading pair being "detritus-dark" confused for "detri-372 
+
+tus". Again, confusion was also due to "taxonomic nestedness", where one class was confused 373 
+
+13 
+
+> .CC-BY-NC 4.0 International license made available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is The copyright holder for this preprint this version posted April 29, 2026. ;https://doi.org/10.1101/2025.09.19.677346 doi: bioRxiv preprint
+
+14 Hugo Walter et al. for a higher class in the taxonomy (e.g., "Cyclopoida" confused for "Copepoda", Figure 4). Finally, 374 
+
+we a posteriori found that confusion among the "Chydoridae" and "Ostracoda" classes were due 375 
+
+mainly to human errors in the dataset. After dataset cleaning for these two particular classes 376 
+
+and re-running the pipeline, the total number of confused images dropped from 50 to 15. 377 
+
+Figure 4 – Top 5 most confused class pairs per model based on confusion matrix analysis. A→B indicates that A class was confused for class B. Numbers indicate the number of confused images. 
+
+Error distribution among difficult classes (EfficientNet). Given that EfficientNet was the best per-378 
+
+forming model overall, we performed a fine-grained error analysis focused on this architecture. 379 
+
+Figure 5 presents the 20 classes with the highest total number of errors, computed as the sum 380 
+
+of false positives and false negatives. The distribution of error types across these classes ap-381 
+
+peared relatively balanced, with false positives and false negatives contributing in roughly equal 382 
+
+proportions. This suggests that EfficientNet did not exhibit a strong bias toward over- or under-383 
+
+predicting specific classes among its most error-prone predictions, but rather that the model 384 
+
+struggled equally with both types of misclassification in these challenging classes. 385 
+
+Discussion 386 
+
+Our results demonstrated the capabilities of PlanktonFlow for the implementation of a com-387 
+
+plete deep-learning pipeline, including a performance comparison among multiple models (for a 388 
+
+hands-on tutorial on how to reproduce the results, see the next section). On our custom dataset, 389 
+
+the best overall performance was achieved by EfficientNet-B5, while both ResNet and DenseNet 390 
+
+achieved comparable results within a 1-2% margin. YOLO was lagging behind, illustrating the lim-391 
+
+its of out-of-the-box solutions when they are not optimized on the dataset at hand. Finally, our 392 
+
+14 
+
+> .CC-BY-NC 4.0 International license made available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is The copyright holder for this preprint this version posted April 29, 2026. ;https://doi.org/10.1101/2025.09.19.677346 doi: bioRxiv preprint
+
+Hugo Walter et al. 15 results show that EcoTaxa delivered quite decent performances, but was neatly surpassed by op-393 
+
+timized CNNs. The suitability of EfficientNets for plankton classification was already highlighted 394 
+
+(Kyathanahally et al., 2021), suggesting that their performance could possibly be relatively ro-395 
+
+bust to dataset shifts (Chen et al., 2025). However, we recommend PlanktonFlow users to sys-396 
+
+tematically compare the performances of multiple optimized CNNs on their own dataset so as 397 
+
+to choose the best-performing one. PlanktonFlow was specifically designed to ease such model 398 
+
+comparison. 399 
+
+Our study further illustrates the already-known power of CNNs for taxonomic classification 400 
+
+of plankton images (e.g., Kyathanahally et al., 2021, Kyathanahally et al., 2022, Eerola et al., 2024, 401 
+
+Zheng et al., 2026). Our best model, EfficientNetB5, achieved a 86% Macro-averaged F1 Score, 402 
+
+which is close the ∼ 90% macro-averaged F1 Scores typically achieved by state-of-the-art CNNs 403 
+
+trained on benchmark datasets (Kyathanahally et al., 2021, Kyathanahally et al., 2022, Zheng et 404 
+
+al., 2026). This is remarquable given that our study included the difficult classes that are typical 405 
+
+of non-benchmark, real world datasets (diverse detritus classes, multiple objects on same image, 406 
+
+overlapping classes, or nested taxonomic classes), and also given that the dataset included anno-407 
+
+tation errors among two classes. From a biological perspective, overlapping and taxonomically-408 
+
+nested classes are not necessarily problematic because they share some taxonomic information 409 
+
+and they can thus be merged at the post-processing stage (albeit at the cost of a lower taxo-410 
+
+nomic resolution). In contrast, annotations errors, if they were not a problem for our purpose 411 
+
+of demonstrating the usage of PlanktonFlow, should systematically be tracked and eliminated 412 
+
+before any final analysis. 413 
+
+Figure 5 – Top 20 classes by total error count for EfficientNet, with separate bars for false positives and false negatives. 
+
+PlanktonFlow : a hands-on tutorial 414 
+
+The whole pipeline is downloadable from GitHub (PlanktonFlow) and comes with a full-415 
+
+fledged documentation. 416 
+
+15 
+
+> .CC-BY-NC 4.0 International license made available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is The copyright holder for this preprint this version posted April 29, 2026. ;https://doi.org/10.1101/2025.09.19.677346 doi: bioRxiv preprint
+
+16 Hugo Walter et al. 
+
+Typical workflow with the pipeline. PlanktonFlow is entirely configuration-driven using dedicated 417 
+
+YAML configuration files, in which detailed explanations are provided in the form of comments. 418 
+
+Using these comments, users are expected to adapt these files to their own dataset and exper-419 
+
+imental design. This ensures full reproducibility while keeping commands themselves simple. A 420 
+
+typical workflow involves a sequence of preprocessing, training, and inference. Each of these 421 
+
+three operations has its own YAML configuration file and may be performed independently. 422 
+
+Data preprocessing. PlanktonFlow accommodates three common data formats: 423 
+
+(1) Hierarchical dataset : classical folder-based structure with one folder per image class. 424 
+
+(2) Simple CSV/TSV mapping : one single folder containing all images mixed together, accom-425 
+
+panied by a basic, user-generated two-column CSV/TSV file simply mapping each image 426 
+
+filename to its class label. 427 
+
+(3) EcoTaxa export : a specialized parser designed to directly ingest the complex, multi-column 428 
+
+TSV archives exported by the EcoTaxa web platform. It automatically navigates the EcoTaxa-429 
+
+specific metadata structure (e.g., extracting labels from the object_annota 430 
+
+tion_category column) to associate classes with images, eliminating the need for man-431 
+
+ual file reformatting by the user. 432 
+
+Users can customize preprocessing through configuration files to: 433 
+
+• Prune classes based on a minimum and maximum number of images. 434 
+
+• Perform data augmentation to balance the dataset. 435 
+
+• Optionally remove scale bars using a pre-trained YOLOv8 model. 436 
+
+• Automatically split data into training, validation, and test sets. 437 
+
+At the end of this step, the dataset should be ready to train a model with. 438 
+
+Training. Training is fully configurable via YAML files. Users can select a model architecture, 439 
+
+model variants, loss functions (e.g., focal loss, label smoothing, weighted cross-entropy), opti-440 
+
+mizers etc. Metrics are tracked in real-time, either locally or online through Weights & Biases 441 
+
+(W&B). Pre-configured hyperparameters have been validated on our plankton dataset, allow-442 
+
+ing FlowCAM users to achieve good performance out-of-the-box. However, PlanktonFlow also 443 
+
+makes it possible to optimize hyperparameters on your own dataset. 444 
+
+Hyperparameter optimization. Hyperparameter optimization in PlanktonFlow operates W&B, which 445 
+
+provides an efficient and reproducible framework for exploring large hyperparameter spaces. In-446 
+
+stead of requiring the user to manually test parameters such as learning rate, weight decay, batch 447 
+
+size, or optimizer type, the pipeline automatically launches a series of training runs with different 448 
+
+configurations sampled from a predefined search space (specified in the YAML sweep configu-449 
+
+ration file). The underlying algorithm in W&B prioritizes promising regions of the search space, 450 
+
+thereby reducing the number of runs needed compared to a naive grid search. 451 
+
+From the PlanktonFlow user’s perspective, initiating a sweep requires only pointing to the 452 
+
+provided sweep configuration file. The sweep will continue to launch successive training jobs 453 
+
+until it is manually stopped. Typically, users are advised to monitor validation metrics in the 454 
+
+W&B dashboard and stop the sweep once these metrics show signs of stable convergence across 455 
+
+runs. At this point, the best-performing hyperparameter set can be automatically exported into 456 
+
+a dedicated YAML configuration file for further training or inference. PlanktonFlow also saves 457 
+
+16 
+
+> .CC-BY-NC 4.0 International license made available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is The copyright holder for this preprint this version posted April 29, 2026. ;https://doi.org/10.1101/2025.09.19.677346 doi: bioRxiv preprint
+
+Hugo Walter et al. 17 every trained model together with its configuration, ensuring that optimal runs are reproducible 458 
+
+and can be reused in subsequent analyses. 459 
+
+Inference. PlanktonFlow allows batch inference on new image directories. Users can: 460 
+
+• Retrieve top-K predictions per image. 461 
+
+• Apply optional preprocessing (e.g., scale bar removal, see above). 462 
+
+• Export results to CSV for further analysis. 463 
+
+Device-aware execution ensures models run on CPU or GPU depending on availability. Infer-464 
+
+ence outputs include detailed prediction probabilities and optional preprocessing steps applied 465 
+
+automatically. 466 
+
+Monitoring and results analysis. If W&B is not used, a custom logging module records training 467 
+
+and evaluation metrics in real time. Metrics are stored in CSV files, enabling visualization of 468 
+
+training curves, confusion matrices, F1 Scores, and class-wise performance. An accompanying 469 
+
+Jupyter notebook ( results_analysis.ipynb ) facilitates comprehensive evaluation and figure 470 
+
+generation. 471 
+
+PlanktonFlow usage. After installation of PlanktonFlow following the guidelines in the readme 472 
+
+file, and before executing the pipeline, users must download the published dataset, or provide 473 
+
+their own data in the correct directory. Then, a complete workflow can be executed as follows: 474 
+
+(1) Preprocess data: 475 476 
+
+python3 run_preprocessing . py -- config configs / preprocessing / 477 
+
+PreprocessWithHierarchi cal . yaml 478 479 
+
+(2) Train a model: 480 481 
+
+python3 run_training . py -- config configs / training / 482 
+
+TrainDefaultEfficientNet . yaml 483 484 
+
+(3) Make predictions: 485 486 
+
+python3 run_inference . py -- config configs / inference / DefaultInference . 487 
+
+yaml 488 489 
+
+(4) Optimize: 490 491 
+
+python3 run_sweep . py -- sweep_config configs / sweeps / densenet_sweep . 492 
+
+yaml 493 494 
+
+Conclusion 495 
+
+A major strength of PlanktonFlow is its high degree of automation and scalability: all core 496 
+
+stages, from data preprocessing to training and inference, are fully automated, minimizing the 497 
+
+need for human intervention and making the approach highly suitable for large-scale or continu-498 
+
+ous monitoring workflows. Also, although the models were trained on a specific plankton dataset, 499 
+
+the underlying architecture and modular structure of the pipeline promote generalizability. With 500 
+
+only minimal changes to the input format or preprocessing configuration, PlanktonFlow could 501 
+
+be adapted to other image-acquisition devices or taxonomic groups. Our hope is that the com-502 
+
+munity will use and further develop PlanktonFlow. We foresee that future work could leverage 503 
+
+17 
+
+> .CC-BY-NC 4.0 International license made available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is The copyright holder for this preprint this version posted April 29, 2026. ;https://doi.org/10.1101/2025.09.19.677346 doi: bioRxiv preprint
+
+18 Hugo Walter et al. Vision transformers, semi-supervised learning, and adapt the pipeline to other imaging and bio-504 
+
+logical systems. 505 
+
+Acknowledgements 506 
+
+The authors thank the Villefranche sur Mer Quantitative Imaging Platform (PIQv) for sup-507 
+
+porting the community of plankton biologists with free and high-quality services. In particular, 508 
+
+our research in general, and this study in particular, rely heavily on ZooProcess and EcoTaxa. 509 
+
+Fundings 510 
+
+Rennes Métropole provided funding to support FlowCAM acquisition by INRAE (project AES 511 
+
+18C0031). 512 
+
+Conflict of interest disclosure 513 
+
+The authors declare that they comply with the PCI rule of having no financial conflicts of 514 
+
+interest in relation to the content of the article. 515 
+
+Data, script, code, and supplementary information availability 516 
+
+Datasets are available online at https://doi.org/10.5281/zenodo.16840846 (Gorzerino 517 
+
+et al., 2025). Scripts and codes for PlanktonFlow are available at https://github.com/ziraax/ 518 
+
+PlanktonFlow (Walter, 2025). Supplementary information for figure reproduction and implemen-519 
+
+tation details is available at https://doi.org/10.5281/zenodo.19222299 (Walter et al., 2025). 520 
+
+References 521 
+
+Besson M, Alison J, Bjerge K, Gorochowski TE, Høye TT, Jucker T, Mann HMR, Clements CF 522 
+
+(2022). Towards the fully automated monitoring of ecological communities. Ecology Letters 523 
+
+25 , 2753–2775. https://doi.org/https://doi.org/10.1111/ele.14123 .524 
+
+Biewald L (2020). Experiment tracking with Weights and Biases. Software available from wandb.com. 525 
+
+URL: https://www.wandb.com/ .526 
+
+Buslaev A, Parinov E, Khvedchenya VI, Iglovikov, Kalinin AA (2018). Albumentations: fast and 527 
+
+flexible image augmentations. ArXiv e-prints . eprint: 1809.06839 .528 
+
+Chen C, Kyathanahally SP, Reyes M, Merkli S, Merz E, Francazi E, Hoege M, Pomati F, Baity-529 
+
+Jesi M (2025). Producing plankton classifiers that are robust to dataset shift. Limnology and 530 
+
+Oceanography: Methods 23 , 39–66. https://doi.org/https://doi.org/10.1002/lom3. 531 
+
+10659 . URL: https://aslopubs.onlinelibrary.wiley.com/doi/abs/10.1002/lom3. 532 
+
+10659 .533 
+
+Dézerald O, Gorzerino C, Fourcy D, Collinet M, Coudreuse J, Benneveault Y, Marchand F, Azam 534 
+
+D, Edeline E (2023). Eco-evolutionary effects of invasive crayfish on aquatic ecosystems. 535 
+
+In: Symposium AQUACOSM+ . Antalya (Turkey), Turkey. URL: https: //hal. science/hal -536 
+
+05483521 .537 
+
+Dogo EM, Afolabi OJ, Twala B (2022). On the relative impact of optimizers on convolutional 538 
+
+neural networks with varying depth and width for image classification. Applied Sciences 12 .539 
+
+https://doi.org/10.3390/app122311976 .540 
+
+18 
+
+> .CC-BY-NC 4.0 International license made available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is The copyright holder for this preprint this version posted April 29, 2026. ;https://doi.org/10.1101/2025.09.19.677346 doi: bioRxiv preprint
+
+Hugo Walter et al. 19 Eerola T, Batrakhanov D, Barazandeh NV, et al. (2024). Survey of automatic plankton image 541 
+
+recognition: challenges, existing solutions and future perspectives. Artificial Intelligence Re-542 
+
+view 57 , 114. https://doi.org/10.1007/s10462-024-10745-y .543 
+
+Faillettaz R, Picheral M, Luo JY, Guigand C, Cowen RK, Irisson JO (2016). Imperfect automatic 544 
+
+image classification successfully describes plankton distribution patterns. Computer Vision in 545 
+
+Oceanography 15-16 , 60–77. https : / / doi . org / 10 . 1016 / j . mio . 2016 . 04 . 003 . URL: 546 
+
+https://www.sciencedirect.com/science/article/pii/S2211122015300177 .547 
+
+Gorzerino C, Walter H, Edeline E, Martignac F (2025). PlanktonFlow76 - A curated FlowCam 548 
+
+dataset for plankton classification . Zenodo. https://doi.org/10.5281/zenodo.16840846 .549 
+
+He K, Zhang X, Ren S, Sun J (2016). Deep residual learning for image recognition. In: 2016 IEEE 550 
+
+conference on computer vision and pattern recognition (CVPR) , pp. 770–778. https : / / doi . 551 
+
+org/10.1109/CVPR.2016.90 .552 
+
+Huang G, Liu Z, van der Maaten L, Weinberger KQ (2018). Densely connected convolutional 553 
+
+networks. arXiv: 1608.06993 [cs.CV] . URL: https://arxiv.org/abs/1608.06993 .554 
+
+Irisson JO, Salinas L, Colin S, Complex T, Picheral M (2022). EcoTaxa: a tool to support the tax-555 
+
+onomic classification of large datasets through supervised machine learning. In: SFEcologie 556 
+
+2022 . Metz, France. URL: https://hal.science/hal-04026447 .557 
+
+Jalabert L, Elineau A, Brandão M, Picheral M (2025). Zooscan-Zooprocess user manual and proce-558 
+
+dures at the Quantitative Imaging Platform of Villefranche- sur-Mer (PIQv) . https://doi.org/ 559 
+
+10.5281/zenodo.15114134 .560 
+
+Khanam R, Hussain M (2024). YOLOv11: an overview of the key architectural enhancements. 561 
+
+arXiv: 2410.17725 [cs.CV] . URL: https://arxiv.org/abs/2410.17725 .562 
+
+Kraft K, Velhonoja O, Eerola T, Suikkanen S, Tamminen T, Haraguchi L, Ylöstalo P, Kielosto S, 563 
+
+Johansson M, Lensu L, Kälviäinen H, Haario H, Seppälä J (2022). Towards operational phyto-564 
+
+plankton recognition with automated high-throughput imaging, near-real-time data process-565 
+
+ing, and convolutional neural networks. Frontiers in Marine Science Volume 9 - 2022 . https: 566 
+
+/ / doi . org / 10 . 3389 / fmars . 2022 . 867695 . URL: https : / / www . frontiersin . org / 567 
+
+journals/marine-science/articles/10.3389/fmars.2022.867695 .568 
+
+Kyathanahally SP, Hardeman T, Reyes M, Merz E, Bulas T, Brun P, Pomati F, Baity-Jesi M (2022). 569 
+
+Ensembles of data-efficient vision transformers as a new paradigm for automated classifica-570 
+
+tion in ecology. Scientific Reports 12 , 18590. https : / / doi . org / 10 . 1038 / s41598 - 022 -571 
+
+21910-0 . URL: https://doi.org/10.1038/s41598-022-21910-0 .572 
+
+Kyathanahally SP, Hardeman T, Merz E, Bulas T, Reyes M, Isles P, Pomati F, Baity-Jesi M (2021). 573 
+
+Deep learning classification of lake zooplankton. Frontiers in Microbiology Volume 12 - 2021 .574 
+
+https://doi.org/10.3389/fmicb.2021.746297 . URL: https://www.frontiersin.org/ 575 
+
+journals/microbiology/articles/10.3389/fmicb.2021.746297 .576 
+
+Lin TY, Goyal P, Girshick R, He K, Dollár P (2018). Focal loss for dense object detection. arXiv: 577 
+
+1708.02002 [cs.CV] . URL: https://arxiv.org/abs/1708.02002 .578 
+
+Lumini A, Nanni L (2019). Deep learning and transfer learning features for plankton classification. 579 
+
+Ecological Informatics 51 , 33–43. https : / / doi . org / https : / / doi . org / 10 . 1016 / j . 580 
+
+ecoinf.2019.02.007 . URL: https://www.sciencedirect.com/science/article/pii/ 581 
+
+S1574954118303054 .582 
+
+19 
+
+> .CC-BY-NC 4.0 International license made available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is The copyright holder for this preprint this version posted April 29, 2026. ;https://doi.org/10.1101/2025.09.19.677346 doi: bioRxiv preprint
+
+20 Hugo Walter et al. Maracani A, Pastore VP, Natale L, et al. (2023). In-domain versus out-of-domain transfer learning 583 
+
+in plankton image classification. Scientific Reports 13 , 10443. https://doi.org/10.1038/ 584 
+
+s41598-023-37627-7 .585 
+
+Merz E, Kozakiewicz T, Reyes M, Ebi C, Isles P, Baity-Jesi M, Roberts P, Jaffe JS, Dennis SR, 586 
+
+Hardeman T, Stevens N, Lorimer T, Pomati F (2021). Underwater dual-magnification imaging 587 
+
+for automated lake plankton monitoring. Water Research 203 , 117524. https://doi.org/ 588 
+
+10 . 1016 / j . watres . 2021 . 117524 . URL: https : / / www . sciencedirect . com / science / 589 
+
+article/pii/S004313542100720X .590 
+
+Olson RJ, Sosik HM (2007). A submersible imaging-in-flow instrument to analyze nano-and mi-591 
+
+croplankton: imaging FlowCytobot. Limnology and Oceanography: Methods 5, 195–203. https: 592 
+
+//doi.org/https://doi.org/10.4319/lom.2007.5.195 .593 
+
+Orenstein EC, Beijbom O, Peacock EE, Sosik HM (2015). WHOI-Plankton- A large scale fine 594 
+
+grained visual recognition benchmark dataset for plankton classification. arXiv: 1510.00745 595 
+
+[cs.CV] . URL: https://arxiv.org/abs/1510.00745 .596 
+
+Owen BM, Hallett CS, Cosgrove JJ, Tweedley JR, Moheimani NR (2022). Reporting of methods 597 
+
+for automated devices: a systematic review and recommendation for studies using FlowCam 598 
+
+for phytoplankton. Limnology and Oceanography: Methods 20 , 400–427. https://doi.org/ 599 
+
+https://doi.org/10.1002/lom3.10496 .600 
+
+Pedregosa F, Varoquaux G, Gramfort A, Michel V, Thirion B, Grisel O, Blondel M, Prettenhofer P, 601 
+
+Weiss R, Dubourg V, Vanderplas J, Passos A, Cournapeau D, Brucher M, Perrot M, Duchesnay 602 
+
+E (2011). Scikit-learn: machine learning in Python. Journal of Machine Learning Research 12 ,603 
+
+2825–2830. 604 
+
+Picheral M, Colin S, Irisson JO (2025). EcoTaxa, a tool for the taxonomic classification of images. 605 
+
+http://ecotaxa.obs-vlfr.fr . Accessed: 2025-05-29. 606 
+
+Picheral M, Guidi L, Stemmann L, Karl DM, Iddaoud G, Gorsky G (2010). The Underwater Vision 607 
+
+Profiler 5: an advanced instrument for high spatial resolution studies of particle size spectra 608 
+
+and zooplankton. Limnology and Oceanography: Methods 8, 462–473. https : / / doi . org / 609 
+
+https://doi.org/10.4319/lom.2010.8.462 .610 
+
+Pollina T, Larson AG, Lombard F, Li H, Le Guen D, Colin S, de Vargas C, Prakash M (2022). Plank-611 
+
+toScope: affordable modular quantitative imaging platform for citizen oceanography. Fron-612 
+
+tiers in Marine Science Volume 9 - 2022 . URL: https://www.frontiersin.org/journals/ 613 
+
+marine-science/articles/10.3389/fmars.2022.949428 .614 
+
+Sieracki C, Sieracki M, Yentsch C (1998). An imaging-in-flow system for automated analysis of 615 
+
+marine microplankton. Marine Ecology-progress Series 168 , 285–296. https://doi.org/10. 616 
+
+3354/meps168285 .617 
+
+Szegedy C, Vanhoucke V, Ioffe S, Shlens J, Wojna Z (2015). Rethinking the inception architecture 618 
+
+for computer vision. arXiv: 1512 . 00567 [cs.CV] . URL: https : / / arxiv . org / abs / 1512 . 619 
+
+00567 .620 
+
+Tan M, Le QV (2020). EfficientNet: rethinking model scaling for convolutional neural networks. 621 
+
+arXiv: 1905.11946 [cs.LG] . URL: https://arxiv.org/abs/1905.11946 .622 
+
+Walter H (2025). Deep learning classification pipeline for automatic plankton classification . Ver-623 
+
+sion 1.0.0. URL: https://github.com/ziraax/PlanktonFlow.git .624 
+
+20 
+
+> .CC-BY-NC 4.0 International license made available under a (which was not certified by peer review) is the author/funder, who has granted bioRxiv a license to display the preprint in perpetuity. It is The copyright holder for this preprint this version posted April 29, 2026. ;https://doi.org/10.1101/2025.09.19.677346 doi: bioRxiv preprint
+
+Hugo Walter et al. 21 Walter H, Gorzerino C, Collinet M, Porcon B, Martignac F, Edeline E (2025). PlanktonFlow : 625 
+
+supplementary information & Best model weight. https : / / doi . org / 10 . 5281 / zenodo . 626 
+
+19222299 .627 
+
+Weinstein BG (2018). A computer vision for animal ecology. Journal of Animal Ecology 87 , 533– 628 
+
+545. https://doi.org/https://doi.org/10.1111/1365-2656.12780 .629 
+
+Zheng J, Sun Z, Guo R, Wang R, Jin D, Hu J, Xing X, Tong M, Wang P (2026). High-throughput 630 
+
+and rapid classification on harmful algal bloom species based on mega image database and 631 
+
+artificial intelligence. Marine Pollution Bulletin 224 , 119170. https://doi.org/10.1016/ 632 
+
+j.marpolbul.2025.119170 . URL: https://www.sciencedirect.com/science/article/ 633 
+
+pii/S0025326X25016467 .634 
+
+21

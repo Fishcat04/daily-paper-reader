@@ -1,0 +1,94 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2604.26404v1/fig-001.webp",
+      "caption": "Figure 2: Architecture of the DPM-VFM pipeline.",
+      "page": 6,
+      "index": 1,
+      "width": 771,
+      "height": 366
+    },
+    {
+      "url": "assets/figures/arxiv/2604.26404v1/fig-002.webp",
+      "caption": "Table 3: Performance comparison on BOP Industrial datasets. The AP metric (higher is better) is reported here. Each SOTA method is evaluated with two set of foundation model frameworks. Bolded values show the best results.",
+      "page": 11,
+      "index": 2,
+      "width": 746,
+      "height": 236
+    },
+    {
+      "url": "assets/figures/arxiv/2604.26404v1/fig-003.webp",
+      "caption": "Figure 4: Qualitative results of successful detections produced by DPMVFM across BOP-industrial datasets. Each row shows a different scene image, with three representative successful examples per dataset. Only the highest-confidence predictions are shown for visual clarity. Bounding boxes are color-coded as green (true positives), with class identifiers displayed at the top-left of each box.",
+      "page": 11,
+      "index": 3,
+      "width": 725,
+      "height": 586
+    },
+    {
+      "url": "assets/figures/arxiv/2604.26404v1/fig-004.webp",
+      "caption": "Figure 8: t-SNE visualization of DINOv3 (ViT-L/16) CLS embeddings for the IPD dataset support set images. Each point corresponds to one support set image (10 samples per class across 10 classes). Colors indicate object classes, labels are placed at the cluster centers, and the object is visualized next to the cluster. The embeddings exhibit clear class-wise clustering.",
+      "page": 15,
+      "index": 4,
+      "width": 759,
+      "height": 581
+    },
+    {
+      "url": "assets/figures/arxiv/2604.26404v1/fig-005.webp",
+      "caption": "Table 2: Implementation details and hyper-parameters of the DPM-VFM pipeline.",
+      "page": 10,
+      "index": 5,
+      "width": 523,
+      "height": 460
+    },
+    {
+      "url": "assets/figures/arxiv/2604.26404v1/fig-006.webp",
+      "caption": "Figure 7: Pairwise cosine similarity between class prototypes on the IPD dataset. Each class is represented by its learned prototype. Only the lower triangular matrix is shown due to symmetry.",
+      "page": 14,
+      "index": 6,
+      "width": 752,
+      "height": 626
+    },
+    {
+      "url": "assets/figures/arxiv/2604.26404v1/fig-007.webp",
+      "caption": "Figure 1: Overview of the proposed DPM-VFM approach.",
+      "page": 3,
+      "index": 7,
+      "width": 767,
+      "height": 288
+    },
+    {
+      "url": "assets/figures/arxiv/2604.26404v1/fig-008.webp",
+      "caption": "Figure 6: Qualitative comparison with state-of-the-art methods on representative scene images. Each row presents predictions from a different method: CNOS (top), SAM-6D (middle), and DPM-VFM (bottom). All methods are evaluated on the same scenes to enable direct comparison. Bounding boxes are color-coded as green (true positives), red (false positives), and blue (false negatives), with class identifiers displayed at the top-left of each box.",
+      "page": 13,
+      "index": 8,
+      "width": 724,
+      "height": 565
+    },
+    {
+      "url": "assets/figures/arxiv/2604.26404v1/fig-009.webp",
+      "caption": "Figure 5: Qualitative analysis of failure cases produced by DPM-VFM across BOP-industrial datasets. Each row shows a different scene image, with three representative failure examples per dataset. Only the highest-confidence predictions are shown for visual clarity. Bounding boxes are color-coded as green (true positives), red (false positives), and blue (false negatives), with class identifiers displayed at the top-left of each box.",
+      "page": 12,
+      "index": 9,
+      "width": 727,
+      "height": 587
+    },
+    {
+      "url": "assets/figures/arxiv/2604.26404v1/fig-010.webp",
+      "caption": "Figure 3: Representative test images from the BOP industrial datasets used in this work.",
+      "page": 9,
+      "index": 10,
+      "width": 775,
+      "height": 219
+    },
+    {
+      "url": "assets/figures/arxiv/2604.26404v1/fig-011.webp",
+      "caption": "Figure 9: Ablation study of segmentation models and feature extractors in the proposed DPM-VFM pipeline across BOP-industrial datasets. Each row reports AP for a dataset (Mean, ITODD, IPD, XYZ-IBD), while columns correspond to different feature extractors. Left: grouped bar charts; right: corresponding heatmaps. The best-performing configuration in each dataset is highlighted in bold.",
+      "page": 16,
+      "index": 11,
+      "width": 760,
+      "height": 932
+    }
+  ]
+}

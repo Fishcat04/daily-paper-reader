@@ -1,0 +1,46 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.03968v1/fig-001.webp",
+      "caption": "Fig. 1: Overview of the proposed weakly supervised pipeline for school detection from aerial imagery. Sparse geolocated points are first mapped to image regions, cleaned, and converted into bounding-box labels via semantic segmentation using LangSAM [21], yielding a large but noisy auto-labeled dataset. A detector (e.g., YOLO [28]) is then pretrained on this data to learn robust representations, and subsequently fine-tuned on a small, clean manually labeled set to improve localization accuracy. Hyperparameters are optimized with Every Call is Precious (ECP) [6], which explores the configuration space under a non-convex validation objective.",
+      "page": 2,
+      "index": 1,
+      "width": 968,
+      "height": 514
+    },
+    {
+      "url": "assets/figures/arxiv/2605.03968v1/fig-002.webp",
+      "caption": "Fig. 2: Qualitative predictions of a detector across four examples. Ground truth is shown in green; predictions in red.",
+      "page": 3,
+      "index": 2,
+      "width": 1082,
+      "height": 304
+    },
+    {
+      "url": "assets/figures/arxiv/2605.03968v1/fig-003.webp",
+      "caption": "Fig. 7: Examples of false positives produced by SatlasNet trained with 50 images. The model incorrectly detects schools due to geometric structures that resemble polygonal objects observed during SatlasNet pretraining. Such errors highlight the bias induced by polygon-based pretraining in low-data regimes.",
+      "page": 13,
+      "index": 3,
+      "width": 529,
+      "height": 283
+    },
+    {
+      "url": "assets/figures/arxiv/2605.03968v1/fig-004.webp",
+      "caption": "Fig. 4: mAP@50:95 performance of different detectors and training strategies across different training regimes (50, 100, 300, and 443 samples).",
+      "page": 8,
+      "index": 4,
+      "width": 529,
+      "height": 331
+    },
+    {
+      "url": "assets/figures/arxiv/2605.03968v1/fig-005.webp",
+      "caption": "Fig. 5: F1-score@50 performance of different detectors and training strategies across different training regimes (50, 100, 300, and 443 samples).",
+      "page": 9,
+      "index": 5,
+      "width": 529,
+      "height": 327
+    }
+  ]
+}
