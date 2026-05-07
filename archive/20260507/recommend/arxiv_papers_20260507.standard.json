@@ -1,0 +1,54 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-05-07T21:02:03.272495+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2605.02135v1",
+      "source": "arxiv",
+      "title": "Robotic Desk Organization: A Multi-Primitive Approach to Manipulating Heterogeneous Objects via Environmental Constraints",
+      "abstract": "Desktop organization remains challenging for service robots because of heterogeneous objects and diverse manipulation objectives, such as collection and stacking. In this article, a task-oriented framework is presented for organizing planar rigid and deformable objects on desks. A perception pipeline was developed that augments existing datasets with uncommon desktop items and makes geometry-based pose and keypoint estimation possible, along with the detection of environmental constraints, such as table edges. To handle diverse manipulation requirements, environment-assisted primitives are used, including contact-based grasping for small objects, edge-based push-grasping for planar rigid objects, and levering-based grasping for planar deformable objects. These primitives leverage environmental and interobject constraints to improve robustness. A task planner was designed to integrate these primitives into multiobject organization. Sufficient real-world experiments demonstrate the effectiveness and robustness of the proposed framework. This research provides practical manipulation primitives for planar rigid and deformable objects, highlighting the role of environmental and interobject constraints in complex multiobject manipulation tasks. Code and video are available online.",
+      "authors": [
+        "Yi Dong. Yangjun Liu",
+        "Jinjun Duan",
+        "Yang Li",
+        "Zhendong Dai"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO"
+      ],
+      "published": "2026-05-04T01:31:06+00:00",
+      "link": "https://arxiv.org/pdf/2605.02135v1",
+      "tags": [
+        "keyword:SOD"
+      ],
+      "llm_score": 7.5,
+      "llm_evidence_en": "dataset augmentation and contact-based grasping for small objects",
+      "llm_evidence_cn": "针对小物体的数据集增强和接触式抓取",
+      "llm_evidence": "针对小物体的数据集增强和接触式抓取",
+      "canonical_evidence": "针对小物体的数据集增强和接触式抓取",
+      "llm_tldr_en": "Develops a perception pipeline that augments datasets and handles small object manipulation for robots.",
+      "llm_tldr_cn": "开发了一个感知流水线，通过增强数据集来处理机器人的小物体操作任务。",
+      "llm_tldr": "开发了一个感知流水线，通过增强数据集来处理机器人的小物体操作任务。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "oversampling and augmentation strategies for small objects",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}

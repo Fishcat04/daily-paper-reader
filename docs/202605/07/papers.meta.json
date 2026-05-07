@@ -1,0 +1,24 @@
+{
+  "label": "2026-05-07",
+  "date": "2026-05-07",
+  "generated_at": "2026-05-07T21:02:53",
+  "count": 1,
+  "papers": [
+    {
+      "paper_id": "202605/07/2605.02135v1-robotic-desk-organization-a-multi-primitive-approach-to-manipulating-heterogeneous-objects-via-environmental-constraints",
+      "section": "quick",
+      "title_en": "Robotic Desk Organization: A Multi-Primitive Approach to Manipulating Heterogeneous Objects via Environmental Constraints",
+      "authors": "Yi Dong. Yangjun Liu, Jinjun Duan, Yang Li, Zhendong Dai",
+      "date": "2026-05-04",
+      "pdf": "https://arxiv.org/pdf/2605.02135v1",
+      "score": "7.5",
+      "evidence": "针对小物体的数据集增强和接触式抓取",
+      "tldr": "本研究针对桌面整理中异构物体及多样化目标的挑战，提出了一种面向任务的机器人整理框架。该框架利用感知流水线检测环境约束，并设计了边缘推抓、杠杆抓取等环境辅助原语。结合任务规划器，该系统在处理刚性与柔性物体的收集与堆叠任务中表现出极高的鲁棒性。",
+      "tags": "query:sod",
+      "abstract_en": "Desktop organization remains challenging for service robots because of heterogeneous objects and diverse manipulation objectives, such as collection and stacking. In this article, a task-oriented framework is presented for organizing planar rigid and deformable objects on desks. A perception pipeline was developed that augments existing datasets with uncommon desktop items and makes geometry-based pose and keypoint estimation possible, along with the detection of environmental constraints, such as table edges. To handle diverse manipulation requirements, environment-assisted primitives are used, including contact-based grasping for small objects, edge-based push-grasping for planar rigid objects, and levering-based grasping for planar deformable objects. These primitives leverage environmental and interobject constraints to improve robustness. A task planner was designed to integrate these primitives into multiobject organization. Sufficient real-world experiments demonstrate the effectiveness and robustness of the proposed framework. This research provides practical manipulation primitives for planar rigid and deformable objects, highlighting the role of environmental and interobject constraints in complex multiobject manipulation tasks. Code and video are available online.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}
