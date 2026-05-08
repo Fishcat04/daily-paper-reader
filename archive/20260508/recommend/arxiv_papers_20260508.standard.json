@@ -1,0 +1,461 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-05-08T20:47:06.015616+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 1,
+    "deep_cap": 6,
+    "deep_selected": 1,
+    "quick_candidates": 10,
+    "quick_skim_target": 11,
+    "quick_selected": 10
+  },
+  "deep_dive": [
+    {
+      "id": "biorxiv-10-64898-2026-05-06-723207-v1",
+      "source": "biorxiv",
+      "title": "Towards a general Detector of terrestrial Arthropods in Natural backgrounds",
+      "abstract": "Widespread arthropod declines pose risks to ecosystem functioning and agriculture. Assessing this decline or potential remediation implies the need for standardized and scalable population monitoring. Image-based methods, including camera traps and citizen science programs, are increasingly used, but the volume of data collected requires automated analysis. Robust arthropod detection is essential for individual counting or fine-grained classification, yet current datasets and algorithms do not address the vast morphological diversity across arthropod species and often overlook the variety of photographic contexts, such as differences in background, lighting, and image composition, in which arthropods are captured. To address this gap, we developed an arthropod detection dataset, covering all terrestrial families present in France with available validated images on the iNaturalist platform (749 families). To achieve this, we employed an iterative workflow in which a YOLOv11 model pre-annotated images - using one representative species per family - followed by manual correction and model retraining. Repeating this process progressively reduced annotation effort and improved model accuracy. The final outcome consists of a publicly available curated detection dataset and a robust arthropod detector for natural background scenes. The detector achieves an F1-score of 0.91, demonstrating strong performance despite substantial interspecific morphological variation and heterogeneity in photographic contexts. We further demonstrated the taxonomical universality of the model showing high F1-score and IoU averaged at the class (0.79, 0.85) and order level (0.82, 0.86) and also a good detection generalizability (F1-score>0.90, IoU>0.83) on species, genera and families never encountered by the model during training. Finally, we show how this model can be improved to generalize to new datasets using data augmentation, complementary training data or fine-tuning and increase detection of small objects. In particular, we report performance of the improved models on three use cases largely used in non lethal insect monitoring: (i) diurnal pollinator monitoring through citizen science or (ii) flower and nocturnal insects monitoring through smartphone time-lapse of a UV-illuminated white panel. These results mark an important step toward automated analysis of arthropod images in natural contexts, from both large-scale automated monitoring approaches or from citizen science monitoring programs.",
+      "authors": [
+        "Remy, E.",
+        "Carlier, A.",
+        "Massol, E.",
+        "Kacimi, R.",
+        "Chaine, A. S.",
+        "Cauchoix, M."
+      ],
+      "primary_category": "ecology",
+      "categories": [
+        "ecology"
+      ],
+      "published": "2026-05-08T00:00:00+00:00",
+      "link": "https://www.biorxiv.org/content/10.64898/2026.05.06.723207v1.full.pdf",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 8.5,
+      "llm_evidence_en": "robust arthropod detection in diverse backgrounds",
+      "llm_evidence_cn": "复杂背景下的鲁棒节肢动物检测",
+      "llm_evidence": "复杂背景下的鲁棒节肢动物检测",
+      "canonical_evidence": "复杂背景下的鲁棒节肢动物检测",
+      "llm_tldr_en": "A general detector for small terrestrial arthropods across diverse morphological and background contexts.",
+      "llm_tldr_cn": "一种针对不同形态和背景背景下的陆生节肢动物（小目标）的通用检测器。",
+      "llm_tldr": "一种针对不同形态和背景背景下的陆生节肢动物（小目标）的通用检测器。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2605.00663v1",
+      "source": "arxiv",
+      "title": "Affordance Agent Harness: Verification-Gated Skill Orchestration",
+      "abstract": "Affordance grounding requires identifying where and how an agent should interact in open-world scenes, where actionable regions are often small, occluded, reflective, and visually ambiguous. Recent systems therefore combine multiple skills (e.g., detection, segmentation, interaction-imagination), yet most orchestrate them with fixed pipelines that are poorly matched to per-instance difficulty, offer limited targeted recovery from intermediate errors, and fail to reuse experience from recurring objects. These failures expose a systems problem: test-time grounding must acquire the right evidence, decide whether that evidence is reliable enough to commit, and do so under bounded inference cost without access to labels. We propose Affordance Agent Harness, a closed-loop runtime that unifies heterogeneous skills with an evidence store and cost control, retrieves episodic memories to provide priors for recurring categories, and employs a Router to adaptively select and parameterize skills. An affordance-specific Verifier then gates commitments using self-consistency, cross-scale stability, and evidence sufficiency, triggering targeted retries before a final judge fuses accumulated evidence and trajectories into the prediction. Experiments on multiple affordance benchmarks and difficulty-controlled subsets show a stronger accuracy-cost Pareto frontier than fixed-pipeline baselines, improving grounding quality while reducing average skill calls and latency. Project page: https://tenplusgood.github.io/a-harness-page/.",
+      "authors": [
+        "Haojian Huang",
+        "Jiahao Shi",
+        "Yinchuan Li",
+        "Yingcong Chen"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO",
+        "cs.CV"
+      ],
+      "published": "2026-05-01T13:45:16+00:00",
+      "link": "https://arxiv.org/pdf/2605.00663v1",
+      "tags": [
+        "keyword:SOD"
+      ],
+      "llm_score": 7.5,
+      "llm_evidence_en": "identifying small actionable regions in open-world scenes using detection and segmentation",
+      "llm_evidence_cn": "在开放世界场景中使用检测和分割技术识别微小的可操作区域",
+      "llm_evidence": "在开放世界场景中使用检测和分割技术识别微小的可操作区域",
+      "canonical_evidence": "在开放世界场景中使用检测和分割技术识别微小的可操作区域",
+      "llm_tldr_en": "Proposes a skill orchestration framework for affordance grounding in scenes with small and occluded objects.",
+      "llm_tldr_cn": "提出了一种技能编排框架，用于在包含微小和遮挡物体的场景中进行功能点定位。",
+      "llm_tldr": "提出了一种技能编排框架，用于在包含微小和遮挡物体的场景中进行功能点定位。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.03456v2",
+      "source": "arxiv",
+      "title": "VL-SAM-v3: Memory-Guided Visual Priors for Open-World Object Detection",
+      "abstract": "Open-world object detection aims to localize and recognize objects beyond a fixed closed-set label space. It is commonly divided into two categories, i.e., open-vocabulary detection, which assumes a predefined category list at test time, and open-ended detection, which requires generating candidate categories during the inference. Existing methods rely primarily on coarse textual semantics and parametric knowledge, which often provide insufficient visual evidence for fine-grained appearance variation, rare categories, and cluttered scenes. In this paper, we propose VL-SAM-v3, a unified framework that augments open-world detection with retrieval-grounded external visual memory. Specifically, once candidate categories are available, VL-SAM-v3 retrieves relevant visual prototypes from a non-parametric memory bank and transforms them into two complementary visual priors, i.e., sparse priors for instance-level spatial anchoring and dense priors for class-aware local context. These priors are integrated with the original detection prompts via Memory-Guided Prompt Refinement, enabling a shared retrieval-and-refinement mechanism that supports open-vocabulary and open-ended inference.Extensive zero-shot experiments on LVIS show that VL-SAM-v3 consistently improves detection performance under both open-vocabulary and open-ended inference, with particularly strong gains on rare categories.Moreover, experiments with a stronger open-vocabulary detector (i.e., SAM3) validate the generality of the proposed retrieval-and-refinement mechanism.",
+      "authors": [
+        "Chih-Chung Liu",
+        "Zhiwei Lin",
+        "Yongtao Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-05T07:44:03+00:00",
+      "link": "https://arxiv.org/pdf/2605.03456v2",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.5,
+      "llm_evidence_en": "open-world object detection for fine-grained appearance and cluttered scenes",
+      "llm_evidence_cn": "针对细粒度外观和杂乱场景的开放世界目标检测",
+      "llm_evidence": "针对细粒度外观和杂乱场景的开放世界目标检测",
+      "canonical_evidence": "针对细粒度外观和杂乱场景的开放世界目标检测",
+      "llm_tldr_en": "Augments open-world detection with visual memory to handle fine-grained variations and cluttered scenes.",
+      "llm_tldr_cn": "通过视觉记忆增强开放世界检测，以处理细粒度变化和杂乱场景。",
+      "llm_tldr": "通过视觉记忆增强开放世界检测，以处理细粒度变化和杂乱场景。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "state of the art deep learning methods for small object detection",
+      "matched_requirement_id": "req-7",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.02284v1",
+      "source": "arxiv",
+      "title": "Beyond Known Objects: A Novel Framework for Open-Set Object Detection using Negative-Aware Norm",
+      "abstract": "Open-Set Object Detection (OSOD) is crucial for autonomous driving, where perception systems must recognize and localize both known and previously unseen objects in complex, dynamic environments. While recent approaches deliver promising results, they often require retraining the detector extensively to learn objectness, which describes the likelihood that a bounding box tightly encloses a valid object, regardless of whether its category was learned during training. Deviating from existing work, we hypothesize that standard off-the-shelf detectors may already contain helpful cues for objectness, owing to their training on numerous and diverse known categories. Building on this idea, we propose NAN-SPOT, a training-light framework that does not require to retrain the base object detector and estimates objectness by leveraging a hidden layer metric called Negative-Aware Norm (NAN), requiring only minutes of training on just hundreds of images. To support comprehensive evaluation, we introduce COCO-Open, an expanded version of the existing COCO-Mixed dataset, increasing unknown object annotations from 433 to 1853, making it the most exhaustively labeled dataset for OSOD to the best of our knowledge. Experimental results demonstrate that NAN-SPOT achieves even better performance on unknown object detection than methods requiring heavy training, without compromising performance on known objects. This efficiency and robustness make NAN-SPOT a promising step towards open-world perception in autonomous driving.",
+      "authors": [
+        "Yuchen Zhang",
+        "Yao Lu",
+        "Johannes Betz"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-04T07:18:37+00:00",
+      "link": "https://arxiv.org/pdf/2605.02284v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "framework for open-set object detection to recognize and localize known and unseen objects",
+      "llm_evidence_cn": "用于识别和定位已知及未知物体的开放集目标检测框架",
+      "llm_evidence": "用于识别和定位已知及未知物体的开放集目标检测框架",
+      "canonical_evidence": "用于识别和定位已知及未知物体的开放集目标检测框架",
+      "llm_tldr_en": "Proposes a training-light framework for open-set object detection using existing detector cues for objectness.",
+      "llm_tldr_cn": "提出一种轻量化训练框架，利用现有检测器的线索进行开放集目标检测。",
+      "llm_tldr": "提出一种轻量化训练框架，利用现有检测器的线索进行开放集目标检测。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.03221v1",
+      "source": "arxiv",
+      "title": "Synthetic Data Generation for Long-Tail Medical Image Classification: A Case Study in Skin Lesions",
+      "abstract": "Long-tailed class distributions are pervasive in multi-class medical datasets and pose significant challenges for deep learning models which typically underperform on tail classes with limited samples. This limitation is particularly problematic in medical applications, where rare classes often correspond to severe or high-risk diseases and therefore require high diagnostic accuracy. Existing solutions-including specialized architectures, rebalanced loss functions, and handcrafted data augmentation-offer only marginal improvements and struggle to scale due to their limited and largely deterministic variability. To address these challenges, we introduce a diffusion-model-driven synthetic data augmentation pipeline tailored for medical long-tailed classification. Our approach features a novel inpainting diffusion model combined with an Out-of-Distribution (OOD) post-selection mechanism to ensure diverse, realistic, and clinically meaningful synthetic samples. Evaluated on the ISIC2019 skin lesion classification dataset, one of the largest and most imbalanced medical imaging benchmarks, our method yields substantial improvements in overall performance, with particularly pronounced gains on tail classes with more than $28\\%$ improvement on the class with the fewest samples. These results demonstrate the effectiveness of diffusion-based augmentation in mitigating long-tail imbalance and enhancing medical classification robustness.",
+      "authors": [
+        "Jiaxiang Jiang",
+        "Mahesh Subedar",
+        "Omesh Tickoo"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-04T23:18:22+00:00",
+      "link": "https://arxiv.org/pdf/2605.03221v1",
+      "tags": [
+        "keyword:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "synthetic data augmentation for long-tail distributions",
+      "llm_evidence_cn": "针对长尾分布的合成数据增强",
+      "llm_evidence": "针对长尾分布的合成数据增强",
+      "canonical_evidence": "针对长尾分布的合成数据增强",
+      "llm_tldr_en": "Uses diffusion models for synthetic data augmentation to improve classification on rare medical image classes.",
+      "llm_tldr_cn": "利用扩散模型进行合成数据增强，以提高稀有医学图像类别的分类准确率。",
+      "llm_tldr": "利用扩散模型进行合成数据增强，以提高稀有医学图像类别的分类准确率。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "oversampling and augmentation strategies for small objects",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.05941v1",
+      "source": "arxiv",
+      "title": "RAWild: Sensor-Agnostic RAW Object Detection via Physics-Guided Curve and Grid Modeling",
+      "abstract": "Camera sensor RAW data offers intrinsic advantages for object detection, including deeper bit depth, preserved physical information, and freedom from image signal processor (ISP) distortions. However, varying exposure conditions, spectral sensitivities, and bit depths across devices introduce substantially larger domain gaps than sRGB, making sensor-agnostic generalization a fundamental challenge. In this study, we present \\textbf{RAWild}, a physics-guided global-local tone mapping framework for sensor-agnostic RAW object detection. By factoring sensor-induced variations into a global tonal correction and a spatially adaptive local color adjustment, both driven by RAW distribution priors, our framework enables a single network to train jointly across heterogeneous sensors. To further support cross-sensor generalization, we construct a physics-based RAW simulation pipeline that synthesizes realistic sensor outputs spanning diverse spectral sensitivities, illuminants, and sensor non-idealities. Extensive experiments across multiple RAW benchmarks covering bit depths from 10 to 24 demonstrate state-of-the-art (SOTA) performance under single-dataset, mixed-dataset, and challenging robustness settings.",
+      "authors": [
+        "Shuhong Liu",
+        "Gengjia Chang",
+        "Jun Liu",
+        "Xuangeng Chu",
+        "Yinqiang Zheng",
+        "Tatsuya Harada",
+        "Ziteng Cui"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-07T09:51:47+00:00",
+      "link": "https://arxiv.org/pdf/2605.05941v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "physics-guided global-local tone mapping for RAW object detection",
+      "llm_evidence_cn": "用于RAW图像目标检测的物理引导全局-局部色调映射",
+      "llm_evidence": "用于RAW图像目标检测的物理引导全局-局部色调映射",
+      "canonical_evidence": "用于RAW图像目标检测的物理引导全局-局部色调映射",
+      "llm_tldr_en": "Presents RAWild for sensor-agnostic RAW object detection using physics-guided modeling.",
+      "llm_tldr_cn": "提出RAWild，利用物理引导建模实现传感器无关的RAW图像目标检测。",
+      "llm_tldr": "提出RAWild，利用物理引导建模实现传感器无关的RAW图像目标检测。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.03437v2",
+      "source": "arxiv",
+      "title": "Learning Discriminative Signed Distance Functions from Multi-scale Level-of-detail Features for 3D Anomaly Detection",
+      "abstract": "Detecting anomalies from 3D point clouds has received increasing attention in the field of computer vision, with some group-based or point-based methods achieving impressive results in recent years. However, learning accurate point-wise representations for 3D anomaly detection faces great challenges due to the large scale and sparsity of point clouds. In this study, a surface-based method is proposed for 3D anomaly detection, which learns a discriminative signed distance function using multi-scale level-of-detail features. We first present a Noisy Points Generation (NPG) module to generate different types of noise, thereby facilitating the learning of discriminative features by exposing abnormal points. Then, we introduce a Multi-scale Level-of-detail Feature (MLF) module to capture multi-scale information from a point cloud, which provides both fine-grained local and coarse-grained global feature information. Finally, we design an Implicit Surface Discrimination (ISD) module that leverages the extracted multi-scale features to learn an implicit surface representation of point clouds, which effectively trains a signed distance function to distinguish between abnormal and normal points. Experimental results demonstrate that the proposed method achieves an average object-level AUROC of 92.1\\% and 85.9\\% on the Anomaly-ShapeNet and Real3D-AD datasets, outperforming the current best approach by 2.1\\% and 3.6\\%, respectively. Codes are available at https://anonymous.4open.science/r/DLF-3AD-DA61.",
+      "authors": [
+        "Haibo Xiao",
+        "Hanzhe Liang",
+        "Jie Zhou",
+        "Jinbao Wang",
+        "Can Gao"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-05-05T07:16:47+00:00",
+      "link": "https://arxiv.org/pdf/2605.03437v2",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "multi-scale level-of-detail features for 3D anomaly detection",
+      "llm_evidence_cn": "用于3D异常检测的多尺度细节层次特征",
+      "llm_evidence": "用于3D异常检测的多尺度细节层次特征",
+      "canonical_evidence": "用于3D异常检测的多尺度细节层次特征",
+      "llm_tldr_en": "Proposes a surface-based method using multi-scale features and noise generation for 3D anomaly detection.",
+      "llm_tldr_cn": "提出一种利用多尺度特征和噪声生成进行3D异常检测的表面方法。",
+      "llm_tldr": "提出一种利用多尺度特征和噪声生成进行3D异常检测的表面方法。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.06084v1",
+      "source": "arxiv",
+      "title": "AMIEOD: Adaptive Multi-Experts Image Enhancement for Object Detection in Low-Illumination Scenes",
+      "abstract": "In multimedia application scenarios, images captured under low-illumination conditions often lead to lower accuracy in visual perception tasks compared to those taken in well-lit environments.   To tackle this challenge, we propose AMIEOD, an image enhancement-enabled object detection framework for low-illumination scenes, where the two tasks are jointly optimized in a detection performance-oriented manner.   Specifically, to fully exploit the information in poorly lit images, a Multi-Experts Image Enhancement Module (MEIEM) is proposed, which leverages diverse enhancement strategies.   On this basis, aiming to better align the MEIEM with the detection task, we propose a Detection-Guided Regression Loss (DGRL) that utilizes the detection result to decide the regression target.   Moreover, to dynamically select the most suitable enhancement strategy from MEIEM during inference, we construct an Expert Selection Module (ESM) guided by the proposed Detection-Guided Cross-Entropy (DGCE) loss, which formulates the optimization of ESM as a classification task.   The improved method is well-matched with current detection algorithms to improve their performance in dim scenes.   Extensive experiments on multiple datasets demonstrate that the proposed method significantly improves object detection accuracy in low-illumination conditions. Our code has been released at https://github.com/scujayfantasy/AMIEOD",
+      "authors": [
+        "Xiaochen Huang",
+        "Honggang Chen",
+        "Weicheng Zhang",
+        "Xiaobo Dai",
+        "Yongyi Li",
+        "Linbo Qing",
+        "Xiaohai He"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-07T12:06:21+00:00",
+      "link": "https://arxiv.org/pdf/2605.06084v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "detection-guided regression loss for low-illumination scenes",
+      "llm_evidence_cn": "低光照场景下的检测引导回归损失",
+      "llm_evidence": "低光照场景下的检测引导回归损失",
+      "canonical_evidence": "低光照场景下的检测引导回归损失",
+      "llm_tldr_en": "An image enhancement framework for object detection using a specialized detection-guided regression loss.",
+      "llm_tldr_cn": "一种利用专门的检测引导回归损失进行低光照场景目标检测的图像增强框架。",
+      "llm_tldr": "一种利用专门的检测引导回归损失进行低光照场景目标检测的图像增强框架。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "specialized loss functions for small object localization",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.04531v1",
+      "source": "arxiv",
+      "title": "Reward-Guided Semantic Evolution for Test-time Adaptive Object Detection",
+      "abstract": "Open-vocabulary object detection with vision-language models (VLMs) such as Grounding DINO suffers from performance degradation under test-time distribution shifts, primarily due to semantic misalignment between text embeddings and shifted visual embeddings of region proposals. While recent test-time adaptive object detection methods for VLM-based either rely on costly backpropagation or bypass semantic misalignment via external memory, none directly and efficiently align text and vision in a training-free manner. To address this, we propose Reward-Guided Semantic Evolution (RGSE), a training-free framework that directly refines the text embeddings at test time. Inspired by evolutionary search, RGSE treats text embedding adaptation as a semantic search process: it perturbs text embeddings as candidate variants, evaluates them via cosine similarity with current and historical high-confidence visual proposals as a reward signal, and fuses them into a refined embedding through reward-weighted averaging. Without any backpropagation, RGSE achieves state-of-the-art performance across multiple detection benchmarks while adding minimal computational overhead. Our code will be open source upon publication.",
+      "authors": [
+        "Lihua Zhou",
+        "Mao Ye",
+        "Xiatian Zhu",
+        "Nianxin Li",
+        "Changyi Ma",
+        "Shuaifeng Li",
+        "Yitong Qin",
+        "Hongbin Liu",
+        "Jiebo Luo",
+        "Zhen Lei"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-06T06:17:41+00:00",
+      "link": "https://arxiv.org/pdf/2605.04531v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "test-time adaptive object detection using vision-language models for region proposals",
+      "llm_evidence_cn": "使用视觉语言模型进行区域建议的测试时自适应目标检测",
+      "llm_evidence": "使用视觉语言模型进行区域建议的测试时自适应目标检测",
+      "canonical_evidence": "使用视觉语言模型进行区域建议的测试时自适应目标检测",
+      "llm_tldr_en": "Introduces a training-free framework to align text and visual embeddings for adaptive object detection.",
+      "llm_tldr_cn": "引入了一种无需训练的框架，通过对齐文本和视觉嵌入来实现自适应目标检测。",
+      "llm_tldr": "引入了一种无需训练的框架，通过对齐文本和视觉嵌入来实现自适应目标检测。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.06112v1",
+      "source": "arxiv",
+      "title": "Dynamic Pondering Sparsity-aware Mixture-of-Experts Transformer for Event Stream based Visual Object Tracking",
+      "abstract": "Despite significant progress, RGB-based trackers remain vulnerable to challenging imaging conditions, such as low illumination and fast motion. Event cameras offer a promising alternative by asynchronously capturing pixel-wise brightness changes, providing high dynamic range and high temporal resolution. However, existing event-based trackers often neglect the intrinsic spatial sparsity and temporal density of event data, while relying on a single fixed temporal-window sampling strategy that is suboptimal under varying motion dynamics. In this paper, we propose an event sparsity-aware tracking framework that explicitly models event-density variations across multiple temporal scales. Specifically, the proposed framework progressively injects sparse, medium-density, and dense event search regions into a three-stage Vision Transformer backbone, enabling hierarchical multi-density feature learning. Furthermore, we introduce a sparsity-aware Mixture-of-Experts module to encourage expert specialization under different sparsity patterns, and design a dynamic pondering strategy to adaptively adjust the inference depth according to tracking difficulty. Extensive experiments on FE240hz, COESOT, and EventVOT demonstrate that the proposed approach achieves a favorable trade-off between tracking accuracy and computational efficiency. The source code will be released on https://github.com/Event-AHU/OpenEvTracking.",
+      "authors": [
+        "Shiao Wang",
+        "Xiao Wang",
+        "Duoqing Yang",
+        "Wenhao Zhang",
+        "Bo Jiang",
+        "Lin Zhu",
+        "Yonghong Tian",
+        "Bin Luo"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-05-07T12:25:03+00:00",
+      "link": "https://arxiv.org/pdf/2605.06112v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "modeling event-density variations across multiple temporal scales",
+      "llm_evidence_cn": "在多个时间尺度上建模事件密度变化",
+      "llm_evidence": "在多个时间尺度上建模事件密度变化",
+      "canonical_evidence": "在多个时间尺度上建模事件密度变化",
+      "llm_tldr_en": "Proposes a sparsity-aware tracking framework modeling event density across multiple temporal scales.",
+      "llm_tldr_cn": "提出一种在多个时间尺度上建模事件密度的稀疏感知追踪框架。",
+      "llm_tldr": "提出一种在多个时间尺度上建模事件密度的稀疏感知追踪框架。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "biorxiv-10-64898-2026-04-28-721103-v1",
+      "source": "biorxiv",
+      "title": "DIANNE: Segmentation-Free Localization of Histology Differential Attributes",
+      "abstract": "Pathologist-guided distinctions within histology and spatial omic images provide insights into health and disease, with digital pathology leveraging artificial intelligence to automate such assessments. To train computational models, current digital pathology methods rely on upfront manual annotations, which are time-consuming to generate. Pre-annotation is poorly suited to investigating novel spatial behaviors--a major need driven by advances in spatial profiling--for which annotation criteria and data needs will be uncertain. To address these challenges, we present DIANNE, a digital pathology approach for rapid training and inference of spatial differential attributes based on train-time Positive Class Mixup Augmentation. DIANNE can compute foundation model-derived segmentation-free localization of differential classifiers across whole slide H&E images within seconds on a workstation, enabling interactive investigation of spatial niches. Predictive models can be re-trained in real-time in response to patch or regional annotation changes, clarifying determinative biological attributes across slides from only a few dozen annotated patches. We demonstrate the effectiveness of DIANNE for tumor detection, artifact identification, and exploration of pancreatic, fetal membranes and kidney tissue structures. DIANNE also provides analogous capabilities for IHC, multiplex immunofluorescence, and registered spatial transcriptomic+H&E images. DIANNE is implemented in a Jupyter toolkit, enabling rapid development of high-resolution classifiers from weakly-supervised training. DIANNE provides a practical system to quantitatively understand known and novel spatial phenotypes.",
+      "authors": [
+        "Domanskyi, S.",
+        "Rubinstein, J. C.",
+        "Sheridan, T. B.",
+        "Thiesen, A.",
+        "Noorbakhsh, J.",
+        "Alcoforado Diniz, J.",
+        "Ramasamy, R.",
+        "Baker, D. S.",
+        "Sheldon, R.",
+        "Wu, Q.",
+        "Kuchel, G.",
+        "Robson, P.",
+        "Chuang, J. H."
+      ],
+      "primary_category": "pathology",
+      "categories": [
+        "pathology"
+      ],
+      "published": "2026-05-01T00:00:00+00:00",
+      "link": "https://www.biorxiv.org/content/10.64898/2026.04.28.721103v1.full.pdf",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Positive Class Mixup Augmentation for localization",
+      "llm_evidence_cn": "用于定位的正类Mixup增强",
+      "llm_evidence": "用于定位的正类Mixup增强",
+      "canonical_evidence": "用于定位的正类Mixup增强",
+      "llm_tldr_en": "A segmentation-free approach for histology localization using specialized mixup augmentation.",
+      "llm_tldr_cn": "一种利用专门的Mixup增强进行组织学定位的无分割方法。",
+      "llm_tldr": "一种利用专门的Mixup增强进行组织学定位的无分割方法。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "oversampling and augmentation strategies for small objects",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

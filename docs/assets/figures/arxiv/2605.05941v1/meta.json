@@ -1,0 +1,142 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.05941v1/fig-001.webp",
+      "caption": "Figure 11: Visualization of Planckian Locus on CIE 1976 u′v′ chromaticity diagram.",
+      "page": 11,
+      "index": 1,
+      "width": 414,
+      "height": 291
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05941v1/fig-002.webp",
+      "caption": "Figure 9: Comparison of the CIE 1931 2° standard observer CMFs (dashed) and the 28-camera mean spectral sensitivity S̄(λ) (solid) used as the source camera proxy. The CIE z̄ function peaks at 1.77, far above the typical blue-channel response of real cameras (≈0.82), motivating our use of S̄(λ) to avoid compressing the blue-channel dynamic range in the cross-camera transform.",
+      "page": 11,
+      "index": 2,
+      "width": 826,
+      "height": 253
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05941v1/fig-003.webp",
+      "caption": "Figure 2: Radar comparison with representative baselines on (a) single-dataset RAW object detection, (b) mixed-sensor dataset RAW object detection, and (c) RAW image segmentation.",
+      "page": 2,
+      "index": 3,
+      "width": 826,
+      "height": 322
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05941v1/fig-004.webp",
+      "caption": "Figure 5: Qualitative comparison of object detection on PASCALRAW Omid-Zohoor et al. [2017], LOD Hong et al. [2021], ROD Xu et al. [2023], and AODRAW Li et al. [2025b]. Our method produces more robust and accurate detections than the baselines. Zoom in for details.",
+      "page": 7,
+      "index": 4,
+      "width": 826,
+      "height": 670
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05941v1/fig-005.webp",
+      "caption": "Figure 8: Per-channel PCA explained variance for the 28-camera spectral sensitivity database.",
+      "page": 10,
+      "index": 5,
+      "width": 826,
+      "height": 229
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05941v1/fig-006.webp",
+      "caption": "Figure 18: Effect of ADC bit depth on a representative 1D intensity profile. Coarser quantization (8-bit) introduces visible staircase artifacts relative to the continuous reference, while finer quantization (10-bit and 14-bit) progressively recovers the smooth signal shape.",
+      "page": 14,
+      "index": 6,
+      "width": 409,
+      "height": 318
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05941v1/fig-007.webp",
+      "caption": "Figure 17: Illustration of the sensor saturation model. For inputs below the saturation threshold Ssat, the response follows a smooth compressive curve; beyond this point, the response asymptotically approaches Ssat through the tanh roll-off. Lower Ssat values produce stronger compression and an earlier onset of saturation.",
+      "page": 14,
+      "index": 7,
+      "width": 406,
+      "height": 319
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05941v1/fig-008.webp",
+      "caption": "Figure 19: Additional qualitative object detection results on AODRAW Li et al. [2025b], LOD Hong et al. [2021], and ROD Xu et al. [2023]. The examples highlight adverse weather, severe low-light noise, and simultaneous highlights and shadows, under which our method produces cleaner detections and more stable localization than prior task-oriented ISP baselines.",
+      "page": 18,
+      "index": 8,
+      "width": 826,
+      "height": 1062
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05941v1/fig-009.webp",
+      "caption": "Figure 15: Visualization of temperature and tint variation on a real RAW image, simulated across the full sampled range from strong magenta at ∆uv = −0.04 to strong green at ∆uv = +0.04 along the green–magenta axis of the CIE u′v′ chromaticity diagram.",
+      "page": 13,
+      "index": 9,
+      "width": 829,
+      "height": 467
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05941v1/fig-010.webp",
+      "caption": "Figure 16: Visualization of spectral sensitivity of real cameras and our synthesized responses.",
+      "page": 13,
+      "index": 10,
+      "width": 826,
+      "height": 246
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05941v1/fig-011.webp",
+      "caption": "Table 1: Evaluation of object detection performance in mAP@50 and @75 on PASCALRAW Low/Normal/Overexposed, LOD, ROD, and AODRAW. Models use a ResNet50 He et al. [2016] or a SwinTransformer Liu et al. [2021] backbone.",
+      "page": 8,
+      "index": 11,
+      "width": 825,
+      "height": 378
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05941v1/fig-012.webp",
+      "caption": "Figure 3: Sensitivity of RAW object detection to environmental and sensor-induced variations. Left: three AODRAW frames rendered under shifted illumination color temperature, exposure, and sensor bit depth, each paired with its pixel histogram. Right: mAP50 of a pretrained ResNet50 backbone with a linear RAW stem on LOD, ROD, and AODRAW as the three factors sweep across their ranges.",
+      "page": 4,
+      "index": 12,
+      "width": 826,
+      "height": 368
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05941v1/fig-013.webp",
+      "caption": "Figure 20: Qualitative ablation on representative real LOD samples under low-light (LOW), normal (NM), and over-exposure (OE) conditions. Each block corresponds to one real LOD exposure regime and compares w/o Bézier, w/o Bilateral Grid, Affine Grid, D Grid, I+A Grid, and Ours. Removing the global curve weakens tonal alignment, removing the bilateral grid harms spatially adaptive local refinement, and removing histogram conditioning reduces sensor-aware robustness. Our full model yields the most stable detections across all settings.",
+      "page": 19,
+      "index": 13,
+      "width": 829,
+      "height": 893
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05941v1/fig-014.webp",
+      "caption": "Table 7: Semantic segmentation on RAW ADE20K dataset Zhou et al. [2019] with MiT-series backbones Xie et al. [2021], evaluated by mIoU.",
+      "page": 17,
+      "index": 14,
+      "width": 830,
+      "height": 192
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05941v1/fig-015.webp",
+      "caption": "Figure 6: Visualization of ablation studies on PASCALRAW lowlight and overexposure variants. Each case presents transformed images of design choices shown in Table 4, Table 5, and Table 6.",
+      "page": 9,
+      "index": 15,
+      "width": 826,
+      "height": 218
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05941v1/fig-016.webp",
+      "caption": "Figure 21: Qualitative transfer results on exposure-curated ADE20K under three illumination regimes: Low-light (LOW), Normal (NM), and Over-exposure (OE). Our method yields more coherent regions and cleaner semantic boundaries across all three settings.",
+      "page": 20,
+      "index": 16,
+      "width": 826,
+      "height": 1062
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05941v1/fig-017.webp",
+      "caption": "Figure 4: Overall architecture of the proposed method. A RAW image and its quantile histogram drive transformer blocks via AdaLN, jointly predicting a global Bézier curve f(x) and a Bilateral Grid for local color correction. Qualitative examples on low-light and over-exposed inputs show the Bézier-only output, the full Bilateral Grid output, and the learned curve.",
+      "page": 5,
+      "index": 17,
+      "width": 830,
+      "height": 499
+    }
+  ]
+}
