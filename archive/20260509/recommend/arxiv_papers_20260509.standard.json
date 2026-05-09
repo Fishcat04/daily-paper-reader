@@ -1,0 +1,174 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-05-09T20:34:09.018012+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 1,
+    "deep_cap": 6,
+    "deep_selected": 1,
+    "quick_candidates": 3,
+    "quick_skim_target": 11,
+    "quick_selected": 3
+  },
+  "deep_dive": [
+    {
+      "id": "2605.02616v1",
+      "source": "arxiv",
+      "title": "Global-Local Feature Decoding with Adapter-Guided SAMv2 for Salient Object Detection",
+      "abstract": "Salient Object Detection (SOD) remains an essential yet underexplored task in the era of large-scale vision models. Although foundation models like SAM exhibit strong generalization, their potential for SOD is not fully realized, and training or fully fine-tuning them is computationally expensive and prone to overfitting under limited data. To overcome these challenges, we introduce GLASSNet, a Global-Local feature decoding framework that uses SAMv2 as a frozen encoder paired with a lightweight, spatially aware convolutional adapter-reducing learnable encoder parameters by over 97%. To enhance saliency quality, GLASSNet employs a dual-decoder architecture: one decoder captures global, long-range semantics with an expanded receptive field, while the other captures fine local details such as edges and textures. Fusing these complementary cues yields saliency maps that combine global coherence with local precision, producing accurate final masks. Extensive experiments on standard SOD and camouflaged object detection benchmarks show that GLASSNet surpasses state-of-the-art methods, demonstrating the power of frozen foundation models combined with targeted adaptation and global-local decoding.",
+      "authors": [
+        "Morteza Moradi",
+        "Mohammad Moradi",
+        "Simone Palazzo",
+        "Ali Borji",
+        "Concetto Spampinato"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-04T14:04:38+00:00",
+      "link": "https://arxiv.org/pdf/2605.02616v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 8.5,
+      "llm_evidence_en": "Global-Local feature decoding for Salient Object Detection",
+      "llm_evidence_cn": "用于显著性目标检测的全域-局部特征解码",
+      "llm_evidence": "用于显著性目标检测的全域-局部特征解码",
+      "canonical_evidence": "用于显著性目标检测的全域-局部特征解码",
+      "llm_tldr_en": "Introduces GLASSNet for salient object detection using global-local feature decoding and adapters.",
+      "llm_tldr_cn": "引入GLASSNet，通过全局-局部特征解码和适配器进行显著性目标检测。",
+      "llm_tldr": "引入GLASSNet，通过全局-局部特征解码和适配器进行显著性目标检测。",
+      "llm_tags": [
+        "query:sod:composite"
+      ],
+      "matched_query_tag": "query:sod:composite",
+      "matched_query_text": "Papers central to 小目标检测相关论文检索, especially work that connects or combines: deep learning methods for small object detection; FPN and its variants for multi-scale object detection; oversampling and augmentation strategies for small objects; spatial and channel attention for small object feature enhancement; multi-scale feature fusion techniques in computer vision; specialized loss functions for small object localization; state of the art deep learning methods for small object detection; benchmarking small object detection on public datasets.",
+      "matched_requirement_id": "req-composite-sod",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2605.03294v1",
+      "source": "arxiv",
+      "title": "FACTOR: Counterfactual Training-Free Test-Time Adaptation for Open-Vocabulary Object Detection",
+      "abstract": "Open-vocabulary object detection often fails under distribution shifts, as it can be misled by spurious correlations between non-causal visual attributes (e.g., brightness, texture) and object categories. Existing test-time adaptation (TTA) methods either depend on costly online optimization or perform global calibration, overlooking the attribute-specific nature of these failures. To address this, we propose FACTOR (counterFACtual training-free Test-time adaptation for Open-vocabulaRy object detection), a lightweight framework grounded in counterfactual reasoning. By perturbing test images along non-causal attributes and comparing region-level predictions between original and counterfactual views, FACTOR quantifies attribute sensitivity, semantic relevance, and prediction variation to selectively suppress attribute-dependent predictions-without parameter updates. Experiments on PASCAL-C, COCO-C, and FoggyCityscapes show that FACTOR consistently outperforms prior TTA methods, demonstrating that explicit counterfactual reasoning effectively improves robustness under distribution shifts.",
+      "authors": [
+        "Kaixiang Zhao",
+        "Mao Ye",
+        "Lihua Zhou",
+        "Hu Wang",
+        "Luping Ji",
+        "Song Tang",
+        "Xiatian Zhu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-05T02:31:18+00:00",
+      "link": "https://arxiv.org/pdf/2605.03294v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.5,
+      "llm_evidence_en": "test-time adaptation for open-vocabulary object detection",
+      "llm_evidence_cn": "开放词汇目标检测的测试时自适应",
+      "llm_evidence": "开放词汇目标检测的测试时自适应",
+      "canonical_evidence": "开放词汇目标检测的测试时自适应",
+      "llm_tldr_en": "FACTOR uses counterfactual reasoning for training-free adaptation in open-vocabulary object detection.",
+      "llm_tldr_cn": "FACTOR利用因果推理实现开放词汇目标检测的免训练自适应。",
+      "llm_tldr": "FACTOR利用因果推理实现开放词汇目标检测的免训练自适应。",
+      "llm_tags": [
+        "query:sod:composite"
+      ],
+      "matched_query_tag": "query:sod:composite",
+      "matched_query_text": "Papers central to 小目标检测相关论文检索, especially work that connects or combines: deep learning methods for small object detection; FPN and its variants for multi-scale object detection; oversampling and augmentation strategies for small objects; spatial and channel attention for small object feature enhancement; multi-scale feature fusion techniques in computer vision; specialized loss functions for small object localization; state of the art deep learning methods for small object detection; benchmarking small object detection on public datasets.",
+      "matched_requirement_id": "req-composite-sod",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.04606v1",
+      "source": "arxiv",
+      "title": "Reference-based Category Discovery: Unsupervised Object Detection with Category Awareness",
+      "abstract": "Traditional one-shot detection methods have addressed the closed-set problem in object detection, but the high cost of data annotation remains a critical challenge. General unsupervised methods generate pseudo boxes without category labels, thus failing to achieve category-aware classification. To overcome these limitations, we propose Reference-based Category Discovery (RefCD), an unsupervised detector that enables category-aware\\footnotemark[1] detection without any manually annotated labels. It leverages feature similarity between predicted objects and unlabeled reference images. Unlike previous unsupervised methods that lack category guidance and one-shot methods which require labeled data, RefCD introduces a carefully designed feature similarity loss to explicitly guide the learning of potential category-specific features. Additionally, RefCD supports category-agnostic detection without reference images, serving as a unified framework. Comprehensive quantitative and qualitative analysis of category-aware and category-agnostic detection results demonstrates its effectiveness, and RefCD can learn category information in an unsupervised paradigm even without category labels.",
+      "authors": [
+        "Yichen Li",
+        "Qiankun Liu",
+        "Ying Fu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-05-06T07:54:30+00:00",
+      "link": "https://arxiv.org/pdf/2605.04606v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.5,
+      "llm_evidence_en": "unsupervised object detection with category awareness",
+      "llm_evidence_cn": "具有类别意识的无监督目标检测",
+      "llm_evidence": "具有类别意识的无监督目标检测",
+      "canonical_evidence": "具有类别意识的无监督目标检测",
+      "llm_tldr_en": "Introduces RefCD for unsupervised object detection using feature similarity and reference images.",
+      "llm_tldr_cn": "引入RefCD，通过特征相似度和参考图像实现无监督目标检测。",
+      "llm_tldr": "引入RefCD，通过特征相似度和参考图像实现无监督目标检测。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.04541v1",
+      "source": "arxiv",
+      "title": "Angle-I2P: Angle-Consistent-Aware Hierarchical Attention for Cross-Modality Outlier Rejection",
+      "abstract": "Image-to-point-cloud registration (I2P) is a fundamental task in robotic applications such as manipulation,grasping, and localization. Existing deep learning-based I2P methods seek to align image and point cloud features in a learned representation space to establish correspondences, and have achieved promising results. However, when the inlier ratio of the initial matching pairs is low, conventional Perspective-n-Points (PnP) methods may struggle to achieve accurate results. To address this limitation, we propose Angle-I2P, an outlier rejection network that leverages angle-consistent geometric constraints and hierarchical attention. First, we design a scale-invariant, crossmodality geometric constraint based on angular consistency. This explicit geometric constraint guides the model in distinguishing inliers from outliers. Furthermore, we propose a global-tolocal hierarchical attention mechanism that effectively filters out geometrically inconsistent matches under rigid transformation, thereby improving the Inlier Ratio (IR) and Registration Recall (RR). Experimental results demonstrate that our method achieves state-of-the-art performance on the 7Scenes, RGBD Scenes V2, and a self-collected dataset, with consistent improvements across all benchmarks.",
+      "authors": [
+        "Muyao Peng",
+        "Shun Zou",
+        "Pei An",
+        "You Yang",
+        "Qiong Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-06T06:41:56+00:00",
+      "link": "https://arxiv.org/pdf/2605.04541v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "hierarchical attention for cross-modality localization",
+      "llm_evidence_cn": "用于跨模态定位的分层注意力机制",
+      "llm_evidence": "用于跨模态定位的分层注意力机制",
+      "canonical_evidence": "用于跨模态定位的分层注意力机制",
+      "llm_tldr_en": "Proposes Angle-I2P using hierarchical attention and geometric constraints for robust localization.",
+      "llm_tldr_cn": "提出Angle-I2P，利用分层注意力和几何约束实现鲁棒定位。",
+      "llm_tldr": "提出Angle-I2P，利用分层注意力和几何约束实现鲁棒定位。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "spatial and channel attention for small object feature enhancement",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
