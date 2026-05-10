@@ -1,0 +1,69 @@
+{
+  "label": "2026-05-10",
+  "date": "2026-05-10",
+  "generated_at": "2026-05-10T20:00:06",
+  "count": 4,
+  "papers": [
+    {
+      "paper_id": "202605/10/2605.05804v1-na-irstd-enhancing-infrared-small-target-detection-via-native-resolution-feature-selection-and-fusion",
+      "section": "deep",
+      "title_en": "Na-IRSTD: Enhancing Infrared Small Target Detection via Native-Resolution Feature Selection and Fusion",
+      "authors": "Qian Xu, Chi Zhang, Qiming Zhang, Xi Li, Haojuan Yuan, Mingjin Zhang",
+      "date": "2026-05-07",
+      "pdf": "https://arxiv.org/pdf/2605.05804v1",
+      "score": "10.0",
+      "evidence": "用于红外小目标检测的原生分辨率特征提取与融合",
+      "tldr": "针对红外小目标检测中下采样导致细节丢失的问题，本文提出Na-IRSTD框架。该框架通过引入原生分辨率特征提取与融合机制，有效保留了微弱目标的细节。同时，设计了一种高效的Token减少与选择策略，在保证检测精度的同时降低了计算负担。实验表明，该方法在四个主流基准数据集上均达到了SOTA性能。",
+      "tags": "query:sod",
+      "abstract_en": "Infrared small target detection (IRSTD) faces the inherent challenge of precisely localizing dim targets amid complex background clutter. While progress has been made, existing methods usually follow conventional strategies to downsample features and discard small targets' details, resulting in suboptimal performance. In this paper, we present Na-IRSTD, a native-resolution feature extraction and fusion framework for IRSTD. This framework elegantly incorporates native-resolution features to preserve subtle target cues, overcoming the resolution limitations of existing infrared approaches and significantly improving the model's ability to localize small targets. We also introduce an effective token reduction and selection strategy, which selects target patches with high accuracy and confidence, boosting the low-level details of the feature while effectively reducing native-resolution patch tokens compared to dense processing, thereby avoiding imposing an unbearable computational burden. Extensive experiments demonstrate the robustness and effectiveness of our token reduction and selection strategy across multiple public datasets. Ultimately, our Na-IRSTD model achieves state-of-the-art performance on four benchmarks.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202605/10/2605.02616v1-global-local-feature-decoding-with-adapter-guided-samv2-for-salient-object-detection",
+      "section": "deep",
+      "title_en": "Global-Local Feature Decoding with Adapter-Guided SAMv2 for Salient Object Detection",
+      "authors": "Morteza Moradi, Mohammad Moradi, Simone Palazzo, Ali Borji, Concetto Spampinato",
+      "date": "2026-05-04",
+      "pdf": "https://arxiv.org/pdf/2605.02616v1",
+      "score": "8.5",
+      "evidence": "利用全局-局部特征解码和空间感知进行显著性目标检测",
+      "tldr": "针对显著性目标检测（SOD）在大型视觉模型时代面临的微调成本高和过拟合问题，本文提出GLASSNet。该框架利用冻结的SAMv2作为编码器，并引入轻量级空间感知卷积适配器，减少了97%以上的可学习参数。通过双解码器架构融合全局语义与局部细节，在SOD和伪装目标检测任务中均超越了现有最先进方法，展示了冻结基础模型结合针对性适配的强大潜力。",
+      "tags": "query:sod",
+      "abstract_en": "Salient Object Detection (SOD) remains an essential yet underexplored task in the era of large-scale vision models. Although foundation models like SAM exhibit strong generalization, their potential for SOD is not fully realized, and training or fully fine-tuning them is computationally expensive and prone to overfitting under limited data. To overcome these challenges, we introduce GLASSNet, a Global-Local feature decoding framework that uses SAMv2 as a frozen encoder paired with a lightweight, spatially aware convolutional adapter-reducing learnable encoder parameters by over 97%. To enhance saliency quality, GLASSNet employs a dual-decoder architecture: one decoder captures global, long-range semantics with an expanded receptive field, while the other captures fine local details such as edges and textures. Fusing these complementary cues yields saliency maps that combine global coherence with local precision, producing accurate final masks. Extensive experiments on standard SOD and camouflaged object detection benchmarks show that GLASSNet surpasses state-of-the-art methods, demonstrating the power of frozen foundation models combined with targeted adaptation and global-local decoding.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202605/10/2605.05913v1-wisteria-a-unified-multi-scale-feature-learning-framework-for-dna-language-model",
+      "section": "quick",
+      "title_en": "Wisteria: A Unified Multi-Scale Feature Learning Framework for DNA Language Model",
+      "authors": "Weihua Wang, Haoji Li, Feilong Bao, Lei Yang, Guanglai Gao",
+      "date": "2026-05-07",
+      "pdf": "https://arxiv.org/pdf/2605.05913v1",
+      "score": "6.0",
+      "evidence": "多尺度特征学习和用于局部基元的门控扩张卷积",
+      "tldr": "Wisteria是一个统一的多尺度DNA语言模型框架，旨在解决现有模型忽视局部基序与全局依赖相互作用的问题。它在Mamba架构基础上，结合门控空洞卷积提取局部特征，利用门控MLP优化全局依赖，并引入傅里叶注意力增强频域建模。实验表明，Wisteria在多项基因组任务中表现优异，有效统一了多尺度序列分析。",
+      "tags": "query:sod",
+      "abstract_en": "DNA language model aims to decipher the regulatory grammar and semantic of genomes by capturing long range dependencies in DNA sequences. Existing methods emphasize long range token interactions but often ignore the interplay between local motifs and global dependencies. In this paper, we propose Wisteria, a genomic language model that integrates multi scale feature learning within a unified framework for DNA sequence. Specifically, Wisteria augments the Mamba based architecture with gated dilated convolutions to capture local motifs and regulatory patterns, while gated multilayer perceptrons refine global dependencies. We further introduce a Fourier based attention mechanism to support frequency domain modeling, periodic extension and length generalization. Across four experimental settings with both short and long range dependencies, Wisteria demonstrates strong performance on downstream benchmarks against competitive DNA language model baselines. These results indicate that Wisteria effectively unifies local and global dependency modeling for multi scale genomic sequence analysis.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202605/10/biorxiv-10-1101-2024-06-24-600405-v4-pushing-the-ceiling-of-species-level-mapping-in-a-hyperdiverse-tropical-forest-with-multi-temporal-segmentation-and-airborne-hyperspectral-classification",
+      "section": "quick",
+      "title_en": "Pushing the ceiling of species-level mapping in a hyperdiverse tropical forest with multi-temporal segmentation and airborne hyperspectral classification",
+      "authors": "Ball, J. G. C., Jaffer, S., Laybros, A., Prieur, C., Jackson, T. D., Madhavapeddy, A., Barbier, N., Vincent, G., Coomes, D.",
+      "date": "2026-05-05",
+      "pdf": "https://www.biorxiv.org/content/10.1101/2024.06.24.600405v4.full.pdf",
+      "score": "6.0",
+      "evidence": "用于树冠检测的多时相分割与特征融合",
+      "tldr": "本研究针对高多样性热带雨林物种制图难题，提出了一种结合多时相无人机RGB影像分割与航空高光谱分类的两步法。在法属圭亚那的实验中，通过Mask R-CNN和共识融合技术提升了树冠分割精度，并利用LDA分类器实现了对169个树种的识别，最终成功制图了约70%的林冠区域，显著突破了以往研究在物种数量上的限制。",
+      "tags": "query:sod",
+      "abstract_en": "Species-level maps of tropical forest canopies are needed for biodiversity monitoring, conservation planning, and carbon accounting, yet the structural complexity and species richness of these forests make remote classification challenging. Here we evaluate the limits and possibilities of a two-step mapping approach applied to hyperdiverse moist forest at the Paracou Field Station, French Guiana. First, we delineate individual tree crowns from ten repeat UAV RGB surveys using a CNN (Mask R-CNN) and combine predictions across dates via a temporal consensus-fusion method, improving mean segmentation F1 from 0.68 (single date) to 0.78 (ten dates) and covering approximately 86% of canopy area. Second, we classify the species of each crown from a single airborne hyperspectral acquisition (416-2500 nm, 1 m resolution) using several machine learning classifiers trained and tested on 3,186 field-verified crowns spanning 169 species (drawn from a labelled pool of 3,256 crowns across 239 species; see Section 2.6). Linear Discriminant Analysis (LDA) achieved the highest accuracy (weighted F1 = 0.75), though performance was uneven: repeated cross-validation (20 x 5-fold) showed that on average 50 species (95% CI: 41-63) attained F1 >= 0.7 in any given fold, with 38 maintaining this level on average and 15 doing so reliably (>= 80% of folds), while many rare species with few training examples remained unclassifiable (macro-average F1 = 0.48). Combining segmentation and classification, we estimate that approximately 70% of the landscapes canopy area was correctly mapped to species. Band-importance and ablation analyses identified the far-red edge (748-775 nm) as the most informative spectral region, with secondary contributions from the red, green, and SWIR. While these results represent a substantial advance over previous studies limited to fewer than 20 species, we caution that accuracy is strongly conditioned by training data availability, site-specific spectral conditions, and the single-acquisition design, and that generalization to other sites and sensors remains to be demonstrated.",
+      "source": "biorxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

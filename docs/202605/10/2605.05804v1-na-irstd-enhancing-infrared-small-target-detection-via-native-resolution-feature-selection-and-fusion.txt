@@ -1,0 +1,660 @@
+Title: Na-IRSTD: Enhancing Infrared Small Target Detection via Native-Resolution Feature Selection and Fusion
+
+URL Source: https://arxiv.org/pdf/2605.05804v1
+
+Published Time: Fri, 08 May 2026 00:41:40 GMT
+
+Number of Pages: 12
+
+Markdown Content:
+> 1
+
+# Na-IRSTD: Enhancing Infrared Small Target Detection via Native-Resolution Feature Selection and Fusion 
+
+Qian Xu, Chi Zhang, Qiming Zhang, Xi Li, Haojuan Yuan, Mingjin Zhang, Member, IEEE 
+
+Abstract —Infrared small target detection (IRSTD) faces the inherent challenge of precisely localizing dim targets amid com-plex background clutter. While progress has been made, existing methods usually follow conventional strategies to downsample features and discard small targets’ details, resulting in suboptimal performance. In this paper, we present Na-IRSTD, a native-resolution feature extraction and fusion framework for IRSTD. This framework elegantly incorporates native-resolution features to preserve subtle target cues, overcoming the resolution limita-tions of existing infrared approaches and significantly improving the model’s ability to localize small targets. We also introduce an effective token reduction and selection strategy, which selects target patches with high accuracy and confidence, boosting the low-level details of the feature while effectively reducing native-resolution patch tokens compared to dense processing, thereby avoiding imposing an unbearable computational burden. Exten-sive experiments demonstrate the robustness and effectiveness of our token reduction and selection strategy across multiple public datasets. Ultimately, our Na-IRSTD model achieves state-of-the-art performance on four benchmarks. 
+
+Index Terms —Infrared small target detection, native resolu-tion, token reduction, training strategy. 
+
+I. I NTRODUCTION 
+
+The objective of infrared small target detection (IRSTD) is to precisely identify and locate diminutive targets in infrared imagery. Such targets are often characterized by their minimal pixel occupancy and inherent low contrast when set against complex backgrounds. This task proves indispensable in vi-tal, safety-critical domains, including maritime surveillance, remote sensing, and environmental monitoring [1]–[5]. Unlike generic object detection tasks, which often deal with larger objects that exhibit rich textures and clear semantic boundaries, IRSTD presents a unique challenge. It focuses on sparse, small (usually less than 32 ×32 pixels [6]), textureless targets that lack meaningful structural cues. These targets emit limited infrared radiation, appearing as faint, isolated spots. This makes them highly vulnerable to being overwhelmed by environmental noise or complex backgrounds like clouds, ocean waves, or urban structures, posing significant difficulties for reliable detection in real-world settings. Various IRSTD methods have been proposed to address these challenges. Early approaches primarily relied on hand-crafted priors, which performed well in simple scenarios but struggled in more complex environments where background noise and interference significantly obscured the targets, re-sulting in suboptimal performance, particularly in dynamic or cluttered scenes [7]–[9]. With the rise of deep learning, CNN-based methods became dominant due to their ability to auto-matically learn hierarchical features from input data through stacked convolutional layers [10]–[13]. However, these meth-ods are limited in capturing long-range dependencies and often Downsampling  with Native Resolution Downsampling  with Native Resolution 
+
+Downsampling  without high -resolution injection 
+
+Downsampling  with high -resolution injection 
+
+High -Resolution path  Features in HR path  
+
+> PDE
+> CPI
+> MLP  Conv
+> BN
+> Relu
+> Pool
+> Attn
+> LN
+> FFN
+> LN
+> PDE CPI
+
+4 Selec High -Resolution 
+
+> Path
+
+Downsampling  without native resolution 
+
+Downsampling  with native resolution 
+
+Native -Resolution branch  Features in Native branch    
+
+> Native detail Semantic
+> ect&Fuse
+> atures
+> p-K
+> key query value
+
+X' XX '' ZZGPM out Z      
+
+> Native details Semantics
+> eatures
+> op -K
+> keys querys values
+> Native details Semantics
+> eatures
+> op -K
+> keys querys values
+
+X' XX '' ZZGPM out Z11 613 2  
+
+> KTopK Fuse
+
+Fig. 1. Visualization of feature maps across different downsampling stages. As the resolution decreases, small targets become indistinct and eventually vanish. In the native-resolution branch, the responses of small targets are progressively enhanced. By introducing this native-resolution branch, even extremely small targets can be preserved and successfully detected. TABLE I DETECTION PERFORMANCE WITH NATIVE -RESOLUTION AND 2×
+
+> DOWNSAMPLING
+
+. V ALUES ARE REPORTED AS IOU / Pd / Fa .Dataset Native 2× Downsampling IRSTD-1k 71.76 / 93.11 / 8.97 64.83 / 89.76 / 14.79 NUDT-SIRST 93.88 / 98.60 / 4.71 80.92 / 92.77 / 12.82 MDFA 41.24 / 87.50 / 73.93 38.63 / 81.34 / 184.45 SIRSTAUG 72.76 / 99.17 / 34.66 67.62 / 94.15 / 79.28 
+
+struggle to model the global background. Recent studies have addressed these limitations by incorporating Vision Trans-former (ViT) and hybrid CNN-ViT architectures. ViT’s self-attention mechanism improves the understanding of distant relationships within the image, while hybrid architectures com-bine CNNs for efficient local feature extraction and ViTs for enhanced global context awareness. This combination boosts detection capability, particularly in complex, cluttered, and low-contrast environments [14]–[18]. Despite significant progress achieved by deep learning-based methods, existing approaches are structurally adapted from general-purpose vision models, such as classification or semantic segmentation backbones, which typically adopt a hierarchical structure with iterative spatial downsampling. While this adoption streamlines development and delivers 
+
+> arXiv:2605.05804v1 [cs.CV] 7 May 2026 2
+
+commendable performance, the vast size difference between small targets and objects in general recognition tasks raises a critical question: does frequent downsampling compromise the detection of small targets by discarding crucial target details? To validate this concern, we visualized feature maps at various stages of a typical downsampling-based network [19], [20]. As shown in Figure 1, small infrared targets are progres-sively diminishing and disappearing after repeated resolution reduction. To quantify this effect, we train the model on several datasets under two configurations: native resolution and 2× downsampling. As shown in Table I, performance drops in the downsampled setting across all datasets, confirming that downsampling leads to the loss of crucial target details for small target detection. These observations suggest that the conventional hierarchical design, originally developed for natural image understanding, may not be well aligned with the intrinsic characteristics of infrared small target detection. Unlike general object detection tasks where objects occupy sufficient spatial support for semantic abstraction, infrared small targets typically consist of only a few pixels and lack rich structural cues. Once subjected to stride-4 or stride-8 downsampling, their responses may collapse into background noise, making subsequent feature modeling unreliable. There-fore, for IRSTD, preserving native-resolution information is not merely a design preference, but a structural necessity aimed at preventing signal-to-noise structural collapse. However, directly processing native-resolution data presents significant technical challenges [21]. Direct native-resolution processing is computationally prohibitive, as pixel-level mod-eling scales quadratically with spatial resolution. Moreover, in the context of small-target detection, the primary challenge lies in the fact that only a tiny fraction of the image contains relevant target information. For example, in IRSTD tasks, small targets may occupy less than 1 % of the total image area. This redundancy not only leads to an inefficient use of computational resources but also exacerbates the difficulty of distinguishing meaningful features from noise. Therefore, the real challenge lies in effectively reducing this redundancy without losing essential target cues. Achieving both efficient processing and accurate detection becomes virtually impossi-ble without effective strategies to minimize the overwhelming redundancy of high-resolution processing while still enabling the model to capture and preserve fine details critical for accurate detection. To address this challenge, we propose Na-IRSTD, a novel framework that fully leverages the advantages of native-resolution representations for infrared small target detection. To handle the complexity of high-dimensional data, we stream-line a comprehensive pipeline encompassing the model design, token reduction strategy, and multi-stage training. Specifically, Na-IRSTD introduces an effective native-resolution informa-tion extractor that detects target regions and provides fine-grained details to the model, significantly enhancing its ability to localize small, low-contrast targets that would otherwise be lost during downsampling. To further optimize this process, we propose a token reduction strategy tailored to small tar-gets, efficiently filtering out redundant native-resolution tokens while preserving key details. Additionally, we introduce a two-stage training strategy that decouples the token reduction and infrared object detection tasks, thus reducing training complexity by addressing these two tasks separately. Finally, we curate the IRSTD-Hard dataset, which consists exclusively of targets smaller than 20 pixels. This dataset more accurately reflects the challenge of detecting tiny infrared targets and aims to advance the development of more effective detection methods. Extensive experiments demonstrate that Na-IRSTD achieves state-of-the-art performance. The main contributions of this work are summarized as follows:  
+
+> •
+
+We propose Na-IRSTD, an efficient framework for infrared small target detection that preserves native-resolution evidence before irreversible downsampling, thereby retaining subtle target cues while balancing high detection accuracy and computational cost.  
+
+> •
+
+We design a patch-based native-resolution branch com-posed of Patchwise Detail Extraction (PDE) and Global Patch Mixer (GPM), which preserves local infrared de-tails while modeling inter-patch dependencies at manage-able computational cost.  
+
+> •
+
+We introduce a two-stage training strategy to reduce train-ing complexity and implement token reduction. This ap-proach effectively filters out redundant native-resolution tokens while retaining critical details.  
+
+> •
+
+We curate IRSTD-Hard, a benchmark for evaluating infrared small target detection in the extreme small-object regime. Our experimental results on IRSTD-Hard and other representative datasets indicate that Na-IRSTD al-leviates the information-loss issue associated with down-sampling and achieves consistent improvements over strong baselines. The structure of this manuscript is outlined as follows: Section II reviews current approaches relevant to our method, Section III introduces the Na-IRSTD technique, Section IV presents the experimental results and analysis on several datasets, and Section V concludes with a summary of the findings. II. R ELATED WORK 
+
+A. IRSTD Methods 
+
+Existing infrared small target detection methods can be broadly categorized into traditional and deep learning-based approaches. Traditional methods, such as IPI [22], NRAM [23], RIPT [24], PSTNN [8], and MSLSTIPT [25], are typically model-driven and rely heavily on handcrafted priors such as filters, human visual system models, or sparse representations. These methods are designed to capture certain characteristics of infrared small targets, such as local contrast, edges, or gradients, and can work effectively in relatively controlled environments. However, their performance often degrades in complex scenes, where strong background clutter, varying illumination, and target appearance changes obscure the weak target signals. With the availability of larger datasets and the rapid de-velopment of deep learning, learning-based IRSTD methods 3
+
+have achieved substantial progress. CNN-based methods im-prove target representation by progressively extracting hier-archical features and suppressing background interference. For example, ACMNet [26] enhances target features through asymmetric contextual modulation, while DNANet [27] intro-duces dense nested attention to alleviate feature loss during propagation. More recent methods further strengthen global modeling and long-range dependency learning by incorpo-rating Transformers or hybrid architectures. RKformer [28] combines CNNs and Transformers with a Runge–Kutta design, Dim2Clear [29] enhances visibility via spatial-frequency in-teraction, FAA-Net [30] introduces frequency-aware attention, and MiM-ISTD [31], IRMamba [32], MOE-IR [33], and SAIST [34] explore Mamba-based modeling, expert special-ization, or multimodal guidance to improve robustness in cluttered scenes. Recent representative studies have further explored sev-eral directions for IRSTD, such as frequency-domain feature enhancement [20], [35], global–local or contextual feature fusion [4], [5], [16]–[18], and high-resolution representation learning or detail recovery [12], [13], [36]. These studies further confirm the importance of preserving or enhancing subtle target cues for IRSTD. Nevertheless, most existing IRSTD methods still inherit the hierarchical encoding paradigm from general-purpose vision models, where feature extraction is coupled with repeated spatial downsampling. As a result, the subtle responses of extremely small targets may already be weakened or even lost before later enhancement modules are applied. Methods based on feature enhancement, global–local interaction, or high-resolution reconstruction can improve degraded represen-tations, but they still mainly operate on dense features after or during hierarchical encoding. In contrast, the key question addressed in this work is how to preserve native-resolution evidence before irreversible information loss occurs, while doing so in a sparse and target-aware manner suitable for the extreme sparsity of IRSTD. 
+
+B. Native-Resolution Modeling 
+
+To mitigate the loss of spatial precision caused by downsam-pling, a growing body of work has explored direct modeling at native or near-native resolution. HRNet [37] maintains high-resolution representations throughout the network by connecting multi-scale branches in parallel and repeatedly exchanging information, enabling accurate localization with strong semantics. However, this comes at the cost of sig-nificant computational overhead due to its multi-resolution feature extraction and fusion. Dilated convolutions can expand receptive fields without reducing spatial resolution, facilitating large-context modeling at native scale. SPDConv [ ?] mitigates information loss by replacing strided convolutions and pooling with a space-to-depth convolutional building block, thereby preserving fine-grained spatial information for small objects. Meanwhile, HCMamba [38] integrates dilated convolutions with depthwise separable convolutions, significantly reducing computational costs while maintaining spatial fidelity in high-resolution medical image segmentation tasks. CAD [39] dy-namically adjusts the resolution of input features based on their content, effectively balancing computation and accuracy. PNA [40] progressively aggregates neighborhood information to refine semantic segmentation predictions. FADC [41] em-ploys frequency-adaptive dilated convolutions, adjusting the receptive field based on the frequency content of the image. This approach ensures that high-frequency details, especially those in small targets, are preserved while optimizing compu-tational efficiency. Despite these advances, native-resolution dense processing remains computationally expensive and often redundant for sparse target scenarios, motivating the need for more selective and efficient strategies that retain high-resolution advantages while reducing cost. 
+
+C. Token Reduction Strategies 
+
+To alleviate the high computational cost associated with processing dense high-resolution data, recent studies have proposed various token reduction methods that adaptively prune, halt, or merge redundant tokens while preserving essen-tial information, thereby improving computational efficiency. Merging-based methods, such as Token Merging (ToMe) [42], reduce the token count by merging similar tokens according to token similarity, which lowers computational cost while retaining most informative content. Pruning- and halting-based methods, such as DynamicViT [43] and A-ViT [44], learn to remove or halt less informative tokens according to learned importance or halting scores. ATF [45] further introduces attention-aware token filtering to accelerate Vision Transformer models by filtering tokens before they are fed into the transformer encoder. Adaptive computation methods, such as AdaViT [46] and Evo-ViT [47], exploit input-dependent redundancy across network layers. AdaViT learns instance-specific usage policies for patches, attention heads, and trans-former blocks, while Evo-ViT updates informative and less informative tokens through different computation paths, main-taining spatial structure and information flow. For dense pre-diction tasks, methods such as DToP [48] and DoViT [49] are specifically designed to reduce computation while preserving dense spatial predictions. DToP finalizes predictions for easy tokens at intermediate layers and keeps representative context tokens, whereas DoViT dynamically stops easy tokens from self-attention computation and reconstructs token positions for semantic mask prediction. These methods demonstrate that token reduction must be task-aware, especially when spatial accuracy is required. However, these strategies are primarily developed for natural image understanding, where informative content is relatively dense and token importance can often be estimated from generic similarity or saliency cues. In IRSTD, by contrast, targets are extremely small, sparse, and easily confused with background clutter. Under this setting, similarity-based prun-ing or merging may suppress the very weak target cues that need to be preserved. Therefore, token reduction for IRSTD should not be treated as a generic efficiency problem alone. Balancing computational efficiency and the preservation of small target cues remains a challenge. 4lock 
+
+> wn
+> MLP
+> PDCE
+> PDCE
+> PDCE
+> Stage 1
+> Stage 2
+> Stage 3
+
+K
+
+> PDE
+> GPM
+
+K K
+
+> FPN
+> Decoder
+> Patched  Conv
+> ConvBlock
+> Down
+> ConvBlock
+> Down
+
+Native  detail  Semantic 
+
+> Feature
+> Top -K
+
+key  query value 
+
+Native  detail  Semantic 
+
+> Feature
+> Top -K
+
+key  query value 
+
+K
+
+> Conv
+> BN
+> Relu
+> Pool
+> Attn&LN
+
+PDE  GPM X' X '' X '' ZZGPM out Z
+
+> Patched
+
+Native Resolution Branch 
+
+Hierarchical  Detector 
+
+K TopK  Fuse 1
+
+41
+
+81
+
+16 1
+
+32 Ffused  
+
+> Fig. 2. Overview of the proposed Na-IRSTD architecture. The upper pathway is the native-resolution branch and the lower pathway is the hierarchical backbone encoder. PDCE denotes the Patchwise Detail-Context Encoder, composed of PDE and GPM. PDE denotes Patchwise Detail Extraction, and GPM denotes Global Patch Mixer. For clarity, only one representative stage is expanded to illustrate the detailed operations, while the remaining stages follow the same design pattern.
+
+III. M ETHODOLOGY 
+
+A. Overview of Na-IRSTD Framework 
+
+To address the information loss issue of existing IRSTD methods, we develop Na-IRSTD—an end-to-end framework that encompasses model design, a tailored training pipeline, an efficient token reduction strategy, and a challenging bench-mark. This comprehensive suite facilitates a more effective and systematic exploration of native-resolution processing for IRSTD. As shown in Figure 2, the overall architecture of Na-IRSTD comprises two complementary pathways: a DEtection TRansformer (DETR)-like hierarchical detector E(·) [19] and a native-resolution branch N (·).Given an input image I ∈ R3×H×W , the backbone encoder 
+
+E(·) extracts a hierarchy of semantic features from the entire image. In parallel, the native-resolution branch N (·) is in-troduced to extract the native-resolution information, which is typically lost in conventional encoders. Before being processed by this branch, the input image is divided into non-overlapping patches of size P × P , resulting in N = HP × WP patches. The extracted feature representations from both branches are described as follows: 
+
+F (l) 
+
+> s
+
+= E(I) ∈ RCl×Hl×Wl , l ∈ { 1, 2, . . . , L }, (1) 
+
+F (l) 
+
+> n
+
+= N (I) ∈ RN ×Cl×P ×P , l ∈ { 1, 2, . . . , L }, (2) where l ∈ { 1, 2, . . . , L } denotes the network stage. To alleviate the excessive computation burden and redun-dancy introduced by dense patch processing, we propose an efficient token reduction strategy that enables the model to selectively retain the most informative regions. Relevance scores S = {s1, . . . , s N } ∈ RN are learned for each patch in F (L) 
+
+> n
+
+. The top-K patches for each stage are selected as: 
+
+K(l) = Top -K(F (l) 
+
+> n
+
+, S) ∈ RK×Cl×P ×P , (3) where Cl denotes the feature dimension at level l, and K ≪ N
+
+ensures computational efficiency. Then, the cross-scale fusion module F(·) projects the se-lected patches K(l) into the semantic features F (l) 
+
+> s
+
+, producing a fused feature map F (l) ∈ RCl×Hl×Wl that integrates both global context and fine-grained details: 
+
+F (l) = F(F (l) 
+
+> s
+
+, K(l)). (4) Finally, the fused features from all layers F =
+
+{F (1) , F (2) , . . . , F (L)} are passed to the decoder D(·), which generates the final prediction. 
+
+B. Taming Feature Learning in Native Resolution 1) Details of the Native-Resolution Branch: Typically, detection and segmentation-oriented Vision Transformers (ViTs) [50] address the challenge of high computational cost by downsampling input features before feeding them into subsequent layers. This design is necessary due to the quadratic complexity of the self-attention mechanism, which scales poorly with input resolution and quickly becomes computationally prohibitive. To enable feature learning at native resolution, we introduce a native-resolution branch that directly operates on native-resolution patches. Unlike a standard Vision Transformer (ViT), which embeds the whole image into flattened spatial tokens for global self-attention, our branch adopts a 2D+1D structure inspired by video modeling. The branch is built upon a Patchwise Detail-Context Encoder (PDCE), which consists of Patchwise Detail Extraction (PDE) and a Global Patch Mixer (GPM). It first performs convolutional detail extraction within each patch and then applies self-attention over pooled patch tokens. This design preserves local infrared details while efficiently modeling inter-patch dependencies. 5
+
+Specifically, each input image is divided into N non-overlapping patches of size P ×P , forming a 5D pseudo-video tensor X ∈ RB×N ×C×P ×P , where B is the batch size, C is the input channel dimension, and N = HP × WP is the total number of patches. To encode local spatial features, we first reshape X into a 4D tensor: 
+
+X′ = Reshape( X) ∈ R(B·N )×C×P ×P , (5) and then apply a shared convolutional encoder PDE( ·) (patch-wise detail extractor, see Figure 2) to process each patch independently: 
+
+X′′ = PDE( X′) ∈ R(B·N )×C′×P ×P , (6) where C′ denotes the output channel dimension. The resulting features are then reshaped back to a 5D tensor to preserve the pseudo-frame structure. To capture long-range dependencies across patches, we introduce the Global Patch Mixer (GPM, Figure 2), which aggregates global context from the sequence of patch-level features. To enable efficient global modeling, we reduce the spatial dimension of each patch by applying average pooling to obtain a compact token representation: 
+
+zi = AvgPool( X′′  
+
+> i
+
+), (7) resulting in a sequence of patch-level tokens Z =[z1, z2, . . . , zN ] ∈ RB×N ×C′
+
+. Given the sparse nature of in-frared targets—where only a small fraction of patches contain meaningful information—this patch-level abstraction is suffi-cient to capture long-range dependencies without incurring the computational cost of pixel-level attention. Unlike conventional attention in ViTs that operates over flattened spatial tokens ( H × W ), GPM applies self-attention across a sequence of pooled patch tokens Z ∈ RB×N ×C′
+
+,where N = H×WP 2 . This inter-token attention is defined as: 
+
+ZGPM = Softmax 
+
+ QK T
+
+√dk
+
+
+
+V, (8) with Q, K, V ∈ RB×N ×dk . This formulation models global dependencies across spatial regions while avoiding the quadratic complexity in H ×W typical of pixel-level attention. The output is then fused with the original features via residual addition: 
+
+Zout = Z + ZGPM . (9) This fusion enables each patch to benefit from globally aggre-gated cues while maintaining its local characteristics. By decoupling local detail extraction and global context modeling, our framework enables efficient and expressive feature learning at native resolution, preserving fine-grained spatial information. Convolutional encoding operates within each patch to capture local details, while GPM efficiently cap-tures long-range dependencies across patch tokens, allowing the model to effectively integrate both local and global context. This design avoids the downsampling caused by the ini-tial pooling layers in ViTs, thereby preserving the original resolution features. Furthermore, it reduces the computational burden of pixel-level ViTs, lowering the complexity from 
+
+O(( H×W )2) to O
+
+  H×WP 2
+
+2
+
+offering a scalable, resolution-preserving alternative to both ViTs and CNNs. 
+
+2) Token Selection via Relevance Estimation: Although the native-resolution branch preserves detailed spatial infor-mation, it inevitably introduces considerable redundancy, as infrared targets typically occupy only a small subset of image patches. To enhance efficiency and direct model capacity toward informative regions, we introduce a lightweight scoring mechanism that enables the model to learn which patches are likely to contain targets. Unlike existing token pruning or merging approaches designed for natural image understanding, which typically rely on token similarity to perform reduction, our method is tailored for the unique challenges posed by IRSTD. In IRSTD, targets are extremely small, sparse, and often indistinguishable from the background without fine-grained resolution. Similarity-based token fusion strategies in this context risk discarding target-relevant tokens or severely degrading spatial resolution, both of which lead to significant performance drops. Considering the sparseness of infrared targets, Na-IRSTD reformulates the token selection problem as a patch-wise classification task, where the objective is to score the probability that each image patch contains a potential target. Specifically, an MLP layer is appended to the output of the native-resolution branch to predict a scalar relevance score for each patch, reflecting its likelihood of being target-relevant. To supervise the scoring network more effectively, we adopt a soft-labeling strategy. We assign labels based on the proximity to target centers, allowing for more nuanced supervision that enhances the model’s ability to focus on relevant target areas. For each image, let M ∈ { 0, 1}H×W
+
+denote the binary ground-truth mask, and T = {(xi, y i)}Ni=1 
+
+be the set of target centers. We define the soft target weight of a pixel at location (x, y ) as: 
+
+w(x, y ) = exp 
+
+
+
+− 12σ2 · min 
+
+> (xi,y i)∈T
+
+(x − xi)2 + ( y − yi)2
+
+,
+
+(10) where σ is a hyperparameter controlling the spatial decay rate. For each image patch Pj , the soft label is computed as the average of weights over all pixels within the patch: 
+
+˜yj = 1
+
+|P j |
+
+X
+
+> (x,y )∈P j
+
+w(x, y ). (11) This formulation produces continuous-valued labels in [0 , 1] ,which serve as patch-level ground-truth scores. Compared to hard labels, this soft supervision smooths the semantic boundary between foreground and background, mitigates class imbalance, and provides more informative gradients during training. The scoring network is built upon the feature extrac-tion module described in Section III-B1. Specifically, after the patch-wise detail-to-semantic feature extraction, a lightweight multi-layer perceptron (MLP) is appended to predict a scalar score for each patch, indicating the likelihood of target pres-ence. The scoring network is trained using Binary Cross-Entropy (BCE) loss between the predicted score sj and the soft label ˜yj :
+
+Lscore = 1
+
+N
+
+> N
+
+X
+
+> j=1
+
+BCE( sj , ˜yj ). (12) 6
+
+Compared to hard binary labels, this soft-labeling approach is particularly beneficial in the context of extreme class imbalance inherent to IRSTD. Since positive patches are exceedingly sparse, directly assigning binary labels often leads to unstable optimization and poor generalization. In contrast, soft labels provide a distance-aware, differentiable supervision signal that facilitates more stable and effective learning. The learned relevance scores enable selective processing of only the most informative patches. Specifically, instead of modeling interactions over all N native patches, we retain only the Top-K patches with the highest scores for subse-quent cross-scale injection. Dense native-resolution modeling processes all N patches, leading to a patch-level attention complexity proportional to O(N 2). With Top-K selection, the effective token number is reduced to K, resulting in a complexity of O(K2). Accordingly, the token reduction ratio is 1− KN . Under the unified configuration ( 256 ×256 input and 
+
+P = 32 ), N = 64 . With K = 5 , this corresponds to a 92 .2% 
+
+token reduction relative to dense native-resolution processing. 
+
+3) Native-Resolution Injection and Optimization: To ef-fectively integrate native-resolution cues into hierarchical backbone representations, we design a cross-scale injection mechanism together with a two-stage optimization strategy. This design addresses both spatial-semantic misalignment and training instability caused by extreme foreground sparsity. 
+
+Cross-scale injection. Given an input of size H × W
+
+and a non-overlapping patch size P × P , the image is par-titioned into N = HP × WP patches. For each stage l, we select a Top-K index set J (l) = {j1, . . . , j K } according to the learned relevance scores. For the backbone feature map 
+
+F (l) 
+
+> s
+
+∈ RB×Cl×Hl×Wl with downsampling factor sl, we set 
+
+P ′ 
+
+> l
+
+= P/s l and partition F (l) 
+
+> s
+
+into N non-overlapping windows of size P ′ 
+
+> l
+
+× P ′ 
+
+> l
+
+, producing a patch-aligned semantic token set Φ(l) ∈ RB×N ×Cl×P ′   
+
+> l×P′
+> l
+
+. For a selected patch index j,let uj =
+
+j jW/P 
+
+k
+
+and vj = j − uj (W/P ) denote its row and column coordinates on the original patch lattice. The corresponding semantic window at stage l therefore starts from 
+
+(r(l) 
+
+> j
+
+, c (l) 
+
+> j
+
+) = ( uj P ′ 
+
+> l
+
+, v j P ′ 
+
+> l
+
+), so the aligned semantic regions can be obtained by indexing Φ(l) with J (l) along the patch dimension. In this way, each selected native patch shares the same lattice index as its semantic window, establishing a de-terministic patch-to-window correspondence without resizing or interpolation. Let the Top-K selected patches at stage l be 
+
+K(l) ∈ RB×K×Dl×P ×P , and the aligned semantic regions be 
+
+F (l) 
+
+> sem
+
+∈ RB×K×Cl×P ′   
+
+> l×P′
+> l
+
+. A stage-specific 1 × 1 projection is applied to match channel dimensions from Dl to Cl. Then we perform cross-attention between the aligned semantic regions and the selected native-resolution patches: 
+
+F (l) 
+
+> inj
+
+= F (l) 
+
+> sem
+
++ αl · CrossAttn 
+
+
+
+F (l)
+
+> sem
+
+, K(l)
+
+, (13) where αl is a learnable scaling factor. Finally, the updated regions F (l) 
+
+> inj
+
+are written back to F (l) 
+
+> s
+
+at the same indices J (l),yielding fused multi-scale representations for decoding. 
+
+Two-stage optimization. To improve convergence stability, we decouple patch relevance learning from dense segmenta-tion. 
+
+Algorithm 1 Two-stage training of Na-IRSTD 
+
+Require: Training images {I}, masks {M}  
+
+> 1:
+
+Stage 1: Patch relevance pretraining  
+
+> 2:
+
+Initialize N and scoring MLP; freeze E, F, D 
+
+> 3:
+
+for each minibatch do  
+
+> 4:
+
+Compute patch scores s and soft labels ˜y 
+
+> 5:
+
+Update N and scoring MLP via Lscore  
+
+> 6:
+
+end for  
+
+> 7:
+
+Stage 2: Segmentation fine-tuning  
+
+> 8:
+
+Load pretrained N and scoring MLP; freeze scoring MLP  
+
+> 9:
+
+for each minibatch do  
+
+> 10:
+
+Predict scores s using the fixed scoring MLP  
+
+> 11:
+
+Select the Top-K patches according to s 
+
+> 12:
+
+Perform cross-scale fusion and predict mask  
+
+> 13:
+
+Update N , E, F, D via Lseg  
+
+> 14:
+
+end for  
+
+> 15:
+
+Inference: deterministic hard Top-K selection using pre-dicted scores In Stage 1, only the native-resolution branch N (·) and the scoring MLP are trained using the soft supervision in Eq. (10) and the BCE loss in Eq. (12), while the backbone, fusion module, and decoder remain inactive. In Stage 2, we initialize the native-resolution branch and the scoring MLP with the pretrained weights from Stage 1. The scoring MLP is then kept fixed, while the native-resolution branch, backbone encoder, fusion module, and decoder are optimized using the segmentation loss 
+
+Lseg = LBCE + LDice . (14) where BCE loss is defined as: 
+
+LBCE = −
+
+> N
+
+X
+
+> i=1
+
+[yi log( pi) + (1 − yi) log(1 − pi)] , (15) where yi is the true label for the i-th sample and pi is the predicted probability for the i-th sample being in the positive class. Dice Loss is defined as: 
+
+LDice = 1 − 2|ˆy ∩ y||ˆy| + |y| , (16) where ˆy is the predicted segmentation mask, and y is the ground truth segmentation mask. The BCE loss ensures the binary classification of each pixel (target or background), while the Dice Loss improves the overlap between predicted and true target regions. In Stage 2, the fixed scoring MLP predicts patch relevance scores for native-resolution patches, and deterministic hard Top-K selection is applied according to the predicted scores. Since hard Top-K selection is non-differentiable with respect to the patch scores, gradients from the segmentation loss are not propagated through the selection operation to the scoring MLP. The same deterministic hard Top-K strategy is used during both training and inference. 
+
+C. IRSTD-Hard Benchmark 
+
+Most existing infrared small target detection datasets contain a considerable portion of medium-sized targets, as summarized 7                                              
+
+> TABLE II CHARACTERISTICS OF THE TEST SPLITS IN VARIOUS INFRARED SMALL TARGET DETECTION DATASETS .Dataset Real or Simulated Dataset Size Image Size Target Size Avg. Target Size Background Type NUDT Simulated 300 256 ×256 1∼98 pixels 31.4 pixels city, cloud, field IRSTD-1k Real 200 256 ×256 1∼329 pixels 11.9 pixels sea, field, mountain SIRSTAUG Real 535 256 ×256 5∼364 pixels 82.8 pixels mountain, field, sea IRSTD-Hard Real/Simulated 294 256 ×256 1∼20 pixels 7.5 pixels sea, field, mountain, city, and cloud (b) Scene distribution (a) Target size cumulative distribution
+> Fig. 3. Statistical characteristics of IRSTD-Hard. (a) Target size cumulative distribution of different IRSTD datasets. (b) Scene distribution of IRSTD-Hard.
+
+in Table II. Statistics in Table II are computed on the offi-cial test partitions, and our IRSTD-Hard benchmark is also constructed solely from test partitions. While valuable for general evaluation, they are not explicitly designed to assess performance in the extreme small-object regime. To systemati-cally investigate this setting, we construct a benchmark named IRSTD-Hard, which focuses exclusively on targets smaller than 20 pixels. The benchmark is constructed exclusively from the test par-titions of three publicly available datasets: IRSTD-1k, NUDT-SIRST, and IRDST. It contains 106 images from IRSTD-1k, 101 from NUDT-SIRST, and 87 from IRDST, resulting in a total of 294 images. A uniform size threshold is applied across all source datasets based on the annotated target area, and no images from the corresponding training subsets are included. All images are resized to 256 ×256 for evaluation consistency. The average target size is 7.5 pixels, and the median size is 6 pixels, indicating a distribution concentrated on extremely small objects. As shown in Fig. 3(a), the cumulative target-size curve of IRSTD-Hard rises much faster than those of the other IRSTD datasets, confirming that our benchmark contains a substantially larger proportion of extremely small targets. Among the 294 images, 73 contain multiple targets. The dataset includes both real and simulated infrared imagery covering scene categories such as sea, field, mountain, urban areas, and cloud backgrounds. Fig. 3(b) further shows that IRSTD-Hard maintains diverse scene composition rather than focusing on a single background type. The relatively balanced source distribution (106/101/87), together with the strict test-only construction, helps alleviate potential source bias. All models are trained on the training split of NUDT-SIRST and evaluated on IRSTD-Hard. This protocol guarantees strict train–test disjointness at the image level and evaluates robust-ness under cross-dataset distribution shifts. IV. E XPERIMENTS 
+
+A. Experimental details 1) Dataset: We evaluate our proposed method on four infrared small target detection benchmarks: IRSTD-1k [11], SIRSTAUG [52], NUDT-SIRST [27], and IRSTD-Hard. The IRSTD-1k dataset consists of 1,000 real infrared images, each containing one or more small targets. SIRSTAUG contains 8,525 images and is an augmented version of the SIRST dataset. NUDT-SIRST contains 1,327 synthetically generated infrared images with single or multiple small objects. All images are resized to 256 × 256 to ensure consistency. For all datasets, we split the images into 50% training, 30% validation, and 20% testing subsets to ensure stable training and fair evaluation. IRSTD-Hard is used exclusively as a test set. For fairness, the models in the comparison are trained on NUDT and tested on IRSTD-Hard to evaluate their ability to detect small targets and their generalization capability. 
+
+2) Implementation Details: We adopt the Adam optimizer and a cosine decay learning rate scheduler. All models are trained with a batch size of 8 on dual Nvidia GeForce RTX 4090 GPUs. For the proposed token reduction, the patch size is set to P = 32 , and we keep Top-K tokens per layer with 
+
+K = 5 . Na-IRSTD is optimized in two stages. In Stage 1, only the native-resolution branch and the scoring MLP are instantiated and trained for 500 epochs with a learning rate of 1 × 10 −4. In Stage 2, the full model is initialized with the pretrained weights from Stage 1, and the scoring MLP is frozen. The native-resolution branch, backbone encoder, fusion module, and decoder are then trained for 1500 epochs, where the learning rate of the backbone encoder and the fusion module is set to 1 × 10 −4, while the native-resolution branch uses a smaller learning rate of 1×10 −6. The cosine schedule is restarted at the beginning of this stage, and deterministic hard Top-K selection is applied based on the predicted relevance scores. For comparison, we include traditional methods, such as NRAM [23] and PSTNN [8]; and deep learning-based methods, such as ACM [26], DNANet [27], ISNet [11], UIUNet [51], RPCANet [53], IRMamba [32], and SAIST [34]. We adopt IoU, detection probability ( Pd), and false alarm rate ( Fa) as default metrics. Among them, Pd and Fa are object-level metrics, while IoU is a pixel-level metric. Their definitions are as follows: 
+
+Pd = T P T P + F N , (17) 8                                                                                                                                                                                   
+
+> TABLE III COMPARISON WITH OTHER STATE -OF -THE -ART METHODS ON FOUR DATASETS . T HE METRICS CONSIDERED INCLUDE IOU ( 10 −2), Pd(10 −2), AND Fa
+> (10 −6). Method Publish IRSTD-1k SIRSTAUG NUDT-SIRST IRSTD-Hard IoU ↑Pd↑Fa↓IoU ↑Pd↑Fa↓IoU ↑Pd↑Fa↓IoU ↑Pd↑Fa↓
+> NRAM [23] RS’18 9.88 72.48 24.73 8.97 71.47 68.98 12.08 72.58 84.77 5.36 49.17 243.25 PSTNN [8] RS’19 24.57 71.99 35.26 19.14 73.14 61.58 27.72 66.13 44.17 11.93 53.38 124.73 ACM [26] WACV’21 63.39 91.25 8.961 73.84 97.52 76.35 69.26 96.26 10.27 30.87 76.04 96.79 DNANet [27] TIP’22 68.87 94.95 13.38 74.31 97.80 30.07 92.09 99.53 2.35 41.51 77.06 55.32 ISNet [11] CVPR’22 68.77 95.56 15.39 72.50 98.41 28.61 88.92 99.12 4.21 40.84 78.31 53.26 UIUNet [51] TIP’23 69.13 94.27 16.47 74.24 98.35 23.13 90.17 99.29 2.39 42.76 79.34 89.16 AGPCNet [52] TAES’23 68.81 94.26 15.85 72.88 97.45 38.33 88.71 97.57 7.54 41.47 79.20 59.53 RPCANet [53] WACV’24 63.21 88.31 43.9 72.54 98.21 34.14 89.03 97.14 28.7 40.35 79.31 58.68 IRMamba [32] AAAI’25 70.04 95.81 5.92 72.63 97.55 29.64 95.18 99.26 1.31 40.66 76.33 57.52 SAIST [34] CVPR’25 72.14 96.18 4.76 74.02 98.44 35.14 95.23 99.28 1.31 40.50 79.54 51.25 Na-IRSTD –73.42 95.42 4.33 74.39 99.72 20.83 97.45 100.00 1.22 47.83 82.18 33.58
+
+where T P and F N denote the number of true positives (correctly detected targets) and false negatives (missed targets), respectively. 
+
+Fa = F P N , (18) where F P is the number of false positives (unmatched detec-tions), and N is the total number of test images. Intersection over Union (IoU): 
+
+IoU = T P T + P − T P , (19) where T , P , T P , and F P denote the number of ground-truth positive pixels, predicted positive pixels, true positive pixels, and false positive pixels, respectively. 
+
+B. Main Results a) Quantitative Results: As presented in Table III, tradi-tional methods often struggle in complex scenarios. Methods based on general segmentation frameworks are limited in per-formance due to the loss of information during downsampling. By incorporating native-resolution information, our method achieves improved performance across most evaluated metrics, with particularly strong results on NUDT. Additionally, the results on IRSTD-Hard suggest that our method generalizes well to more challenging small-target scenarios, which may partly benefit from the proposed two-stage training strategy. On IRSTD-1k, although Na-IRSTD does not achieve the highest Pd, its Pd remains highly competitive, while the method still attains the best IoU and the lowest Fa. This behavior may be attributed to the fact that Na-IRSTD, trained with segmentation losses and relevance-guided sparse native-resolution fusion, tends to produce cleaner and more compact responses by focusing on the most informative target evidence and suppressing spurious background activations. Such predic-tions improve overlap quality and false-alarm suppression, but may be slightly less aggressive in object-level hit counting than some competing methods. Therefore, the slightly lower 
+
+Pd on IRSTD-1k should be interpreted together with the simultaneously improved IoU and Fa, indicating better overall detection quality. 
+
+b) Visual Results: Figure 4 presents detection results using our method compared to other IRSTD methods. These visual comparisons are consistent with the quantitative results and suggest that the integration of native-resolution features is beneficial in cluttered scenes. These results highlight our method’s ability to effectively capture fine-grained details of small targets, even in challenging scenarios with significant background clutter. 
+
+C. Ablation Study a) Impact of the Native-Resolution Branch: We visualize the features at different stages of the native-resolution branch and the backbone encoder, as shown in Figure 5. From the fig-ure, it is evident that in images with small targets or complex backgrounds, the backbone encoder struggles to capture suffi-cient target features. As the image undergoes downsampling, the resolution of the target decreases, and the information related to the target gradually diminishes, making it harder for the model to maintain high-precision feature representations. This issue is particularly challenging when targets are small or obscured by complex background clutter. In contrast, the native-resolution branch demonstrates a significant advantage. The features in this path progressively strengthen at each stage, retaining more fine-grained details throughout the network. This ability to preserve high-resolution information ensures that small or subtle target features are more easily captured, even in the presence of noise or background complexity. By leveraging the native-resolution branch to extract native-resolution features, we supplement the backbone encoder with more precise target information, which not only improves the model’s ability to detect small targets but also enhances its robustness in more challenging scenarios. To more clearly evaluate the role of the native-resolution branch, we unify the ablation results into Table IV, which jointly compares three settings: without the native-resolution branch, with a non-patch-based CNN branch, and with the proposed patch-based 2D+1D branch. As shown in the table, introducing the native-resolution branch consistently improves detection performance across all datasets, with the most no-table gains observed on IRSTD-Hard, highlighting the impor-9PSTNN  ACM  IRMamba DNA  UIU  Na -IRSTD  GT Image  
+
+> Fig. 4. Visual results of different IRSTD methods. The boxes in red, yellow, and blue represent correct, false, and missed detections, respectively. Close-up views are shown in the corners.
+
+T
+
+hes 
+
+Top -5
+
+patches 
+
+GT  Image  Feature maps at different stages in backbone  Feature maps at different stages in Native -resolution  GT  
+
+> Fig. 5. Visual comparison of feature maps in backbone encoder and native-resolution branch.
+
+tance of preserving fine-grained target details in challenging scenes. Among the compared branch designs, the patch-based 2D+1D architecture achieves the best overall performance across all datasets. By performing convolutional encoding within each patch and modeling inter-patch dependencies separately, it preserves fine-grained spatial details while main-taining global context awareness. The non-patch-based CNN variant performs slightly worse, which can be attributed to its limited capability in modeling long-range interactions un-der native-resolution processing. For completeness, we also attempted a no-downsampling ViT baseline, but it resulted in out-of-memory (OOM) errors even with batch size 1 on a single RTX 4090, indicating that dense ViT-based native-resolution modeling is prohibitively expensive in this setting. By contrast, the proposed native-resolution branch preserves the benefits of native-resolution processing while remaining computationally tractable. 
+
+b) Impact of Two-stage Optimization and Soft Label: As shown in Table V, the proposed two-stage strategy consistently outperforms one-stage end-to-end training under the same supervision type. Under the extreme foreground sparsity of IRSTD, jointly learning patch relevance and dense segmen-tation from scratch is difficult, since the scoring MLP must distinguish a very small number of target-related patches from a large background-dominated patch set. As a result, one-stage optimization may produce unstable early patch rankings, weakening the effectiveness of native-resolution injection. In 10                                                
+
+> TABLE IV COMPARISON OF DIFFERENT NATIVE -RESOLUTION SETTINGS AND ARCHITECTURES .Dataset w/o native-resolution branch Non-Patch-based CNN Patch-based 2D+1D (ours) IoU PdFaIoU PdFaIoU PdFa
+> IRSTD-1k 72.14 93.31 8.97 72.30 94.11 10.24 73.42 95.42 4.33 SIRSTAUG 72.70 98.16 33.78 73.41 98.86 39.63 74.39 99.72 20.83 NUDT 95.34 98.60 6.77 95.77 99.26 8.74 97.45 100.00 1.22 IRSTD-Hard 42.19 78.81 63.25 42.26 78.77 67.43 47.83 82.18 33.58 ConvBlock
+
+Top -5
+
+atches 
+
+> ConvBlock
+
+Native Resolution 
+
+Branch     
+
+> Image GT Heatmap GT
+> Patches
+> Top -5
+> patches
+> Fig. 6. Visualization of patch-to-target relevance prediction.
+
+contrast, the proposed two-stage strategy first pretrains the native-resolution branch and scoring MLP to provide a more reliable initialization for patch ranking, and then fine-tunes the detector with the scoring MLP fixed, so that stable patch ranking can be used to guide native-resolution injection during segmentation training. The Top-K coverage rate measures the proportion of se-lected patches that contain target regions. Fig. 7 compares two training strategies for the scoring network, namely hard-label supervision and soft-label supervision, under the same coverage-based evaluation protocol. Soft-label training consis-tently achieves much higher coverage than hard-label training. This improvement can be attributed to the distance-aware supervision in Eq. (10), which alleviates extreme class imbal-ance and provides smoother gradient signals during relevance learning. To further evaluate the impact of supervision type and optimization strategy on the final detector, we compare four settings in Table V: one-stage training with hard-label supervision, one-stage training with soft-label supervision, two-stage training with hard-label supervision, and two-stage training with soft-label supervision. The results show that soft-label supervision consistently improves downstream detection under the same training strategy, while two-stage optimization further brings gains under the same supervision type. 20            
+
+> 22
+> 24
+> 26
+> 28
+> 30
+> 32
+> 34
+> 36
+> 38
+> 40
+> 34567
+> Hard label
+> 80
+> 82
+> 84
+> 86
+> 88
+> 90
+> 92
+> 94
+> 96
+> 98
+> 100
+> 34567
+> Soft label
+> Top -K Coverage Rate (%)
+> KK
+> Fig. 7. Top-Kpatch coverage under two different training supervision strategies for the scoring network on NUDT-SIRST. Both curves are evaluated with the same coverage criterion at inference time.
+
+0 2 4 6 8 10 12 14 16 18 20 
+
+FPS 
+
+86 
+
+88 
+
+90 
+
+92 
+
+94 
+
+96 
+
+98 
+
+100 
+
+> IoU (%)
+
+DNANet 
+
+ISNet 
+
+UIUNet 
+
+AGPCNet RPCA 
+
+IRMamba 
+
+Na-IRSTD(Ours)  
+
+> Fig. 8. Comparison of IoU and throughput on a single Nvidia GeForce 4090 GPU. The circle size refers to the model size. Batch size is set to 1, and the experiments are conducted on the NUDT dataset.
+
+c) Impact of K: We further analyze the influence of K
+
+on detection performance. When K = 5 , the performance becomes nearly saturated, and increasing K beyond this value yields only marginal gains. This is closely related to the target distribution of the evaluated datasets, where most images con-tain fewer than five targets. As shown in Fig. 7, increasing K
+
+from smaller values improves the coverage of target-relevant patches, while K = 5 is already sufficient to preserve most useful native-resolution evidence on the current benchmarks. For scenes with substantially higher target density, a larger K
+
+may be more appropriate, which deserves further investigation in future work. Under the default setting, the model retains only 5 out of 64 native patches while maintaining near-saturated detection performance. 11 
+
+TABLE V COMBINED EFFECT OF TRAINING STRATEGY AND SUPERVISION TYPE ON DOWNSTREAM DETECTION ACROSS FOUR DATASETS .Dataset One-stage + Hard-label One-stage + Soft-label Two-stage + Hard-label Two-stage + Soft-label IoU Pd Fa IoU Pd Fa IoU Pd Fa IoU Pd Fa
+
+IRSTD-1k 69.84 91.96 11.82 71.92 93.87 7.28 70.68 92.54 9.46 73.42 95.42 4.33 SIRSTAUG 71.25 97.86 41.72 73.12 98.94 28.67 72.31 98.31 34.95 74.39 99.72 20.83 NUDT 93.94 96.82 15.37 95.37 98.21 2.68 94.86 97.43 11.49 97.45 100.00 1.22 IRSTD-Hard 41.53 75.64 71.28 44.92 79.37 46.85 43.68 77.91 58.42 47.83 82.18 33.58 
+
+D. Trade-off Analysis 
+
+To further assess the practical efficiency of Na-IRSTD, we analyze the trade-off between detection accuracy and inference speed. As shown in Figure 8, Na-IRSTD achieves the highest detection accuracy while maintaining competitive inference speed and a moderate model size compared with existing methods. In contrast, some methods achieve faster runtime at the cost of reduced detection performance, whereas others improve accuracy but require heavier models or lower infer-ence efficiency. These results indicate that the proposed native-resolution modeling combined with selective token processing effectively improves detection capability without introducing disproportionate computational overhead. V. C ONCLUSION 
+
+In this article, we propose Na-IRSTD, a novel frame-work that fully leverages native-resolution representations for infrared small target detection. We introduce an effective native-resolution information extractor that preserves critical target details without the loss associated with downsampling. Additionally, the two-stage training strategy reduces training complexity, implements token reduction, and effectively filters redundant information while retaining key details. Experimen-tal results on multiple datasets validate the effectiveness of Na-IRSTD under the evaluated settings. REFERENCES [1] R. Kou, C. Wang, Z. Peng, Z. Zhao, Y. Chen, J. Han, F. Huang, Y. Yu, and Q. Fu, “Infrared small target segmentation networks: A survey,” 
+
+Pattern recognition , vol. 143, p. 109788, 2023. [2] S. S. Rawat, S. K. Verma, and Y. Kumar, “Review on recent develop-ment in infrared small target detection algorithms,” Procedia Computer Science , vol. 167, pp. 2496–2505, 2020. [3] H. Deng, X. Sun, and X. Zhou, “A multiscale fuzzy metric for detecting small infrared targets against chaotic cloudy/sea-sky backgrounds,” IEEE Transactions on Cybernetics , vol. 49, no. 5, pp. 1694–1707, 2019. [4] Y. Zhu, Y. Ma, F. Fan, J. Huang, and G. Wang, “Shifting neighbors within temporal contexts for slow-moving infrared small target detec-tion,” IEEE Signal Processing Letters , 2025. [5] T. Ma, H. Wang, J. Liang, Y. Wang, J. Peng, Z. Kai, and X. Liu, “The temporal-spatial information fusion network for multi-frame infrared small target detection,” IEEE Transactions on Instrumentation and Measurement , 2025. [6] X. Ying, C. Xiao, W. An, R. Li, X. He, B. Li, X. Cao, Z. Li, Y. Wang, M. Hu, Q. Xu, Z. Lin, M. Li, S. Zhou, L. Liu, and W. Sheng, “Visible-thermal tiny object detection: A benchmark dataset and baselines,” IEEE Transactions on Pattern Analysis and Machine Intelligence , vol. 47, no. 7, pp. 6088–6096, 2025. [7] J. Han, S. Moradi, I. Faramarzi, H. Zhang, Q. Zhao, X. Zhang, and N. Li, “Infrared small target detection based on the weighted strengthened local contrast measure,” IEEE Geoscience and Remote Sensing Letters ,vol. 18, no. 9, pp. 1670–1674, 2020. [8] L. Zhang and Z. Peng, “Infrared small target detection based on partial sum of the tensor nuclear norm,” Remote Sensing , vol. 11, no. 4, p. 382, 2019. [9] J. Wang, G. Zhang, K. Zhang, Y. Zhao, Q. Wang, and X. Li, “Detection of small aerial object using random projection feature with region clustering,” IEEE Transactions on Cybernetics , vol. 52, no. 5, pp. 3957– 3970, 2022. [10] O. Ronneberger, P. Fischer, and T. Brox, “U-net: Convolutional networks for biomedical image segmentation,” in International Conference on Medical image computing and computer-assisted intervention . Springer, 2015, pp. 234–241. [11] M. Zhang, R. Zhang, Y. Yang, H. Bai, J. Zhang, and J. Guo, “Isnet: Shape matters for infrared small target detection,” in Proceedings of the IEEE/CVF conference on computer vision and pattern recognition ,2022, pp. 877–886. [12] R. Huang, J. Huang, Y. Ma, F. Fan, and Y. Zhu, “Dstransnet: Dynamic feature selection network with feature enhancement and multi-attention for infrared small target detection,” IEEE Transactions on Geoscience and Remote Sensing , pp. 1–1, 2025. [13] T. Ma, H. Wang, J. Liang, J. Peng, Q. Ma, and Z. Kai, “Msma-net: An infrared small target detection network by multiscale super-resolution enhancement and multilevel attention fusion,” IEEE Transactions on Geoscience and Remote Sensing , vol. 62, pp. 1–20, 2023. [14] M. Zhang, Y. Wang, J. Guo, Y. Li, X. Gao, and J. Zhang, “Irsam: Advancing segment anything model for infrared small target detection,” in European Conference on Computer Vision . Springer, 2024, pp. 233– 249. [15] H. Wang, J. Zhao, H. Wang, C. Hu, J. Peng, and S. Yue, “Attention and prediction-guided motion detection for low-contrast small moving targets,” IEEE Transactions on Cybernetics , vol. 53, no. 10, pp. 6340– 6352, 2023. [16] Y. Zhu, Y. Ma, F. Fan, J. Huang, K. Wu, and G. Wang, “Toward accurate infrared small target detection via edge-aware gated transformer,” IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing , vol. 17, pp. 8779–8793, 2024. [17] Y. Chen, Y. Zhu, S. Min, Z. Qiu, A. Hu, T. Wang, and T. Zhang, “Dcganet: Fusing selective variable convolution and dynamic content-guided attention for infrared small target detection,” Knowledge-Based Systems , p. 115546, 2026. [18] T. Ma, Q. Ma, Z. Yang, J. Liang, J. Fu, Y. Dou, Y. Ku, U. Ahmad, and L. Qu, “Mcdnet: An infrared small target detection network using multi-criteria decision and adaptive labeling strategy,” IEEE Transactions on Geoscience and Remote Sensing , vol. 62, pp. 1–14, 2024. [19] M. Zhang, C. Zhang, Q. Zhang, Y. Li, X. Gao, and J. Zhang, “Unleashing the power of generic segmentation model: A simple baseline for infrared small target detection,” in Proceedings of the 32nd ACM International Conference on Multimedia , 2024, pp. 10 392–10 401. [20] Y. Zhu, Y. Ma, F. Fan, J. Huang, Y. Yao, X. Zhou, and R. Huang, “Toward robust infrared small target detection via frequency and spatial feature fusion,” IEEE Transactions on Geoscience and Remote Sensing ,2025. [21] S. Yuan, L. Zhang, R. Dong, J. Xiong, J. Zheng, H. Fu, and P. Gong, “Relational part-aware learning for complex composite object detection in high-resolution remote sensing images,” IEEE Transactions on Cy-bernetics , vol. 54, no. 10, pp. 6118–6131, 2024. [22] C. Gao, D. Meng, Y. Yang, Y. Wang, X. Zhou, and A. G. Hauptmann, “Infrared patch-image model for small target detection in a single image,” IEEE transactions on image processing , vol. 22, no. 12, pp. 4996–5009, 2013. [23] L. Zhang, L. Peng, T. Zhang, S. Cao, and Z. Peng, “Infrared small target detection via non-convex rank approximation minimization joint l 2, 1 norm,” Remote Sensing , vol. 10, no. 11, p. 1821, 2018. 12 
+
+[24] Y. Dai and Y. Wu, “Reweighted infrared patch-tensor model with both nonlocal and local priors for single-frame small target detection,” IEEE journal of selected topics in applied earth observations and remote sensing , vol. 10, no. 8, pp. 3752–3767, 2017. [25] Y. Sun, J. Yang, and W. An, “Infrared dim and small target detection via multiple subspace learning and spatial-temporal patch-tensor model,” 
+
+IEEE Transactions on Geoscience and Remote Sensing , vol. 59, no. 5, pp. 3737–3752, 2020. [26] Y. Dai, Y. Wu, F. Zhou, and K. Barnard, “Asymmetric contextual modulation for infrared small target detection,” in Proceedings of the IEEE/CVF winter conference on applications of computer vision , 2021, pp. 950–959. [27] B. Li, C. Xiao, L. Wang, Y. Wang, Z. Lin, M. Li, W. An, and Y. Guo, “Dense nested attention network for infrared small target detection,” 
+
+IEEE Transactions on Image Processing , vol. 32, pp. 1745–1758, 2022. [28] M. Zhang, H. Bai, J. Zhang, R. Zhang, C. Wang, J. Guo, and X. Gao, “Rkformer: Runge-kutta transformer with random-connection attention for infrared small target detection,” in Proceedings of the 30th ACM International Conference on Multimedia , 2022, pp. 1730–1738. [29] M. Zhang, K. Yue, B. Li, J. Guo, Y. Li, and X. Gao, “Single-frame infrared small target detection via gaussian curvature inspired network,” 
+
+IEEE Transactions on Geoscience and Remote Sensing , 2024. [30] S. Zhuang, Y. Hou, M. Qi, and D. Wang, “Faa-net: A frequency-aware attention network for single-frame infrared small target detection,” IEEE Transactions on Instrumentation and Measurement , 2025. [31] T. Chen, Z. Ye, Z. Tan, T. Gong, Y. Wu, Q. Chu, B. Liu, N. Yu, and J. Ye, “Mim-istd: Mamba-in-mamba for efficient infrared small target detection,” IEEE Transactions on Geoscience and Remote Sensing , 2024. [32] M. Zhang, X. Li, F. Gao, and J. Guo, “Irmamba: Pixel difference mamba with layer restoration for infrared small target detection,” in Proceedings of the AAAI Conference on Artificial Intelligence , vol. 39, no. 9, 2025, pp. 10 003–10 011. [33] Z. Weng, X. Fu, X. Zhang, and S. Sun, “Moe-ir: Infrared dim small target detection method with mixture of experts feature extraction,” 
+
+Electronics Letters , vol. 61, no. 1, p. e70359, 2025. [34] M. Zhang, X. Li, F. Gao, J. Guo, X. Gao, and J. Zhang, “Saist: Segment any infrared small target model guided by contrastive language-image pretraining,” in Proceedings of the Computer Vision and Pattern Recognition Conference , 2025, pp. 9549–9558. [35] G. Hu, L. Fan, H. Xu, C. Lin, X. Ding, and Y. Huang, “Dual-transformer feature enhancement for infrared small-dim target detection,” IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing , vol. 19, pp. 342–356, 2026. [36] L. Fan, Y. Wang, G. Hu, F. Li, Y. Dong, H. Zheng, C. Lin, Y. Huang, and X. Ding, “Diffusion-based continuous feature representation for infrared small-dim target detection,” IEEE Transactions on Geoscience and Remote Sensing , vol. 62, pp. 1–17, 2024. [37] K. Sun, B. Xiao, D. Liu, and J. Wang, “Deep high-resolution represen-tation learning for human pose estimation,” in CVPR , 2019. [38] J. Xu, “Hc-mamba: Vision mamba with hybrid convolutional techniques for medical image segmentation,” arXiv preprint arXiv:2405.05007 ,2024. [39] R. Hesse, S. Schaub-Meyer, and S. Roth, “Content-adaptive downsam-pling in convolutional neural networks,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 2023, pp. 4544–4553. [40] T. Liu, Y. Wei, and Y. Zhang, “Progressive neighborhood aggregation for semantic segmentation refinement,” in Proceedings of the AAAI Conference on Artificial Intelligence , vol. 37, no. 2, 2023, pp. 1737– 1745. [41] L. Chen, L. Gu, D. Zheng, and Y. Fu, “Frequency-adaptive dilated con-volution for semantic segmentation,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 2024, pp. 3414–3425. [42] D. Bolya, C.-Y. Fu, X. Dai, P. Zhang, C. Feichtenhofer, and J. Hoffman, “Token merging: Your ViT but faster,” in International Conference on Learning Representations , 2023. [Online]. Available: https://openreview.net/forum?id=JroZRaRw7Eu [43] Y. Rao, W. Zhao, B. Liu, J. Lu, J. Zhou, and C.-J. Hsieh, “DynamicViT: Efficient vision transformers with dynamic token sparsification,” in 
+
+Advances in Neural Information Processing Systems , vol. 34, 2021, pp. 13 937–13 949. [44] H. Yin, A. Vahdat, J. M. Alvarez, A. Mallya, J. Kautz, and P. Molchanov, “A-ViT: Adaptive tokens for efficient vision transformer,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recogni-tion , 2022, pp. 10 809–10 818. [45] T. Naruko and H. Akutsu, “Speed-up of vision transformer models by attention-aware token filtering,” arXiv preprint arXiv:2506.01519 , 2025. [46] L. Meng, H. Li, B.-C. Chen, S. Lan, Z. Wu, Y.-G. Jiang, and S.-N. Lim, “AdaViT: Adaptive vision transformers for efficient image recognition,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 2022, pp. 12 309–12 318. [47] Y. Xu, Z. Zhang, M. Zhang, K. Sheng, K. Li, W. Dong, L. Zhang, C. Xu, and X. Sun, “Evo-ViT: Slow-fast token evolution for dynamic vision transformer,” Proceedings of the AAAI Conference on Artificial Intelligence , vol. 36, no. 3, pp. 2964–2972, 2022. [48] Q. Tang, B. Zhang, J. Liu, F. Liu, and Y. Liu, “Dynamic token pruning in plain vision transformers for semantic segmentation,” in Proceedings of the IEEE/CVF International Conference on Computer Vision , 2023, pp. 777–786. [49] Y. Liu, Q. Zhou, J. Wang, Z. Wang, F. Wang, J. Wang, and W. Zhang, “Dynamic token-pass transformers for semantic segmentation,” in Pro-ceedings of the IEEE/CVF Winter Conference on Applications of Com-puter Vision , 2024, pp. 1827–1836. [50] A. Kirillov, E. Mintun, N. Ravi, H. Mao, C. Rolland, L. Gustafson, T. Xiao, S. Whitehead, A. C. Berg, W.-Y. Lo, P. Dollar, and R. Girshick, “Segment anything,” in Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) , October 2023, pp. 4015–4026. [51] X. Wu, D. Hong, and J. Chanussot, “Uiu-net: U-net in u-net for infrared small object detection,” IEEE Trans. Image. Process. , vol. 32, pp. 364– 376, 2023. [52] T. Zhang, L. Li, S. Cao, T. Pu, and Z. Peng, “Attention-guided pyramid context networks for detecting infrared small target under complex background,” IEEE Transactions on Aerospace and Electronic Systems ,vol. 59, no. 4, pp. 4250–4261, 2023. [53] F. Wu, T. Zhang, L. Li, Y. Huang, and Z. Peng, “Rpcanet: Deep unfolding rpca based infrared small target detection,” in Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision ,2024, pp. 4809–4818.

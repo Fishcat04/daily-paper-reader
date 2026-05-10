@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.05804v1/fig-001.webp",
+      "caption": "Fig. 1. Visualization of feature maps across different downsampling stages. As the resolution decreases, small targets become indistinct and eventually vanish. In the native-resolution branch, the responses of small targets are progressively enhanced. By introducing this native-resolution branch, even extremely small targets can be preserved and successfully detected.",
+      "page": 1,
+      "index": 1,
+      "width": 529,
+      "height": 450
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05804v1/fig-002.webp",
+      "caption": "Fig. 3. Statistical characteristics of IRSTD-Hard. (a) Target size cumulative distribution of different IRSTD datasets. (b) Scene distribution of IRSTDHard.",
+      "page": 7,
+      "index": 2,
+      "width": 523,
+      "height": 259
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05804v1/fig-003.webp",
+      "caption": "TABLE III COMPARISON WITH OTHER STATE-OF-THE-ART METHODS ON FOUR DATASETS. THE METRICS CONSIDERED INCLUDE IOU (10−2), Pd (10−2), AND Fa (10−6).",
+      "page": 8,
+      "index": 3,
+      "width": 1006,
+      "height": 313
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05804v1/fig-004.webp",
+      "caption": "Fig. 2. Overview of the proposed Na-IRSTD architecture. The upper pathway is the native-resolution branch and the lower pathway is the hierarchical backbone encoder. PDCE denotes the Patchwise Detail-Context Encoder, composed of PDE and GPM. PDE denotes Patchwise Detail Extraction, and GPM denotes Global Patch Mixer. For clarity, only one representative stage is expanded to illustrate the detailed operations, while the remaining stages follow the same design pattern.",
+      "page": 4,
+      "index": 4,
+      "width": 1076,
+      "height": 438
+    }
+  ]
+}

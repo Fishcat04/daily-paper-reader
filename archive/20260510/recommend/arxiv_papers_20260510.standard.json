@@ -1,0 +1,176 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-05-10T19:58:01.483693+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 2,
+    "deep_cap": 6,
+    "deep_selected": 2,
+    "quick_candidates": 2,
+    "quick_skim_target": 11,
+    "quick_selected": 2
+  },
+  "deep_dive": [
+    {
+      "id": "2605.05804v1",
+      "source": "arxiv",
+      "title": "Na-IRSTD: Enhancing Infrared Small Target Detection via Native-Resolution Feature Selection and Fusion",
+      "abstract": "Infrared small target detection (IRSTD) faces the inherent challenge of precisely localizing dim targets amid complex background clutter. While progress has been made, existing methods usually follow conventional strategies to downsample features and discard small targets' details, resulting in suboptimal performance. In this paper, we present Na-IRSTD, a native-resolution feature extraction and fusion framework for IRSTD. This framework elegantly incorporates native-resolution features to preserve subtle target cues, overcoming the resolution limitations of existing infrared approaches and significantly improving the model's ability to localize small targets. We also introduce an effective token reduction and selection strategy, which selects target patches with high accuracy and confidence, boosting the low-level details of the feature while effectively reducing native-resolution patch tokens compared to dense processing, thereby avoiding imposing an unbearable computational burden. Extensive experiments demonstrate the robustness and effectiveness of our token reduction and selection strategy across multiple public datasets. Ultimately, our Na-IRSTD model achieves state-of-the-art performance on four benchmarks.",
+      "authors": [
+        "Qian Xu",
+        "Chi Zhang",
+        "Qiming Zhang",
+        "Xi Li",
+        "Haojuan Yuan",
+        "Mingjin Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-07T07:42:03+00:00",
+      "link": "https://arxiv.org/pdf/2605.05804v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "native-resolution feature extraction and fusion for infrared small target detection",
+      "llm_evidence_cn": "用于红外小目标检测的原生分辨率特征提取与融合",
+      "llm_evidence": "用于红外小目标检测的原生分辨率特征提取与融合",
+      "canonical_evidence": "用于红外小目标检测的原生分辨率特征提取与融合",
+      "llm_tldr_en": "Proposes Na-IRSTD, a framework using native-resolution features to improve small target localization.",
+      "llm_tldr_cn": "提出Na-IRSTD框架，利用原生分辨率特征提升红外小目标定位精度。",
+      "llm_tldr": "提出Na-IRSTD框架，利用原生分辨率特征提升红外小目标定位精度。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.02616v1",
+      "source": "arxiv",
+      "title": "Global-Local Feature Decoding with Adapter-Guided SAMv2 for Salient Object Detection",
+      "abstract": "Salient Object Detection (SOD) remains an essential yet underexplored task in the era of large-scale vision models. Although foundation models like SAM exhibit strong generalization, their potential for SOD is not fully realized, and training or fully fine-tuning them is computationally expensive and prone to overfitting under limited data. To overcome these challenges, we introduce GLASSNet, a Global-Local feature decoding framework that uses SAMv2 as a frozen encoder paired with a lightweight, spatially aware convolutional adapter-reducing learnable encoder parameters by over 97%. To enhance saliency quality, GLASSNet employs a dual-decoder architecture: one decoder captures global, long-range semantics with an expanded receptive field, while the other captures fine local details such as edges and textures. Fusing these complementary cues yields saliency maps that combine global coherence with local precision, producing accurate final masks. Extensive experiments on standard SOD and camouflaged object detection benchmarks show that GLASSNet surpasses state-of-the-art methods, demonstrating the power of frozen foundation models combined with targeted adaptation and global-local decoding.",
+      "authors": [
+        "Morteza Moradi",
+        "Mohammad Moradi",
+        "Simone Palazzo",
+        "Ali Borji",
+        "Concetto Spampinato"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-04T14:04:38+00:00",
+      "link": "https://arxiv.org/pdf/2605.02616v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 8.5,
+      "llm_evidence_en": "salient object detection using global-local feature decoding and spatial awareness",
+      "llm_evidence_cn": "利用全局-局部特征解码和空间感知进行显著性目标检测",
+      "llm_evidence": "利用全局-局部特征解码和空间感知进行显著性目标检测",
+      "canonical_evidence": "利用全局-局部特征解码和空间感知进行显著性目标检测",
+      "llm_tldr_en": "GLASSNet utilizes a dual-decoder for global and local features to improve salient object detection quality.",
+      "llm_tldr_cn": "GLASSNet利用全局和局部特征的双解码器来提高显著性目标检测的质量。",
+      "llm_tldr": "GLASSNet利用全局和局部特征的双解码器来提高显著性目标检测的质量。",
+      "llm_tags": [
+        "query:sod:composite"
+      ],
+      "matched_query_tag": "query:sod:composite",
+      "matched_query_text": "Papers central to 小目标检测相关论文检索, especially work that connects or combines: deep learning methods for small object detection; FPN and its variants for multi-scale object detection; oversampling and augmentation strategies for small objects; spatial and channel attention for small object feature enhancement; multi-scale feature fusion techniques in computer vision; specialized loss functions for small object localization; state of the art deep learning methods for small object detection; benchmarking small object detection on public datasets.",
+      "matched_requirement_id": "req-composite-sod",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2605.05913v1",
+      "source": "arxiv",
+      "title": "Wisteria: A Unified Multi-Scale Feature Learning Framework for DNA Language Model",
+      "abstract": "DNA language model aims to decipher the regulatory grammar and semantic of genomes by capturing long range dependencies in DNA sequences. Existing methods emphasize long range token interactions but often ignore the interplay between local motifs and global dependencies. In this paper, we propose Wisteria, a genomic language model that integrates multi scale feature learning within a unified framework for DNA sequence. Specifically, Wisteria augments the Mamba based architecture with gated dilated convolutions to capture local motifs and regulatory patterns, while gated multilayer perceptrons refine global dependencies. We further introduce a Fourier based attention mechanism to support frequency domain modeling, periodic extension and length generalization. Across four experimental settings with both short and long range dependencies, Wisteria demonstrates strong performance on downstream benchmarks against competitive DNA language model baselines. These results indicate that Wisteria effectively unifies local and global dependency modeling for multi scale genomic sequence analysis.",
+      "authors": [
+        "Weihua Wang",
+        "Haoji Li",
+        "Feilong Bao",
+        "Lei Yang",
+        "Guanglai Gao"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI"
+      ],
+      "published": "2026-05-07T09:25:38+00:00",
+      "link": "https://arxiv.org/pdf/2605.05913v1",
+      "tags": [
+        "keyword:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "multi-scale feature learning and gated dilated convolutions for local motifs",
+      "llm_evidence_cn": "多尺度特征学习和用于局部基元的门控扩张卷积",
+      "llm_evidence": "多尺度特征学习和用于局部基元的门控扩张卷积",
+      "canonical_evidence": "多尺度特征学习和用于局部基元的门控扩张卷积",
+      "llm_tldr_en": "Wisteria integrates multi-scale feature learning to capture local motifs and global dependencies in DNA sequences.",
+      "llm_tldr_cn": "Wisteria集成多尺度特征学习，以捕获DNA序列中的局部基元和全局依赖关系。",
+      "llm_tldr": "Wisteria集成多尺度特征学习，以捕获DNA序列中的局部基元和全局依赖关系。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "biorxiv-10-1101-2024-06-24-600405-v4",
+      "source": "biorxiv",
+      "title": "Pushing the ceiling of species-level mapping in a hyperdiverse tropical forest with multi-temporal segmentation and airborne hyperspectral classification",
+      "abstract": "Species-level maps of tropical forest canopies are needed for biodiversity monitoring, conservation planning, and carbon accounting, yet the structural complexity and species richness of these forests make remote classification challenging. Here we evaluate the limits and possibilities of a two-step mapping approach applied to hyperdiverse moist forest at the Paracou Field Station, French Guiana. First, we delineate individual tree crowns from ten repeat UAV RGB surveys using a CNN (Mask R-CNN) and combine predictions across dates via a temporal consensus-fusion method, improving mean segmentation F1 from 0.68 (single date) to 0.78 (ten dates) and covering approximately 86% of canopy area. Second, we classify the species of each crown from a single airborne hyperspectral acquisition (416-2500 nm, 1 m resolution) using several machine learning classifiers trained and tested on 3,186 field-verified crowns spanning 169 species (drawn from a labelled pool of 3,256 crowns across 239 species; see Section 2.6). Linear Discriminant Analysis (LDA) achieved the highest accuracy (weighted F1 = 0.75), though performance was uneven: repeated cross-validation (20 x 5-fold) showed that on average 50 species (95% CI: 41-63) attained F1 >= 0.7 in any given fold, with 38 maintaining this level on average and 15 doing so reliably (>= 80% of folds), while many rare species with few training examples remained unclassifiable (macro-average F1 = 0.48). Combining segmentation and classification, we estimate that approximately 70% of the landscapes canopy area was correctly mapped to species. Band-importance and ablation analyses identified the far-red edge (748-775 nm) as the most informative spectral region, with secondary contributions from the red, green, and SWIR. While these results represent a substantial advance over previous studies limited to fewer than 20 species, we caution that accuracy is strongly conditioned by training data availability, site-specific spectral conditions, and the single-acquisition design, and that generalization to other sites and sensors remains to be demonstrated.",
+      "authors": [
+        "Ball, J. G. C.",
+        "Jaffer, S.",
+        "Laybros, A.",
+        "Prieur, C.",
+        "Jackson, T. D.",
+        "Madhavapeddy, A.",
+        "Barbier, N.",
+        "Vincent, G.",
+        "Coomes, D."
+      ],
+      "primary_category": "ecology",
+      "categories": [
+        "ecology"
+      ],
+      "published": "2026-05-05T00:00:00+00:00",
+      "link": "https://www.biorxiv.org/content/10.1101/2024.06.24.600405v4.full.pdf",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "multi-temporal segmentation and feature fusion for tree crowns",
+      "llm_evidence_cn": "用于树冠检测的多时相分割与特征融合",
+      "llm_evidence": "用于树冠检测的多时相分割与特征融合",
+      "canonical_evidence": "用于树冠检测的多时相分割与特征融合",
+      "llm_tldr_en": "Uses Mask R-CNN and temporal fusion to delineate individual tree crowns in dense forests.",
+      "llm_tldr_cn": "使用Mask R-CNN和时相融合技术在茂密森林中描绘单个树冠。",
+      "llm_tldr": "使用Mask R-CNN和时相融合技术在茂密森林中描绘单个树冠。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}
