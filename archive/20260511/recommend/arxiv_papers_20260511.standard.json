@@ -1,0 +1,330 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-05-11T21:06:21.512037+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 3,
+    "deep_cap": 6,
+    "deep_selected": 3,
+    "quick_candidates": 5,
+    "quick_skim_target": 11,
+    "quick_selected": 5
+  },
+  "deep_dive": [
+    {
+      "id": "2605.07213v1",
+      "source": "arxiv",
+      "title": "LoHGNet: Infrared Small Target Detection through Lorentz Geometric Encoding with High-Order Relation Learning",
+      "abstract": "Infrared small target detection (IRSTD) remains challenging due to the scarcity of useful target cues and the presence of severe background clutter. Most current methods rely on conventional feature learning and local interaction modeling, where features are represented in Euclidean space. However, such designs may still be limited in describing the subtle differences of weak targets and the contextual relations between targets and backgrounds. To address these limitations, we propose LoHGNet, an IRSTD network that integrates Lorentz geometric encoding with high-order relation learning. By introducing Lorentz manifold based feature learning, LoHGNet offers a different feature representation from conventional IRSTD methods and provides new discriminative cues for IRSTD. Specifically, a Lorentz encoding branch is constructed with the Geometric Attention Guided Lorentz Residual Convolution Module (GA-LRCM) to perform feature modeling under hyperbolic geometric constraints and enhance the hierarchical geometric representation capability of weak targets. Subsequently, the hyperbolic features are mapped into the Euclidean tangent space through logarithmic mapping, and a High-Order Relation Learning Module (HORL) is designed to model the high-order contextual dependencies between targets and backgrounds via hypergraph construction, thereby improving target discrimination in complex backgrounds. Experimental results on three datasets demonstrate that the proposed LoHGNet achieves competitive performance in both detection accuracy and adaptability to complex scenes. The code will be available at https://github.com/Kingwin97.",
+      "authors": [
+        "Qianwen Ma",
+        "Yang Xu",
+        "Shangwei Deng",
+        "Xiaobo Li",
+        "Haofeng Hu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-08T04:00:34+00:00",
+      "link": "https://arxiv.org/pdf/2605.07213v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "Infrared Small Target Detection (IRSTD) using Lorentz geometric encoding and high-order relations",
+      "llm_evidence_cn": "利用洛伦兹几何编码和高阶关系进行红外小目标检测",
+      "llm_evidence": "利用洛伦兹几何编码和高阶关系进行红外小目标检测",
+      "canonical_evidence": "利用洛伦兹几何编码和高阶关系进行红外小目标检测",
+      "llm_tldr_en": "LoHGNet improves infrared small target detection by using Lorentz manifold feature representation.",
+      "llm_tldr_cn": "LoHGNet通过使用洛伦兹流形特征表示改进了红外小目标检测。",
+      "llm_tldr": "LoHGNet通过使用洛伦兹流形特征表示改进了红外小目标检测。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "state of the art deep learning methods for small object detection",
+      "matched_requirement_id": "req-7",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.07388v1",
+      "source": "arxiv",
+      "title": "A Marine Debris Detection Framework for Ocean Robots via Self-Attention Enhancement and Feature Interaction Optimization",
+      "abstract": "Marine debris detection for ocean robot is crucial for ecological protection, yet performance is often degraded by low-quality images with blur, complex backgrounds, and small targets. To address these challenges, we propose YOLO-MD, an enhanced YOLO-based detection framework. A Dual-Branch Convolutional Enhanced Self-Attention (DB-CASA) module is designed to strengthen spatial-channel interactions, improving feature representation in degraded images. Additionally, a lightweight shift-based operation is introduced to enhance fine-grained feature extraction for objects of varying scales while maintaining parameter efficiency. We further propose SFG-Loss to mitigate class imbalance and optimization instability via dynamic sample reweighting. Experiments on the UODM dataset demonstrate that YOLO-MD achieves 0.875 precision, 0.822 F1-score, and 0.849 mAP50, outperforming the latest state-of-the-art methods. The effectiveness of this method has also been verified through real-world robotic edge deployment experiments.",
+      "authors": [
+        "Yuyang Li",
+        "Jiashu Han",
+        "Yinyi Lai",
+        "Wenbin Kang",
+        "Zenghui Liu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-08T07:43:01+00:00",
+      "link": "https://arxiv.org/pdf/2605.07388v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 9.5,
+      "llm_evidence_en": "spatial-channel interactions and self-attention for small targets",
+      "llm_evidence_cn": "针对小目标的空间通道交互与自注意力增强",
+      "llm_evidence": "针对小目标的空间通道交互与自注意力增强",
+      "canonical_evidence": "针对小目标的空间通道交互与自注意力增强",
+      "llm_tldr_en": "YOLO-MD improves small marine debris detection using self-attention and specialized loss functions.",
+      "llm_tldr_cn": "YOLO-MD通过自注意力增强和专门的损失函数提升了海洋微小垃圾的检测性能。",
+      "llm_tldr": "YOLO-MD通过自注意力增强和专门的损失函数提升了海洋微小垃圾的检测性能。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "spatial and channel attention for small object feature enhancement",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.06855v1",
+      "source": "arxiv",
+      "title": "Monocular passive event-based range-finding of airborne objects using the Scheimpflug principle",
+      "abstract": "Passive 3D sensing is increasingly critical for early detection and tracking of small aerial vehicles (UAVs), where traditional active ranging can be tactically undesirable. We present SCHeimpflug for Optical Ranging TechnologY (SCHORTY), a single-aperture passive and active ranging architecture that exploits the Scheimpflug principle to encode range along a tilted object space plane by tilting the sensor relative to the imaging optics. SCHORTY requires only a one-time geometric calibration to map pixel coordinates to range and is inherently sensor and waveband agnostic. We implement SCHORTY using both a visible frame-based camera and an event-based camera (EBC) with closely matched pixel sizes for comparable horizontal resolutions and range binning. Controlled flights of an octocopter and a fixed-wing UAV equipped with GPS provide ground truth distances out to 1.1 km. Experimental results show that SCHORTY achieves deterministic range assignment limited primarily by the projected pixel size, which grows squared distance, while avoiding computationally intensive inverse reconstructions common in coded aperture and PSF engineered systems. In the EBC configuration, EBC-SCHORTY inherently suppresses static background and emphasizes motion, improving UAV detectability in cluttered natural scenes and under turbulence and motion blur. Additionally, we observe an asymmetric defocus blur about the object plane that depends on UAV trajectory, suggesting an extra cue for localization and trajectory inference. These results demonstrate SCHORTY as a practical and Size, Weight, and Power (SWaP) efficient passive ranging solution for medium-range UAV observation and motivate future integration with 2.5D/3D PSF engineering and event-based deconvolution to enhance 3D sensing performance.",
+      "authors": [
+        "Nathan Meraz",
+        "Ronan Taneja",
+        "Rachel Chan",
+        "Alisha Whitehead",
+        "Gabriella Mayrend",
+        "Megan Birch",
+        "Joseph L. Greene"
+      ],
+      "primary_category": "physics.optics",
+      "categories": [
+        "physics.optics"
+      ],
+      "published": "2026-05-07T18:55:00+00:00",
+      "link": "https://arxiv.org/pdf/2605.06855v1",
+      "tags": [
+        "keyword:SOD"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Early detection and range-finding of small airborne objects (UAVs)",
+      "llm_evidence_cn": "小型空中目标（无人机）的早期检测与测距",
+      "llm_evidence": "小型空中目标（无人机）的早期检测与测距",
+      "canonical_evidence": "小型空中目标（无人机）的早期检测与测距",
+      "llm_tldr_en": "Presents a passive range-finding architecture for early detection and tracking of small aerial vehicles.",
+      "llm_tldr_cn": "提出一种被动测距架构，用于小型飞行器的早期检测与跟踪。",
+      "llm_tldr": "提出一种被动测距架构，用于小型飞行器的早期检测与跟踪。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2605.07099v1",
+      "source": "arxiv",
+      "title": "InfoGeo: Information-Theoretic Object-Centric Learning for Cross-View Generalizable UAV Geo-Localization",
+      "abstract": "Cross-view geo-localization (CVGL) is fundamental for precise localization and navigation in GPS-denied environments, aiming to match ground or UAV imagery with satellite views. While existing approaches rely on global feature alignment, they often suffer from substantial domain shifts induced by varying regional textures and weather conditions. This issue becomes even more pronounced in UAV-based scenarios, where the broader perspective inevitably introduces dense, fine-grained objects, creating significant visual clutter. To address this, we draw inspiration from Object-Centric Learning (OCL) and propose InfoGeo, an information-theoretic framework designed to enhance robustness and generalization. InfoGeo reformulates the optimization as an information bottleneck process with two core objectives: (i) maximizing view-invariant information by aligning the object-centric structural relations across views, and (ii) minimizing view-specific noisy signals through cross-view knowledge constraints. Extensive evaluations across diverse benchmarks and challenging scenarios demonstrate that InfoGeo significantly outperforms state-of-the-art methods.",
+      "authors": [
+        "Hongyang Zhang",
+        "Maonnan Wang",
+        "Ziyao Wang",
+        "Hongrui Yin",
+        "Man OnPun"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-08T01:28:49+00:00",
+      "link": "https://arxiv.org/pdf/2605.07099v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.5,
+      "llm_evidence_en": "UAV scenarios with dense fine-grained objects and visual clutter",
+      "llm_evidence_cn": "无人机场景下密集的细粒度目标和视觉干扰",
+      "llm_evidence": "无人机场景下密集的细粒度目标和视觉干扰",
+      "canonical_evidence": "无人机场景下密集的细粒度目标和视觉干扰",
+      "llm_tldr_en": "Introduces InfoGeo, an object-centric framework to handle dense objects and clutter in UAV geo-localization.",
+      "llm_tldr_cn": "引入InfoGeo，一个旨在处理无人机地理定位中密集目标和干扰的以对象为中心的框架。",
+      "llm_tldr": "引入InfoGeo，一个旨在处理无人机地理定位中密集目标和干扰的以对象为中心的框架。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.03614v1",
+      "source": "arxiv",
+      "title": "Uncertainty Estimation in Instance Segmentation of Affordances via Bayesian Visual Transformers",
+      "abstract": "Visual affordances identify regions in an image with potential interactions, offering a novel paradigm for scene understanding. Recognizing affordances allows autonomous robots to act more naturally, could enhance human-robot interactions, enrich augmented reality systems, and benefit prosthetic vision devices. Accurate and localized prediction of affordance regions, rather than general saliency maps is crucial for these applications. We present a model for instance segmentation of affordances by adopting sample-based and ensembles approaches for uncertainty estimation. We extend an attention-based architecture for our novel task, showing with detailed ablation experiments the effects of each component. By comparing the distribution of these different detections, we extract pixel-wise epistemic and aleatoric variances at both the semantic and spatial levels. In addition, we propose a novel measure called Probability-based Mask Quality, which enables a comprehensive analysis of semantic and spatial variations in a probabilistic instance segmentation model. Our results show that the global consensus of multiple sub-networks of Bayesian models improve deterministic networks due to a better mask refinement and generalization. This fact, joined with the more powerful features extracted by attention-based mechanisms, represent an improvement of +7.4 p.p on the $F_β^w$ score in the challenging IIT-Aff dataset. Bayesian models are also better calibrated, producing less overconfident probabilities and with a better uncertainty estimation. Qualitative results show that aleatoric variance appears in the contour of the objects, while the epistemic variance is observed in visual challenging pixels, adding interpretability to the neural network.",
+      "authors": [
+        "Lorenzo Mur-Labadia",
+        "Ruben Martinez-Cantina",
+        "Jose J. Guerrero"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-05T10:40:16+00:00",
+      "link": "https://arxiv.org/pdf/2605.03614v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.5,
+      "llm_evidence_en": "Attention-based architecture for localized prediction of affordance regions",
+      "llm_evidence_cn": "用于功能区域局部预测的注意力机制架构",
+      "llm_evidence": "用于功能区域局部预测的注意力机制架构",
+      "canonical_evidence": "用于功能区域局部预测的注意力机制架构",
+      "llm_tldr_en": "Uses Bayesian Visual Transformers and attention mechanisms for accurate instance segmentation of affordances.",
+      "llm_tldr_cn": "利用贝叶斯视觉Transformer和注意力机制实现准确的功能区域实例分割。",
+      "llm_tldr": "利用贝叶斯视觉Transformer和注意力机制实现准确的功能区域实例分割。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "spatial and channel attention for small object feature enhancement",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.07379v1",
+      "source": "arxiv",
+      "title": "RELO: Reinforcement Learning to Localize for Visual Object Tracking",
+      "abstract": "Conventional visual object trackers localize targets using handcrafted spatial priors, often in the form of heatmaps. Such priors provide only surrogate supervision and are poorly aligned with tracking optimization and evaluation metrics, such as intersection over union (IoU) and area under the success curve (AUC). Here, we introduce RELO, a REinforcement-learning-to-LOcalize method for visual object tracking that formulates target localization as a Markov decision process. Specifically, RELO replaces handcrafted spatial priors with a localization policy learned over spatial positions via reinforcement learning, with rewards combining frame-level IoU and sequence-level AUC. We additionally introduce layer-aligned temporal token propagation to improve semantic consistency across frames, with negligible computational overhead. Across multiple benchmarks, RELO achieves superior results, attaining 57.5% AUC on LaSOText without template updates. This confirms that reward-driven localization provides an effective alternative to prior-driven localization for visual object tracking.",
+      "authors": [
+        "Xin Chen",
+        "Chuanyu Sun",
+        "Jiao Xu",
+        "Houwen Peng",
+        "Dong Wang",
+        "Huchuan Lu",
+        "Kede Ma"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-05-08T07:34:29+00:00",
+      "link": "https://arxiv.org/pdf/2605.07379v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Reinforcement learning for target localization with IoU and AUC rewards",
+      "llm_evidence_cn": "利用IoU和AUC奖励进行强化学习目标定位",
+      "llm_evidence": "利用IoU和AUC奖励进行强化学习目标定位",
+      "canonical_evidence": "利用IoU和AUC奖励进行强化学习目标定位",
+      "llm_tldr_en": "Formulates target localization as a Markov decision process using reinforcement learning for visual tracking.",
+      "llm_tldr_cn": "将目标定位建模为马尔可夫决策过程，利用强化学习进行视觉跟踪。",
+      "llm_tldr": "将目标定位建模为马尔可夫决策过程，利用强化学习进行视觉跟踪。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "specialized loss functions for small object localization",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.06229v1",
+      "source": "arxiv",
+      "title": "Look Beyond Saliency: Low-Attention Guided Dual Encoding for Video Semantic Search",
+      "abstract": "Video semantic search in densely crowded scenes remains a challenging task due to visual encoders tendency to prioritize salient foreground regions while neglecting contextually important, background areas. We propose an Inverse Attention Embedding mechanism that explicitly captures and highlights these overlooked regions. By combining inverse attention embeddings with traditional visual embeddings, our method significantly enhances semantic retrieval performance without additional training. Initial experiments and ablation studies demonstrate promising improvements over existing approaches in recall for video semantic search in crowded environments.",
+      "authors": [
+        "Faisal Aljehrai",
+        "Mohammed A. Alkhrashi",
+        "Alreem Almuhrij",
+        "Sarah Abuhimed",
+        "Noorh Aldossary",
+        "Abdullah Aldwyish",
+        "Raied Aljadaany",
+        "Huda Alamri",
+        "Muhammad Kamran J Khan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-07T13:21:11+00:00",
+      "link": "https://arxiv.org/pdf/2605.06229v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Inverse attention mechanism to highlight neglected background and context regions",
+      "llm_evidence_cn": "逆注意力机制用于突出被忽视的背景和上下文区域",
+      "llm_evidence": "逆注意力机制用于突出被忽视的背景和上下文区域",
+      "canonical_evidence": "逆注意力机制用于突出被忽视的背景和上下文区域",
+      "llm_tldr_en": "Introduces Inverse Attention Embedding to capture non-salient but contextually important regions in videos.",
+      "llm_tldr_cn": "引入逆注意力嵌入机制，捕捉视频中非显著但具有上下文重要性的区域。",
+      "llm_tldr": "引入逆注意力嵌入机制，捕捉视频中非显著但具有上下文重要性的区域。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "spatial and channel attention for small object feature enhancement",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "biorxiv-10-64898-2026-05-01-722206-v1",
+      "source": "biorxiv",
+      "title": "Uncertainty-aware localization microscopy by variational diffusion",
+      "abstract": "Fast extraction of physically relevant information from images using deep neural networks has led to significant advances in fluorescence microscopy and its application to the study of biological systems. For example, the application of deep networks for kernel density (KD) estimation in single-molecule localization microscopy (SMLM) has accelerated super-resolution imaging of densely labeled structures in the cell. However, localization of fluorescent molecules in dense images is a difficult inverse problem with potentially multiple solutions. To model a probability distribution of solutions to this problem, we propose a generative modeling framework for KD estimation in SMLM based on a conditional variational diffusion model (CVDM). In this framework, CVDM is trained to perform localization tasks on low-resolution measurements by modeling a distribution of high-resolution KD estimates. This approach allows us to probe the structure of the distribution on KD estimates and express uncertainty, which is not currently offered by existing deep models for localization microscopy. We demonstrate that this model permits high-fidelity super-resolution, enables the uncertainty estimation of regressed KD estimates, and has important implications for image restoration in single-molecule and super resolution microscopy.",
+      "authors": [
+        "Seitz, C.",
+        "Liu, J."
+      ],
+      "primary_category": "bioinformatics",
+      "categories": [
+        "bioinformatics"
+      ],
+      "published": "2026-05-05T00:00:00+00:00",
+      "link": "https://www.biorxiv.org/content/10.64898/2026.05.01.722206v1.full.pdf",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Deep learning for localization of fluorescent molecules in dense, small-scale images",
+      "llm_evidence_cn": "深度学习用于密集小尺度图像中的荧光分子定位",
+      "llm_evidence": "深度学习用于密集小尺度图像中的荧光分子定位",
+      "canonical_evidence": "深度学习用于密集小尺度图像中的荧光分子定位",
+      "llm_tldr_en": "Uses variational diffusion models for high-density single-molecule localization in super-resolution microscopy.",
+      "llm_tldr_cn": "利用变分扩散模型在超分辨率显微镜中实现高密度单分子定位。",
+      "llm_tldr": "利用变分扩散模型在超分辨率显微镜中实现高密度单分子定位。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

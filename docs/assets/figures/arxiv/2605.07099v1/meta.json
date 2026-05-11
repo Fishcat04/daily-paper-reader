@@ -1,0 +1,142 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.07099v1/fig-001.webp",
+      "caption": "Table 1. Comparisons with state-of-the-art models trained on University-1652 and DenseUAV datasets. The results on SUES-200 are reported as the average performance (%) across all subsets. (∗ method that uses relational distillation.)",
+      "page": 6,
+      "index": 1,
+      "width": 1013,
+      "height": 317
+    },
+    {
+      "url": "assets/figures/arxiv/2605.07099v1/fig-002.webp",
+      "caption": "Figure 4. The PCA visualization and concept affinities of Object-Centric Representations Ẑ. RGB values correspond to principal components. Circles are the view-shared landmarks. Concept affinities are calculated by the spatial-level cosine distance across viewpoints (darker colors indicate higher spatial similarity), while dashed circles highlight the feature-space regions that exhibit robustness.",
+      "page": 6,
+      "index": 2,
+      "width": 975,
+      "height": 339
+    },
+    {
+      "url": "assets/figures/arxiv/2605.07099v1/fig-003.webp",
+      "caption": "Table 2. performances (%) Comparisons with the state-of-the-art models on GTA-V (cross-area) dataset.",
+      "page": 6,
+      "index": 3,
+      "width": 492,
+      "height": 303
+    },
+    {
+      "url": "assets/figures/arxiv/2605.07099v1/fig-004.webp",
+      "caption": "Table 10. Performance (%) Comparison under different weather transfer settings on University-1652→SUES-200.",
+      "page": 21,
+      "index": 4,
+      "width": 1017,
+      "height": 280
+    },
+    {
+      "url": "assets/figures/arxiv/2605.07099v1/fig-005.webp",
+      "caption": "Figure 9. The ablations on the three hyper-parameters across different scenarios.",
+      "page": 21,
+      "index": 5,
+      "width": 1017,
+      "height": 581
+    },
+    {
+      "url": "assets/figures/arxiv/2605.07099v1/fig-006.webp",
+      "caption": "Figure 1. (a) The illustration of our motivation. Cross-view images can be decomposed into the view-invariant information and viewspecific noise, while paired data can be matched through key visual clues. (b) The overview of cross-view object-centric learning process, the main target is to extract view-invariant tokens by compressing the view-specific noise. (c) Comparison with recent state-of-the-art methods on the two transfer scenarios, our method is built upon the model CVcities and achieves superior generalization ability.",
+      "page": 2,
+      "index": 6,
+      "width": 991,
+      "height": 375
+    },
+    {
+      "url": "assets/figures/arxiv/2605.07099v1/fig-007.webp",
+      "caption": "Table 4. Computational cost evaluation of comparison methods.",
+      "page": 7,
+      "index": 7,
+      "width": 494,
+      "height": 949
+    },
+    {
+      "url": "assets/figures/arxiv/2605.07099v1/fig-008.webp",
+      "caption": "Table 11. Ablation study on SUES at 200m and 300m. (†: baseline trained with the same settings as our method.)",
+      "page": 22,
+      "index": 8,
+      "width": 1023,
+      "height": 224
+    },
+    {
+      "url": "assets/figures/arxiv/2605.07099v1/fig-009.webp",
+      "caption": "Figure 10. The PCA visualization of feature maps between different UAV benchmarks.",
+      "page": 22,
+      "index": 9,
+      "width": 995,
+      "height": 362
+    },
+    {
+      "url": "assets/figures/arxiv/2605.07099v1/fig-010.webp",
+      "caption": "Figure 8. Comparsion on the network structures of our proposed work in the inference stage. (a) InfoGeo w/o Relational Distillation, (b) InfoGeo w/ Relational Distillation.",
+      "page": 18,
+      "index": 10,
+      "width": 865,
+      "height": 463
+    },
+    {
+      "url": "assets/figures/arxiv/2605.07099v1/fig-011.webp",
+      "caption": "Figure 11. Comparison of the visualization on feature maps between InfoGeo and Baseline under Multi-Weather settings. The bounding boxes denote the view-shared objects across different viewpoints.",
+      "page": 23,
+      "index": 11,
+      "width": 995,
+      "height": 492
+    },
+    {
+      "url": "assets/figures/arxiv/2605.07099v1/fig-012.webp",
+      "caption": "Figure 6. The sensitivity analysis of the hyperparameters in OCVA.",
+      "page": 8,
+      "index": 12,
+      "width": 494,
+      "height": 626
+    },
+    {
+      "url": "assets/figures/arxiv/2605.07099v1/fig-013.webp",
+      "caption": "Table 7. Statistical analysis of the UAV training datasets.",
+      "page": 19,
+      "index": 13,
+      "width": 615,
+      "height": 239
+    },
+    {
+      "url": "assets/figures/arxiv/2605.07099v1/fig-014.webp",
+      "caption": "Figure 12. The retrieval results of the failure case in University-1652→SUES-200 (150m and 300m). The predicted result is the top-1 retrieval results. Dash circles denote the key visual clues (Red lines denote the wrong-matched patterns, while Yellow lines are the discriminative objects).",
+      "page": 24,
+      "index": 14,
+      "width": 995,
+      "height": 371
+    },
+    {
+      "url": "assets/figures/arxiv/2605.07099v1/fig-015.webp",
+      "caption": "Table 8. Performance (%) Comparison on University-1652→SUES-200 under different heights.",
+      "page": 20,
+      "index": 15,
+      "width": 1017,
+      "height": 322
+    },
+    {
+      "url": "assets/figures/arxiv/2605.07099v1/fig-016.webp",
+      "caption": "Table 9. Performance (%) Comparison on DenseUAV→SUES-200 under different heights.",
+      "page": 20,
+      "index": 16,
+      "width": 1017,
+      "height": 321
+    },
+    {
+      "url": "assets/figures/arxiv/2605.07099v1/fig-017.webp",
+      "caption": "Figure 3. The training pipeline of Cross-view Visual Concept Reasoner, which pioneers an IB theory based framework for cross-view OCL through two synergistic components: 1) Cross-view Adaptive Concept Selection, and 2) Concept Structural Relational Reasoning. Object-Centric Visual Augmentation is further proposed to integrate object-centric representations into the global scene-level descriptors.",
+      "page": 5,
+      "index": 17,
+      "width": 995,
+      "height": 288
+    }
+  ]
+}

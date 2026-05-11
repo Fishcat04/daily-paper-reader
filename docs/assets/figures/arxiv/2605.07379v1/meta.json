@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.07379v1/fig-001.webp",
+      "caption": "Table 2. Comparison on large-scale benchmarks. Base-size models are listed in the upper block and large-size models in the lower block. The best and second-best entries for each metric are highlighted in bold and underlined, respectively.",
+      "page": 6,
+      "index": 1,
+      "width": 1004,
+      "height": 399
+    },
+    {
+      "url": "assets/figures/arxiv/2605.07379v1/fig-002.webp",
+      "caption": "Figure 6. Additional qualitative comparisons between the reward-driven RELO and the prior-driven tracker across challenging scenarios.",
+      "page": 13,
+      "index": 2,
+      "width": 1017,
+      "height": 1315
+    },
+    {
+      "url": "assets/figures/arxiv/2605.07379v1/fig-003.webp",
+      "caption": "Figure 2. System diagram of RELO. (a) Policy optimization over a video clip. Only the first and last frames are shown for simplicity. For each frame, the Transformer-based encoder extracts visual features, and the tracking heads predict candidate bounding boxes. Taskoriented tracking metrics, including frame-level IoU and sequence-level AUC, are used as reward signals to optimize target localization. Layer-aligned temporal tokens are propagated across frames to provide temporal context. (b) Per-frame localization at frame t. Each spatial position on the feature map is treated as a candidate action. The policy samples one action, whose corresponding regressed box is used to compute the reward and advantage for policy optimization. Red arrows denote the flow of reward signals.",
+      "page": 4,
+      "index": 3,
+      "width": 1016,
+      "height": 478
+    },
+    {
+      "url": "assets/figures/arxiv/2605.07379v1/fig-004.webp",
+      "caption": "Figure 5. Qualitative comparison between the reward-driven RELO and the prior-driven tracker in a failure-and-recovery scenario. Frame indices are shown in the upper-left corner. For each frame, the lower-right inset visualizes the localization score map over the search region using the viridis colormap, where yellow indicates high confidence and dark blue indicates low confidence. Green and orange boxes denote the ground-truth (GT) and predicted bounding boxes, respectively. Frames without ground-truth boxes correspond to cases where the target is absent or too ambiguous to annotate. Best viewed in color with zoom.",
+      "page": 12,
+      "index": 4,
+      "width": 1017,
+      "height": 571
+    }
+  ]
+}

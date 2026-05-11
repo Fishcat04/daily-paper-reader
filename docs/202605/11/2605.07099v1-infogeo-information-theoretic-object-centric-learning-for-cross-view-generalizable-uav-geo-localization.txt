@@ -1,0 +1,1070 @@
+Title: InfoGeo: Information-Theoretic Object-Centric Learning for Cross-View Generalizable UAV Geo-Localization
+
+URL Source: https://arxiv.org/pdf/2605.07099v1
+
+Published Time: Mon, 11 May 2026 00:36:00 GMT
+
+Number of Pages: 24
+
+Markdown Content:
+# InfoGeo: Information-Theoretic Object-Centric Learning for Cross-View Generalizable UAV Geo-Localization 
+
+Hongyang Zhang * 1 Maonnan Wang * 2 3 Ziyao Wang 1 Hongrui Yin 1 Man On Pun 1
+
+# Abstract 
+
+Cross-view geo-localization (CVGL) is funda-mental for precise localization and navigation in GPS-denied environments, aiming to match ground or UAV imagery with satellite views. While existing approaches rely on global fea-ture alignment, they often suffer from substantial domain shifts induced by varying regional tex-tures and weather conditions. This issue becomes even more pronounced in UAV-based scenarios, where the broader perspective inevitably intro-duces dense, fine-grained objects, creating signifi-cant visual clutter. To address this, we draw inspi-ration from Object-Centric Learning (OCL) and propose InfoGeo, an information-theoretic frame-work designed to enhance robustness and gener-alization. InfoGeo reformulates the optimization as an information bottleneck process with two core objectives: (i) maximizing view-invariant information by aligning the object-centric struc-tural relations across views, and (ii) minimizing view-specific noisy signals through cross-view knowledge constraints. Extensive evaluations across diverse benchmarks and challenging sce-narios demonstrate that InfoGeo significantly out-performs state-of-the-art methods. 
+
+# 1. Introduction 
+
+Cross-view geo-localization (CVGL) aims to identify the same geographic location from images captured under dras-tically different viewpoints, serving as a fundamental capa-bility for various practical applications such as city manage-ment (Workman et al., 2015), robot navigation (Sarlin et al., 
+
+> *
+
+Equal Contribution. 1School of Science and Engineering, The Chinese University of Hong Kong (Shenzhen), Guangdong 518172, China 2Department of Mechanical and Automation Engi-neering, The Chinese University of Hong Kong, Hong Kong SAR 999077, China 3Shanghai AI Laboratory, Shanghai 200032, China. Correspondence to: Man On Pun <simonpun@cuhk.edu.cn >.
+
+Proceedings of the 43 rd International Conference on Machine Learning , Seoul, South Korea. PMLR 306, 2026. Copyright 2026 by the author(s). 
+
+2019), and disaster monitoring (Li et al., 2025a). To bridge the geometric gap between views, existing methods (Deuser et al., 2023; Zhang et al., 2025) mainly propose global fea-ture alignment via contrastive learning, encouraging images to cluster closely in a high-level semantic space. Recently, UAV-based CVGL (Zheng et al., 2020) has emerged as a powerful paradigm, providing rich multi-view observations that facilitate more comprehensive scene understanding. However, current approaches face significant performance degradation when confronted with domain shifts induced by varying geographic regions and weather conditions. This limitation stems from the reliance of global-based meth-ods on coarse discrimination, which overlooks fine-grained object-level correspondences. Consequently, their scalabil-ity is severely restricted in UAV scenarios featuring dense object distributions and complex spatial layouts. To address the above limitations, we draw inspiration from human visual cognition for object-centric reasoning (Kejri-wal et al., 2024) to establish cross-view consensus through object-level comparative analysis. Recently, Object-Centric Learning (OCL) (Locatello et al., 2020; Fan et al., 2024) has emerged as a promising paradigm for scene understanding, enabling constructing object-centric concepts and binding view-shared object-level relations. Therefore, OCL pro-vides a principled foundation for CVGL by facilitating the extraction of view-invariant information to boost robustness and generalization. Although some OCL-based works (Li et al., 2020; Zhao et al., 2023) have targeted multi-view scenes, they mainly focus on environments with uncluttered backgrounds and sparse, salient objects. However, UAV-based CVGL involves visual clutter caused by dense object distributions, alongside cross-view spatial discrepancies and seasonal changes. Consequently, directly applying these OCL approaches yields suboptimal performance in such unstructured scenarios. To tackle these challenges, we extract robust representations by focusing on intrinsic geometric structures while filtering out environmental interference. As illustrated in Figure 1 (a), visual content across different views can be decomposed into two distinct components: 1) view-invariant information (highlighted in orange), which represents the stable struc-tural semantics essential for matching, and 2) view-specific nuisances (highlighted in green), such as dynamic objects 1        
+
+> arXiv:2605.07099v1 [cs.CV] 8 May 2026 Submission and Formatting Instructions for ICML 2026
+> Figure 1. (a) The illustration of our motivation. Cross-view images can be decomposed into the view-invariant information and view-specific noise , while paired data can be matched through key visual clues. (b) The overview of cross-view object-centric learning process, the main target is to extract view-invariant tokens by compressing the view-specific noise. (c) Comparison with recent state-of-the-art methods on the two transfer scenarios, our method is built upon the model CVcities and achieves superior generalization ability.
+
+and occlusion. Based on this insight, we introduce InfoGeo, a cross-view object-centric framework designed to explicitly extract these view-invariant concepts for more generalizable representation learning. In Figure 1 (b), our approach not only aligns these consistent concepts but also suppresses view-specific noise. This design principle creates a unified optimization objective grounded in the Information Bot-tleneck (IB) theory (Tishby et al., 1999; Li et al., 2025b), which guides the model to maximize relevant information while compressing irrelevant signals. Specifically, our method implements this vision through a novel Cross-View Visual Concept Reasoner equipped with an Object-Centric Visual Augmentation (OCVA) module. The core of our reasoning process consists of two syner-gistic pathways within the Cross-View OCL framework: Cross-View Adaptive Concept Selection (CACS) and Con-cept Structural Relational Reasoning (CSRR). On one hand, CACS functions as a selective filter, leveraging concept-level experts to distill view-shared information while sup-pressing view-specific nuisances. On the other hand, CSRR harnesses concept graph relations to maintain structural consistency across viewpoints. Following this reasoning phase, the OCVA module seamlessly fuses the learned object-centric features into global high-level semantics via feature-wise linear modulation. As demonstrated in Fig-ure 1 (c), this comprehensive design empowers our method to significantly outperform existing CVGL approaches in generalization capability. Overall, our key contributions can be summarized as follows: • Our work is the first to explore CVGL with object-centric learning. Unlike holistic approaches, InfoGeo explicitly disentangles view-invariant geometric enti-ties from environmental clutter, offering a robust solu-tion to severe domain shifts in unseen regions. • We reformulate the cross-view matching problem via the Information Bottleneck principle. This theoreti-cal optimization guides our framework to simultane-ously maximize structural consensus and compress view-specific nuisances, ensuring efficient and noise-resilient representation learning. • We conduct extensive evaluations on four UAV bench-marks. InfoGeo establishes new state-of-the-art gener-alization performance, demonstrating superior robust-ness across cross-region and multi-weather scenarios. The remainder of this paper is organized as follows: Sec-tion 2 provides the preliminaries. Section 3 and Section 4 detail the theoretical foundation and the proposed archi-tecture, respectively. We present extensive experiments in Section 5 and discuss related works of CVGL and Multi-View OCL in Appendix Section A. 
+
+# 2. Preliminaries 
+
+2.1. Problem Formulation 
+
+We investigate the task of generalizable CVGL under cross-region distribution shifts. Let Xq and Xg denote the query and gallery images, respectively. Each cross-view pair 
+
+(xq , x g ) is captured at the geographic location Y. We aim to train a model fθ with trainable parameters θ to extract generalizable visual representations. Specifically, fθ takes image pairs (Xq , Xg ) from source regions and produces the scene-level descriptors (Fq , Fg ) for localization, while evaluation is conducted on unseen domains. 
+
+2.2. Object-Centric Learning 
+
+Object-Centric Learning with Slot Attention (Locatello et al., 2020) compresses dense visual observations into sparse latent slots, each capturing an underlying concept. 2Submission and Formatting Instructions for ICML 2026 
+
+We follow the design of slot attention module in (Zhao et al., 2025) and apply it to our framework. The overview is illustrated in Figure 2. Cross-view images 
+
+X(v) ∈ RH×W ×C in view v ∈ { q, g } are fed into a frozen visual encoder to obtain feature maps Z(v) ∈ R H    
+
+> 14 ×W
+> 14 ×C
+
+.Then, the slot encoder ϕe extracts the initial slot vectors 
+
+S(v)0 ∈ RK×C from Z(v), where each of the K slots corre-sponds to a distinct concept. The aggregator ϕa is further employed as an iterative refinement process over T itera-tions to project the features onto K slots with the aggrega-tion attention map A(v) 
+
+> a
+
+:
+
+S(v) 
+
+> i
+
+, A(v) 
+
+> a
+
+(i) = ϕa(S(v)
+
+> i−1
+
+, Z(v)), i = 1 , . . . , T 
+
+S(v) ≡ S(v) 
+
+> T
+
+.
+
+(1) Subsequently, the aggregated slots S(v) are decoded by an auto-regressive based decoder ϕd to reconstruct the inputs and obtain Z′(v) ∈ RH′×W ′×C′
+
+, with some clues C(v):
+
+Z′(v), A(v) 
+
+> d
+
+= ϕd(C(v), S(v)), (2) where A(v) 
+
+> d
+
+∈ RK×H′×W ′
+
+is the decoding attention map, which is further used in the cross-view OCL module. Z′(v)
+
+denotes the reconstruction of Z(v), while C(v) is instantiated as Z(v) in this work. The supervision signal of OCL comes from the slot recon-struction loss via the Mean Squared Error (MSE): 
+
+Lrec = X
+
+> v∈{ q,g }
+
+MSE( Z′(v), Z(v)). (3) 
+
+# 3. Information Bottleneck Theory for CVGL 
+
+Although different views of the same location Y exhibit large gaps, they share consistent semantic structures. The feature maps Z(v) are extracted from images X(v) using a frozen visual encoder, and consist of both task-relevant in-formation and view-specific noise. The task aims to extract compact representations ˆZ(v) that retain task-relevant fea-tures while suppressing view-specific noise. We adopt the Information Bottleneck (IB) principle (Tishby et al., 1999) to formalize our task. 
+
+Theorem 3.1 (View-Invariant Information Bottleneck Prin-ciple) . The representations ˆZ(v) are optimal for CVGL when they maximize mutual information (MI) with the geographic identity Y while minimizing task-irrelevant information in-herited from the original features Z(v):
+
+max  
+
+> v∈{ q,g }
+
+L(v) 
+
+> IB
+
+= I(ˆZ(v); Y) − βI (ˆZ(v); Z(v) | Y), (4) 
+
+where β ≥ 0 regulates the trade-off between information compression and task-relevant information. 
+
+Theorem 3.2 (Cross-View Mutual Information Bound) . In the context of cross-view learning, models are trained with one-to-one image pairs to capture spatial correspondences without explicit class-level supervision (Li et al., 2024a). Under this assumption, we constrain the first term in infor-mation bottleneck flow via the upper bound I(ˆZq ; ˆZg ):
+
+I(ˆZq ; Y) ≤ I(ˆZq ; ˆZg ), I(ˆZg ; Y) ≤ I(ˆZg ; ˆZq ). (5) These inequalities follow the Markov chain relations and the data processing inequality (Beaudry & Renner, 2011). The complete proof of Equation (5) is provided in Appendix Sec-tion B.2. Maximizing I(ˆZq ; ˆZg ) then preserves view-shared relationships and, under a variational formulation (Poole et al., 2019), is optimized using a tractable contrastive lower bound (e.g., InfoNCE (Van den Oord et al., 2018)) with low variance and good scalability. 
+
+Proposition 3.3 (Cross-View Information Bottleneck The-ory) . Under the assumption that ˆZq ⊥ ˆZg | Y, the gallery representation ˆZg acts as a compressed surrogate for the location Y (Theorem 3.2), as the two views are captured by different platforms with independent sensors and imaging conditions. Since all view-shared information originates from Y, maximizing I(ˆZq ; ˆZg ) provides an upper-bound-driven proxy for maximizing I(ˆZq ; Y), under the constraint that ˆZg preserves task-relevant semantics while suppressing view-specific nuisances. Meanwhile, the remaining information in Zq not captured by ˆZg is predominantly view-specific and task-irrelevant, motivating a view-specific compression term. Accordingly, the information bottleneck objective I(ˆZq ; Zq | Y) can be approximated by I(ˆZq ; Zq | ˆZg ) (Theorem 3.2), thereby linking cross-view mutual information maximization with principled IB-based representation learning. Combining these observations, the Information Bottleneck objective Lq→g 
+
+> IB
+
+for CVGL can be formulated as: 
+
+max Lq→g 
+
+> IB
+
+= I(ˆZq ; ˆZg ) − βI (ˆZq ; Zq | ˆZg ), (6) 
+
+where ˆZg acts as an implicit sufficient statistic of the latent geographic variable Y. By symmetry, the gallery-to-query objective Lg→q 
+
+> IB
+
+is defined analogously. 
+
+This proposition provides the information-theoretical foun-dation for the optimization of cross-view OCL. 
+
+# 4. Cross-view Visual Concept Reasoner 
+
+The overview of InfoGeo is illustrated in Figure 2, where Cross-view Visual Concept Reasoner is a plug-and-play network. In the network, we first introduce Cross-View Object-Centric Learning to obtain robust representations in the perspective of the Information Bottleneck principle 3Submission and Formatting Instructions for ICML 2026  
+
+> Figure 2. The overview of our proposed framework InfoGeo.
+
+(Section 4.1). In Section 4.2, the OCVA module is proposed to incorporate object-centric representations into the scene-level descriptors, enabling fine-grained discrimination with view-invariant semantics. The detailed information of them is illustrated in Figure 3. Lastly, the overall training objec-tive is given in Section 4.3. 
+
+4.1. Cross-View Object-Centric Learning 
+
+We integrate IB theory into Cross-View Object-Centric Learning by introducing Cross-view Adaptive Concept Se-lection (CACS) to effectively suppress view-specific noise, while Concept Structural Relational Reasoning (CSRR) fur-ther preserves view-invariant relational structures. 4.1.1. C ROSS -VIEW ADAPTIVE CONCEPT SELECTION 
+
+We propose a CACS module to explore the view-shared concepts through cross-view attention modules. Let Aqd ∈
+
+RK×H×W be the decoding attention maps in the query view and corresponding Agd in the gallery view. We employ a multi-head attention (MHA) for cross-view feature fusion: 
+
+Aq→gd = LayerNorm( Aqd + MHA(Q , K, V)) ,
+
+where Q = Aqd, K = Agd, V = Agd. (7) However, occlusions and illumination variations would lead to the discrepancy of concept-level information across view-points. To address this, we introduce an adaptive expert con-cept router ψ(·) that dynamically reweights concept-level decoding attention maps according to their cross-view rele-vance. Given the fused attention maps, the refined concept representations are formulated as: 
+
+ˆA(v) 
+
+> d
+
+= Wcv ⊙ A(v) 
+
+> d
+
+, where Wcv = ψ(A(v)→(¯ v) 
+
+> d
+
+). (8) where ψ(·) is a learnable linear layer, Wcv ∈ RK×1 denotes the adaptive weights, and ⊙ is the Hadamard product. To explicitly encourage concept routers to suppress task-irrelevant noise in each view, we impose a constraint on Wcv 
+
+that promotes decisive selection and inter-concept diversity. Specifically, we define the following objective: 
+
+Lcacs = E [Wcv ⊙ (1 − Wcv )] − E [Var( Wcv )] , (9) where the first term penalizes ambiguous weights to encour-age confident selection, while the second term promotes variance to explore more diverse concepts. Consequently, the module highlights view-shared concepts that are consistently observed across views and mitigates the impacts of view-specific artifacts. 4.1.2. C ONCEPT STRUCTURAL RELATIONAL 
+
+REASONING 
+
+We construct concept graphs and align their relations through structural relational reasoning to tackle severe spa-tial discrepancies in concepts across different views. To capture high-order dependencies among semantic con-cepts, we formally model the concept graphs G(v) ∈
+
+RK×K through ˆA(v) 
+
+> d
+
+, with nodes as concepts and edges encoding pairwise semantic similarities through cosine dis-tance. Laplacian Eigenmaps (Belkin & Niyogi, 2003) are applied to preserve local geometry and semantic proximity, yielding a view-robust spectral embedding that enables con-sistent and reliable concept alignment across views. The normalized graph Laplacian L(v) is then constructed to en-force graph smoothness: 
+
+L(v) = I −
+
+
+
+D(v)− 12
+
+G(v) 
+
+D(v)− 12
+
+, (10) where D(v) is the degree matrix of G(v). Then, we derive the structural relations through spectral decomposition: 
+
+L(v) = V(v)Λ(v) 
+
+V(v)⊤
+
+, (11) where V(v) and Λ(v) represent the eigenvectors and eigen-values, respectively, capturing the intrinsic structural rela-tions of the concept graph. Furthermore, we discard the trivial eigenvectors associated with zero eigenvalues and retain the top r non-trivial eigen-vectors ( r = 4 ), following standard practice in spectral embedding (Von Luxburg, 2007), to obtain the most impor-tant representations U(v) ∈ RK×r :
+
+U(v) = Top r (V(v)) = 
+
+h
+
+v(v)1 , . . . , v(v)
+
+> r
+
+i
+
+, (12) which preserves the intrinsic graph topology while remain-ing robust to significant cross-view appearance variations. While the spectral embeddings Uq and Ug are derived inde-pendently, their representations are not directly comparable due to inherent orthogonal ambiguities in the underlying spectral subspaces (Umeyama, 2002). To enforce cross-view structural consistency, we align the two embeddings via the orthogonal procrustes loss Lstruct :
+
+Lstruct = min  
+
+> Q∈O (r)
+
+∥Uq − Ug Q∥22 , (13) 4Submission and Formatting Instructions for ICML 2026 
+
+Figure 3. The training pipeline of Cross-view Visual Concept Reasoner, which pioneers an IB theory based framework for cross-view OCL through two synergistic components: 1) Cross-view Adaptive Concept Selection, and 2) Concept Structural Relational Reasoning. Object-Centric Visual Augmentation is further proposed to integrate object-centric representations into the global scene-level descriptors. 
+
+where ∥·∥ 22 denotes the L2 norm and O(r) = {Q ∈ Rr×r |
+
+Q⊤Q = I} is the orthogonal group (reflecting the inherent rotational ambiguity in spectral representations). Overall, this reasoning process resolves cross-view concept ambiguity and enables robust relational reasoning via con-cept graph matching in a view-shared space. 
+
+4.2. Object-Centric Visual Augmentation 
+
+To inject object-centric representations from Section 4.1 into the global representations, we propose Object-Centric Visual Augmentation (OCVA) module in this section. Specifically, we employ two channel-wise FiLM blocks following (Perez et al., 2018) on both branches to incorpo-rate object-centric representations into global representa-tions. For each view v, let Z(v) ∈ RC×H×W denote the global feature map and ˆA(v) 
+
+> d
+
+∈ RK×H×W represent the 
+
+K concept-level attention maps. To effectively capture the object-centric semantics, we first compute the affinity vector 
+
+v(v) 
+
+> h
+
+between the k-th attention map ˆA(v) 
+
+> d
+
+(k) and Z(v):
+
+v(v) 
+
+> h
+
+= G(
+
+> K
+
+X
+
+> k=1
+> HW
+
+X
+
+> i=1
+
+ˆA(v) 
+
+> d
+
+(k) · Z(v) 
+
+> i
+
+), (14) where G(·) denotes a learnable transformation that projects the affinities into a unified semantic space. Subsequently, we derive a channel-wise modulation vector 
+
+γ(v) to adaptively calibrate the global representation Z(v).The modulated feature map ˆZ(v) is formulated as: 
+
+ˆZ(v) = Z(v) ⊙  1 + γ(v), where γ(v) = σ
+
+
+
+P(v(v) 
+
+> h
+
+)
+
+
+
+, (15) 
+
+where P(·) denotes a learnable projection that maps the affinity vector into the feature channel space, σ(·) represents the sigmoid activation function. This process enables object-centric feature modulation by adaptively emphasizing channels that are more semantically aligned with the learned concepts. The modulated features are subsequently fused with the global features to obtain the output feature maps ˜Z(v):
+
+˜Z(v) = α ˆZ(v) + (1 − α)Z(v), (16) where α is the balancing factor in the module. Finally, the corresponding scene-level descriptors ˜F(v) are obtained via a view-shared feature aggregator Agg( ·):
+
+˜F(v) = Agg( ˜Z(v)). (17) These scene-level descriptors can be directly used for re-trieval. In addition, we also propose a relational distillation (RD) module (Park et al., 2019) to transfer the object-centric instance-level relations in ˜F(v) into the vanilla descriptors 
+
+F(v) (obtained via Agg( ·)) through Ldistill , which further enhances the computation efficiency during inference. The details are presented in the Appendix Section B.4. 
+
+4.3. Applying IB theory to generalizable CVGL 
+
+4.3.1. C ROSS -V IEW OCL WITH IB T HEORY .We reformulate the optimization objective of Cross-View OCL by adapting the original upper and lower bounds of IB theory (see Theorem 3.3) to our scenario. The detailed derivation is deferred to Appendix Section B.2. Accordingly, Equation (6) can be further refined as:                     
+
+> max LIB =I(Ug;Uq)
+> |{z }
+> Lstruct
+> −I(ˆAqd;Aqd|ˆAgd) + I(ˆAgd;Agd|ˆAqd)|{z }
+> Lcacs
+> ,(18)
+
+where A(v) 
+
+> d
+
+serves as the input variable (replacing Z(v)
+
+in Equation (6)), while U(v) and ˆA(v) 
+
+> d
+
+are both derived from ˆZ(v) through the Markov chain information flow. This objective can be constructed from two aspects: 
+
+Cross-View MI Maximization: The first term encourages the model to preserve view-invariant information across different viewpoints. Specifically, minimizing Lstruct cor-responds to maximizing a variational lower bound on the mutual information at the latent concept level. 5Submission and Formatting Instructions for ICML 2026 
+
+Table 1. Comparisons with state-of-the-art models trained on University-1652 and DenseUAV datasets. The results on SUES-200 are reported as the average performance ( %) across all subsets. ( ∗ method that uses relational distillation.) 
+
+Model University →SUES University → DenseUAV DenseUAV →SUES DenseUAV →University R@1 ↑ AP ↑ R@1 ↑ AP ↑ R@1 ↑ AP ↑ R@1 ↑ AP ↑
+
+MCCG (Shen et al., 2023) 70.31 74.58 17.54 13.01 80.09 83.18 50.52 55.35 Sample4Geo (Deuser et al., 2023) 82.03 85.12 33.46 22.28 78.94 81.86 37.90 42.54 DAC (Xia et al., 2024) 87.65 89.80 37.81 26.99 86.44 88.70 45.41 50.03 CAMP (Wu et al., 2024) 88.34 90.49 36.94 26.39 86.79 88.93 44.11 48.60 MFRGN (Wang et al., 2024) 78.28 81.75 23.60 16.08 67.22 71.14 37.95 41.73 EM-CVGL (Li et al., 2024b) 74.45 78.51 13.47 10.19 56.43 61.54 32.76 38.05 CVcities (Huang et al., 2024a) 90.27 91.77 38.87 28.44 89.67 91.34 66.08 70.01 Game4Loc (Ji et al., 2025a) 86.75 89.07 17.76 13.62 67.19 71.40 26.47 31.05 MMGeo (Ji et al., 2025b) 85.01 87.60 22.88 18.54 79.05 82.05 33.92 38.28 InfoGeo (Ours w/o RD ) 93.38 +3 .11 94.35 +2 .58 39.88 +1 .01 29.13 +0 .69 93.42 +3 .75 94.55 +3 .21 68.16 +2 .08 72.15 +2 .11 
+
+InfoGeo ∗(Ours w/ RD ) 95.07 +4 .80 95.85 +4 .08 42.30 +3 .43 31.78 +3 .34 93.41 +3 .74 94.52 +3 .18 69.37 +3 .29 73.21 +3 .20 
+
+Figure 4. The PCA visualization and concept affinities of Object-Centric Representations ˆZ. RGB values correspond to principal components. Circles are the view-shared landmarks. Concept affinities are calculated by the spatial-level cosine distance across viewpoints (darker colors indicate higher spatial similarity), while dashed circles highlight the feature-space regions that exhibit robustness. 
+
+View-Specific Noise Compression: The second term aims to filter out task-irrelevant noise. CACS module reweights the attention maps based on cross-view relevance through 
+
+Lcacs for robust and generalizable representation learning. The cross-view OCL objective Linfo can be defined as: 
+
+Linfo = Lcacs + Lstruct . (19) 4.3.2. O VERALL OPTIMIZATION 
+
+During training, we first learn object-centric representa-tions via the slot reconstruction loss Lrec and then lever-age Linfo to regulate the information-theoretic based cross-view object-centric learning flow. Following previous works (Huang et al., 2024a), we apply InfoNCE loss Lalign 
+
+to align the descriptors across different views, while op-tionally incorporating the additional relational distillation objective Ldistill to reduce computation costs. The overall optimization can be calculated as follows: 
+
+L = Lalign + λ1Lrec + λ2Linfo + λ3Ldistill , (20) 
+
+Table 2. performances ( %) Comparisons with the state-of-the-art models on GTA-V (cross-area) dataset.                                         
+
+> Model GTA-V (cross-area) R@1 ↑AP ↑SDM@3 ↑Dis@1 ↓
+> Sample4Geo 28.60 38.94 51.78 1078 .33
+> DAC 53.31 62.99 66.24 541 .58
+> CAMP 54.91 64.74 67.50 547 .71
+> MFRGN 12.22 20.75 41.14 1485 .79
+> Game4Loc 49.57 59.68 65.53 612 .22
+> MMGeo 44.58 55.35 61.25 681 .87
+> CVcities 52.56 63.77 68.93 486 .36
+> InfoGeo 56.88 +1 .97 67.00 +2 .26 70.60 +1 .67 420.08 −66 .28
+> InfoGeo ∗57.90 +2 .99 67.88 +3 .14 71.18 +2 .25 416.75 −69 .61
+
+where λ1, λ2 and λ3 are the trade-off parameters. 
+
+# 5. Experiment 
+
+5.1. Dataset and Evaluation Protocol Dataset. In our evaluation, we conduct experiments on four UAV benchmarks: University-1652 (Zheng et al., 2020) 6Submission and Formatting Instructions for ICML 2026                                        
+
+> Table 3. Results on different weather cross-view transfer tasks.
+> Model Fog-Rain Rain-Snow Fog-Snow R@1 ↑AP ↑R@1 ↑AP ↑R@1 ↑AP ↑
+> Sample4Geo 37.39 44.13 45.80 51.58 26.68 33.05 DAC 73.23 76.72 68.97 73.07 45.02 50.57 CVcities 75.11 79.06 85.23 87.79 72.33 76.51 InfoGeo 81.55 84.66 90.30 91.92 76.81 81.25 InfoGeo ∗82.80 85.49 92.29 93.56 79.95 82.95
+
+(Continuous sampling), SUES-200 (Zhu et al., 2023a) (Dis-crete sampling with flight altitudes ranging from 150 m to 300 m), DenseUAV (Dai et al., 2023) (Low-altitude and self-localization benchmark), and GTA-V (Ji et al., 2025a) (a challenging virtual UAV benchmark). Detailed dataset statistics are provided in Appendix Table 7. 
+
+Evaluation Protocol. Following prior works (Zheng et al., 2020; Ji et al., 2025a), we evaluate the retrieval results using Recall@K (R@K) and Average Precision (AP). A drone query is considered correctly localized if its ground-truth satellite image appears in the Top-K results. To as-sess spatial localization in GTA-V, we use the Spatial Dis-tance Metric (SDM@3) for retrieval accuracy and report the meter-level distance between the top-1 retrieved results and ground-truth drone coordinates (Dis@1 / meter) as an intuitive measure of positioning. 
+
+5.2. Implementation Details 
+
+We adopt CVcities as the baseline where DINOv2-Base (Oquab et al., 2023) is the image encoder, while Mixer (Ali-Bey et al., 2023) is used as the feature aggregator to extract the scene-level descriptors. The image size is set to 448 × 448 . The network is trained for 40 epochs with a batch size of 8 and conducted on a single 80GB NVIDIA A100 GPU. The model is optimized using AdamW with an initial learning rate of 6.5 × 10 −4. In OCL, the slot number 
+
+K is 16, α is set to 0.8. Both λ1 and λ2 are 0.05, while λ3
+
+is 0.85. All experiments are conducted on Drone →Satellite with cross-domain evaluation, and only positive samples are used in GTA-V dataset. Additional parameter settings are provided in the Appendix Section C.1. 
+
+5.3. Comparing with State-of-the-art Models Cross-view Image retrieval. As shown in Table 1 and Ta-ble 2, our method achieves the best overall performance across five transfer scenarios: University-1652 →SUE-200 / DenseUAV, DenseUAV →SUE-200 / University-1652, and GTA-V (cross-area). Compared with the baseline CVci-ties, the average R@1 improves from 90 .27% to 95 .07% on University-1652 →SUE-200 and from 38 .87% to 42 .30% 
+
+on University-1652 →DenseUAV. While InfoGeo achieves 
+
+93 .41% and 69 .37% R@1 on DenseUAV →SUE-200 / University-1652, surpassing the baseline by 3.74% and 
+
+3.29% , respectively. On the challenging GTA-V dataset, InfoGeo outperforms the previous SOTA CAMP by 2.99%                
+
+> Table 4. Computational cost evaluation of comparison methods.
+> Sample4Geo DAC CVcities InfoGeo InfoGeo ∗
+> Params (M) 87.51 87.51 90.50 121.01 90.50 FLOPs (G) 72.60 80.22 91.67 105.63 91.70
+
+at R@1 and improves Dis@1 by over 30% . These consistent gains validate our design: object-centric representations cap-ture view-invariant essentials, while RD integrates them into scene-level descriptors for more robust localization. As il-lustrated in Figure 4 (a), the qualitative results further show that our method effectively captures view-shared objects and exhibits high semantic consistency of the corresponding concepts across different viewpoints. 
+
+Multi-Weather Robustness Evaluation. We further con-duct experiments on University-1652 →SUES-200 under multi-weather settings (Zheng et al., 2024) in query (UAV) view. As shown in Table 3, the reported results are averaged across different heights, covering three scenarios: Fog-Rain ,
+
+Fog-Snow , and Rain-Snow . Our method consistently out-performs prior approaches across all weather conditions, achieving an average improvement of 6.0 %. Notably, Info-Geo shows clear gains under severe transition Fog-Snow ,surpassing the baseline CVcities by about 7.6 % and 6.4 %
+
+at R@1 and AP, respectively, demonstrating its ability to preserve task-relevant structural cues under appearance vari-ations. Moreover, we validate this observation through PCA visualizations (see Figure 4 (b)) at 150m, where object-centric representations disentangle discriminative instances such as buildings and roads from background clutter while filtering view-specific noise (e.g., snow). Cross-view con-cept affinities further indicate higher spatial consistency, confirming that InfoGeo effectively compresses weather-induced noise under challenging conditions. 
+
+Complexity Analysis. As shown in Table 4, our approach with RD significantly reduces computational costs, achiev-ing similar complexity with the standard DINOv2-Base backbone, ensuring high inference efficiency while preserv-ing the robust feature representations for localization. 
+
+5.4. Ablation Study                                  
+
+> Table 5. The ablations on different components of our proposed method evaluated on SUES@150m. ( †indicates that the baseline model is trained using the same parameters as our method.)
+> Model University →SUES DenseUAV →SUES R@1 ↑AP ↑R@1 ↑AP ↑
+> Baseline 82.73 85.60 80.20 83.24 Baseline †86.10 88.28 83.28 86.14 OCVA-only 87.80 89.69 85.75 88.25 +Lcacs 88.82 90.61 85.97 88.40 +Lstruct 90.87 92.41 88.20 89.33 + RD 91.80 93.18 88.70 90.73
+
+7Submission and Formatting Instructions for ICML 2026  
+
+> Figure 5. The cross-view spatial-level concept affinities of different components produced by decoding attention maps.
+
+Ablation of Main Components. We perform an ablation study on individual components to verify our design, as shown in Table 5. The introduction of OCVA provides solid performance boost by incorporating object-centric semantics. Lcacs in the CACS module further enhances results by filtering view-specific noise via cross-view corre-lations. Adding Lstruct (CSRR module) leads to a 2% gain in R@1, validating the importance of object-centric con-cept structural alignment. These improvements are corrobo-rated by qualitative visualizations in Figure 5 (University-1652 →SUES-200@150m), where Lcacs sharpens spatial at-tention by filtering view-specific noise and Lstruct further enforces structural consistency. Finally, incorporating RD yields peak performance (an average + 0.7% R@1 increase) in both scenarios, demonstrating that relational distillation complements structural constraints. Overall, the results confirm that each module contributes synergistically to the framework’s generalization. 
+
+Effects of CSRR module. Interestingly, the CSRR mod-ule yields significant performance gains in ablation studies, motivating a comparative investigation of Lstruct and the In-foNCE loss as alternative objectives for cross-view concept alignment. As shown in Table 6, we evaluate the effective-ness of the proposed structural loss Lstruct across two bench-marks. The results confirm that the integration of CSRR with Lstruct significantly outperforms the baseline, whereas the standard InfoNCE loss, relying on direct alignment of unordered features and ignoring concept-level structure, is less effective and may even degrade performance. This un-derscores the necessity of structural relation constraints for cross-view alignment. Besides, we investigate the sensitiv-ity of the hyperparameter r. When r is set to 4, it serves as the optimal bottleneck for semantic refinement, achieving superior performance. Increasing r to 8 leads to a sharp per-formance decline, suggesting that overly coarse granularity collapses discriminative local features. 
+
+Effects of OCVA module. Finally, we conduct sensitivity analyses on slot number K and the weighting parameter 
+
+α to evaluate the stability of OCVA module on SUES-200 (150m) dataset, as illustrated in Figure 6 (a) and (b). As 
+
+K varies from 4 to 16, it improves high-level semantic reconstruction into distinct object-centric representations,                                  
+
+> Table 6. The ablations on the loss design in CSRR module.
+> Method University →SUES DenseUAV →SUES R@1 ↑AP ↑R@1 ↑AP ↑
+> w/o CSRR 88.65 90.55 85.88 88.34
+> InfoNCE 88.20 90.03 86.64 88.77
+> Lstruct (r= 2) 89.22 91.00 86.85 89.06
+> Lstruct (r= 4) 91.80 93.18 88.70 90.73
+> Lstruct (r= 8) 86.42 88.51 85.75 88.11
+> Figure 6. The sensitivity analysis of the hyperparameters in OCVA.
+
+effectively avoiding slot collapse issue where excessively similar concepts. In contrast, K = 32 degrades the gener-alization performance, as excessive slots cause redundant discrete concepts, introducing noise that weakens discrim-inative cues. Thus, K = 16 provides an optimal value in the module. Meanwhile, the model achieves its best perfor-mance at α = 0 .8, with both metrics exhibiting consistent trends across scenarios. These results highlight the impor-tance of balancing object-centric cues and global context, where an appropriate α emphasizes discriminative regions while preserving global spatial structure. In contrast, inter-mediate α values induce a suboptimal optimization trade-off, increasing uncertainty and exacerbating slot collapse, which ultimately degrades overall performance. 
+
+# 6. Conclusion 
+
+We introduce InfoGeo, a cross-view object-centric learning framework for CVGL, and provide an information-theoretic justification of its effectiveness. From the perspective of information bottleneck theory, we reformulate cross-view OCL with two complementary objectives: compressing view-specific noisy signals and maximizing view-invariant information. Specifically, we propose a cross-view adaptive concept selection module to suppress view-specific noise via cross-view collaborative knowledge, while concept struc-8Submission and Formatting Instructions for ICML 2026 
+
+tural relational reasoning captures inter-view structural rela-tions to maximize the mutual information. Furthermore, the channel-wise FiLM blocks are employed for object-centric visual augmentation, allowing object-centric perceptual cues to be effectively incorporated into the global feature maps. Extensive experimental results demonstrate the robustness and effectiveness of InfoGeo for generalizable UAV-based cross-view geo-localization. 
+
+# 7. Impact Statement 
+
+This paper presents research whose primary goal is to ad-vance the field of machine learning. We do not foresee any direct societal consequences arising from this work that require specific discussion at this time. 
+
+# References 
+
+Ali-Bey, A., Chaib-Draa, B., and Giguere, P. Mixvpr: Fea-ture mixing for visual place recognition. In Proceedings of the IEEE/CVF winter conference on applications of computer vision , pp. 2998–3007, 2023. Amjad, R. A. and Geiger, B. C. Learning representations for neural network-based classification using the information bottleneck principle. IEEE transactions on pattern analy-sis and machine intelligence , 42(9):2225–2239, 2019. Beaudry, N. J. and Renner, R. An intuitive proof of the data processing inequality. arXiv preprint arXiv:1107.0740 ,2011. Belkin, M. and Niyogi, P. Laplacian eigenmaps for di-mensionality reduction and data representation. Neural computation , 15(6):1373–1396, 2003. Berton, G., Masone, C., and Caputo, B. Rethinking visual geo-localization for large-scale applications. In Proceed-ings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pp. 4878–4888, 2022. Cao, B., Araujo, A., and Sim, J. Unifying deep local and global features for image search. In European conference on computer vision , pp. 726–743. Springer, 2020. Dai, M., Zheng, E., Feng, Z., Qi, L., Zhuang, J., and Yang, W. Vision-based uav self-positioning in low-altitude ur-ban environments. IEEE Transactions on Image Process-ing , 33:493–508, 2023. Deuser, F., Habel, K., and Oswald, N. Sample4geo: Hard negative sampling for cross-view geo-localisation. In 
+
+Proceedings of the IEEE/CVF International Conference on Computer Vision , pp. 16847–16856, 2023. Fan, K., Bai, Z., Xiao, T., He, T., Horn, M., Fu, Y., Lo-catello, F., and Zhang, Z. Adaptive slot attention: Object discovery with dynamic slot number. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pp. 23062–23071, 2024. Fu, Y., Wang, R., Ren, B., Sun, G., Gong, B., Fu, Y., Paudel, D. P., Huang, X., and Van Gool, L. Objectrelator: En-abling cross-view object relation understanding across ego-centric and exo-centric perspectives. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pp. 6530–6540, 2025. Gould, S., Fernando, B., Cherian, A., Anderson, P., Cruz, R. S., and Guo, E. On differentiating parameterized argmin and argmax problems with application to bi-level optimization. arXiv preprint arXiv:1607.05447 , 2016. Hjelm, R. D., Fedorov, A., Lavoie-Marchildon, S., Grewal, K., Bachman, P., Trischler, A., and Bengio, Y. Learning deep representations by mutual information estimation and maximization. arXiv preprint arXiv:1808.06670 ,2018. Huang, G., Zhou, Y., Zhao, L., and Gan, W. Cv-cities: Ad-vancing cross-view geo-localization in global cities. IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing , 2024a. Huang, Y., Gao, C., Li, B., and Xue, X. Improv-ing viewpoint-independent object-centric representations through active viewpoint selection. Advances in Neu-ral Information Processing Systems , 37:19907–19932, 2024b. Ji, Y., He, B., Tan, Z., and Wu, L. Game4loc: A uav geo-localization benchmark from game data. In Proceedings of the AAAI Conference on Artificial Intelligence , vol-ume 39, pp. 3913–3921, 2025a. Ji, Y., He, B., Tan, Z., and Wu, L. Mmgeo: Multimodal com-positional geo-localization for uavs. In 2025 IEEE/CVF International Conference on Computer Vision (ICCV) , pp. 25165–25175, 2025b. Kejriwal, M., Kildebeck, E., Steininger, R., and Shrivastava, A. Challenges, evaluation and opportunities for open-world learning. Nature Machine Intelligence , 6(6):580– 588, 2024. Li, G., Qian, M., and Xia, G.-S. Unleashing unlabeled data: A paradigm for cross-view geo-localization. In 
+
+Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pp. 16719–16729, 2024a. Li, H., Xu, C., Yang, W., Yu, H., and Xia, G.-S. Learning cross-view visual geo-localization without ground truth. 
+
+IEEE Transactions on Geoscience and Remote Sensing ,2024b. 9Submission and Formatting Instructions for ICML 2026 
+
+Li, H., Deuser, F., Yin, W., Knoblauch, S., Zhao, W., Bil-jecki, F., Xue, Y., and Huang, W. Towards generative location awareness for disaster response: A probabilis-tic cross-view geolocalization approach. arXiv preprint arXiv:2512.20056 , 2025a. Li, J., Wang, Y., Zhang, X., Jiang, D., Dai, W., Li, C., Xiong, H., and Tian, Q. Contrastive learning via variational information bottleneck. IEEE Transactions on Pattern Analysis and Machine Intelligence , 2025b. Li, N., Eastwood, C., and Fisher, R. Learning object-centric representations of multi-object scenes from mul-tiple views. Advances in neural information processing systems , 33:5656–5666, 2020. Li, N., Raza, M. A., Hu, W., Sun, Z., and Fisher, R. Object-centric representation learning with generative spatial-temporal factorization. Advances in neural information processing systems , 34:10772–10783, 2021. Li, S., Hu, M., Xiao, X., and Tu, Z. Patch similarity self-knowledge distillation for cross-view geo-localization. 
+
+IEEE Transactions on Circuits and Systems for Video Technology , 34(6):5091–5103, 2023. Locatello, F., Weissenborn, D., Unterthiner, T., Mahendran, A., Heigold, G., Uszkoreit, J., Dosovitskiy, A., and Kipf, T. Object-centric learning with slot attention. Advances in neural information processing systems , 33:11525–11538, 2020. Oquab, M., Darcet, T., Moutakanni, T., Vo, H., Szafraniec, M., Khalidov, V., Fernandez, P., Haziza, D., Massa, F., El-Nouby, A., et al. Dinov2: Learning robust visual features without supervision. arXiv preprint arXiv:2304.07193 ,2023. Park, W., Kim, D., Lu, Y., and Cho, M. Relational knowl-edge distillation. In Proceedings of the IEEE/CVF con-ference on computer vision and pattern recognition , pp. 3967–3976, 2019. Perez, E., Strub, F., De Vries, H., Dumoulin, V., and Courville, A. Film: Visual reasoning with a general con-ditioning layer. In Proceedings of the AAAI conference on artificial intelligence , volume 32, 2018. Poole, B., Ozair, S., Van Den Oord, A., Alemi, A., and Tucker, G. On variational bounds of mutual informa-tion. In International conference on machine learning ,pp. 5171–5180. PMLR, 2019. Sarlin, P.-E., Cadena, C., Siegwart, R., and Dymczyk, M. From coarse to fine: Robust hierarchical localization at large scale. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pp. 12716– 12725, 2019. Shen, T., Wei, Y., Kang, L., Wan, S., and Yang, Y.-H. Mccg: A convnext-based multiple-classifier method for cross-view geo-localization. IEEE Transactions on Circuits and Systems for Video Technology , 34(3):1456–1468, 2023. Shi, Y., Yu, X., Liu, L., Campbell, D., Koniusz, P., and Li, H. Accurate 3-dof camera geo-localization via ground-to-satellite image matching. IEEE transactions on pat-tern analysis and machine intelligence , 45(3):2682–2697, 2022. Tishby, N., Pereira, F. C., and Bialek, W. The information bottleneck method. In Proceedings of the 37th annual Allerton Conference on Communication, Control, and Computing , pp. 368–377, 1999. Toker, A., Zhou, Q., Maximov, M., and Leal-Taix ´e, L. Com-ing down to earth: Satellite-to-street view synthesis for geo-localization. In Proceedings of the IEEE/CVF Con-ference on Computer Vision and Pattern Recognition , pp. 6488–6497, 2021. Umeyama, S. An eigendecomposition approach to weighted graph matching problems. IEEE transactions on pattern analysis and machine intelligence , 10(5):695–703, 2002. Van den Oord, A., Li, Y., and Vinyals, O. Representation learning with contrastive predictive coding. In Proceed-ings of the International Conference on Learning Repre-sentations (ICLR) , 2018. Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A. N., Kaiser, Ł., and Polosukhin, I. At-tention is all you need. Advances in neural information processing systems , 30, 2017. Von Luxburg, U. A tutorial on spectral clustering. Statistics and computing , 17(4):395–416, 2007. Wang, Y., Zhang, J., Wei, R., Gao, W., and Wang, Y. Mfrgn: Multi-scale feature representation generalization network for ground-to-aerial geo-localization. In Proceedings of the 32nd ACM International Conference on Multimedia ,pp. 2574–2583, 2024. Workman, S., Souvenir, R., and Jacobs, N. Wide-area image geolocalization with aerial reference imagery. In Proceed-ings of the IEEE International Conference on Computer Vision , pp. 3961–3969, 2015. Wu, Q., Wan, Y., Zheng, Z., Zhang, Y., Wang, G., and Zhao, Z. Camp: A cross-view geo-localization method using contrastive attributes mining and position-aware parti-tioning. IEEE Transactions on Geoscience and Remote Sensing , 2024. Xia, P., Wan, Y., Zheng, Z., Zhang, Y., and Deng, J. Enhanc-ing cross-view geo-localization with domain alignment 10 Submission and Formatting Instructions for ICML 2026 
+
+and scene consistency. IEEE Transactions on Circuits and Systems for Video Technology , 2024. Yang, M., He, D., Fan, M., Shi, B., Xue, X., Li, F., Ding, E., and Huang, J. DOLG: Single-stage image retrieval with deep orthogonal fusion of local and global features. In 
+
+Proceedings of the IEEE/CVF International conference on Computer Vision , pp. 11772–11781, 2021. Ye, J., Lv, Z., Li, W., Yu, J., Yang, H., Zhong, H., and He, C. Cross-view image geo-localization with panorama-bev co-retrieval network. In European Conference on Computer Vision , pp. 74–90. Springer, 2024. Yuan, J., Chen, T., Shen, Z., Li, B., and Xue, X. Unsuper-vised object-centric learning from multiple unspecified viewpoints. IEEE Transactions on Pattern Analysis and Machine Intelligence , 46(5):3897–3909, 2024. Zhang, H., Liu, Y., and Kuang, Z. Skylink: Unifying street-satellite geo-localization via uav-mediated 3d scene align-ment. In Proceedings of the 3rd International Workshop on UAVs in Multimedia: Capturing the World from a New Perspective , pp. 26–30, 2025. Zhao, R., Zhao, Y., Kannala, J., and Pajarinen, J. Slot attention with re-initialization and self-distillation. In 
+
+Proceedings of the 33rd ACM International Conference on Multimedia , pp. 4185–4192, 2025. Zhao, Z., Wang, J., Horn, M., Ding, Y., He, T., Bai, Z., Zietlow, D., Simon-Gabriel, C.-J., Shuai, B., Tu, Z., et al. Object-centric multiple object tracking. In Proceedings of the IEEE/CVF international conference on computer vision , pp. 16601–16611, 2023. Zheng, Z., Wei, Y., and Yang, Y. University-1652: Amulti-view multi-source benchmark for drone-based geo-localization. In Proceedings of the 28th ACM interna-tional conference on Multimedia , pp. 1395–1403, 2020. Zheng, Z., Shi, Y., Wang, T., Chen, C., Zhu, P., and Hartley, R. The 2nd workshop on uavs in multimedia: Capturing the world from a new perspective. In Proceedings of the 2nd Workshop on UAVs in Multimedia: Capturing the World from a New Perspective , pp. 1–3, 2024. Zhu, R., Yin, L., Yang, M., Wu, F., Yang, Y., and Hu, W. Sues-200: A multi-height multi-scene cross-view image benchmark across drone and satellite. IEEE Transactions on Circuits and Systems for Video Technology , 33(9): 4825–4839, 2023a. Zhu, S., Yang, T., and Chen, C. VIGOR: Cross-view image geo-localization beyond one-to-one retrieval. In Proceed-ings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pp. 3640–3649, 2021. Zhu, Y., Yang, H., Lu, Y., and Huang, Q. Simple, effective and general: A new backbone for cross-view image geo-localization. arXiv preprint arXiv:2302.01572 , 2023b. 11 Submission and Formatting Instructions for ICML 2026 
+
+Appendix Outline. This appendix presents the related works of cross-view geo-localization and multi-view object-centric learning, additional implementation details of the methodology, extended experiments, visualization and further analysis of the proposed infoGeo. The contents are organized as follows: • § Section A : Related Work. • § Section B : More Details on Methodology. • § Section C : Extened Experimental Results. • § Section D : Qualitive Results. • § Section E : Discussion. 
+
+# A. Related Work 
+
+A.1. Cross-View Geo-Localization 
+
+Recent image retrieval methods learn compact yet discriminative global representations, often enhanced by selective local aggregation. DELG (Cao et al., 2020) and DOLG (Yang et al., 2021) jointly model global and local cues, while scalable frameworks such as CosPlace (Berton et al., 2022) and MixVPR (Ali-Bey et al., 2023) improve generalization via optimized global aggregation and large-scale training. Building upon these retrieval paradigms, cross-view geo-localization (CVGL) adapts image retrieval techniques to match ground-level images with aerial or satellite views under extreme viewpoint and geometric discrepancies. Early ground-to-aerial localization methods focus on mitigating the cross-view gap caused by extreme perspective changes. VIGOR reformulates CVGL beyond the idealized one-to-one correspondence assumption, explicitly modeling region-level ambiguity inherent in real-world localization scenarios (Zhu et al., 2021). Subsequent works explore complementary directions to bridge the cross-view discrepancy, including view synthesis for representation regularization (Toker et al., 2021), geometry-aware alignment for pose-level localization (Shi et al., 2022), and simplified yet effective backbone designs tailored for cross-view matching (Zhu et al., 2023b). These approaches primarily target ground-level imagery and emphasize robustness to viewpoint and appearance variations. More recent studies extend CVGL to UAV scenarios, where images are captured at varying altitudes and viewing angles, introducing additional scale and structural variability. Representative efforts emphasize patch-level correspondence mod-eling and self-distillation (Li et al., 2023), multi-branch retrieval frameworks incorporating auxiliary BEV or panorama representations (Ye et al., 2024), and the construction of realistic UAV-based benchmarks that better reflect operational conditions (Ji et al., 2025a). However, UAV-based CVGL remains challenging due to altitude-dependent object density, increased background clutter, and limited availability of consistently discriminative objects, which often lead to degraded object-level correspondence and reduced generalization across various flight heights. 
+
+A.2. Multi-View Object-Centric Learning 
+
+Learning object-centric scene representations is crucial for achieving structured understanding and abstraction of complex scenes. However, most existing methods only focus on single-view settings, resulting in the single-view spatial ambiguities and thus show several failures or inaccuracies in representing 3D scene properties and cannot handle well dynamic scenes where the spatial structures (Li et al., 2020; 2021). DyMON (Li et al., 2021) extends multi-view object-centric learning to dynamic scenes via spatial-temporal factorization. While enhancing motion and temporal coherence modeling, representations may still entangle viewpoint variations and noise, as reconstruction-based disentanglement remains implicit. Ye et al. (Yuan et al., 2024) leverage multi-view consistency to maintain object permanence across unposed viewpoints. However, by relying on generative reconstruction for alignment, this approach lacks explicit control over separating view-invariant semantics from view-specific factors. Huang et al. (Huang et al., 2024b) innovatively propose actively selecting informative viewpoints to enhance efficiency and invariance. But this prioritizes view selection over determining which information to retain within object-centric representations. For cross-view visual reasoning, ObjectRelator (Fu et al., 2025) explicitly models object relations across ego-centric and exo-centric views, improving relational understanding under large viewpoint changes. However, it focuses on correspondence and relation reasoning rather than suppressing viewpoint-specific nuisances, which can limit robustness under severe appearance or structural variations. 12 Submission and Formatting Instructions for ICML 2026 
+
+Overall, existing methods rely on the methods of generative reconstruction, geometric consistency, or relational alignment to implicitly encourage shared structure across views, but lack an explicit mechanism to regulate information flow, leading to the entanglement of view-invariant object semantics with view-specific nuisances such as appearance changes, occlusions, or background clutter–particularly in dynamic or unconstrained environments. 
+
+# B. More Details on Methodology 
+
+B.1. The Components on Object-Centric Learning 
+
+Most existing object-centric learning (OCL) models typically consist of three main components: a slot encoder, an aggregator, and a slot decoder. The detailed description of each component is provided as follows. 
+
+Slot Encoder. The encoder ϕe is responsible for extracting low-level and mid-level visual features from the input image. It is typically implemented using an MLP. The encoder maps the input feature maps Z into a set of N feature vectors: 
+
+F = Enc( Z) = {fi}Ni=1 , fi ∈ RD , (21) where N = H × W corresponds to the number of spatial locations and D is the feature dimension. To preserve spatial information, positional encodings are commonly added to the extracted features: 
+
+fi ← fi + PE( pi), (22) where pi denotes the 2D spatial coordinates of the i-th feature and PE( ·) is a positional encoding function. The resulting feature set F serves as the input to the aggregator. 
+
+Aggregator. The aggregator ϕa aims to transform the unordered feature set F into a structured collection of object-centric representations, referred to as slots. Let K denote the number of slots. The slots are initialized as a set of learnable or randomly sampled vectors: 
+
+S(0) = {s(0)  
+
+> k
+
+}Kk=1 , s(0)  
+
+> k
+
+∼ N (0, I). (23) Slot attention is applied iteratively to assign feature tokens to slots. At iteration t, attention weights between features and slots are computed as: 
+
+a(t) 
+
+> ik
+
+=exp 
+
+
+
+(Wq s(t) 
+
+> k
+
+)⊤(Wkfi)
+
+PKk′=1 exp 
+
+
+
+(Wq s(t) 
+
+> k′
+
+)⊤(Wkfi)
+
+ , (24) where Wq and Wk are learnable linear projections. The attention weights are normalized over the slot dimension, enforcing competition among slots for explaining each feature. Based on these weights, slot-wise aggregated updates are computed as 
+
+u(t) 
+
+> k
+
+=
+
+> N
+
+X
+
+> i=1
+
+a(t) 
+
+> ik
+
+Wv fi, (25) where Wv is a linear projection. Each slot is then updated using a recurrent update rule: 
+
+s(t+1)  
+
+> k
+
+= Update  s(t) 
+
+> k
+
+, u(t)
+
+> k
+
+, (26) where Update( ·) is typically implemented using a gated recurrent unit followed by a feed-forward refinement. After T
+
+iterations, the final slot representations are given by S = {s(T ) 
+
+> k
+
+}Kk=1 .
+
+Slot Decoder. The decoder ϕd maps each object-centric slot back to the pixel space to reconstruct the input image. For each slot sk, the decoder predicts a slot-level feature map ˆZk and a corresponding soft mask Mk:
+
+(ˆZk, Mk) = Dec( sk), k = 1 , . . . , K, (27) where ˆZk ∈ RH×W ×3 and Mk ∈ [0 , 1] H×W . The final reconstructed image is obtained via soft composition: 
+
+ˆZ =
+
+> K
+
+X
+
+> k=1
+
+Zk ⊙ ˆZk, (28) where ⊙ denotes element-wise multiplication. The reconstruction ˆZ is compared against the input Z using a reconstruction loss, which provides the primary self-supervised learning signal for training all three components jointly. 13 Submission and Formatting Instructions for ICML 2026 
+
+B.2. Information-Bottleneck Theory for CVGL 
+
+In this section, we further provide more detailed information about the proof of the cross-view mutual information bound. 
+
+The Proof of Theorem 3.2. Learning visual representations by mutual information estimation and maximization has emerged as an effective paradigm for preserving task-relevant semantics in deep networks (Hjelm et al., 2018), while prior work (Amjad & Geiger, 2019) has investigated the information bottleneck principle for deep neural network classification, characterizing representation learning as a Markovian information processing chain that progressively filters task-irrelevant information. Based on the above analysis, we model the cross-view representation learning flow in an analogous Markovian manner. In the context of our task, the geographic information Y is unobservable, and under the conditional independence assumption between ˆZq and ˆZg , the representation learning process induces the Markov chain as: 
+
+Y → ˆZg → Zq → ˆZq . (29) By the Data Processing Inequality (DPI), which states that information cannot increase through a Markov chain, the above formulation naturally leads to the following information-theoretic characterization: 
+
+I(ˆZ(v); ˆZ(¯ v)) − I(ˆZ(v); Y) = I(ˆZ(v); ˆZ(¯ v) | Y) ≥ 0 → I(ˆZ(v); ˆZ(¯ v)) ≥ I(ˆZ(v); Y). (30) After that, we leverage this property to establish a rigorous upper bound on cross-view mutual information, which is presented in Theorem 3.2. 
+
+Applying Theorem 3.2 to Cross-View OCL. Analogously, this information-theoretic perspective can be extended to the optimization of cross-view object-centric learning, as illustrated in Equation (18). To formalize this connection, we consider a cross-view setting with two views q and g. For each view v ∈ { q, g }, we assume the data generative process governed by the following Markov chain: 
+
+ˆZ(¯ v) → Z(v) → ˆZ(v) → ˆA(v) 
+
+> d
+
+→ U(v). (31) Under this formulation, our objective is to show that maximizing the mutual information at the concept level, I(Uq ; Ug ),serves as a principled surrogate for optimizing the underlying semantic alignment, I(ˆZg ; ˆZq ).
+
+Proof. According to the principle of DPI, for any Markov chain X → Y → T , the information that T contains about X
+
+cannot exceed the information Y contains about X, i.e., I(X; T ) ≤ I(X; Y ).1. Fixing the chain in gallery view, consider the relationship between Uq and the g sequence. From the Markov chain 
+
+ˆZq → ˆAqd → Uq , we can define as: 
+
+I(Uq ; Ug ) ≤ I( ˆAqd; Ug ) ≤ I(ˆZq ; Ug ) (32) 2. Now, applying DPI to the second chain ˆZg → ˆAgd → Ug with respect to the variable ˆZq , we observe: 
+
+I(ˆZq ; Ug ) ≤ I(ˆZq ; ˆAgd) ≤ I(ˆZq ; ˆZg ) (33) 3. By transitivity of the inequalities derived in (1) and (2), we obtain the inequality: 
+
+I(Uq ; Ug ) ≤ I(ˆZq ; ˆZg ) (34) This confirms that I(Uq ; Ug ) serves as a lower bound on latent semantic correspondence, thereby providing a principled theoretical justification for optimizing concept-level mutual information in cross-view object-centric learning. Therefore, the first term in Equation (6) can be converted into the first term in Equation (18). We further characterize the cross-view object-centric learning process through the following Markov chains: 
+
+Zq → Aqd → ˆAqd, Zg → Agd → ˆAgd. (35) 14 Submission and Formatting Instructions for ICML 2026 
+
+According to DPI, the conditional mutual information is upper-bounded as: 
+
+I(ˆZq ; Zq | ˆZg ) ≤ I( ˆAqd; Aqd | ˆAgd). (36) The proposed framework does not target to minimize the second term in Equation (18) directly. Besides, this term serves as a theoretical motivation under IB theory. In practice, we realize its effect by learning cross-view adaptive routing weights 
+
+Wcv in CACS module, which selectively emphasize view-shared concepts while attenuating view-specific ones. Importantly, rather than explicitly optimizing Aqd, our framework introduces a Concept Router that generates cross-view adaptive weights 
+
+Wcv , which modulate the attention maps to obtain ˆAqd. This reweighting mechanism implicitly constrains the information flow from Aqd to ˆAqd, thereby regulating the conditional mutual information at the concept level. This reweighting process induces the following Markov chain at the concept level: 
+
+Z(v) → A(v) 
+
+> d
+
+→ Wcv → ˆA(v) 
+
+> d
+
+, (37) where Z(v) denotes the latent semantic variables of view v. Since Wcv is solely determined by cross-view information, the transformation from A(v) 
+
+> d
+
+to ˆA(v) 
+
+> d
+
+acts as a view-aware bottleneck that selectively filters concept-level information. Equation (9) encourages sparse yet diverse concept selection across views. By suppressing redundant or view-specific concepts while preserving view-consistent ones, the Concept Router effectively reduces I( ˆAqd; Aqd | ˆAgd), thereby enforcing the compression of view-dependent nuisance information in accordance with the information bottleneck principle. Overall, the objective Linfo can be expressed in terms of entropy as follows: 
+
+Linfo = H(U ¯(v) | U(v))
+
+| {z }
+
+> Lstruct
+
+− X
+
+> v∈{ g,q }
+
+H( ˆA(v) 
+
+> d
+
+| ˆA(¯ v) 
+
+> d
+
+) − H( ˆA(v) 
+
+> d
+
+| ˆA(¯ v) 
+
+> d
+
+, A(v) 
+
+> d
+
+)
+
+| {z }
+
+> Lcacs
+
+, (38) The first component is Lstruct , maximizes the mutual information I(Ug ; Uq ) by minimizing the conditional entropy 
+
+H(Ug | Uq ), thereby enforcing semantic consensus at the embedding level. To this end, we employ an orthogonal Procrustes loss, which constrains the embeddings to be aligned through an orthogonal transformation, preserving their intrinsic geometric structure. The second component, corresponding to Lcacs , serves as a collaborative regularizer that constrains the cross-view attention 
+
+ˆA(v) 
+
+> d
+
+. By minimizing the conditional mutual information I( ˆA(v) 
+
+> d
+
+; A(v) 
+
+> d
+
+| ˆA(¯ v) 
+
+> d
+
+), the framework encourages ˆA(v) 
+
+> d
+
+to retain only the information in A(v) 
+
+> d
+
+that is predictable from the cross-view counterpart, thereby suppressing view-specific redundancy. Expanding this objective in terms of entropy gives a tractable form suitable for optimization: 
+
+Lcacs = I( ˆA(v) 
+
+> d
+
+; A(v) 
+
+> d
+
+| ˆA(¯ v) 
+
+> d
+
+) = H( ˆA(v) 
+
+> d
+
+| ˆA(¯ v) 
+
+> d
+
+) − H( ˆA(v) 
+
+> d
+
+| ˆA(¯ v) 
+
+> d
+
+, A(v) 
+
+> d
+
+). (39) The formulation in Equation (39) is instantiated by Lcacs in Equation (9), we further provide a detailed analysis of the optimization process as below: Since ˆA(v) 
+
+> d
+
+is obtained by element-wise gating A(v) 
+
+> d
+
+with Wcv , the uncertainty of ˆA(v) 
+
+> d
+
+is fully governed by Wcv when A(v)
+
+> d
+
+is given. As a result, optimizing the conditional mutual information objective can be equivalently relaxed to regularizing the distribution of Wcv . Specifically, E[Wcv ⊙ (1 − Wcv )] corresponds to the first term in Equation (39). This term constitutes a quadratic regularizer over the gating variables, which upper-bounds the conditional entropy of ˆA(v) 
+
+> d
+
+given ˆA(¯ v) 
+
+> d
+
+under a Bernoulli parameterization. Minimizing this expectation suppresses high-variance and ambiguous gating responses, thereby driving Wcv toward low-entropy, near-deterministic solutions that are consistent across views. Meanwhile, maximizing Var( Wcv ) (the second term in Equation (39)) prevents degenerate solutions by promoting discrim-inative diversity across spatial locations, thereby retaining informative and view-shared activations. Together, these two terms constitute a tractable relaxation of the original information-theoretic objective, balancing uncertainty reduction and information preservation in a unified manner. 
+
+Variational Mutual Information Estimation. Directly maximizing mutual information across different views is generally intractable due to the unknown joint distribution. Following the variational perspective (Poole et al., 2019), the mutual 15 Submission and Formatting Instructions for ICML 2026 
+
+information of the feature maps across two views is optimized via a tractable lower bound: 
+
+I(ˆZq ; ˆZg ) ≥ Ep( ˆZq , ˆZg )
+
+"
+
+log fθ (ˆZq , ˆZg )
+
+Ep( ˆZg )[fθ (ˆZq , ˆZg )] 
+
+#
+
+, (40) where fθ (·, ·) is a learnable function. In practice, this formulation subsumes commonly used contrastive objectives (e.g., InfoNCE (Van den Oord et al., 2018)), providing a low-variance and scalable estimator of mutual information. 
+
+B.3. Concept Graph Relation Construction 
+
+We further detail the construction of concept graphs G(v). ˜G(v) are obtained by computing the cosine similarities between the decoding attention maps ˆA(v) 
+
+> d
+
+as: 
+
+˜G(v) 
+
+> ij
+
+= ⟨ ˆA(v) 
+
+> d,i
+
+, ˆA(v) 
+
+> d,j
+
+⟩∥ ˆA(v) 
+
+> d,i
+
+∥2 ∥ ˆA(v) 
+
+> d,j
+
+∥2
+
+, (41) where ˆA(v) 
+
+> d,i
+
+∈ RH×W denotes the decoding attention map corresponding to the i-th concept in view v. The resulting matrix 
+
+˜G(v) ∈ RK×K represents the pairwise semantic similarity among concepts within the same view. However, the values of cosine similarity lie in [−1, 1] , we apply an affine transformation to ensure non-negativity: 
+
+G(v) 
+
+> ij
+
+=
+
+˜G(v) 
+
+> ij
+
++ 1 2 , (42) followed by clipping to eliminate numerical artifacts below zero. This guarantees that G(v) is symmetric and element-wise non-negative, satisfying the requirements of graph Laplacian construction. From an information-theoretic perspective, this construction can be interpreted as an implicit information bottleneck imposed on the slot representations. Specifically, projecting the slot graph onto the subspace spanned by the lowest-frequency eigenvectors yields a representation U(v) that retains information most relevant to the underlying semantic identity Y, while discarding high-complexity variations that do not persist across views. Formally, U(v) can be viewed as a low-dimensional sufficient statistic satisfying: 
+
+I(U(v); Y) ≈ I(S(v); Y), I(S(v); Z(v) | U(v)) ≈ 0, (43) where Z(v) denotes the input latent factors of view v. This aligns with the principle of minimal sufficient representation, in which the spectral embedding preserves view-shared relational semantics while filtering out view-dependent nuisance factors. Consequently, this structured alignment acts as a cross-view information bottleneck, enforcing that only concept-level relational structures consistent across views are preserved. 
+
+B.4. Relational Distillation 
+
+While OCVA incorporates object-centric perception into visual representations, directly employing slot-attention modules during inference would introduce additional computational complexity. To tackle this issue, we propose Relational Distillation (RD), which transfers object-centric relational knowledge into a vanilla backbone during training. Specifically, given the original feature maps Zq and Zg from the query and gallery views, as well as their objec-centric augmented counterparts ˜Zq and ˜Zg , we obtain their corresponding scene-level descriptors f (v) and ˜f (v) via a view-shared feature aggregation layer. Rather than enforcing point-wise feature alignment, RD distills the structural knowledge among samples by matching the pairwise relationships. Concretely, given N samples in view v, we construct a pairwise relational matrix R(v)(·) ∈ RN ×N
+
+in view v through Euclidean distances: 
+
+R(v) 
+
+> ij
+
+(f ) = ∥f (v) 
+
+> i
+
+− f (v) 
+
+> j
+
+∥2. (44) The module encourages the relational geometry of the original features to match that in the augmented features: 
+
+Ldistill = 12
+
+X
+
+> v∈{ q,g }
+
+∥R(f (v)) − R(˜f (v))∥2. (45) 16 Submission and Formatting Instructions for ICML 2026 
+
+Consequently, RD retains object-centric-aware representation while ensuring computational efficiency by avoiding the usage of OCL modules during inference. 
+
+B.5. Channel-wise FiLM Block 
+
+To effectively integrate object-centric semantics into the global representations, we employ a modified version of the Feature-wise Linear Modulation (FiLM) (Perez et al., 2018). Unlike the standard affine formulation, our implementation utilizes a scaling-only mechanism. This design choice focuses on dynamic feature selection, allowing the discovered concepts to amplify or suppress specific channels in the global feature map without introducing additive bias that might shift the semantic grounding. Let v(v) 
+
+> h
+
+∈ RCcond denote the affinity vector extracted from view v, which encodes object-centric semantic information distilled by the proposed cross-view OCL framework. This vector is used as a conditioning signal to adaptively modulate the global feature representation via a channel-wise Feature-wise Linear Modulation (FiLM) mechanism. 
+
+Generation of Channel-wise Scaling Coefficients. To inject object-centric priors into the global representation, we first project the conditioning vector v(v) 
+
+> h
+
+into the channel space of the global feature map. Specifically, a learnable mapping 
+
+fθ : RCcond → RC is employed to generate channel-wise modulation coefficients: 
+
+γ = σ
+
+
+
+fθ (v(v) 
+
+> h
+
+)
+
+
+
+, (46) where fθ is implemented as a linear projection or a shallow multi-layer perceptron (MLP). The activation function σ(·)
+
+(e.g., Sigmoid) constrains the scaling coefficients γ ∈ RC to a bounded range, ensuring stable modulation. Each element 
+
+γi can be interpreted as an adaptive importance weight that reflects the relevance of the i-th channel with respect to the object-centric concepts present in view v.
+
+Channel-wise Multiplicative Modulation. Given the global feature map Z(v) ∈ RC×H×W extracted from the backbone network, we apply channel-wise multiplicative modulation using the generated scaling coefficients. For each channel 
+
+i ∈ { 1, . . . , C }, the modulated feature map ˆZ(v) 
+
+> i
+
+is computed as: 
+
+ˆZ(v) 
+
+> i
+
+= Z(v) 
+
+> i
+
+⊙  1 + γ(v)
+
+> i
+
+. (47) Equivalently, the modulation process can be expressed in a compact vectorized form as: 
+
+FiLM scale 
+
+
+
+Z(v), v(v)
+
+> h
+
+
+
+= γ(v(v) 
+
+> h
+
+) ⊙ Z(v), (48) where ⊙ denotes element-wise multiplication with broadcasting along the spatial dimensions. This formulation enables the model to selectively amplify channels that are consistent with view-shared object-centric semantics, while suppressing channels dominated by view-specific or noisy factors. As a result, the modulated representation is encouraged to emphasize view-invariant structural cues, thereby improving robustness and generalization in CVGL. 
+
+B.6. Feature Aggregation Layer 
+
+The detailed configuration of the feature aggregation layer is illustrated in Figure 7. This layer implements a purely MLP-based aggregation strategy that iteratively integrates global context into individual feature maps extracted from a pre-trained backbone (DINOv2). The aggregation is realized via a stack of isotropic MLP blocks. In the Patch-Aware Feature Mixer, each block comprises LayerNorm, a linear projection, and an activation function, and we employ four such blocks sequentially. The Dual-wise Projection consists of two separate components: depth-wise and row-wise projections, each implemented with a single MLP layer. Specifically, the depth-wise projection outputs feature vectors of 512 dimensions, while the row-wise projection produces 4 rows, facilitating comprehensive spatial-context encoding. 
+
+B.7. Optimization and Inference Optimization for cross-view feature alignment. In the CVGL task, the InfoNCE loss serves as the primary supervision signal for learning discriminative cross-view representations. It is designed to maximize the similarity between matched 17 Submission and Formatting Instructions for ICML 2026   
+
+> Figure 7. The detailed structures of the feature aggregation layer.
+> Figure 8. Comparsion on the network structures of our proposed work in the inference stage. (a) InfoGeo w/o Relational Distillation, (b) InfoGeo w/ Relational Distillation.
+
+query-gallery pairs while simultaneously pushing apart non-matching pairs, effectively approximating the mutual information between views in a tractable manner (Van den Oord et al., 2018). Formally, the loss is defined as: 
+
+Lalign (˜f q , ˜f g ) = − log exp 
+
+˜f q · ˜f g
+
+> +
+
+/τ 
+
+PRi=1 exp 
+
+˜f q · ˜f gi /τ 
+
+ , (49) where ˜f q represents the feature embedding of the query image, and ˜f g denotes the set of gallery embeddings containing one positive sample ˜f g 
+
+> +
+
+corresponding to the same location and R − 1 negative samples. The temperature parameter τ modulates the concentration of the similarity distribution, controlling the extent to which the model emphasizes hard negatives. By employing this contrastive objective, the network is encouraged to learn view-invariant representations that are robust to perspective, illumination, and occlusion variations, which is crucial for achieving reliable cross-view geo-localization. 
+
+Inference Process. For different network structures used in our method, we adopt structure-specific inference strategies. In particular, the Visual Extractor encapsulates all modules involved in the inference process. As illustrated in Figure 8, it shows that adopting Relational Distillation leads to a more efficient and streamlined inference process, mitigating the complexity that would otherwise arise from directly incorporating the OCL and OCVA modules at inference time. 18 Submission and Formatting Instructions for ICML 2026                              
+
+> Table 7. Statistical analysis of the UAV training datasets.
+> Datasets Altitude Range IDs Train Dro / Sat Test Dro / Sat
+> University-1652 121m ∼256m 701 37,854 / 701 51,355 / 951 SUES-200 150m 120 6,000 / 120 4,000 / 120 200m 120 6,000 / 120 4,000 / 120 250m 120 6,000 / 120 4,000 / 120 300m 120 6,000 / 120 4,000 / 120 DenseUAV 80m ∼100m 2,256 6,768 / 13,536 2,331 / 18,193 GTA-V 80m ∼650m -25,200 / 8,400 33,763 / 14,640
+
+# C. More Details and Results 
+
+C.1. More Details on Experimental Settings 
+
+In the OCL components, the slot encoder maps the input visual features from 768 to 1024 dimensions. For unsupervised object discovery in the aggregator, we adopt the BO-QSA optimization strategy (Gould et al., 2016). The slot decoder is implemented using a Transformer architecture with four attention heads and four stacked layers (Vaswani et al., 2017), where the feed-forward network has a hidden dimension of 1536. In the proposed CACS module, the cross-view attention block consists of four attention heads to model fine-grained cross-view interactions, while the concept router is realized as a single-layer MLP for adaptive concept selection. For the channel-wise FiLM modulation, the conditioning function G(·) is implemented as a single-layer MLP. In the feature aggregation stage, the MixVPR-based aggregation layer is configured with a mix depth of 2 and an output row number of 4. During retrieval, the final scene-level descriptor is set to a dimensionality of 4096 to balance representational capacity and retrieval efficiency. For optimization, we employ dataset-specific warm-up strategies to stabilize training across different benchmarks. Specifi-cally, the warm-up ratios for University-1652, DenseUAV, and GTA-V are set to 0.1, 0.15, and 0.25, respectively. 
+
+C.2. More Details on UAV benchmarks 
+
+We evaluate our method on four UAV-based benchmarks with varying scene complexity and viewpoint diversity. The detailed statistics on the number of training and testing images, altitude ranges, and identity counts for each dataset in Table 7. University-1652 contains drone-satellite image pairs of university buildings captured at altitudes from 121m to 256m. SUES-200 provides multi-altitude drone captures at 150m, 200m, 250m, and 300m, increasing viewpoint diversity and evaluation difficulty. DenseUAV targets drone self-localization under dense spatial layouts and fine-grained location ambiguity, with flights ranging from 80m to 100m. GTA-V is a more challenging benchmark covering altitudes from 80m to 650m, diverse scene types, and viewpoints, supporting both same-area and cross-area evaluation. 
+
+C.3. Additional Experimental Results on Domain Generalization 
+
+In this section, we present additional experimental results on SUES-200 to further evaluate the domain generalization capability of our method under diverse cross-domain settings, as shown in Table 8 and Table 9. Across different flight altitudes in SUES-200, the results consistently demonstrate that our method maintains stable and effective performance, indicating its robustness to altitude-induced domain shifts. Nevertheless, when evaluated at a larger spatial separation of 300m in the University →SUES-200 setting, we observe a relative performance drop compared to 250m. This phenomenon can be attributed to an intrinsic limitation of object-centric learning in handling concept scalability. As the flight altitude increases, the number of observable objects grows substantially, while the set of objects with strong discriminative power remains limited. The resulting proliferation of weakly informative or noisy object signals dilutes the contribution of salient concepts, leading to degraded performance. 
+
+C.4. Additional Experimental Results on Multi-Weather Transfer Task 
+
+As illustrated in Table 10, we further report additional experimental results under multi-weather settings to comprehensively evaluate the robustness and generalization capability of our method when confronted with diverse and challenging weather-induced appearance variations. 19 Submission and Formatting Instructions for ICML 2026 
+
+Table 8. Performance ( %) Comparison on University-1652 →SUES-200 under different heights. 
+
+Methods Venue University →SUES150 University →SUES200 University →SUES250 University →SUES300 R@1 AP R@1 AP R@1 AP R@1 AP 
+
+MCCG TCVST’23 57.62 62.80 66.83 71.60 74.25 78.35 82.55 85.57 Sample4Geo ICCV’23 70.05 74.93 80.68 83.90 87.35 89.72 90.03 91.91 DAC TCVST’24 76.65 80.56 86.45 89.00 92.95 94.18 94.53 95.45 CAMP TGRS’24 78.90 82.38 86.83 89.28 91.95 93.63 95.68 96.65 MFRGN ACM MM’24 65.90 70.93 74.28 78.38 85.05 87.61 87.88 90.06 EM-CVGL TGRS’24 60.03 65.69 71.50 76.17 80.35 83.85 85.93 88.34 Game4Loc AAAI’25 79.03 82.50 86.03 88.37 90.25 92.08 91.70 93.32 MMGeo ICCV’25 73.08 77.45 82.73 85.92 90.33 92.03 93.90 95.01 CVcities JSTARS’24 82.73 85.60 90.08 91.63 94.35 95.12 93.90 94.74 InfoGeo Ours 90.87 92.53 94.20 95.12 96.08 96.30 96.31 96.75 
+
+InfoGeo ∗ Ours 91.80 93.18 95.40 96.15 96.58 97.08 96.48 97.00 
+
+Table 9. Performance ( %) Comparison on DenseUAV →SUES-200 under different heights.                                                                                                                
+
+> Methods Venue DenseUAV →SUES150 DenseUAV →SUES200 DenseUAV →SUES250 DenseUAV →SUES300 R@1 AP R@1 AP R@1 AP R@1 AP
+> MCCG TCVST’23 64.72 69.64 78.95 82.27 87.38 89.54 89.30 91.27 Sample4Geo ICCV’23 67.00 71.54 84.18 86.62 84.93 87.41 79.65 81.86 DAC TCVST’24 82.43 85.19 87.23 89.35 89.70 91.52 86.38 88.72 CAMP TGRS’24 72.30 76.12 89.63 91.59 90.53 92.35 94.68 95.66 MFRGN ACM MM’24 61.50 66.09 62.30 66.97 72.33 75.58 72.73 75.90 EM-CVGL TGRS’24 40.45 46.23 51.78 57.44 62.67 67.64 70.82 74.83 Game4Loc AAAI’25 53.20 58.94 66.53 70.85 73.85 77.25 75.18 78.55 MMGeo ICCV’25 76.15 79.48 77.03 80.23 80.02 82.90 82.98 85.59 CVcities JSTARS’24 80.20 83.24 89.73 91.54 93.83 94.87 94.90 95.65 InfoGeo Ours 88.18 90.33 93.10 94.21 96.00 96.60 96.25 96.70
+> InfoGeo ∗Ours 88.70 90.73 93.20 94.33 95.55 96.23 96.18 96.77
+
+In such composite extreme weather conditions, particularly at lower flight altitudes (lower than 250m), InfoGeo consistently outperforms the baseline model CVcities, achieving up to a 15 % improvement in R@1. This substantial gain indicates that our information-theortic object-centric learning method effectively mitigates severe appearance distortions caused by compounded weather perturbations, thereby preserving discriminative and spatially consistent cues that are critical for accurate geo-localization under challenging low-altitude settings (150m). 
+
+C.5. More Ablation Studies 
+
+C.5.1. A LBATIONS ON DIFFERENT COMPONENTS WITH MORE SCENARIOS 
+
+To validate the effectiveness of InfoGeo, we further evaluate its performance across different scenarios by comparing results on SUES-200 and SUES-300, enabling an analysis of model behavior under varying altitude conditions. As illustrated in Table 11, it shows that each component consistently contributes to the overall performance across different heights in SUES-200. Specifically, in University →SUES (200m), R@1 improves from 91.23% to 95.40% ( +4 .17% ). Consistently, for DenseUAV →SUES (300m), the full model achieves a peak AP of 96.77%. These quantitative results demonstrate the robustness of InfoGeo and superior cross-view localization performance across varying altitudes and datasets. However, when relation distillation (RD) is introduced, we observe a noticeable drop in R1 performance at 300m. At this scale, the number of observable objects increases substantially while only a limited subset remains discriminative. Consequently, object relations become noisy and unstable, and distilling such relations enforces spurious structural constraints, which conflict with the object-centric compression mechanism and lead to degraded retrieval accuracy. 20 Submission and Formatting Instructions for ICML 2026  
+
+> Table 10. Performance ( %) Comparison under different weather transfer settings on University-1652 →SUES-200.
+
+Methods University →SUES150 University →SUES200 University →SUES250 University →SUES300 R@1 AP R@1 AP R@1 AP R@1 AP (a) Fog-Rain 
+
+Sample4Geo 26.63 33.78 35.95 42.65 41.67 48.23 45.33 51.87 DAC 61.48 66.38 72.15 75.85 78.68 81.46 80.62 83.20 CVcities 65.10 70.34 75.17 79.08 80.33 83.52 79.85 83.30 InfoGeo 78.90 82.33 80.62 83.67 83.12 86.05 83.55 86.58 
+
+InfoGeo ∗ 80.23 83.45 83.12 85.78 83.85 86.45 83.98 86.26 (b) Fog-Snow 
+
+Sample4Geo 21.40 27.66 25.65 31.99 29.25 35.64 30.42 36.92 DAC 39.40 45.17 45.25 50.60 46.53 52.21 48.92 54.31 CVcities 63.43 68.71 72.15 76.05 77.30 81.16 76.42 80.11 InfoGeo 74.60 78.92 76.63 80.16 77.50 81.52 76.50 80.00 
+
+InfoGeo ∗ 78.65 81.89 80.48 83.46 81.35 84.09 79.90 82.82 (c) Rain-Snow 
+
+Sample4Geo 35.55 41.77 44.50 50.38 50.27 55.95 52.90 58.22 DAC 59.78 64.62 67.40 71.57 74.05 77.72 74.65 78.37 CVcities 75.60 79.54 85.00 87.53 89.77 91.68 90.57 92.42 InfoGeo 87.70 89.92 89.93 91.66 91.23 92.60 92.35 93.51 
+
+InfoGeo ∗ 89.55 91.32 92.58 93.84 93.53 94.58 93.48 94.49  
+
+> Figure 9. The ablations on the three hyper-parameters across different scenarios.
+
+C.5.2. S ENSITIVITY ANALYSIS ON HYPER -PARAMETER λ1 , λ2 AND λ3
+
+To explore the influence of the different components in our overall objective, we conduct a sensitivity analysis on the three hyperparameters: λ1, λ2, and λ3, as illustrated in Figure 9. λ1 controls the reconstruction loss in the OCL module, λ2
+
+weights the Information-Theoretic based Cross-View Object-Centric Learning branch, and λ3 regulates the contribution of the Relational Distillation (RD) module. We note that λ1 and λ2, serving as auxiliary objectives, must be carefully constrained to moderate values. Excessive weight-ing of either term leads to notable performance degradation, as optimization becomes dominated by auxiliary constraints rather than retrieval-focused supervision. In particular, an overly large λ1 excessively enforces the reconstruction objective, causing multiple slots to converge to similar representations, which reduces object diversity and impairs discriminative ca-pacity. By contrast, λ3 requires a relatively higher coefficient to effectively guide relational distillation. Adequate weighting of λ3 promotes consistent inter-object relations across views, enhancing representation robustness without inducing the adverse effects associated with overly strong auxiliary terms. 21 Submission and Formatting Instructions for ICML 2026                                                                
+
+> Table 11. Ablation study on SUES at 200m and 300m. ( †: baseline trained with the same settings as our method.)
+> Model University →SUES (200m) DenseUAV →SUES (200m) University →SUES (300m) DenseUAV →SUES (300m) R@1 ↑AP ↑R@1 ↑AP ↑R@1 ↑AP ↑R@1 ↑AP ↑
+> Baseline 90.08 91.63 89.73 91.54 93.90 94.74 94.90 95.65 Baseline †91.23 92.70 90.65 92.35 94.80 95.56 95.53 96.02 OCVA-only 92.96 94.14 91.22 92.89 95.60 96.33 96.02 96.41 +Lcacs 93.72 94.78 91.35 93.05 95.83 96.51 96.11 96.56 +Lstruct 94.05 95.10 92.93 94.16 96.31 96.75 96.25 96.70 + RD 95.40 96.15 93.20 94.33 96.48 97.00 96.18 96.77
+> Figure 10. The PCA visualization of feature maps between different UAV benchmarks.
+
+# D. Qualitive Results 
+
+D.1. Visualization on Object-Centric Representations 
+
+We further present additional PCA visualizations of object-centric representations on the three benchmarks in Figure 10, where the features are extracted using the model weights trained on the corresponding training sets of each benchmark, ensuring that the visualizations faithfully reflect the learned representation characteristics under each dataset setting. For University-1652 and DenseUAV, which mainly consist of urban scenes, geo-localization is largely determined by fine-grained structural cues such as building rooftops and road network layouts. By explicitly modeling object-centric representations, InfoGeo can consistently align these view-shared and view-invariant semantic structures across viewpoints, thereby reducing cross-view discrepancies and enhancing representation coherence. In contrast to the largely one-to-one cross-view correspondences (”perfect matching”) observed in University-1652 and DenseUAV, GTA-V does not exhibit such superior results, making the localization task substantially more challenging. In this setting, discriminative cues primarily arise from higher-level structural information, such as road topology and building boundary geometries, rather than precise object-level alignments. 
+
+D.2. Visualization on Multi-Weather Settings 
+
+As shown in Figure 11, we provide a qualitative comparison of feature map visualizations to analyze the robustness of different methods under multi-weather conditions. Under extreme weather conditions, baseline models fail to maintain view-consistent representations. For instance, in the fog-rain scenario, the discriminative roundabout-crossroad structure is poorly localized by the baseline and suffers from feature ambiguity. In contrast, InfoGeo effectively distinguishes the geometric semantics of roundabout-cross intersections, leveraging them as key discriminative cues. Similarly, in the rain-snow setting, our method extracts more robust information for localization, where road network structures and building rooftops are consistently highlighted in UAV views. In the 22 Submission and Formatting Instructions for ICML 2026  
+
+> Figure 11. Comparison of the visualization on feature maps between InfoGeo and Baseline under Multi-Weather settings. The bounding boxes denote the view-shared objects across different viewpoints.
+
+more challenging fog-snow scenario, global representations learned by baseline models fail to effectively distinguish two distant buildings and lack discriminative capability for the green building in the foreground. In contrast, the proposed object-centric representations successfully separate relevant building instances and preserve effective key visual clues for reliable geo-localization. 
+
+D.3. Failure Case Retrieval Results 
+
+To investigate the underlying failure patterns and model limitations, we present retrieval results (see Figure 12) for models trained on University-1652 and evaluated on SUES-200 at two UAV altitudes: 150m and 300m. InfoGeo demonstrates substantial performance gains at 150m, whereas improvements over the baseline are less pronounced at 300m, motivating a detailed analysis of retrieval behaviors across these altitude settings. Figure 12 (a) presents four failed retrieval examples at 150m. When the altitude is increased to 300m, as shown in Figure 12 (b), successful matches are obtained for loc1 and loc2, whereas loc3 and loc4 continue to fail. The improvements for loc1 and loc2 can be attributed to the broader field of view at higher altitude, which allows the model to exploit salient visual keypoints (e.g., bridges and building rooftops) to encode structural semantics consistent with the satellite view. In contrast, loc3 and loc4 remain unmatched despite containing discriminative information. For loc3, cross-view attribute discrepancies, such as variations in rooftop color and seasonal landscape changes, impede reliable correspondence. For loc4, although prominent cues like white building facades are present, the model is misled by competing visual regions (e.g., playgrounds), resulting in retrieval failure. 
+
+# E. Discussion 
+
+This work presents InfoGeo, a cross-view object-centric learning framework for UAV-based CVGL, together with an information-theoretic perspective that explains its effectiveness. From the standpoint of Information Bottleneck theory, we reformulate cross-view object-centric learning as the joint optimization of two complementary objectives: suppressing view-specific noisy signals and preserving view-invariant semantic information. The proposed cross-view adaptive concept selection module explicitly filters out appearance-dependent noise by leveraging collaborative cross-view cues, while the concept structural relational reasoning module focuses on capturing inter-object structural relations to maximize cross-view mutual information. In addition, channel-wise FiLM blocks enable object-centric perceptual cues to be seamlessly integrated into global representations, and Relational Distillation further improves model performance while mitigating potential 23 Submission and Formatting Instructions for ICML 2026  
+
+> Figure 12. The retrieval results of the failure case in University-1652 →SUES-200 (150m and 300m). The predicted result is the top-1 retrieval results. Dash circles denote the key visual clues (Red lines denote the wrong-matched patterns, while Yellow lines are the discriminative objects).
+
+efficiency degradation caused by the integration of object-centric learning modules during inference. Extensive experiments across multiple UAV benchmarks demonstrate that this combination leads to robust and generalizable representations under significant viewpoint, altitude, and domain shifts, validating the effectiveness of InfoGeo for real-world cross-view geo-localization. Some interesting phenomena are observed in our experiments. (1) On the SUES-200 dataset, InfoGeo demonstrates particularly strong performance at 150m, where other methods typically underperform. However, at 300m, the model does not achieve substantial gains. Quantitative results in Table 8 and visualization in Figure 12 analyses suggest that the increased altitude and broader field of view introduce a larger number of objects, which complicates the identification of the most discriminative concepts. (2) The OCL framework exhibits significant improvements in robustness under multi-weather conditions and in qualitative visualizations (see Figure 11). This indicates that extracting view-invariant concepts while suppressing view-specific noise effectively enhances both model robustness and cross-domain generalization. (3) In integrating OCL with the CVGL task, two observations emerge. First, during training, the high-level reconstruction weight λ1 should remain moderate; excessive values cause slot collapse, undermining object diversity. Second, when fusing Object-Centric and original representations, the fusion parameter α exhibits a “high–middle–high” trend: optimal performance occurs when one representation dominates, although reasonable performance can still be obtained without fusion. These findings motivate future work to further investigate the operational scope and deployment scenarios. 24

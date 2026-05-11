@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.06855v1/fig-001.webp",
+      "caption": "Figure. 1. Calibration of a SCHORTY Rangefinding Platform. (A) SCHORTY’s position is compared against registered landmarks to determine range. (B) SCHORTY system used in study. (C) Comparison of measured landmarks to predicted range mapping by Scheimpflug principle.",
+      "page": 3,
+      "index": 1,
+      "width": 958,
+      "height": 642
+    },
+    {
+      "url": "assets/figures/arxiv/2605.06855v1/fig-002.webp",
+      "caption": "Figure 2. Fixed Wing UAV Tracking. (A) Sequential images from SCHORTY showing the UAV coming into focus as it enters the depth-mapped object plane. (B) GPS data and calculated line of sight target distance during the flight. (C) Overlay of 3 SCHORTY measurements when the UAV crossed through the object plane. (D) Calculated UAV positions using azimuth, elevation, and SCHORTY ranges overlaid on GPS flight track.",
+      "page": 4,
+      "index": 2,
+      "width": 1010,
+      "height": 901
+    },
+    {
+      "url": "assets/figures/arxiv/2605.06855v1/fig-003.webp",
+      "caption": "Figure 3. Octocopter UAV Tracking with EBC-SCHORTY. (A) Sequential images showing the UAV coming into focus as it enters the depth-mapped object plane. (B) GPS data and calculated line of sight target distance during the flight. Line of sight distance predominately due to X distance. (C) Overlay of 3 EBC-SCHORTY measurements when the UAV crossed through the object plane. (D) Calculated UAV positions using azimuth, elevation, and SCHORTY ranges overlaid on GPS flight track.",
+      "page": 5,
+      "index": 3,
+      "width": 1010,
+      "height": 967
+    },
+    {
+      "url": "assets/figures/arxiv/2605.06855v1/fig-004.webp",
+      "caption": "Figure 4. EBC-SCHORTY Rangefinding of the Octocopter in Flight. (A) SCHORTY and (B) EBC-SCHORTY recording of the octocopter in flight. (C) Asymmetric defocus blur recorded of drone flying through the Scheimpflug plane in event -space. (D) Depiction of how drone flight trajectory influence defocus blur across Scheimpflug plane.",
+      "page": 6,
+      "index": 4,
+      "width": 1014,
+      "height": 469
+    }
+  ]
+}

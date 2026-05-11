@@ -1,0 +1,259 @@
+Title: LoHGNet: Infrared Small Target Detection through Lorentz Geometric Encoding with High-Order Relation Learning
+
+URL Source: https://arxiv.org/pdf/2605.07213v1
+
+Published Time: Mon, 11 May 2026 00:46:19 GMT
+
+Number of Pages: 11
+
+Markdown Content:
+> IEEE XXXX 1
+
+# LoHGNet: Infrared Small Target Detection through Lorentz Geometric Encoding with High-Order Relation Learning 
+
+Qianwen Ma, Yang Xu, Shangwei Deng, Xiaobo Li Member, IEEE, and Haofeng Hu 
+
+Abstract —Infrared small target detection (IRSTD) remains challenging due to the scarcity of useful target cues and the presence of severe background clutter. Most current methods rely on conventional feature learning and local interaction modeling, where features are represented in Euclidean space. However, such designs may still be limited in describing the subtle differences of weak targets and the contextual relations between targets and backgrounds. To address these limitations, we propose LoHGNet, an IRSTD network that integrates Lorentz geometric encoding with high-order relation learning. By introducing Lorentz man-ifold based feature learning, LoHGNet offers a different feature representation from conventional IRSTD methods and provides new discriminative cues for IRSTD. Specifically, a Lorentz encod-ing branch is constructed with the Geometric Attention Guided Lorentz Residual Convolution Module (GA-LRCM) to perform feature modeling under hyperbolic geometric constraints and enhance the hierarchical geometric representation capability of weak targets. Subsequently, the hyperbolic features are mapped into the Euclidean tangent space through logarithmic mapping, and a High-Order Relation Learning Module (HORL) is designed to model the high-order contextual dependencies between targets and backgrounds via hypergraph construction, thereby improv-ing target discrimination in complex backgrounds. Experimental results on three datasets demonstrate that the proposed LoHGNet achieves competitive performance in both detection accuracy and adaptability to complex scenes. The code will be available at https://github.com/Kingwin97. 
+
+Index Terms —Infrared small target detection; Object detec-tion; Lorentz space; Hypergraph neural network; Image pro-cessing. 
+
+I. I NTRODUCTION 
+
+# INFRARED small target detection (IRSTD) is a key tech-nique in applications such as search and rescue warning, target surveillance, and precision guidance [1]. Different from conventional object detection tasks, infrared small targets usually occupy only a few pixels and are generally charac-terized by extremely small scale, limited texture and structure information, and low signal-to-noise ratio [2]. In complex scenes, these properties make targets highly susceptible to                    
+
+> This work was supported by the National Natural Science Foundation of China (No. 62475190), the Open Project Funds for the Key Labora-tory of Space Photoelectric Detection and Perception (Nanjing University of Aeronautics and Astronautics), Ministry of Industry and Information Technology (No. NJ2024027-1), Tianjin Science and Technology Program (Nos. 25JCJQJC00190 and 23YFZCSN00230), and the Fundamental Research Funds for the Central Universities (No. NJ2024027). (Corresponding author: X. Li.) Q. Ma, S. Deng, X. Li, and H. Hu are with the School of Marine Science and Technology, Tianjin University, Tianjin 300072, China (e-mail: kingwin@tju.edu.cn, shangweideng@tju.edu.cn, lixiaobo@tju.edu.cn, haofeng hu@tju.edu.cn). Y. Xu is with the Jiangxi Key Laboratory of Advanced Electronic Materials and Device, Jiangxi Science and Technology Normal University, Nanchang 330028, China (e-mail: 2024010291@jxstnu.edu.cn).
+
+being submerged by cloud edges, bright ground regions, and sensor noise, thereby substantially increasing the difficulty of feature modeling and accurate detection. Over the past decades, IRSTD has developed into a rela-tively rich research field [3]. Early methods mainly relied on infrared imaging mechanisms and prior knowledge tailored to specific scenarios. Although such methods can be effective under controlled conditions, manually designed features and fixed hyperparameters are difficult to adapt to diverse imaging conditions in practical scenarios with complex background structures, severe noise interference, or low target saliency. With the continuous development of the data-driven paradigm, convolutional neural network methods have gradually become the dominant paradigm in IRSTD, significantly improving feature representation and target detection performance in complex scenes. However, existing methods still face a more fundamental challenge in small target detection, as the separation between true targets and complex backgrounds is often insufficient. Small targets usually occupy only a few pixels, and their responses are weak. In complex scenes, they can also appear locally similar to noise or bright clutter. In this case, detection does not depend only on the response intensity itself, but also on subtle and hierarchical structural differences between the target and the background. Most existing networks learn features in Euclidean space. Since Euclidean space has a flat and uniform metric structure, it is more suitable for describ-ing locally continuous changes, but less effective for repre-senting the non-uniform and hierarchical geometric relations between weak targets and complex backgrounds. As a result, during deep propagation and repeated downsampling, weak target-related structural cues are easily diluted by dominant background information, making it difficult to enlarge the representation gap between true targets and false responses. Meanwhile, most existing methods model contextual relations mainly through local receptive fields or pairwise interaction mechanisms. Such designs are still limited in modeling high-order dependencies among multiple regions, which makes it harder to distinguish real targets from false responses caused by the background [4], [5]. To address these challenges, we propose a Lorentzian Hypergraph Network (LoHGNet) for IRSTD. The proposed network is built on the central idea of geometric encoding guided high-order relation learning. Unlike Euclidean space, Lorentz space, as a hyperbolic space with negative curvature, is more suitable for organizing hierarchical and non-uniform feature structures, thus enabling richer and more discriminative feature representations. This property is well aligned with IRSTD, where the discriminative cues of infrared small targets                             
+
+> arXiv:2605.07213v1 [cs.CV] 8 May 2026 IEEE XXXX 2
+> Fig. 1. Comparison of Euclidean weighted aggregation and Lorentz manifold feature transformation. Conventional convolution performs local weighted summation as y=PKi=1 wixi+b, where xiand widenote the local feature and its kernel weight, respectively, Kis the window size, and bis the bias. By contrast, the Lorentz branch first maps the feature into Lorentz representation and then performs feature transformation on the Lorentz manifold, i.e.,
+> x= [ xt,xs]and yL=TL(x), where xtand xsdenote the temporal and spatial components, respectively. Here, TL(·)denotes Lorentz manifold based feature transformation.
+
+are usually weak and sparsely distributed, and often rely on hierarchical cues ranging from local anomalous responses to broader structural context. As shown in Fig.1(a) and Fig.1(b), compared with conventional convolution, Lorentz convolution produces more concentrated target responses and more clearly organized background structures. Meanwhile, the 3D response maps of the target regions further show that the features modeled by Lorentz convolution exhibit more refined non-uniform characteristics, which better align with the origi-nal target response distribution. Based on this observation, LoHGNet first performs hierarchical geometric encoding in Lorentz space and then conducts high-order contextual rea-soning over hypergraphs under the guidance of the learned geometric information. Specifically, we first design a Geomet-ric Attention Guided Lorentz Residual Convolution Module (GA-LRCM) to perform feature modeling directly on the Lorentz manifold. Based on this module, we further construct a Lorentz encoder consisting of a Lorentz Input Block (LIB), stacked GA-LRCM, and logarithmic mapping at the origin. In this way, features remain in Lorentz space throughout the encoding stage, thereby fully exploiting the hierarchical expressive capability of hyperbolic geometry. Afterward, the encoded features are mapped back to the Euclidean tangent space through logarithmic mapping, providing discriminative geometric information for subsequent relation modeling. On this basis, we further design a High-Order Relation Learning Module (HORL), which adaptively constructs hypergraphs and performs high-order relation propagation to capture the mul-tivariate high-order contextual dependencies between targets and backgrounds. The main contributions of this work are as follows:  
+
+> •
+
+We propose LoHGNet, which integrates hierarchical ge-ometric representation on the Lorentz manifold with contextual relation modeling, providing a new perspective for discriminating weak targets in complex backgrounds.  
+
+> •
+
+We design GA-LRCM, which performs progressive fea-ture encoding under Lorentz manifold constraints to en-hance the geometric representation of weak targets.  
+
+> •
+
+We design HORL, which uses geometric priors from the encoder to model high-order contextual relations between targets and complex background regions, thereby improving the discrimination between real targets and false responses in complex scenes.  
+
+> •
+
+Extensive experiments on three datasets demonstrate that LoHGNet achieves competitive performance against ex-isting methods, validating its effectiveness and robustness in complex scenes. II. R ELATED WORK 
+
+A. Infrared Small Target Detection Methods 
+
+IRSTD has long been developed along two major technical lines, namely model-driven methods and data-driven methods. Early model-driven approaches detect targets by characterizing the differences between targets and backgrounds in terms of gray-level distribution [6], local structure [7], and statisti-cal properties [8]. Although such methods usually possess good physical interpretability, they are highly sensitive to background complexity, noise level, and scene variation, and are therefore prone to missed detections and false alarms in cluttered environments. With the rapid development of deep learning, data-driven IRSTD methods have gradually become dominant. Dai et al. [9] proposed ACM-Net, which enhances contextual inter-action between local and global features through an asym-metric context modulation mechanism, thereby improving small target representation under complex backgrounds. DNA-Net [10], ALCNet [11], and UIU-Net [12] further improve feature utilization efficiency from the perspectives of dense nested connections, attention modeling, and cross layer in-teraction, respectively. These strategies have also become commonly adopted means for enhancing feature extraction in current IRSTD research. Meanwhile, several emerging network paradigms have also been introduced into IRSTD. Mamba architectures have been explored to strengthen long-range dependency modeling while maintaining computational efficiency [13], [14]. Methods built on KAN improve the dis-criminability between weak targets and backgrounds through IEEE XXXX 3
+
+learnable nonlinear mappings and dynamic convolution [15]. In addition, frameworks incorporating large-scale foundation-model priors have also been investigated to enhance contextual understanding and fine-grained reconstruction [16]. 
+
+B. Lorentz Hyperbolic Representation Learning 
+
+Hyperbolic space, owing to its negative curvature and expo-nentially expanding volume, is widely regarded as well suited for representing data with intrinsic hierarchical structures. Compared with Euclidean space, it is better suited to modeling hierarchical semantics, and has therefore attracted considerable attention in representation learning. Nickel et al. [17] showed that the Lorentz model is superior to the Poincar’e ball model in optimization efficiency and numerical stability, laying the foundation for subsequent deep learning in Lorentz space. Chen et al. [18] further extended basic neural operations to the Lorentz model and promoted the development of fully hyperbolic neural networks. More recently, hyperbolic learning has been introduced into vision tasks, and the Lorentz model has shown particular potential for deep network design due to its stable geometric operations and direct distance computation [19]. Although hyperbolic representation learning has shown promise in several domains, its application to IRSTD remains limited. Most existing IRSTD methods still extract features in Euclidean space and thus fail to fully exploit the advantages of hyperbolic geometry for hierarchical representation. Since IRSTD often requires jointly modeling local responses and broader structural context, mapping features into Lorentz hyperbolic space may further improve geometric structural separability. 
+
+C. Hypergraph Representation Learning 
+
+Hypergraph representation learning has become an im-portant way to model high-order relations among multiple elements. Unlike conventional graph neural networks, which mainly describe pairwise relations through ordinary edges, hypergraphs allow one hyperedge to connect multiple nodes at the same time. This makes them more suitable for describing semantic groups and complex contextual structures in visual tasks. For this reason, hypergraph learning has gradually been introduced into deep learning and visual understanding tasks. Feng et al. [20] proposed HGNN, which introduced hypergraph convolution into deep learning and showed that hypergraphs are effective for modeling high-order correlations. As hypergraph learning has been further studied in vision tasks, later works pointed out that an image should not be treated only as a conventional graph, because this may miss high-order semantic relations among different regions [21]. Hypergraph networks have since been used in visual recog-nition, relation modeling, and multimodal learning, largely because they support group-wise interaction in a “node-hyperedge-node” manner. This property makes hypergraphs a natural choice for describing the relations between targets and cluttered backgrounds. III. M ETHOD 
+
+A. Overview 
+
+The overall architecture of LoHGNet is shown in Fig. 2. Given an input infrared image I ∈ R1×H×W , the network builds a Euclidean encoding branch and a Lorentz encoding branch in parallel to extract local appearance details and hi-erarchical geometric information, respectively. The Euclidean branch produces multiscale features {Ei}5 
+
+> i=1
+
+through a series of convolution and downsampling operations, where Ei de-notes the Euclidean feature at the ith scale. In parallel with the Euclidean branch, the Lorentz branch represents the input feature in the Lorentz model. The Lorentz model is a common form of hyperbolic space, defined on the upper sheet of a two sheeted hyperboloid in (n + 1) -dimensional Minkowski space. Let a point be written as 
+
+x = [ xt, xs], where xt ∈ R denotes the temporal component and xs ∈ Rn denotes the spatial component. Then the Lorentz manifold can be written as 
+
+Lnk = {x ∈ Rn+1 | ⟨ x, x⟩L = −k, xt > 0}, (1) where k > 0 is a constant related to the manifold curvature, and ⟨· , ·⟩ L denotes the Lorentz inner product, defined as 
+
+⟨x, y⟩L = −xtyt + x⊤ 
+
+> s
+
+ys. (2) In the Lorentz model, the first dimension is called the time component, and the remaining dimensions are called the space component. The time component and the space component are not independent, but jointly satisfy the manifold constraint. Under this constraint, the time component is uniquely deter-mined by the space component, that is 
+
+xt =
+
+q
+
+k + ∥xs∥22. (3) This property allows the Lorentz model to organize hierar-chical relations and nonuniform distributions while preserving geometric constraints. For IRSTD, target discrimination often depends on weak local responses, sparse cues, and differ-ences from the surrounding background. Based on the above definition, we use LIB to map the input feature onto the Lorentz manifold. Specifically, LIB adds a time dimension to the spatial component of the input feature and then ap-plies manifold projection to obtain a valid representation that satisfies the Lorentz constraint, thereby mapping the feature from Euclidean space to Lorentz representation space. Let the mapped feature be denoted as L = [lt, ls], where lt
+
+and ls denote the time component and the space component, respectively. This process provides the initial manifold repre-sentation for the subsequent geometric encoding. Then, mul-tiple GA-LRCM perform progressive feature transformation and hierarchical encoding directly on the Lorentz manifold, producing multiscale hyperbolic features {Li}5
+
+> i=1
+
+. In this way, the features remain in Lorentz space throughout the encoding stage, which helps preserve target related cues and their geometric differences from complex backgrounds. After Lorentz encoding, a logarithmic map at the origin is applied to the hyperbolic features at all scales, so that the manifold representations are converted into the Euclidean tangent space. Let o denote the reference origin on the Lorentz IEEE XXXX 4
+
+> Fig. 2. Overview of LoHGNet. The network includes a Euclidean branch for local detail preservation and a Lorentz branch for hierarchical geometric encoding through LIB and multiple GA-LRCM. HORL models high-order contextual relations between targets and complex backgrounds, followed by the decoder for final detection.
+
+manifold, and let L denote a feature map defined on the same manifold. In implementation, the logarithmic map is applied pointwise to L, so that each Lorentz feature point is mapped into the Euclidean tangent space at o. For a feature point on the manifold, the geodesic distance between o and L is defined as 
+
+dL(o, L) = √k arcosh 
+
+
+
+− ⟨o, L⟩L
+
+k
+
+
+
+, (4) where dL(o, L) denotes the hyperbolic geodesic distance, and arcosh (·) is the inverse hyperbolic cosine function. The tangent direction from the origin to L is written as 
+
+v = L + 1
+
+k ⟨o, L⟩L o, (5) where v is the tangent vector at the origin. The logarithmic map is then given by 
+
+log o(L) = dL(o, L) v
+
+∥v∥2
+
+. (6) From Eq. 4 to Eq. 6, features on the Lorentz manifold are mapped into the Euclidean tangent space while keeping their geometric information. In practice, after logarithmic mapping, we discard the temporal component and keep only the spatial component. This component is then fused, scale by scale, with the corresponding Euclidean feature. Let ˆLi denote the spatial component after logarithmic mapping at the ith scale. The fused feature is written as 
+
+Fi = ˆLi + Ei. (7) Here, Fi denotes the fused feature at the ith scale. In this way, the network keeps the local intensity information from the Euclidean branch together with the geometric informa-tion from the Lorentz branch. HORL is then introduced for hypergraph construction and high-order contextual reasoning. The resulting representation, together with the shallow fused features, is finally fed into a progressive decoder to produce the final detection result. 
+
+B. Geometric Attention Guided Lorentz Residual Convolution Module 
+
+GA-LRCM serves as the core module of the Lorentz en-coding branch. It is designed to support stable hierarchical feature encoding on the Lorentz manifold while preserving the hyperbolic geometric constraint. As shown in Fig. 2, let the input of the module be the Lorentz feature Lin = [ tin , sin ],where tin and sin denote the temporal and spatial components, respectively. In the main branch, Lorentz convolution, Lorentz normalization, and manifold activation are applied in sequence to extract local hyperbolic discriminative features. A strided Lorentz convolution is then used to reduce the spatial resolu-tion and increase the channel dimension. To avoid numerical instability of the temporal component during convolutional updates, a lower bound is used in implementation, and a valid temporal coordinate is reconstructed from the spatial component according to the Lorentz constraint. This design ensures that the propagated feature always remains on the Lorentz manifold. IEEE XXXX 5
+
+On this basis, a geometric attention mechanism is further introduced into GA-LRCM to enhance weak target responses. Let the output of the main branch before attention be Lm =[tm, sm]. Following the implementation, channel statistics are extracted from the temporal and spatial components, respec-tively. These statistics are then used to generate channel wise modulation weights: 
+
+α = σ(W2 δ(W1 [GAP (tm), GAP (sm)])) , (8) where GAP (·) denotes global average pooling, δ(·) denotes the ReLU activation, σ(·) denotes the Sigmoid function, W1
+
+and W2 denote two learnable 1 × 1 convolutional transforms, and α is the geometric attention weight. Unlike conventional Euclidean attention, the weight in Eq. 8 is generated from the temporal response and spatial magnitude of Lorentz features, which makes it more suitable for emphasizing target related cues in the hierarchical representation. Since downsampling requires both scale and channel align-ment, we use projection based residual alignment in the short-cut branch. Let the aligned shortcut output be Lp = [ tp, sp].During feature fusion, only the spatial components from the attention refined main branch and the shortcut branch are combined, and the temporal component is then reconstructed according to the Lorentz constraint. The final output feature is written as 
+
+sf = α ⊙ sm + sp, tf =
+
+q
+
+k + ∥sf ∥22, (9) where ⊙ denotes element wise multiplication, sf and tf de-note the fused spatial and temporal components, respectively, and Lout = [ tf , sf ] denotes the final output of GA-LRCM. This strategy, namely spatial fusion followed by temporal reconstruction, keeps the feature under the Lorentz constraint, avoids the distortion caused by directly adding full Lorentz vectors in Euclidean form, and preserves residual information at the same time. As a result, weak target responses are less likely to be smoothed out during progressive downsampling. By stacking multiple GA-LRCM blocks, the network gradu-ally builds multiscale hyperbolic representations and provides stable geometric priors for the subsequent high-order relation modeling. 
+
+C. High-Order Relation Learning 
+
+After obtaining the deep feature, LoHGNet further employs HORL to model high-order contextual relations between tar-get and background regions. As shown in Fig. 2, let the input feature be F. Unlike conventional convolution, which aggregates information only within a local receptive field, HORL models relations over a broader spatial range. To do this, the two dimensional feature map is first rearranged into a set of node features. Then, three learnable mappings are used to extract the components needed for hypergraph construction, including vertex features, global guidance, and hyperedge features. Specifically, the input feature is processed by three learnable branches, parameterized by Wv , Wg , and 
+
+We, to generate the vertex representation Vf , the global guidance matrix Gf , and the hyperedge representation Ef ,respectively. In implementation, Wv is realized by a 1 × 1
+
+convolution to extract compact vertex features, Wg uses global average pooling followed by a 1 × 1 convolution to provide scene level guidance, and We is implemented by a larger kernel convolution to capture broader spatial patterns for hyperedge construction. Based on these components, the vertex hyperedge incidence matrix is constructed as 
+
+H = Vf Gf V⊤ 
+
+> f
+
+Ef . (10) Here, the matrix multiplication combines vertex correlation, global guidance, and hyperedge structure. Each element of 
+
+H represents the connection strength between a vertex and a hyperedge, and | · | denotes the element wise absolute value used to ensure nonnegative weights. Since H is generated directly from the input feature, HORL can build different high-order relation patterns for different scenes. This helps describe the contextual relations between targets and complex backgrounds more effectively. In complex infrared scenes, the initial matrix often contains many weak or invalid connections caused by background edges, bright clutter, and noise. If these connections are directly used for propagation, background interference may spread through the hypergraph and reduce the discriminability of target regions. To reduce this effect, a sparsity constraint is applied before hypergraph propagation, so that only high confidence vertex hyperedge connections are kept: 
+
+Hs(i, j ) = H(i, j ) · I(H(i, j ) > λ mean (H)) , (11) where Hs denotes the sparsified vertex hyperedge matrix, λ
+
+is the sparsity factor, mean (H) denotes the average value of 
+
+H, and I(·) is the indicator function, which equals 1 when the condition is satisfied and 0 otherwise. The vertex degree matrix and the hyperedge degree matrix are then computed as 
+
+Dv (i, i ) = X
+
+> j
+
+Hs(i, j ), De(j, j ) = X
+
+> i
+
+Hs(i, j ), (12) where Dv and De denote the vertex degree matrix and the hyperedge degree matrix, respectively. They are used for hypergraph normalization. Based on them, the normalized hypergraph interaction matrix is written as 
+
+PH = D−1/2 
+
+> v
+
+HsD−1 
+
+> e
+
+H⊤ 
+
+> s
+
+D−1/2 
+
+> v
+
+. (13) Here, the superscript −1/2 denotes inverse square root normalization on the vertex degree matrix, so that vertices with many connections do not contribute too much during propaga-tion. The superscript −1 denotes inverse normalization on the hyperedge degree matrix, so that hyperedges covering many vertices do not produce overly strong influence. Therefore, 
+
+PH describes the normalized high order interactions on the hypergraph. Based on PH , relation propagation is performed as 
+
+F′ = FΘ − PH FΘ , (14) where F denotes the input feature, Θ is a learnable linear transform, and F′ denotes the output feature after high-order relational propagation. IEEE XXXX 6                                                                                                      
+
+> TABLE I OVERALL ABLATION STUDY ON NUDT-SIRST, NUAA-SIRST, AND IRSTD-1K. Config Module NUDT-SIRST NUAA-SIRST IRSTD-1K Conv Branch GA-LRCM HORL IoU nIoU FIoU nIoU FIoU nIoU F1×××91.04% 91.12% 94.07% 73.95% 76.32% 84.15% 63.21% 60.48% 76.49% 2✓××92.85% 92.59% 95.27% 75.20% 77.59% 85.62% 64.96% 62.20% 77.21% 3×✓×93.23% 93.42% 96.31% 75.71% 77.87% 85.94% 65.47% 62.61% 77.42% 4××✓92.74% 92.81% 95.36% 75.13% 77.45% 85.48% 65.03% 61.95% 77.26% 5✓✓×93.99% 94.06% 97.15% 75.97% 78.84% 86.73% 66.48% 63.04% 77.81% 6×✓✓94.58% 94.80% 97.19% 76.20% 79.22% 86.86% 65.99% 64.12% 78.08% 7✓✓✓95.61% 95.50% 97.67% 77.26% 79.91% 86.80% 68.03% 64.26% 80.28%
+
+IV. E XPERIMENTS 
+
+A. Experimental Setup 
+
+1) Datasets : Experiments are conducted on three widely used IRSTD datasets, including NUDT-SIRST [10], NUAA-SIRST [9], and IRSTD-1K [22]. For fair comparison, the official training and testing splits released in the original papers are strictly followed for all datasets. 2) Evaluation Metrics : We adopt several standard metrics for evaluation, including Intersection over Union ( IoU ), nor-malized IoU ( nIoU ), F-measure ( F ), Probability of Detection (Pd), and False Alarm Rate ( Fa). Among them, IoU measures the pixel level overlap between the prediction and the ground truth, while nIoU reduces the influence of target scale variation and provides a more balanced evaluation across different target sizes. F evaluates miss detection and false alarms at the pixel level. Pd measures the proportion of correctly detected targets, and Fa measures the proportion of falsely detected pixels in the whole image, reflecting the model’s ability to suppress background interference. 3) Implementation Details : The model is trained for 1000 epochs with a batch size of 4. All input images are first normalized and then cropped into patches of size 256 × 256 .The implementation is based on PyTorch, and all experiments are carried out on an NVIDIA RTX 4090D GPU. 
+
+B. Ablation Study 1) Ablation Study on Module Combinations : To compre-hensively analyze the contribution of each component to the overall performance, we first conduct an ablation study on the overall architecture of LoHGNet, and the corresponding results are reported in Table I. Here, Conv Branch represents the introduction of the Euclidean encoder, GA-LRCM rep-resents the introduction of the Lorentz encoder, and HORL represents the high-order relation learning module. It can be observed that the model consistently improves over the baseline when Conv Branch, GA-LRCM, or HORL is intro-duced individually, indicating that Euclidean detail encoding, Lorentz geometric encoding, and high-order relation modeling all contribute positively to IRSTD. In the module combination experiments, further gains are obtained when GA-LRCM is combined with Conv Branch, or when GA-LRCM and HORL are jointly introduced, showing that local detail preservation, geometric representation, and contextual relation modeling                                                                         
+
+> TABLE II ABLATION STUDIES OF GA-LRCM AND HORL ON NUDT-SIRST, NUAA-SIRST, AND IRSTD-1K.
+> Config NUDT-SIRST NUAA-SIRST IRSTD-1K IoU nIoU FIoU nIoU FIoU nIoU FBaseline 91.04 91.12 94.07 73.95 76.32 84.15 63.21 60.48 76.49 GA-LRC w/o Residual Branch 91.87 92.10 94.92 74.68 76.97 84.99 64.39 61.82 76.99 GA-LRC w/o Geometry Attention 92.47 92.35 95.10 74.93 77.16 84.83 64.44 61.96 77.05 GA-LRCM 93.23 93.42 96.31 75.71 77.87 85.94 65.47 62.61 77.42
+> HORL w/o Hypergraph 91.64 91.97 95.04 74.71 76.40 84.92 64.69 60.98 76.90 HORL 92.74 92.81 95.36 75.13 77.45 85.48 65.03 61.95 77.26
+
+are complementary. Finally, the complete model achieves the best results on all three datasets, improving the IoU by approximately 4.57, 3.31, and 4.82 percentage points over the baseline, respectively, while also maintaining clear advantages in terms of nIoU and F measure. These results show that the proposed modules do not work independently, but instead cooperate within the overall framework. In particular, GA-LRCM improves the geometric discriminability of features, Conv Branch provides local detail information, and HORL further strengthens relation modeling under complex back-grounds, leading to stable performance gains. Fig. 3 shows the visual results of the overall ablation study on four scenes. Compared with the baseline and incomplete variants, the full model gives more stable target responses and fewer false alarms across different scenes. In Scene 1, the targets are small and the background is cluttered. Only the full model detects the true targets accurately, while the other variants suffer from missed detections or false alarms. This suggests that a single module is not enough to enhance weak targets and suppress background interference at the same time. In Scene 2, the targets have relatively clear shapes but are still embedded in a complex background. The full model and the variant with GA-LRCM alone give better target responses than the other variants, showing the advantage of Lorentz geometric encoding in preserving target related cues. In Scene 3 and Scene 4, several high-response background regions are easily confused with true targets. The full model and the variant with HORL alone suppress these false responses more effectively, while the variants without HORL are more likely to produce false alarms. This shows that HORL helps distinguish real targets from background induced false responses in complex scenes. 
+
+2) Ablation Study on GA-LRCM and HORL : To further IEEE XXXX 7  
+
+> Fig. 3. Visualization comparison of feature maps for different ablation settings, where red boxes denote correctly detected targets, green boxes denote missed targets, and yellow boxes denote false alarms.
+> Fig. 4. Parameter analysis of HORL in terms of mean IoU, nIoU, and F-measure under different combinations of the sparsity factor and the number of hyperedges.
+
+evaluate the roles of GA-LRCM and HORL, we report the corresponding ablation results in Table II. For GA-LRCM, removing either the residual branch or the geometry attention leads to consistent drops in IoU, nIoU, and F-measure on all three datasets, compared with the complete GA-LRCM. This shows that both components are useful for stable feature encoding, and that the full GA-LRCM gives the strongest geometric representation for weak target detection. For HORL, replacing the full module with HORL w/o Hypergraph also reduces the performance on all three datasets. This indicates that hypergraph based relation modeling is more effective than the simplified variant in capturing contextual relations between targets and complex backgrounds. To further analyze the effect of key hyperparameters in HORL, Fig. 4 shows the changes in the mean IoU, nIoU, and F-measure under different combinations of the sparsity factor and the number of hyperedges. The performance first improves and then becomes stable as the parameter setting changes, and better results are obtained with a moderate sparsity factor and a proper number of hyperedges. This suggests that weak sparsity is not enough to suppress invalid connections, while overly strong sparsity or too many hyperedges may introduce unnecessary relations. The best results are obtained when the sparsity factor is 0.5 and the number of hyperedges is 256. 
+
+3) Feature Representation in Euclidean Space and Lorentz Space : To compare feature representations in Euclidean space and Lorentz space more directly, Fig. 5 shows the visual results in four scenes, including the input image, the same scale feature maps in Euclidean space, the same scale feature maps in Lorentz space, the corresponding GT, and the local 3D response maps of the target regions. It can be seen that, although the feature maps in Euclidean space can highlight parts of the targets, their responses are relatively scattered in complex scenes. By contrast, the feature maps in Lorentz space show more concentrated responses around the target regions. In weak point target scenes and scenes with strong IEEE XXXX 8
+
+TABLE III QUANTITATIVE COMPARISON WITH VARIOUS METHODS ON THE NUDT-SIRST, NUAA-SIRST, AND IRSTD-1K DATASETS IN TERMS OF IOU (%) ,
+
+> N
+
+IOU (%) , F-MEASURE (%) , Pd (%) , AND Fa (×10 −6). ↑/↓ INDICATES THAT A LARGER /SMALLER VALUE IS BETTER . B OLD VALUES DENOTE THE BEST RESULT UNDER EACH METRIC .
+
+Method NUDT-SIRST NUAA-SIRST IRSTD-1K IoU ↑ nIoU ↑ F-measure ↑ Pd ↑ Fa ↓ IoU ↑ nIoU ↑ F-measure ↑ Pd ↑ Fa ↓ IoU ↑ nIoU ↑ F-measure ↑ Pd ↑ Fa ↓
+
+Top-Hat [23] 20.72 28.98 33.52 78.41 166.7 7.143 18.27 14.63 79.84 1012 10.06 7.438 16.02 75.11 1432 Max-Median [24] 4.197 3.674 7.635 58.41 36.89 4.172 12.31 10.67 69.20 55.33 6.998 3.051 8.152 65.21 59.73 WSLCM [25] 2.283 3.865 5.987 56.82 1309 1.158 6.835 4.812 77.95 5446 3.452 0.678 2.125 72.44 6619 TTLCM [26] 2.176 4.315 7.225 62.01 1608 1.029 4.099 4.995 79.09 5899 3.311 0.784 2.186 77.39 6738 IPI [27] 17.76 15.42 26.94 74.49 41.23 25.67 50.17 43.65 84.63 16.67 27.92 20.46 35.68 81.37 16.18 PSTNN [28] 14.85 23.57 35.63 66.13 44.17 30.30 33.67 39.16 72.80 48.99 24.57 17.93 37.18 71.99 35.26 MSLSTIPT [29] 8.342 10.06 18.26 47.40 888.1 10.30 15.93 18.83 82.13 1131 11.43 5.932 12.23 79.03 1524 ACM [9] 69.00 71.61 81.58 97.25 15.97 68.18 68.83 81.20 93.54 32.65 55.09 51.84 70.83 87.54 105.7 ALC-Net [11] 71.08 73.83 83.07 97.14 11.74 70.37 71.39 82.50 91.63 27.30 52.55 51.61 68.75 87.21 73.96 ISNet [22] 72.06 73.75 83.76 94.18 30.54 74.36 73.58 85.30 95.44 34.83 65.59 61.74 79.19 93.60 45.97 DNA-Net [10] 84.81 85.59 91.77 98.52 5.814 75.42 72.58 85.96 96.20 12.34 62.76 58.57 77.13 91.16 17.61 UIU-Net [12] 93.48 93.89 96.63 98.31 7.79 75.74 77.47 86.20 96.19 29.42 65.37 64.13 78.62 91.92 16.85 RDIAN [30] 83.06 83.28 90.75 97.78 14.59 71.44 75.05 83.34 94.30 35.74 63.30 63.35 77.52 92.59 38.43 MTU-Net [31] 71.18 70.39 84.00 95.77 25.30 69.73 68.20 83.18 95.44 25.57 63.22 59.66 77.51 88.21 6.083 
+
+AGPCNet [32] 90.22 91.65 94.86 99.15 5.171 74.06 75.77 85.09 95.06 19.14 65.55 62.42 79.18 92.59 44.60 SeRankDet [33] 85.21 88.27 92.16 98.36 3.544 76.07 75.53 86.44 96.20 19.61 65.38 57.53 79.04 77.82 15.97 SCTransNet [34] 93.08 93.79 96.32 98.94 7.170 75.72 77.33 86.05 96.58 21.54 63.46 62.07 77.09 91.58 18.28 GCLNet [35] 87.71 87.47 93.45 97.67 5.791 76.34 78.81 86.61 95.23 22.49 65.35 63.41 79.04 92.59 28.70 HDNet [36] 83.81 84.93 91.19 98.10 9.675 75.65 74.22 85.97 96.54 24.52 65.57 60.35 79.20 91.84 11.99 HaarTransNet [37] 93.85 94.34 96.72 99.05 2.942 75.42 77.26 86.21 92.86 12.50 66.65 64.04 80.03 92.62 34.86 LoHGNet 95.61 95.50 97.67 99.26 1.609 77.26 79.92 86.80 96.58 16.33 68.03 64.26 80.28 92.59 25.75 
+
+Fig. 5. Comparison of same-scale feature maps in Euclidean space and Lorentz space. 
+
+background interference, Euclidean space tends to mix nearby responses together, while Lorentz space keeps them more separated. The local 3D response maps further show that the peaks in Euclidean space are usually flatter and more spread out, whereas the peaks in Lorentz space are more compact. These results suggest that Lorentz space provides a different feature representation from Euclidean space and offers useful geometric cues for the whole network, which is helpful for distinguishing weak targets from complex backgrounds. 
+
+C. Comparison with State-of-the-Arts 
+
+To validate the effectiveness of the proposed method, we conducted a comparison between LoHGNet and a series of representative IRSTD methods on three datasets. The com-pared methods include seven traditional algorithms, namely Top-Hat [23], Max-Median [24], WSLCM [25], TTLCM [26], IPI [27], PSTNN [28] , and MSLSTIPT [29]. In ad-dition, thirteen deep learning-based methods were selected for comparison, including ACM [9], ALC-Net [11], ISNet [22], DNA-Net [10], UIU-Net [12], RDIAN [30], MTU-Net [31], AGPCNet [32], SeRankDet [33], SCTransNet [34], GCLNet [35], HDNet [36], and HaarTransNet [37]. Furthermore, com-prehensive comparisons from both quantitative and qualitative perspectives were carried out to demonstrate the superior performance of LoHGNet on the IRSTD task. 
+
+Quantitative Analysis: Table III presents the quantitative comparison results between LoHGNet and various repre-sentative methods. It can be observed that deep learning-based methods generally outperform traditional methods. We attribute this to the fact that traditional methods usually rely on manually designed local contrast cues or prior assumptions, and their fixed parameter settings often lead to insufficient robustness under complex backgrounds and dim small targets. In contrast, deep learning-based methods are able to learn more discriminative multi-scale representations through end-to-end training, and therefore usually achieve better perfor-mance in terms of detection accuracy. Compared with existing deep learning-based methods, LoHGNet achieves competitive results on all three datasets. On NUDT-SIRST, LoHGNet ob-tains the best results in all five metrics. On the NUAA-SIRST IEEE XXXX 9 
+
+> Fig. 6. Qualitative comparison with competing methods on the NUDT-SIRST, NUAA-SIRST, and IRSTD-1K datasets.
+
+and IRSTD-1K datasets, LoHGNet also achieves the highest IoU, nIoU, and F-measure among all competing methods. For the relatively more fluctuating metrics, namely Pd and Fa,taking ISNet, which achieves the best Pd on IRSTD-1K, as an example, although LoHGNet yields a 1.01% lower Pd, it achieves a reduction of 20 .22 ×10 −6 in Fa, indicating that our method provides a better balance between detection capability and false-alarm suppression. 
+
+Qualitative Analysis: To further visually validate the effec-tiveness of the proposed method, Fig. 6 presents the qualitative comparison results of LoHGNet against several competing methods. In the figure, red boxes denote correct detections, yellow boxes denote false alarms, and green boxes denote missed detections. From the overall results, it can be observed that traditional methods generally suffer from high missed-detection and false-alarm rates in complex scenes, which is consistent with the quantitative results in Table III. In contrast, deep learning-based methods exhibit better overall performance, but still show varying limitations in preserving dim small targets, recovering target structures, and suppressing false alarms under complex backgrounds. For dim point-like target scenarios, such as Fig. 6(1) and (3), several methods produce false alarms, and missed detections. By contrast, LoHGNet is able to localize the real targets more accurately, indicating its stronger discriminative capability for dim small targets. We attribute this mainly to the hierarchical geometric modeling performed by GA-LRCM in the Lorentz space, which more effectively enlarges the representation gap between targets and backgrounds, thereby preventing weak targets from being overwhelmed by complex backgrounds during feature propagation. For targets with certain structural characteristics, such as Fig. 6(2), some competing methods can detect the target, but they still produce incomplete target structures and additional false alarms, whereas the predictions of LoHGNet are more compact and complete, and are closer to the GT. This suggests that LoHGNet is capable of not only detecting the target, but also more accurately recovering its spatial structure. For complex backgrounds and strong interference, such as those in Fig. 6(5) and (6), the background contains bright scattering regions and several pseudo target responses, causing most methods to produce false alarms to varying degrees. In contrast, LoHGNet still maintains stable responses around the true targets while suppressing unrelated activations more effectively, showing better background suppression. We at-tribute this advantage mainly to HORL, which captures high-order relations among deep features and helps the model better distinguish true targets from background induced pseudo responses. IEEE XXXX 10 
+
+V. C ONCLUSION 
+
+In this paper, we propose LoHGNet, an IRSTD network that combines Lorentz geometric encoding with high-order relation learning. In the encoder, GA-LRCM operates on features in Lorentz space to enhance geometric representation and support stable feature propagation, thereby improving weak target representation. HORL is then applied in the Euclidean tangent space, where hypergraph construction and high-order relation propagation are used to model contextual relations between targets and background regions. With this design, LoHGNet introduces a feature learning scheme that is different from conventional IRSTD methods. Experimental results on three datasets show that the pro-posed method achieves competitive performance and gives more stable results in scenes with strong background inter-ference. The ablation studies and visualization results further support the roles of the key modules. In particular, GA-LRCM improves the geometric representation of weak targets, while HORL helps suppress false responses and model target background relations more effectively. In future work, we will further study how Lorentz space can be combined with other network architectures for IRSTD. REFERENCES [1] J. Wu, C. Luo, Z. Qiu, L. Chen, R. Ni, Y. Li, F. Huang, and J. Wu, “DFINet: Dynamic feedback iterative network for infrared small target detection,” Pattern Recognition , vol. 169, p. 111958, 2026. [2] S. Ji, H. Zhang, J. Zhang, C. Fei, X. Wang, J. Liu, and P. Zhang, “A three-stage model for infrared small target detection with spatial and semantic feature fusion,” Expert Systems with Applications , vol. 295, p. 128776, 2026. [3] Y. Chen, Y. Zhu, S. Min, Z. Qiu, A. Hu, T. Wang, and T. Zhang, “DC-GANet: Fusing Selective Variable Convolution and Dynamic Content-Guided Attention for Infrared Small Target Detection,” Knowledge-Based Systems , p. 115546, 2026. [4] A. Ciocarlan, S. Le H´ egarat-Mascle, and S. Lefebvre, “An anomaly-aware detection head for frugal and robust infrared small target detec-tion,” Engineering Applications of Artificial Intelligence , vol. 170, p. 114186, 2026. [5] Y. Wu, H. Sang, Q. Liu, C. Liu, and X. Chang, “SemDetNet: A semantic-detail collaborative network for infrared small target enhancement,” 
+
+Optics & Laser Technology , vol. 193, p. 114337, 2026. [6] X. Wang, G. Lv, and L. Xu, “Infrared dim target detection based on visual attention,” Infrared physics & technology , vol. 55, no. 6, pp. 513– 521, 2012. [7] C. P. Chen, H. Li, Y. Wei, T. Xia, and Y. Y. Tang, “A local contrast method for small infrared target detection,” IEEE transactions on geoscience and remote sensing , vol. 52, no. 1, pp. 574–581, 2013. [8] Y. Tang, K. Xiong, and C. Wang, “Fast infrared small target detection based on global contrast measure using dilate operation,” IEEE geo-science and remote sensing letters , vol. 20, pp. 1–5, 2023. [9] Y. Dai, Y. Wu, F. Zhou, and K. Barnard, “Asymmetric contextual modulation for infrared small target detection,” in Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision ,2021, pp. 950–959. [10] B. Li, C. Xiao, L. Wang, Y. Wang, Z. Lin, M. Li, W. An, and Y. Guo, “Dense nested attention network for infrared small target detection,” 
+
+IEEE Transactions on Image Processing , vol. 32, pp. 1745–1758, 2022. [11] Y. Dai, Y. Wu, F. Zhou, and K. Barnard, “Attentional local contrast networks for infrared small target detection,” IEEE Transactions on Geoscience and Remote Sensing , vol. 59, no. 11, pp. 9813–9824, 2021. [12] X. Wu, D. Hong, and J. Chanussot, “UIU-Net: U-Net in U-Net for in-frared small object detection,” IEEE Transactions on Image Processing ,vol. 32, pp. 364–376, 2022. [13] W. Liu, X. Lu, J. Zhang, D. Li, and X. Zhang, “MOU-Mamba: Multi-Order U-shape Mamba for infrared small target detection,” Optics & Laser Technology , vol. 187, p. 112851, 2025. [14] Y. Li, J. Wu, and C. Long, “PI-SAM: Physics-Informed Segment Anything for Infrared Small Target Detection,” IEEE Transactions on Geoscience and Remote Sensing , 2026. [15] J. Wu, H. Zhang, C. Liu, and J. Qiu, “KPF-Net: KAN perception and fusion network for infrared small target detection,” Infrared Physics & Technology , p. 106294, 2025. [16] Y. Fu, J. Lyu, P. Ma, Z. Liu, and M. K. Ng, “A unified sam-guided self-prompt learning framework for infrared small target detection,” IEEE Transactions on Geoscience and Remote Sensing , 2025. [17] M. Nickel and D. Kiela, “Learning continuous hierarchies in the lorentz model of hyperbolic geometry,” in International conference on machine learning . PMLR, 2018, pp. 3779–3788. [18] W. Chen, X. Han, Y. Lin, H. Zhao, Z. Liu, P. Li, M. Sun, and J. Zhou, “Fully hyperbolic neural networks,” in Proceedings of the 60th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers) , 2022, pp. 5672–5686. [19] P. Mettes, M. Ghadimi Atigh, M. Keller-Ressel, J. Gu, and S. Yeung, “Hyperbolic deep learning in computer vision: A survey,” International Journal of Computer Vision , vol. 132, no. 9, pp. 3484–3508, 2024. [20] Y. Feng, H. You, Z. Zhang, R. Ji, and Y. Gao, “Hypergraph neural net-works,” in Proceedings of the AAAI conference on artificial intelligence ,vol. 33, no. 01, 2019, pp. 3558–3565. [21] Y. Han, P. Wang, S. Kundu, Y. Ding, and Z. Wang, “Vision hgnn: An image is more than a graph of nodes,” in Proceedings of the IEEE/CVF International Conference on Computer Vision , 2023, pp. 19 878–19 888. [22] M. Zhang, R. Zhang, Y. Yang, H. Bai, J. Zhang, and J. Guo, “ISNet: Shape matters for infrared small target detection,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition ,2022, pp. 877–886. [23] M. Zeng, J. Li, and Z. Peng, “The design of top-hat morphological filter and application to infrared target detection,” Infrared physics & technology , vol. 48, no. 1, pp. 67–76, 2006. [24] S. D. Deshpande, M. H. Er, R. Venkateswarlu, and P. Chan, “Max-mean and max-median filters for detection of small targets,” in Signal and Data Processing of Small Targets 1999 , vol. 3809. SPIE, 1999, pp. 74–83. [25] J. Han, S. Moradi, I. Faramarzi, H. Zhang, Q. Zhao, X. Zhang, and N. Li, “Infrared small target detection based on the weighted strengthened local contrast measure,” IEEE Geoscience and Remote Sensing Letters ,vol. 18, no. 9, pp. 1670–1674, 2020. [26] J. Han, S. Moradi, I. Faramarzi, C. Liu, H. Zhang, and Q. Zhao, “A local contrast method for infrared small-target detection utilizing a tri-layer window,” IEEE Geoscience and Remote Sensing Letters , vol. 17, no. 10, pp. 1822–1826, 2019. [27] C. Gao, D. Meng, Y. Yang, Y. Wang, X. Zhou, and A. G. Hauptmann, “Infrared patch-image model for small target detection in a single image,” IEEE transactions on image processing , vol. 22, no. 12, pp. 4996–5009, 2013. [28] L. Zhang and Z. Peng, “Infrared small target detection based on partial sum of the tensor nuclear norm,” Remote Sensing , vol. 11, no. 4, p. 382, 2019. [29] Y. Sun, J. Yang, and W. An, “Infrared dim and small target detection via multiple subspace learning and spatial-temporal patch-tensor model,” 
+
+IEEE Transactions on Geoscience and Remote Sensing , vol. 59, no. 5, pp. 3737–3752, 2020. [30] H. Sun, J. Bai, F. Yang, and X. Bai, “Receptive-field and direction induced attention network for infrared dim small target detection with a large-scale dataset irdst,” IEEE Transactions on Geoscience and Remote Sensing , vol. 61, pp. 1–13, 2023. [31] T. Wu, B. Li, Y. Luo, Y. Wang, C. Xiao, T. Liu, J. Yang, W. An, and Y. Guo, “MTU-Net: Multilevel TransUNet for space-based infrared tiny ship detection,” IEEE Transactions on Geoscience and Remote Sensing ,vol. 61, pp. 1–15, 2023. [32] T. Zhang, L. Li, S. Cao, T. Pu, and Z. Peng, “Attention-guided pyramid context networks for detecting infrared small target under complex background,” IEEE Transactions on Aerospace and Electronic Systems ,vol. 59, no. 4, pp. 4250–4261, 2023. [33] Y. Dai, P. Pan, Y. Qian, Y. Li, X. Li, J. Yang, and H. Wang, “Pick of the bunch: Detecting infrared small targets beyond hit-miss trade-offs via selective rank-aware attention,” IEEE Transactions on Geoscience and Remote Sensing , 2024. [34] S. Yuan, H. Qin, X. Yan, N. Akhtar, and A. Mian, “SCTransNet: Spatial-channel cross transformer network for infrared small target detection,” 
+
+IEEE Transactions on Geoscience and Remote Sensing , 2024. [35] Y. Shen, Q. Li, C. Xu, C. Chang, and Q. Yin, “Graph-based context learning network for infrared small target detection,” Neurocomputing ,vol. 616, p. 128949, 2025. IEEE XXXX 11 
+
+[36] M. Xu, C. Yu, Z. Li, H. Tang, Y. Hu, and L. Nie, “HDNet: Ahybrid domain network with multi-scale high-frequency information enhancement for infrared small target detection,” IEEE Transactions on Geoscience and Remote Sensing , 2025. [37] R. Fan, K. Wang, W. Li, and J. Tang, “HaarTransNet: Infrared Small Target Detection Based on Feature Decoupling and Saliency Modeling,” 
+
+IEEE Transactions on Geoscience and Remote Sensing , 2026.

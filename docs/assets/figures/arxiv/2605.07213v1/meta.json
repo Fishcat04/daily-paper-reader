@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.07213v1/fig-001.webp",
+      "caption": "TABLE I OVERALL ABLATION STUDY ON NUDT-SIRST, NUAA-SIRST, AND IRSTD-1K.",
+      "page": 6,
+      "index": 1,
+      "width": 1068,
+      "height": 230
+    },
+    {
+      "url": "assets/figures/arxiv/2605.07213v1/fig-002.webp",
+      "caption": "Fig. 1. Comparison of Euclidean weighted aggregation and Lorentz manifold feature transformation. Conventional convolution performs local weighted summation as y = ∑K i=1 wixi + b, where xi and wi denote the local feature and its kernel weight, respectively, K is the window size, and b is the bias. By contrast, the Lorentz branch first maps the feature into Lorentz representation and then performs feature transformation on the Lorentz manifold, i.e., x = [xt,xs] and yL = TL(x), where xt and xs denote the temporal and spatial components, respectively. Here, TL(·) denotes Lorentz manifold based feature transformation.",
+      "page": 2,
+      "index": 2,
+      "width": 1076,
+      "height": 325
+    },
+    {
+      "url": "assets/figures/arxiv/2605.07213v1/fig-003.webp",
+      "caption": "Fig. 4. Parameter analysis of HORL in terms of mean IoU, nIoU, and F-measure under different combinations of the sparsity factor and the number of hyperedges.",
+      "page": 7,
+      "index": 3,
+      "width": 968,
+      "height": 290
+    },
+    {
+      "url": "assets/figures/arxiv/2605.07213v1/fig-004.webp",
+      "caption": "Fig. 3. Visualization comparison of feature maps for different ablation settings, where red boxes denote correctly detected targets, green boxes denote missed targets, and yellow boxes denote false alarms.",
+      "page": 7,
+      "index": 4,
+      "width": 968,
+      "height": 565
+    },
+    {
+      "url": "assets/figures/arxiv/2605.07213v1/fig-005.webp",
+      "caption": "Fig. 2. Overview of LoHGNet. The network includes a Euclidean branch for local detail preservation and a Lorentz branch for hierarchical geometric encoding through LIB and multiple GA-LRCM. HORL models high-order contextual relations between targets and complex backgrounds, followed by the decoder for final detection.",
+      "page": 4,
+      "index": 5,
+      "width": 1076,
+      "height": 642
+    },
+    {
+      "url": "assets/figures/arxiv/2605.07213v1/fig-006.webp",
+      "caption": "Fig. 6. Qualitative comparison with competing methods on the NUDT-SIRST, NUAA-SIRST, and IRSTD-1K datasets.",
+      "page": 9,
+      "index": 6,
+      "width": 968,
+      "height": 746
+    }
+  ]
+}
