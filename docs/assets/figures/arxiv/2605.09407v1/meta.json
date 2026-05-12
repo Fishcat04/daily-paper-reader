@@ -1,0 +1,110 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.09407v1/fig-001.webp",
+      "caption": "Figure 2: Conflicting target assignment in any-depth detectors. (a) In AnyDepth-DETR, the Hungarian matcher can assign different queries to the same ground-truth objects across the two execution paths. We reorder the super-net’s foreground queries to align with the base-net’s target-matched query ordering before applying KD. (b) In AnyDepth-YOLO, the Task-Aligned Assigner (TAL) can assign the super-net and base-net outputs to different anchors for the same ground-truth object. We exclude conflicting anchor assignments (in red boxes) from the foreground distillation set.",
+      "page": 6,
+      "index": 1,
+      "width": 745,
+      "height": 248
+    },
+    {
+      "url": "assets/figures/arxiv/2605.09407v1/fig-002.webp",
+      "caption": "Table 7: Linear CKA between base-net and super-net feature representations at each backbone and neck stage, measured on COCO val2017. Each feature map of shape (B,C,H,W ) is spatially reduced via 4×4 adaptive average pooling and then flattened to (B·16, C), treating each pooled spatial cell as an independent sample. Features are accumulated up to 20,000 spatial samples per stage across 500 batches (95% CIs ≤0.012, bootstrapped with n=500). Naive joint: our architecture without switchable BN/aggregator or self-distillation. Baseline: standard models (RT-DETR or YOLOv12).",
+      "page": 15,
+      "index": 2,
+      "width": 677,
+      "height": 287
+    },
+    {
+      "url": "assets/figures/arxiv/2605.09407v1/fig-003.webp",
+      "caption": "Figure 5: Linear CKA between essential and full path outputs on COCO val2017.",
+      "page": 15,
+      "index": 3,
+      "width": 802,
+      "height": 270
+    },
+    {
+      "url": "assets/figures/arxiv/2605.09407v1/fig-004.webp",
+      "caption": "Figure 6: Activation heatmaps at the P4 and P5 backbone stages.",
+      "page": 15,
+      "index": 4,
+      "width": 824,
+      "height": 408
+    },
+    {
+      "url": "assets/figures/arxiv/2605.09407v1/fig-005.webp",
+      "caption": "Table 1: Comparison with SOTA real-time detectors on COCO val2017. FPS is measured at batch size 1 on a single RTX 4090 GPU.",
+      "page": 7,
+      "index": 5,
+      "width": 768,
+      "height": 436
+    },
+    {
+      "url": "assets/figures/arxiv/2605.09407v1/fig-006.webp",
+      "caption": "Figure 4: AnyDepth-DETR (R-50) localization examples on COCO val2017. White: ground truth, Green: super-net, Red: base-net. Both sub-networks detect the same objects, but the super-net consistently produces tighter bounding boxes on hard images. When scenes contain occlusion or clutter (e.g., cat and surfboard), the skippable refinement path further refines the basic representation from the base-net, recovering finer spatial detail that strict IoU thresholds reward.",
+      "page": 14,
+      "index": 6,
+      "width": 824,
+      "height": 433
+    },
+    {
+      "url": "assets/figures/arxiv/2605.09407v1/fig-007.webp",
+      "caption": "Figure 1: (a) Overall pipeline of our any-depth object detection network, following the standard backbone–neck–head design common to modern detectors such as RT-DETR and YOLO, operating on multi-scale features. Each stage in both the backbone and neck is divided into an essential path (solid blocks) and a skippable refinement path (dashed blocks). At inference time, any combination of essential and full paths across stages yields a valid sub-network, enabling a continuous range of accuracy–efficiency trade-offs from a single set of weights. (b) A residual-block stage, as used in RT-DETR. (c) A CSP-style stage, as used in the YOLO family. In both stage types, the essential and full paths are jointly trained via self-distillation to produce aligned feature representations at each stage boundary, so that downstream stages can process the output of either path reliably.",
+      "page": 3,
+      "index": 7,
+      "width": 763,
+      "height": 310
+    },
+    {
+      "url": "assets/figures/arxiv/2605.09407v1/fig-008.webp",
+      "caption": "Table 5: Self-distillation hyperparameters for AnyDepth-DETR (R-50) and AnyDepth-YOLO (L).",
+      "page": 13,
+      "index": 8,
+      "width": 698,
+      "height": 367
+    },
+    {
+      "url": "assets/figures/arxiv/2605.09407v1/fig-009.webp",
+      "caption": "Table 6: Detailed COCO val2017 evaluation results for AnyDepth-DETR (R-50), comparing the base-net and super-net. ∆ denotes the gain of the super-net over the base-net. The AP gain consistently exceeds the AR gain across all scales and IoU thresholds, indicating that the refinement path primarily improves localization precision rather than detection coverage.",
+      "page": 13,
+      "index": 9,
+      "width": 800,
+      "height": 194
+    },
+    {
+      "url": "assets/figures/arxiv/2605.09407v1/fig-010.webp",
+      "caption": "Table 2: Component-wise ablation of AnyDepth-DETR (R-50) on COCO val2017. Each group varies one component while keeping all others at the super-net setting. FPS measured at batch size 1 on a single RTX 4090 GPU. See Table 9 for the corresponding AnyDepth-YOLO (L) results.",
+      "page": 8,
+      "index": 10,
+      "width": 704,
+      "height": 489
+    },
+    {
+      "url": "assets/figures/arxiv/2605.09407v1/fig-011.webp",
+      "caption": "Table 4: Per-stage architecture configuration of AnyDepth-DETR (R-50) and AnyDepth-YOLO (L). S: total blocks per stage; m: essential-path blocks; S−m: skippable blocks. ∗Stages with S ≥ 4 use a dedicated switchable aggregation layer Wess cv2.",
+      "page": 12,
+      "index": 11,
+      "width": 644,
+      "height": 650
+    },
+    {
+      "url": "assets/figures/arxiv/2605.09407v1/fig-012.webp",
+      "caption": "Table 3: Ablation of architecture and training components on COCO val2017. APsuper and APbase denote AP of the super-net and base-net, respectively.",
+      "page": 9,
+      "index": 12,
+      "width": 794,
+      "height": 257
+    },
+    {
+      "url": "assets/figures/arxiv/2605.09407v1/fig-013.webp",
+      "caption": "Table 9: Component-wise ablation of AnyDepth-YOLO (L) on COCO val2017.",
+      "page": 16,
+      "index": 13,
+      "width": 636,
+      "height": 274
+    }
+  ]
+}

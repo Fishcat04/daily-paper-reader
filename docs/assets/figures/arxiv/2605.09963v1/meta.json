@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.09963v1/fig-001.webp",
+      "caption": "Figure 1: Problem setting and task overview for visual representation learning from partial observations. The left panel illustrates the problem setting: two cropped and resized views (orange and blue) are sampled from the same image, and the SSL model predicts the relative position and scale of the orange patch with respect to the blue reference. The right panel summarizes the evaluation tasks for benchmarking SSL models. (a) Image recognition includes in-domain classification on C100 [1] and IN-1K [2], out-of-distribution robustness on IN-C [3], IN-R [4], Sketch [5], and Occlusion, and cross-dataset transfer learning on Flowers [6], C100 [1], DTD [7], and Food [8]. (b) Dense prediction tasks include semantic segmentation on PASCAL VOC [9] and depth estimation on NYU [10]. (c) Spatial prediction evaluates the ability of SSL models to estimate relative position and scale between two local views. (d) Jigsaw understanding evaluates patch reordering, reconstruction, and subsequent recognition. (c) and (d) correspond to our newly proposed benchmarks and tasks on IN-1K [2].",
+      "page": 2,
+      "index": 1,
+      "width": 821,
+      "height": 270
+    },
+    {
+      "url": "assets/figures/arxiv/2605.09963v1/fig-002.webp",
+      "caption": "Table 1: Performance comparison across all downstream tasks except spatial reasoning. Each column corresponds to a task, together with its dataset and evaluation metric. Rows are grouped in pairs for SSL models with and without SP, where each pair shares the same backbone. All reported Acc values denote Top-1 classification accuracy (%). For IN-C, VOC, and NYU, we report mCE↓, mIoU↑, and RMSE (scaled by ×102)↓, respectively. See Sec. 4 for experimental details. Each experiment is repeated three times, and we report the mean performance with standard deviations in (± std). Best results are shown in bold.",
+      "page": 7,
+      "index": 2,
+      "width": 825,
+      "height": 386
+    },
+    {
+      "url": "assets/figures/arxiv/2605.09963v1/fig-003.webp",
+      "caption": "Figure 3: Example visualizations of learned representations by SSL models with and without SP. (a) Qualitative comparison of spatial attention maps. Following [31], we visualize attention by computing the attention weights between the classification token z and all patch tokens Z, reshaping them into a 2D spatial map, and upsampling to the input image size. Each row corresponds to an input image, and columns show attention maps overlaid on the images for MAE and DINO, with and without SP. Heatmaps are normalized to [0,1]; see the colorbar for scale. (b) Qualitative comparison of spatial reasoning results. Predicted relative positions and scales between two local views are visualized on the original image. Each row corresponds to an input image, and columns show results for MAE and DINO, with and without SP. Blue boxes denote reference views, red boxes denote predicted positions and scales, and green dashed boxes denote ground truth; arrows indicate predicted (red) and ground-truth (green) displacement vectors. See Fig. S3 for examples on MoCo v3.",
+      "page": 8,
+      "index": 3,
+      "width": 820,
+      "height": 243
+    },
+    {
+      "url": "assets/figures/arxiv/2605.09963v1/fig-004.webp",
+      "caption": "Figure 2: Overview of Spatial Prediction (SP). Given a reference view Ir and a target view It sampled from the same image, both views are encoded by a shared Vision Transformer (ViT) [50]. The class token ([CLS]) of the reference view serves as the query (Q), while patch tokens from both reference and target views act as keys (K) and values (V ) to compute a cross-attention-like interaction (⊗), producing reference and target features. This operation is parameter-free, as it directly uses token embeddings without additional projections for Q, K, and V . The resulting features Zr and Zt are concatenated and fed into a two-layer MLP to regress the relative position and scale, supervised using ℓ2 loss against ground-truth targets. As illustrated in the right panels, the ground-truth spatial relationship is defined by the relative offset (∆x,∆y) from the reference view to the target view, along with the relative scale normalized by the reference view dimensions (Hr,Wr), where (Hr,Wr) and (Ht,Wt) denote the height and width of the reference and target views, respectively.",
+      "page": 4,
+      "index": 4,
+      "width": 829,
+      "height": 266
+    }
+  ]
+}

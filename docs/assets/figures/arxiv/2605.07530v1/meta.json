@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.07530v1/fig-001.webp",
+      "caption": "Figure 3: Distribution and consistency of failure types across models. The top row shows the per-image distribution of failure types (Missed, Mislocalized, Misclassified, Ambiguous) aggregated over all runs, using violin and box plots to illustrate variability across images (40 perturbation candidates per image). The annotated failure rate indicates the overall proportion of failing perturbations. The bottom row presents the mean number of failures per image across runs (Run 1–10), highlighting the consistency and stability of failure patterns across runs. Dominant failure types are indicated for each model (RQ2).",
+      "page": 11,
+      "index": 1,
+      "width": 979,
+      "height": 540
+    },
+    {
+      "url": "assets/figures/arxiv/2605.07530v1/fig-002.webp",
+      "caption": "Table 4: Transferability of failure-inducing perturbations across models. Each cell reports the failure rate (%) when perturbations generated on the source model (columns) are evaluated on the target model (rows). Results are aggregated over all images and runs (RQ1).",
+      "page": 10,
+      "index": 2,
+      "width": 979,
+      "height": 476
+    },
+    {
+      "url": "assets/figures/arxiv/2605.07530v1/fig-003.webp",
+      "caption": "Figure 1: Laptop disassembly process workflow of the refurbishment robotic system from DTI.",
+      "page": 3,
+      "index": 3,
+      "width": 632,
+      "height": 435
+    },
+    {
+      "url": "assets/figures/arxiv/2605.07530v1/fig-004.webp",
+      "caption": "Figure 2: Overview of PROBE, a search-based robustness testing approach for the screw detection component in the laptop refurbishment software.",
+      "page": 4,
+      "index": 4,
+      "width": 976,
+      "height": 412
+    },
+    {
+      "url": "assets/figures/arxiv/2605.07530v1/fig-005.webp",
+      "caption": "Figure 4: Illustration of the failure types identified by PROBE. Each example shows the original input and prediction, followed by the perturbed input and resulting prediction. Note that the images are adapted for presentation purposes; the original data can be accessed via the datasets listed in Table 2.",
+      "page": 12,
+      "index": 5,
+      "width": 638,
+      "height": 420
+    },
+    {
+      "url": "assets/figures/arxiv/2605.07530v1/fig-006.webp",
+      "caption": "Table 5: Confidence and localization stability under non-failing perturbations. Values are reported as count (percentage of non-failing samples). Confidence and localization deviations are categorized as: minor (≤ 0.01), small (0.01–0.05], moderate (0.05–0.10], and large (> 0.10) (RQ3).",
+      "page": 12,
+      "index": 6,
+      "width": 598,
+      "height": 431
+    }
+  ]
+}

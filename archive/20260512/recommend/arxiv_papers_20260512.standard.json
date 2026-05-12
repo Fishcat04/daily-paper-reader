@@ -1,0 +1,599 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-05-12T20:28:56.102773+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 5,
+    "deep_cap": 6,
+    "deep_selected": 5,
+    "quick_candidates": 10,
+    "quick_skim_target": 11,
+    "quick_selected": 10
+  },
+  "deep_dive": [
+    {
+      "id": "2605.10269v1",
+      "source": "arxiv",
+      "title": "Increasing the Efficiency of DETR for Maritime High-Resolution Images",
+      "abstract": "Maritime object detection is critical for the safe navigation of unmanned surface vessels (USVs), requiring accurate recognition of obstacles from small buoys to large vessels. Real-time detection is challenging due to long distances, small object sizes, large-scale variations, edge computing limitations, and the high memory demands of high-resolution imagery. Existing solutions, such as downsampling or image splitting, often reduce accuracy or require additional processing, while memory-efficient models typically handle only limited resolutions. To overcome these limitations, we leverage Vision Mamba (ViM) backbones, which build on State Space Models (SSMs) to capture long-range dependencies while scaling linearly with sequence length. Images are tokenized into sequences for efficient high-resolution processing. For further computational efficiency, we design a tailored Feature Pyramid Network with successive downsampling and SSM layers, as well as token pruning to reduce unnecessary computation on background regions. Compared to state-of-the-art methods like RT-DETR with ResNet50 backbone, our approach achieves a better balance between performance and computational efficiency in maritime object detection.",
+      "authors": [
+        "Tinsae Yehuala",
+        "Hao Cheng",
+        "Ville Lehtola"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.RO"
+      ],
+      "published": "2026-05-11T09:31:12+00:00",
+      "link": "https://arxiv.org/pdf/2605.10269v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "accurate recognition of obstacles from small buoys to large vessels using Vision Mamba",
+      "llm_evidence_cn": "使用Vision Mamba准确识别从小浮标到大型船只的障碍物",
+      "llm_evidence": "使用Vision Mamba准确识别从小浮标到大型船只的障碍物",
+      "canonical_evidence": "使用Vision Mamba准确识别从小浮标到大型船只的障碍物",
+      "llm_tldr_en": "Leverages Vision Mamba to improve efficiency and accuracy for small maritime object detection in high-res images.",
+      "llm_tldr_cn": "利用Vision Mamba提高高分辨率图像中海面小目标检测的效率和准确性。",
+      "llm_tldr": "利用Vision Mamba提高高分辨率图像中海面小目标检测的效率和准确性。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.10581v1",
+      "source": "arxiv",
+      "title": "Polygon-mamba: Retinal vessel segmentation using polygon scanning mamba and space-frequency collaborative attention",
+      "abstract": "Retinal vessel segmentation is crucial for diagnosis and assessment of ocular diseases. Notably, segmentation of small retinal vessels has been consistently recognized as a challenging and complex task. To tackle this challenge, we design a hybrid CNN-Mamba fusion network that integrates polygon scanning mamba and space-frequency collaborative attention mechanism for the detection of small vessels. Considering that the traditional mamba architecture with horizontal-vertical scanning may compromise the topological integrity of target structures and result in local discontinuities in small retinal vessels, we present a polygon scanning visual state space model (PS-VSS) to identify small vessel structural features by multi-layer reverse scanning way. Which effectively preserves pixels connectivity, thereby substantially mitigating the loss of information pertaining to small vessels. Furthermore, as we all known that the spatial domain prioritizes positional and structural information, while the frequency domain emphasizes global perception and local detail components, a space-frequency collaborative attention mechanism (SFCAM) is introduced within the skip connection to extract efficient features from the spatial and frequency domains. This strategy empowers the model to dynamically enhance the key features while effectively suppressing clutters. To assess the efficacy of our model, it was tested on three publicly available datasets: DRIVE, STARE, and CHASE_DB1. Compared to manual annotations, our model demonstrated F1 scores of 0.8283, 0.8282, and 0.8251, Area Under Curve (AUC) values of 0.9806, 0.9840, and 0.9866, and Sensitivity (SE) values of of 0.8268, 0.8314, and 0.8484 across three datasets, respectively. The effectiveness of our model was validated through both visual inspection and quantitative analysis.",
+      "authors": [
+        "Yuanyuan Peng",
+        "Wen Li",
+        "Xiong Li",
+        "Juan Zhou"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-11T13:53:51+00:00",
+      "link": "https://arxiv.org/pdf/2605.10581v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "space-frequency collaborative attention for small vessel detection",
+      "llm_evidence_cn": "用于小血管检测的空间-频率协同注意力机制",
+      "llm_evidence": "用于小血管检测的空间-频率协同注意力机制",
+      "canonical_evidence": "用于小血管检测的空间-频率协同注意力机制",
+      "llm_tldr_en": "Polygon-mamba uses space-frequency attention and Mamba to improve detection of small retinal vessels.",
+      "llm_tldr_cn": "Polygon-mamba结合空间-频率注意力和Mamba模型，提升了视网膜小血管的检测效果。",
+      "llm_tldr": "Polygon-mamba结合空间-频率注意力和Mamba模型，提升了视网膜小血管的检测效果。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "spatial and channel attention for small object feature enhancement",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "biorxiv-10-64898-2026-05-08-723893-v1",
+      "source": "biorxiv",
+      "title": "MurineCyto-Det: A High-Resolution Murine BALF Cytology Dataset for Leukocyte Segmentation and Detection",
+      "abstract": "Automated analysis of murine bronchoalveolar lavage fluid (BALF) cytology is important for preclinical respiratory research, yet progress has been limited by the lack of publicly available, well-annotated mouse BALF image datasets. We present MurineCyto-Det, a high-resolution murine BALF cytology dataset comprising 333 image tiles of size 1024 x 1024 pixels, annotated across five cytological categories with both pixel-level segmentation masks and one-to-one matched bounding boxes. The dataset contains 14,551 annotated cell instances and supports two complementary analysis tasks: morphology-oriented cell segmentation and object-level cell detection. To establish reproducible benchmark baselines, we evaluated representative segmentation and detection models. The results demonstrate the practical utility of MurineCyto-Det while highlighting realistic challenges arising from class imbalance, small object size, irregular cell morphology, and ambiguous debris-like structures. MurineCyto-Det provides a standardized resource for developing, evaluating, and comparing automated methods for murine BALF cytology analysis. The dataset is publicly available at https://doi.org/10.5281/zenodo.17608677.",
+      "authors": [
+        "Le, T. X.",
+        "Tran, L.-A. T.",
+        "Farabi, D. A.",
+        "Wang, S.",
+        "Phan, A. T. Q.",
+        "Cormier, S. A.",
+        "Taada, A.",
+        "McGrew, D.",
+        "Du, Y.",
+        "Vu, L. D."
+      ],
+      "primary_category": "bioinformatics",
+      "categories": [
+        "bioinformatics"
+      ],
+      "published": "2026-05-12T00:00:00+00:00",
+      "link": "https://www.biorxiv.org/content/10.64898/2026.05.08.723893v1.full.pdf",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 8.5,
+      "llm_evidence_en": "high-resolution cytology dataset for cell detection and benchmarking",
+      "llm_evidence_cn": "用于细胞检测和基准测试的高分辨率细胞学数据集",
+      "llm_evidence": "用于细胞检测和基准测试的高分辨率细胞学数据集",
+      "canonical_evidence": "用于细胞检测和基准测试的高分辨率细胞学数据集",
+      "llm_tldr_en": "Introduces MurineCyto-Det, a high-resolution dataset for leukocyte segmentation and detection benchmarking.",
+      "llm_tldr_cn": "发布了MurineCyto-Det，一个用于白细胞分割和检测基准测试的高分辨率数据集。",
+      "llm_tldr": "发布了MurineCyto-Det，一个用于白细胞分割和检测基准测试的高分辨率数据集。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "benchmarking small object detection on public datasets",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.02616v1",
+      "source": "arxiv",
+      "title": "Global-Local Feature Decoding with Adapter-Guided SAMv2 for Salient Object Detection",
+      "abstract": "Salient Object Detection (SOD) remains an essential yet underexplored task in the era of large-scale vision models. Although foundation models like SAM exhibit strong generalization, their potential for SOD is not fully realized, and training or fully fine-tuning them is computationally expensive and prone to overfitting under limited data. To overcome these challenges, we introduce GLASSNet, a Global-Local feature decoding framework that uses SAMv2 as a frozen encoder paired with a lightweight, spatially aware convolutional adapter-reducing learnable encoder parameters by over 97%. To enhance saliency quality, GLASSNet employs a dual-decoder architecture: one decoder captures global, long-range semantics with an expanded receptive field, while the other captures fine local details such as edges and textures. Fusing these complementary cues yields saliency maps that combine global coherence with local precision, producing accurate final masks. Extensive experiments on standard SOD and camouflaged object detection benchmarks show that GLASSNet surpasses state-of-the-art methods, demonstrating the power of frozen foundation models combined with targeted adaptation and global-local decoding.",
+      "authors": [
+        "Morteza Moradi",
+        "Mohammad Moradi",
+        "Simone Palazzo",
+        "Ali Borji",
+        "Concetto Spampinato"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-04T14:04:38+00:00",
+      "link": "https://arxiv.org/pdf/2605.02616v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 8.5,
+      "llm_evidence_en": "Global-Local feature decoding and spatially aware convolutional adapter for SOD",
+      "llm_evidence_cn": "用于显著性目标检测的全域-局部特征解码和空间感知卷积适配器",
+      "llm_evidence": "用于显著性目标检测的全域-局部特征解码和空间感知卷积适配器",
+      "canonical_evidence": "用于显著性目标检测的全域-局部特征解码和空间感知卷积适配器",
+      "llm_tldr_en": "Proposes GLASSNet for salient object detection using global-local feature decoding and spatial adapters.",
+      "llm_tldr_cn": "提出GLASSNet，通过全局-局部特征解码和空间适配器进行显著性目标检测。",
+      "llm_tldr": "提出GLASSNet，通过全局-局部特征解码和空间适配器进行显著性目标检测。",
+      "llm_tags": [
+        "query:sod:composite"
+      ],
+      "matched_query_tag": "query:sod:composite",
+      "matched_query_text": "Papers central to 小目标检测相关论文检索, especially work that connects or combines: deep learning methods for small object detection; FPN and its variants for multi-scale object detection; oversampling and augmentation strategies for small objects; spatial and channel attention for small object feature enhancement; multi-scale feature fusion techniques in computer vision; specialized loss functions for small object localization; state of the art deep learning methods for small object detection; benchmarking small object detection on public datasets.",
+      "matched_requirement_id": "req-composite-sod",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.08169v1",
+      "source": "arxiv",
+      "title": "Optimized Culprit Identification Using Mobilenet and Attention Mechanisms",
+      "abstract": "Automated culprit identification in surveillance systems is a critical task that requires high accuracy along with computational efficiency for real-time deployment. In this paper, an optimized deep learning framework is proposed using a lightweight MobileNet architecture integrated with channel and spatial attention mechanisms. The proposed model enhances feature representation by selectively focusing on the most discriminative regions while suppressing irrelevant background information, thereby improving identification performance. The framework incorporates efficient preprocessing, attention based feature refinement, and a robust classification strategy optimized using the Adam Optimizer. Experiments were conducted on benchmark face recognition datasets, including Labelled Faces in the Wild (LFW), CASIA-WebFace, and a subset of VGGFace2, under realistic conditions with variations in illumination, pose, and occlusion. The results demonstrate that the proposed model achieves a high classification accuracy of 97.8%, outperforming conventional models such as baseline CNN, ResNet, and standard MobileNet. The confusion matrix analysis indicates strong class-wise discrimination with minimal misclassification, while ROC-AUC evaluation confirms robust performance across all classes. Additionally, the proposed approach maintains low computational complexity and reduced inference time, making it suitable for real-time surveillance and edge-based applications.",
+      "authors": [
+        "Savitha N J",
+        "Lata B T"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-05-04T19:18:42+00:00",
+      "link": "https://arxiv.org/pdf/2605.08169v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "integrated with channel and spatial attention mechanisms for feature representation",
+      "llm_evidence_cn": "集成通道和空间注意力机制以增强特征表示",
+      "llm_evidence": "集成通道和空间注意力机制以增强特征表示",
+      "canonical_evidence": "集成通道和空间注意力机制以增强特征表示",
+      "llm_tldr_en": "Enhances object identification by integrating channel and spatial attention into a lightweight MobileNet architecture.",
+      "llm_tldr_cn": "通过将通道和空间注意力集成到轻量级 MobileNet 架构中来增强目标识别。",
+      "llm_tldr": "通过将通道和空间注意力集成到轻量级 MobileNet 架构中来增强目标识别。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "spatial and channel attention for small object feature enhancement",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2605.02169v2",
+      "source": "arxiv",
+      "title": "Heterogeneous Model Fusion for Privacy-Aware Multi-Camera Surveillance via Synthetic Domain Adaptation",
+      "abstract": "We propose HeroCrystal, a novel privacy-preserving framework for multi-camera domain-adaptive object detection, addressing challenges such as data privacy, class imbalance, and heterogeneous architectures. Our framework consists of three key stages. In the Generated Stage, we introduce a one-shot, target-aware diffusion-based generation module that learns visual style from a single target-domain image while leveraging prompt-based control to synthesize specific object instances. Unlike conventional style transfer-based methods that require large target datasets and ignore semantic-level discrepancies, our approach enables privacy-preserving augmentation to reduce ethical concerns, and introduces controllable rare object generation to mitigate long-tailed category degradation. In the Federated Stage, we employ probabilistic Faster R-CNN on the client side to improve localization accuracy, and a dynamic model contrastive strategy to suppress domain-specific bias. The server side performs model fusion across heterogeneous architectures without accessing raw data. Finally, in the Distilled Stage, we propose an inconsistent categories integration algorithm to resolve label inconsistency and architecture heterogeneity across clients. Extensive experiments on multiple cross-domain detection benchmarks demonstrate that our method outperforms existing multi-source domain adaptation and federated learning baselines under multi-class, privacy-preserving settings. Our method improves mAP by +2.1% over prior privacy-preserving approaches and achieves a new state-of-the-art mAP of 33.4%, highlighting the effectiveness of HeroCrystal in enabling practical multi-camera AI surveillance systems.   The source code is publicly available at https://github.com/ccuvislab/HeroCrystal.",
+      "authors": [
+        "Peggy Joy Lu",
+        "Wei-Yu Chen",
+        "Yao-Tsung Huang",
+        "Vincent Shin-Mu Tseng"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.DC",
+        "cs.LG"
+      ],
+      "published": "2026-05-04T02:58:21+00:00",
+      "link": "https://arxiv.org/pdf/2605.02169v2",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.5,
+      "llm_evidence_en": "diffusion-based generation for controllable rare object augmentation",
+      "llm_evidence_cn": "基于扩散生成的受控稀有物体增强",
+      "llm_evidence": "基于扩散生成的受控稀有物体增强",
+      "canonical_evidence": "基于扩散生成的受控稀有物体增强",
+      "llm_tldr_en": "Introduces a diffusion-based module for synthetic data augmentation to address class imbalance in detection.",
+      "llm_tldr_cn": "引入基于扩散的模块进行合成数据增强，以解决检测中的类别不平衡问题。",
+      "llm_tldr": "引入基于扩散的模块进行合成数据增强，以解决检测中的类别不平衡问题。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "oversampling and augmentation strategies for small objects",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.09963v1",
+      "source": "arxiv",
+      "title": "Learning to Perceive \"Where\": Spatial Pretext Tasks for Robust Self-Supervised Learning",
+      "abstract": "Existing self-supervised learning (SSL) methods primarily learn object-invariant representations but often neglect the spatial structure and relationships among object parts. To address this limitation, we introduce Spatial Prediction (SP), a spatially aware pretext regression task that predicts the relative position and scale between a pair of disentangled local views from the same image. By modeling part-to-part relationships in a continuous geometric space, SP encourages representations to capture fine-grained spatial dependencies beyond invariant categorical semantics, thereby learning the compositional structure of visual scenes. SP is implemented as a decoupled plug-in and can be seamlessly integrated into diverse SSL frameworks. Extensive experiments show consistent improvements across image recognition, fine-grained classification, semantic segmentation, and depth estimation, as well as substantial gains in out-of-distribution robustness for object recognition. To evaluate spatial reasoning, we introduce (1) a position and scale prediction task on image patch pairs and (2) a jigsaw understanding task requiring patch reordering and recognition after reconstruction. Strong performance on these tasks indicates improved spatial structure and geometric awareness. Overall, explicitly modeling spatial information provides an effective inductive bias for SSL, leading to more structured representations and better generalization. Code and models will be released.",
+      "authors": [
+        "Yang Shen",
+        "Yusen Cai",
+        "Weronika Hryniewska-Guzik",
+        "Qing Lin",
+        "Mengmi Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-11T04:15:34+00:00",
+      "link": "https://arxiv.org/pdf/2605.09963v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.5,
+      "llm_evidence_en": "spatial pretext tasks for fine-grained spatial dependencies",
+      "llm_evidence_cn": "用于细粒度空间依赖的空间前置任务",
+      "llm_evidence": "用于细粒度空间依赖的空间前置任务",
+      "canonical_evidence": "用于细粒度空间依赖的空间前置任务",
+      "llm_tldr_en": "Introduces spatial pretext tasks to capture fine-grained spatial dependencies in self-supervised learning.",
+      "llm_tldr_cn": "引入空间前置任务，以在自监督学习中捕捉细粒度的空间依赖关系。",
+      "llm_tldr": "引入空间前置任务，以在自监督学习中捕捉细粒度的空间依赖关系。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "spatial and channel attention for small object feature enhancement",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.03456v3",
+      "source": "arxiv",
+      "title": "VL-SAM-v3: Memory-Guided Visual Priors for Open-World Object Detection",
+      "abstract": "Open-world object detection aims to localize and recognize objects beyond a fixed closed-set label space. It is commonly divided into two categories, i.e., open-vocabulary detection, which assumes a predefined category list at test time, and open-ended detection, which requires generating candidate categories during the inference. Existing methods rely primarily on coarse textual semantics and parametric knowledge, which often provide insufficient visual evidence for fine-grained appearance variation, rare categories, and cluttered scenes. In this paper, we propose VL-SAM-v3, a unified framework that augments open-world detection with retrieval-grounded external visual memory. Specifically, once candidate categories are available, VL-SAM-v3 retrieves relevant visual prototypes from a non-parametric memory bank and transforms them into two complementary visual priors, i.e., sparse priors for instance-level spatial anchoring and dense priors for class-aware local context. These priors are integrated with the original detection prompts via Memory-Guided Prompt Refinement, enabling a shared retrieval-and-refinement mechanism that supports open-vocabulary and open-ended inference. Extensive zero-shot experiments on LVIS show that VL-SAM-v3 consistently improves detection performance under both open-vocabulary and open-ended inference, with particularly strong gains on rare categories. Moreover, experiments with a stronger open-vocabulary detector (i.e., SAM3) validate the generality of the proposed retrieval-and-refinement mechanism.",
+      "authors": [
+        "Chih-Chung Liu",
+        "Zhiwei Lin",
+        "Yongtao Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-05T07:44:03+00:00",
+      "link": "https://arxiv.org/pdf/2605.03456v3",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.5,
+      "llm_evidence_en": "open-world object detection for fine-grained appearance and cluttered scenes",
+      "llm_evidence_cn": "针对细粒度外观和杂乱场景的开放世界目标检测",
+      "llm_evidence": "针对细粒度外观和杂乱场景的开放世界目标检测",
+      "canonical_evidence": "针对细粒度外观和杂乱场景的开放世界目标检测",
+      "llm_tldr_en": "Augments open-world detection with external visual memory to handle fine-grained and rare categories.",
+      "llm_tldr_cn": "通过外部视觉记忆增强开放世界检测，以处理细粒度和罕见类别。",
+      "llm_tldr": "通过外部视觉记忆增强开放世界检测，以处理细粒度和罕见类别。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "state of the art deep learning methods for small object detection",
+      "matched_requirement_id": "req-7",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.06927v1",
+      "source": "arxiv",
+      "title": "XiYOLO: Energy-Aware Object Detection via Iterative Architecture Search and Scaling",
+      "abstract": "Object detection on heterogeneous edge devices must satisfy strict energy, latency, and memory constraints while still providing reliable perception for downstream autonomy. Existing energy-aware NAS methods often target limited deployment settings, while real energy remains difficult to optimize because it is highly device-dependent and costly to measure. We address these challenges with an energy-adaptive framework that combines an energy-aware XiResOFA search space, a two-stage energy estimator, and iterative search to identify a single energy-efficient base architecture. We then apply compound scaling to transform this base design into the XiYOLO family across deployment budgets, enabling interpretable accuracy-energy tradeoffs under sparse hardware measurements. Experiments on PascalVOC, COCO, and real-device deployment show that XiYOLO achieves a stronger energy-accuracy tradeoff than YOLO baselines. On PascalVOC, the medium XiYOLO model reaches 86.15 mAP50 while reducing energy relative to YOLOv12m by 20.6% on GPU and 35.9% on NPU. On COCO, XiYOLO reduces energy relative to YOLOv12 by up to 53.7% on GPU and 51.6% on NPU at the small scale. The proposed two-stage estimator also improves sample efficiency over a joint predictor under few-shot adaptation with only 2-20 target-device samples.",
+      "authors": [
+        "Tony Tran",
+        "Richie R. Suganda",
+        "Bin Hu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-05-07T20:38:06+00:00",
+      "link": "https://arxiv.org/pdf/2605.06927v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "energy-aware object detection via iterative architecture search and scaling",
+      "llm_evidence_cn": "通过迭代架构搜索和缩放实现能效感知目标检测",
+      "llm_evidence": "通过迭代架构搜索和缩放实现能效感知目标检测",
+      "canonical_evidence": "通过迭代架构搜索和缩放实现能效感知目标检测",
+      "llm_tldr_en": "XiYOLO provides an energy-efficient object detection family via NAS and compound scaling for edge devices.",
+      "llm_tldr_cn": "XiYOLO通过NAS和复合缩放为边缘设备提供能效高的目标检测系列模型。",
+      "llm_tldr": "XiYOLO通过NAS和复合缩放为边缘设备提供能效高的目标检测系列模型。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.10190v1",
+      "source": "arxiv",
+      "title": "DetRefiner: Model-Agnostic Detection Refinement with Feature Fusion Transformer",
+      "abstract": "Open-vocabulary object detection (OVOD) aims to detect both seen and unseen categories, yet existing methods often struggle to generalize to novel objects due to limited integration of global and local contextual cues. We propose DetRefiner, a simple yet effective plug-and-play framework that learns to fuse global and local features to refine open-vocabulary detection. DetRefiner processes global image features and patch-level image features from foundational models (e.g., DINOv3) through a lightweight Transformer encoder. The encoder produces a class vector capturing image-level attributes and patch vectors representing local region attributes, from which attribute reliability is inferred to recalibrate the base model's confidence. Notably, DetRefiner is trained independently of the base OVOD model, requiring neither access to its internal features nor retraining. At inference, it operates solely on the base detector's predictions, producing auxiliary calibration scores that are merged with the base detector's scores to yield the final refined confidence. Despite this simplicity, DetRefiner consistently enhances multiple OVOD models across COCO, LVIS, ODinW13, and Pascal VOC, achieving gains of up to +10.1 AP on novel categories. These results highlight that learning to fuse global and local representations offers a powerful and general mechanism for advancing open-world object detection. Our codes and models are available at https://github.com/hitachi-rd-cv/detrefiner.",
+      "authors": [
+        "Soichiro Okazaki",
+        "Tatsuya Sasaki",
+        "Hiroki Ohashi"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-11T08:40:25+00:00",
+      "link": "https://arxiv.org/pdf/2605.10190v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.5,
+      "llm_evidence_en": "fusing global and local features to refine detection of novel objects",
+      "llm_evidence_cn": "融合全局和局部特征以优化新物体的检测",
+      "llm_evidence": "融合全局和局部特征以优化新物体的检测",
+      "canonical_evidence": "融合全局和局部特征以优化新物体的检测",
+      "llm_tldr_en": "DetRefiner uses a Transformer to fuse global and local features for refining open-vocabulary object detection.",
+      "llm_tldr_cn": "DetRefiner利用Transformer融合全局和局部特征，优化开放词汇目标检测。",
+      "llm_tldr": "DetRefiner利用Transformer融合全局和局部特征，优化开放词汇目标检测。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.09003v1",
+      "source": "arxiv",
+      "title": "FlashClear: Ultra-Fast Image Content Removal via Efficient Step Distillation and Feature Caching",
+      "abstract": "Recently, diffusion-based object removal models have achieved impressive results in eliminating objects and their associated visual effects. However, they indiscriminately denoise all tokens across all timesteps, ignoring that removal usually involves small foreground regions. This strategy introduces substantial computational overhead and prolonged inference times. To overcome this computational burden, we propose a latent discriminator to implement Region-aware Adversarial Distillation (RAD), yielding a highly efficient few-step model named FlashClear. Furthermore, tailored to few-step diffusion models, we propose FPAC (Foreground-Prioritized Asymmetric Attention and Caching), a training-free acceleration strategy. Extensive experiments demonstrate that our framework provides massive acceleration while maintaining or exceeding the performance of our base model, ObjectClear. Notably, on the OBER benchmark, our FlashClear achieves up to 8.26$\\times$ and 122$\\times$ speedup over ObjectClear and OmniPaint, respectively, while maintaining high visual quality and fidelity.",
+      "authors": [
+        "Yixin Tang",
+        "Jiawei Guo",
+        "Junxian Li",
+        "Zhiteng Li",
+        "Jixin Zhao",
+        "Bingya Zhang",
+        "Chenbo Wang",
+        "Yulun Zhang",
+        "Shangchen Zhou"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-09T15:39:14+00:00",
+      "link": "https://arxiv.org/pdf/2605.09003v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "foreground-prioritized asymmetric attention for small region processing",
+      "llm_evidence_cn": "针对小区域处理的前景优先非对称注意力机制",
+      "llm_evidence": "针对小区域处理的前景优先非对称注意力机制",
+      "canonical_evidence": "针对小区域处理的前景优先非对称注意力机制",
+      "llm_tldr_en": "Introduces FlashClear, using region-aware distillation and prioritized attention for efficient object removal.",
+      "llm_tldr_cn": "引入了FlashClear，利用区域感知蒸馏和优先注意力实现高效的目标移除。",
+      "llm_tldr": "引入了FlashClear，利用区域感知蒸馏和优先注意力实现高效的目标移除。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "spatial and channel attention for small object feature enhancement",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.07530v1",
+      "source": "arxiv",
+      "title": "Search-based Robustness Testing of Laptop Refurbishing Robotic Software",
+      "abstract": "The Danish Technological Institute (DTI) focuses on transferring advanced technologies (including robots) to the industry and the public sector. One key application is laptop refurbishment using specialized robots, aimed at promoting reuse, reducing electronic waste, and supporting the European Circular Economy Action Plan. The software of such robots often includes features that use object detection models to detect objects for various purposes, such as identifying screws for laptop disassembly or detecting stickers to remove them. Ensuring the robustness of such models to small input variations remains a critical challenge, and addressing it is important to avoid potential damage to laptops during refurbishment. In this paper, we propose PROBE, a search-based robustness testing approach that leverages multi-objective optimization to identify minimal, localized perturbations that expose failures in object detection models used in the software of laptop refurbishing robots. PROBE employs NSGA-II to systematically explore the perturbation space, optimizing for failure induction considering both localization and confidence, and perturbation magnitude, while enabling the discovery of diverse failure cases. Results show that PROBE is 3$\\times$ to 7$\\times$ more effective than random search in generating failure-inducing perturbations, while requiring smaller perturbation magnitudes, and that the generated perturbations transfer across models. We further show that metamorphic relations provide additional insights into model robustness, enabling the assessment of stability even in non-failing cases.",
+      "authors": [
+        "Erblin Isaku",
+        "Hassan Sartaj",
+        "Shaukat Ali",
+        "Malaika Din Hashmi",
+        "Francois Picard"
+      ],
+      "primary_category": "cs.RO",
+      "categories": [
+        "cs.RO",
+        "cs.SE"
+      ],
+      "published": "2026-05-08T10:02:45+00:00",
+      "link": "https://arxiv.org/pdf/2605.07530v1",
+      "tags": [
+        "keyword:SOD"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "detecting small objects like screws and stickers for robotic disassembly",
+      "llm_evidence_cn": "检测用于机器人拆解的螺丝和贴纸等小目标",
+      "llm_evidence": "检测用于机器人拆解的螺丝和贴纸等小目标",
+      "canonical_evidence": "检测用于机器人拆解的螺丝和贴纸等小目标",
+      "llm_tldr_en": "Proposes a robustness testing framework for robotic object detection models targeting small components like screws.",
+      "llm_tldr_cn": "提出了一种针对螺丝等小型部件的机器人目标检测模型鲁棒性测试框架。",
+      "llm_tldr": "提出了一种针对螺丝等小型部件的机器人目标检测模型鲁棒性测试框架。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.08825v1",
+      "source": "arxiv",
+      "title": "Rethinking Event-Based Object Dtection through Representation-Level Temporal Aggregation and Model-Level Hypergraph Reasoning",
+      "abstract": "Event cameras provide microsecond-level temporal resolution, low latency, and high dynamic range, offering potential for perception under fast motion and challenging illumination conditions. However, existing Event-based Object Detection (EOD) methods face limitations at both the representation and model levels: prior event representations usually encode temporal information indirectly through redundant structures, while detection models struggle to explicitly aggregate fragmented event responses into coherent high-order object features. To address these limitations, we present Event Dual Temporal-Relational Aggregation Detector (Ev-DTAD), a unified EOD framework that integrates representation-level temporal encoding with model-level temporal-hypergraph reasoning. Specifically, we introduce Hierarchical Temporal Aggregation (HTA), a compact three-channel pseudo-RGB representation that explicitly embeds temporal information across intra- and inter-window events. To further enhance detection under sparse and fragmented event responses, we propose Frequency-aware Hypergraph Temporal Fusion (FHTF), which refines multi-scale event features through temporal evolution modeling and high-order relational reasoning. Extensive experiments on Gen1 (+0.8 mAP and 1.7$\\times$ faster), 1Mpx/Gen4 (+0.5 mAP and 1.6$\\times$ faster), and eTraM (+3.0 mAP and \\textbf{2.0$\\times$ faster}) demonstrate that Ev-DTAD achieves a competitive accuracy-efficiency trade-off, validating the complementarity between compact temporal representation and temporal-hypergraph feature reasoning.",
+      "authors": [
+        "Meisen Wang",
+        "Hao Deng",
+        "Wei Bao",
+        "Ma Yuanxiao",
+        "Chengjie Wang",
+        "Zhiqiang Tian",
+        "Shaoyi Du",
+        "Siqi Li"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-09T09:20:34+00:00",
+      "link": "https://arxiv.org/pdf/2605.08825v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "event-based object detection with temporal aggregation and hypergraph reasoning",
+      "llm_evidence_cn": "基于事件的物体检测，采用时间聚合和超图推理",
+      "llm_evidence": "基于事件的物体检测，采用时间聚合和超图推理",
+      "canonical_evidence": "基于事件的物体检测，采用时间聚合和超图推理",
+      "llm_tldr_en": "Proposes Ev-DTAD for event-based object detection using temporal-relational aggregation.",
+      "llm_tldr_cn": "提出Ev-DTAD框架，通过时间关系聚合改进基于事件的物体检测。",
+      "llm_tldr": "提出Ev-DTAD框架，通过时间关系聚合改进基于事件的物体检测。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.09407v1",
+      "source": "arxiv",
+      "title": "AnyDepth-DETR/-YOLO: Any-depth object detection with a single network",
+      "abstract": "Modern object detectors are static, fixed-depth networks optimized for a single operating point, requiring separate models for different deployment scenarios. We present an any-depth detection framework that enables a single network to span a continuous range of accuracy--efficiency trade-offs by controlling depth at inference time without retraining. Each backbone and neck stage is divided into an essential path, which always executes, and a skippable refinement path; this decomposition preserves the full multi-scale feature hierarchy at every depth configuration, unlike conventional early exiting that discards entire stages. To train such a network, jointly optimizing many sub-networks of varying depth introduces conflicting gradient signals. We address this via self-distillation between only the two extremes, with prediction-level and feature-level alignment losses that enforce stage-wise modularity, ensuring the outputs of each stage remain compatible regardless of the paths taken. Instantiated on RT-DETR and YOLOv12, our full-depth configurations match or surpass their respective SOTA baselines with negligible parameter overhead, while the most efficient configurations achieve up to $1.82\\times$ speedup at a cost of only 2.0 AP, all from a single set of weights.",
+      "authors": [
+        "Woochul Kang",
+        "Hyungseop Lee",
+        "Jiho Lee"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-10T08:12:18+00:00",
+      "link": "https://arxiv.org/pdf/2605.09407v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "preserves full multi-scale feature hierarchy at every depth configuration",
+      "llm_evidence_cn": "在每个深度配置下保留完整的多尺度特征层次结构",
+      "llm_evidence": "在每个深度配置下保留完整的多尺度特征层次结构",
+      "canonical_evidence": "在每个深度配置下保留完整的多尺度特征层次结构",
+      "llm_tldr_en": "Presents a single network that maintains multi-scale features while allowing dynamic depth control for efficiency.",
+      "llm_tldr_cn": "提出了一种单一网络，在保持多尺度特征的同时允许动态深度控制以提高效率。",
+      "llm_tldr": "提出了一种单一网络，在保持多尺度特征的同时允许动态深度控制以提高效率。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.09802v1",
+      "source": "arxiv",
+      "title": "CrossVL: Complexity-Aware Feature Routing and Paired Curriculum for Cross-View Vision-Language Detection",
+      "abstract": "Vision-language models (VLMs) enable text-guided object detection but degrade severely under cross-view scenarios where ground and aerial viewpoints differ in altitude, scale, and spatial layout. These geometric changes introduce systematic complexity variations between viewpoints, e.g., ground view images contain dense and highly occluded structures, while aerial images are sparse and globally organized. Fixed VLM fusion mechanisms cannot handle this discrepancy. We propose CrossVL, a framework combining Complexity-Aware Pathway Aggregation (CPA) and Paired Curriculum Learning (PCL) for enhanced cross-view detection for VLM. CPA estimates scene complexity from multimodal statistics and routes visual features through multiple pathways to obtain view-specific representations. PCL leverages semantic consistency of synchronized ground-aerial pairs to provide stable early supervision and then gradually shifts toward randomized sampling. On MAVREC, CrossVL improves Florence-2's aerial mAP from 58.66% to 61.03% and reduces the ground-aerial performance gap from 8.63pp to 6.65pp, while also achieving a 3.3x reduction in variance across random seeds. CPA provides stable complexity-aware feature aggregation, and PCL enhances optimization dynamics. Together, they demonstrate that coordinated architectural and training adaptations are crucial for robust cross-view VLM detection.",
+      "authors": [
+        "Zhipeng Liu",
+        "Chunbo Luo"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-05-10T22:50:35+00:00",
+      "link": "https://arxiv.org/pdf/2605.09802v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "complexity-aware feature routing for cross-view scale and altitude variations",
+      "llm_evidence_cn": "针对跨视图尺度和高度变化的复杂度感知特征路由",
+      "llm_evidence": "针对跨视图尺度和高度变化的复杂度感知特征路由",
+      "canonical_evidence": "针对跨视图尺度和高度变化的复杂度感知特征路由",
+      "llm_tldr_en": "CrossVL addresses scale and viewpoint discrepancies in vision-language object detection.",
+      "llm_tldr_cn": "CrossVL解决了视觉语言目标检测中的尺度和视角差异问题。",
+      "llm_tldr": "CrossVL解决了视觉语言目标检测中的尺度和视角差异问题。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}

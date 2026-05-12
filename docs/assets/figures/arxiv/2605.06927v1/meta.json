@@ -1,0 +1,110 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.06927v1/fig-001.webp",
+      "caption": "Figure 11: Two-Stage Energy Estimator vs. Joint Model on few data points from 2–20 samples on the ModalAI Sentinel Development Drone benchmark on CPU, GPU, and NPU using the proposed search space.",
+      "page": 15,
+      "index": 1,
+      "width": 826,
+      "height": 335
+    },
+    {
+      "url": "assets/figures/arxiv/2605.06927v1/fig-002.webp",
+      "caption": "Figure 5: Comparisons with other YOLO-series [18, 32] on PascalVOC dataset in terms of energy and accuracy on the GPU (left) and NPU (right).",
+      "page": 7,
+      "index": 2,
+      "width": 826,
+      "height": 336
+    },
+    {
+      "url": "assets/figures/arxiv/2605.06927v1/fig-003.webp",
+      "caption": "Figure 6: Comparisons with other YOLO-series [18, 32] on COCO dataset in terms of energy and accuracy on the GPU (left) and NPU (right).",
+      "page": 7,
+      "index": 3,
+      "width": 826,
+      "height": 336
+    },
+    {
+      "url": "assets/figures/arxiv/2605.06927v1/fig-004.webp",
+      "caption": "Figure 10: Full energy consumption vs. time benchmarks against other YOLO-series [17, 18, 32] on the GPU (top) and NPU (bottom) for the nano (left), small (middle), and medium (right) model scales on the PascalVOC dataset.",
+      "page": 14,
+      "index": 4,
+      "width": 826,
+      "height": 304
+    },
+    {
+      "url": "assets/figures/arxiv/2605.06927v1/fig-005.webp",
+      "caption": "Figure 1: Energy-aware NAS framework. Candidate detectors from a searchable energy-aware architecture space are ranked by an mAP proxy and a two-stage energy estimator, then refined iteratively to obtain scalable models under hardware-specific energy constraints.",
+      "page": 3,
+      "index": 5,
+      "width": 829,
+      "height": 232
+    },
+    {
+      "url": "assets/figures/arxiv/2605.06927v1/fig-006.webp",
+      "caption": "Figure 8: Two-Stage Energy Estimator vs. Joint Model under few-shot adaptation with 2–20 samples on HW-NAS-Bench [19], using the NAS-Bench-201 [10] search space and the EdgeGPU and Eyeriss hardware targets.",
+      "page": 8,
+      "index": 6,
+      "width": 829,
+      "height": 335
+    },
+    {
+      "url": "assets/figures/arxiv/2605.06927v1/fig-007.webp",
+      "caption": "Figure 7: Energy consumption vs. time benchmarks against other YOLO-series [17, 18, 32] on the GPU (left) and NPU (right) for the medium model scales.",
+      "page": 8,
+      "index": 7,
+      "width": 826,
+      "height": 319
+    },
+    {
+      "url": "assets/figures/arxiv/2605.06927v1/fig-008.webp",
+      "caption": "Figure 2: Comparison between (a) the standard bottleneck block [16] and (b) the proposed XiResOFA block. XiResOFA augments a residual design with elastic architectural choices for energy-aware detector search.",
+      "page": 4,
+      "index": 8,
+      "width": 829,
+      "height": 282
+    },
+    {
+      "url": "assets/figures/arxiv/2605.06927v1/fig-009.webp",
+      "caption": "Figure 3: Elastic architectural choices in XiResOFA: selectable (a) compression ratios, (b) kernel sizes, and (c) lite or full attention mechanisms.",
+      "page": 4,
+      "index": 9,
+      "width": 826,
+      "height": 194
+    },
+    {
+      "url": "assets/figures/arxiv/2605.06927v1/fig-010.webp",
+      "caption": "Figure 9: Energy and accuracy characteristics of the medium search space.",
+      "page": 9,
+      "index": 10,
+      "width": 828,
+      "height": 285
+    },
+    {
+      "url": "assets/figures/arxiv/2605.06927v1/fig-011.webp",
+      "caption": "Figure 4: Overview of the proposed two-stage energy estimator. Sparse energy samples from the target hardware are combined with architecture and hardware encodings to learn a generic energy prior and a device-specific residual.",
+      "page": 5,
+      "index": 11,
+      "width": 829,
+      "height": 201
+    },
+    {
+      "url": "assets/figures/arxiv/2605.06927v1/fig-012.webp",
+      "caption": "Figure 12: Latency–energy comparison between XiYOLO and YOLO12 on the Qualcomm Adreno 650 GPU, 15 TOPS NPU, and NVIDIA Jetson Orin Nano. XiYOLO consistently uses less energy at similar latency across all three platforms.",
+      "page": 16,
+      "index": 12,
+      "width": 826,
+      "height": 229
+    },
+    {
+      "url": "assets/figures/arxiv/2605.06927v1/fig-013.webp",
+      "caption": "Table 2: Average power comparison for scaled detector variants on COCO. Results are reported on the Qualcomm Adreno 650 GPU, 15 TOPS NPU, and NVIDIA Jetson Orin Nano. XiYOLO achieves the lowest average power at both the small and medium scales while maintaining competitive accuracy. Bold indicates best while underline indicates second best.",
+      "page": 16,
+      "index": 13,
+      "width": 764,
+      "height": 219
+    }
+  ]
+}
