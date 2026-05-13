@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.11743v1/fig-001.webp",
+      "caption": "Figure 5. Analysis of spatio-semantic latent representation. (a) L2 distances between individual landmark representations and their corresponding class means. (b) L2 distances between the left pupil representation and other landmarks representations within the same image. L2 distances as a function of spatial distance from a given landmark obtained from (c) PdEnc and (d) from an encoder trained using proximity-unweighted contrastive loss.",
+      "page": 6,
+      "index": 1,
+      "width": 492,
+      "height": 452
+    },
+    {
+      "url": "assets/figures/arxiv/2605.11743v1/fig-002.webp",
+      "caption": "Table 1. Comparison of our method with SoTA approaches on COFW, 300W and AFLW.",
+      "page": 7,
+      "index": 2,
+      "width": 995,
+      "height": 379
+    },
+    {
+      "url": "assets/figures/arxiv/2605.11743v1/fig-003.webp",
+      "caption": "Table 4. Localization accuracy under various degradations.",
+      "page": 8,
+      "index": 3,
+      "width": 488,
+      "height": 275
+    },
+    {
+      "url": "assets/figures/arxiv/2605.11743v1/fig-004.webp",
+      "caption": "Table 5. PdEnc with different model complexities.",
+      "page": 8,
+      "index": 4,
+      "width": 438,
+      "height": 285
+    },
+    {
+      "url": "assets/figures/arxiv/2605.11743v1/fig-005.webp",
+      "caption": "Figure 2. Networks in WorldComp2D. (a) Proximity-dependent encoder (PdEnc), which maps fixation-centered observations to a normalized latent vector. (b) Localizer (Loc), which aggregates paired latent vectors and fixation coordinates to predict object locations. (c) Auxiliary localizer (AuxLoc), an optional refinement module that estimates a heatmap from a local patch and class-conditioned embedding.",
+      "page": 4,
+      "index": 5,
+      "width": 833,
+      "height": 433
+    },
+    {
+      "url": "assets/figures/arxiv/2605.11743v1/fig-006.webp",
+      "caption": "Table 2. Network architectures.",
+      "page": 12,
+      "index": 6,
+      "width": 1071,
+      "height": 324
+    }
+  ]
+}
