@@ -1,0 +1,78 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.12491v1/fig-001.webp",
+      "caption": "Figure 4: Visualization of semantic consistency. We visualize the cosine similarity between a selected patch token, marked by a red cross, and all other tokens to examine the semantic consistency of the learned dense visual representations. Brighter colors indicate patches with higher cosine similarity to the selected token. We observe that the representations focus on spatially coherent and semantically consistent regions.",
+      "page": 6,
+      "index": 1,
+      "width": 664,
+      "height": 252
+    },
+    {
+      "url": "assets/figures/arxiv/2605.12491v1/fig-002.webp",
+      "caption": "Table 1: Results on dense prediction tasks. We compare backbone dense linear probing results against strong vision foundation model baselines. For semantic segmentation, we report mIoU, where higher is better. For depth estimation, we report RMSE, where lower is better. We find that our model is highly competitive despite the block-sparse attention structure.",
+      "page": 6,
+      "index": 2,
+      "width": 748,
+      "height": 402
+    },
+    {
+      "url": "assets/figures/arxiv/2605.12491v1/fig-003.webp",
+      "caption": "Figure 1: Outline of our core-periphery attention structure. (a) Self-attention utilizes a fully connected attention matrix with N2 comparisons given N input patches. VECA constructs a coreperiphery matrix with C core tokens that form a clique, requiring only 2NC + C2 comparisons. (b) We visualize our dense features with UMAP. Our method produce stable embeddings across resolutions. (c) Top: We visualize our features and [CLS]-dense cosine similarity of our model, comparing such visuals to its teacher (DINOv3) as well as other baseline embeddings. Bottom: We visualize core attention weights with UMAP. Core attention maps start off isotropic (spherical), and become increasingly semantic. (d) Top: FLOPs of our attention block versus DINOv3 across resolutions. Bottom: We can elastically vary the number of tokens, trading off accuracy and speed.",
+      "page": 2,
+      "index": 3,
+      "width": 818,
+      "height": 370
+    },
+    {
+      "url": "assets/figures/arxiv/2605.12491v1/fig-004.webp",
+      "caption": "Table 2: Results on image classification. We present image classification results using a linear classifier trained on a frozen backbone. We report Top-1 accuracy (Top-1 Acc), where higher values indicate better performance. To highlight VECA’s competitive performance, we present the gap to the best result in bold. Our model is extremely competitive.",
+      "page": 7,
+      "index": 4,
+      "width": 706,
+      "height": 387
+    },
+    {
+      "url": "assets/figures/arxiv/2605.12491v1/fig-005.webp",
+      "caption": "Figure 2: Architecture of VECA. (a) Our attention matrix is defined using a core-periphery structure with a graph diameter of 2. For Np patch tokens, and C active core tokens, the total connections are 2NC + C2. For each layer: we transform the patches, cores, and predict the spatial coordinate for each core. (b) By varying the number of core tokens, the core-patch attention granularity changes. With fewer cores, each core attends to a larger region. (c) Attention granularity varies with core count. We perform joint UMAP of core-patch attentions across multiple layers. Cores attend to larger regions when fewer are used and evolve to become more semantic at deeper layers.",
+      "page": 3,
+      "index": 5,
+      "width": 820,
+      "height": 356
+    },
+    {
+      "url": "assets/figures/arxiv/2605.12491v1/fig-006.webp",
+      "caption": "Figure 5: Results of varying the core-token budget. (a) Dense prediction performance improves consistently as more core tokens are activated. We report linear-probe results on Context, Stuff, and NYUv2 at 768 res while sweeping the active budget from C = 8 to C = 64. (b) Qualitative patch-to-patch similarity visualizations across budgets. Larger core-token budgets produce more semantically coherent and spatially localized dense features, leading to finer-grained localization.",
+      "page": 8,
+      "index": 6,
+      "width": 802,
+      "height": 209
+    },
+    {
+      "url": "assets/figures/arxiv/2605.12491v1/fig-007.webp",
+      "caption": "Figure 3: Learned dense representations. We compare the UMAP visualizations of dense features and [CLS]-dense cosine similarity maps under increasing input resolutions with those of representative ViT backbones. The learned representations of VECA demonstrate high-quality clean dense features and remain robust at higher resolutions.",
+      "page": 4,
+      "index": 7,
+      "width": 790,
+      "height": 277
+    },
+    {
+      "url": "assets/figures/arxiv/2605.12491v1/fig-008.webp",
+      "caption": "Figure 6: Complementary visual roles of core tokens. We visualize the patterns of different core tokens using the cosine similarity between selected core tokens and spatial patch features. Warmer colors indicate higher similarity. We find that different core tokens respond to distinct spatial regions, suggesting that the learned set of core tokens captures complementary visual information rather than duplicating the same global representations.",
+      "page": 9,
+      "index": 8,
+      "width": 664,
+      "height": 319
+    },
+    {
+      "url": "assets/figures/arxiv/2605.12491v1/fig-009.webp",
+      "caption": "Figure 7: From isotropic to semantic clustering. We visualize the development of core token attention weights with UMAP during inference under different active token budgets. The results show that core tokens progressively cluster into semantically coherent regions, evolving from spherical and diffuse to structured representations. Please zoom in for details.",
+      "page": 9,
+      "index": 9,
+      "width": 718,
+      "height": 535
+    }
+  ]
+}

@@ -1,0 +1,302 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-05-14T20:43:26.719765+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 2,
+    "deep_cap": 6,
+    "deep_selected": 2,
+    "quick_candidates": 5,
+    "quick_skim_target": 11,
+    "quick_selected": 5
+  },
+  "deep_dive": [
+    {
+      "id": "2605.08825v2",
+      "source": "arxiv",
+      "title": "Rethinking Event-Based Object Dtection through Representation-Level Temporal Aggregation and Model-Level Hypergraph Reasoning",
+      "abstract": "Event cameras provide microsecond-level temporal resolution, low latency, and high dynamic range, offering potential for perception under fast motion and challenging illumination conditions. However, existing Event-based Object Detection (EOD) methods face limitations at both the representation and model levels: prior event representations usually encode temporal information indirectly through redundant structures, while detection models struggle to explicitly aggregate fragmented event responses into coherent high-order object features. To address these limitations, we present Event Dual Temporal-Relational Aggregation Detector (Ev-DTAD), a unified EOD framework that integrates representation-level temporal encoding with model-level temporal-hypergraph reasoning. Specifically, we introduce Hierarchical Temporal Aggregation (HTA), a compact three-channel pseudo-RGB representation that explicitly embeds temporal information across intra- and inter-window events. To further enhance detection under sparse and fragmented event responses, we propose Frequency-aware Hypergraph Temporal Fusion (FHTF), which refines multi-scale event features through temporal evolution modeling and high-order relational reasoning. Extensive experiments on Gen1 (+0.8 mAP and 1.7$\\times$ faster), 1Mpx/Gen4 (+0.5 mAP and 1.6$\\times$ faster), and eTraM (+3.0 mAP and 2.0$\\times$ faster) demonstrate that Ev-DTAD achieves a competitive accuracy-efficiency trade-off, validating the complementarity between compact temporal representation and temporal-hypergraph feature reasoning.",
+      "authors": [
+        "Meisen Wang",
+        "Hao Deng",
+        "Wei Bao",
+        "Ma Yuanxiao",
+        "Chengjie Wang",
+        "Zhiqiang Tian",
+        "Shaoyi Du",
+        "Siqi Li"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-09T09:20:34+00:00",
+      "link": "https://arxiv.org/pdf/2605.08825v2",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "deep learning methods for event-based object detection",
+      "llm_evidence_cn": "基于事件的目标检测深度学习方法",
+      "llm_evidence": "基于事件的目标检测深度学习方法",
+      "canonical_evidence": "基于事件的目标检测深度学习方法",
+      "llm_tldr_en": "A unified framework for event-based object detection using temporal and relational aggregation.",
+      "llm_tldr_cn": "一种利用时空和关系聚合进行基于事件的目标检测的统一框架。",
+      "llm_tldr": "一种利用时空和关系聚合进行基于事件的目标检测的统一框架。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.12220v1",
+      "source": "arxiv",
+      "title": "TriBand-BEV: Real-Time LiDAR-Only 3D Pedestrian Detection via Height-Aware BEV and High-Resolution Feature Fusion",
+      "abstract": "Safe autonomous agents and mobile robots need fast real time 3D perception, especially for vulnerable road users (VRUs) such as pedestrians. We introduce a new bird's eye view (BEV) encoding, which maps the full 3D LiDAR point cloud into a light-weight 2D BEV tensor with three height bands. We explicitly reformulate 3D detection as a 2D detection problem and then reconstruct 3D boxes from the BEV outputs. A single network detects cars, pedestrians, and cyclists in one pass. The backbone uses area attention at deep stages, a hierarchical bidirectional neck over P1 to P4 fuses context and detail, and the head predicts oriented boxes with distribution focal learning for side offsets and a rotated IoU loss. Training applies a small vertical re bin and a mild reflectance jitter in channel space to resist memorization. We use an interquartile range (IQR) filter to remove noisy and outlier LiDAR points during 3D reconstruction. On KITTI dataset, TriBand-BEV attains 58.7/52.6/47.2 pedestrian BEV AP(%) for easy, moderate, and hard at 49 FPS on a single consumer GPU, surpassing Complex-YOLO, with gains of +12.6%, +7.5%, and +3.1%. Qualitative scenes show stable detection under occlusion. The pipeline is compact and ready for real time robotic deployment. Our source code is publicly available on GitHub.",
+      "authors": [
+        "Mohammad Khoshkdahan",
+        "Alexey Vinel"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG",
+        "cs.RO"
+      ],
+      "published": "2026-05-12T14:58:16+00:00",
+      "link": "https://arxiv.org/pdf/2605.12220v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "hierarchical bidirectional neck for feature fusion and rotated IoU loss",
+      "llm_evidence_cn": "用于特征融合的分层双向Neck网络和旋转IoU损失",
+      "llm_evidence": "用于特征融合的分层双向Neck网络和旋转IoU损失",
+      "canonical_evidence": "用于特征融合的分层双向Neck网络和旋转IoU损失",
+      "llm_tldr_en": "Real-time 3D pedestrian detection using height-aware BEV and hierarchical feature fusion.",
+      "llm_tldr_cn": "利用高度感知BEV和分层特征融合实现实时3D行人检测。",
+      "llm_tldr": "利用高度感知BEV和分层特征融合实现实时3D行人检测。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2605.13621v1",
+      "source": "arxiv",
+      "title": "WD-FQDet: Multispectral Detection Transformer via Wavelet Decomposition and Frequency-aware Query Learning",
+      "abstract": "Infrared-visible object detection improves detection performance by combining complementary features from multispectral images. Existing backbone-specific and backbone-shared approaches still suffer from the problems of severe bias of modality-shared features and the insufficiency of modality-specific features. To address these issues, we propose a novel detection framework WD-FQDet that explicitly decouples modality-shared and modality-specific information from infrared and visible modalities in the new view of low- and high-frequency domains, allowing fusion strategies tailored to their frequency characteristics. Specifically, a low-frequency homogeneity alignment module is proposed to align modality-shared features across modalities via a cross-modal attention mechanism, and a high-frequency specificity retention module is proposed to preserve modality-specific features through the multi-scale gradient consistency loss. To reinforce the feature representation in the frequency domain, we propose a hybrid feature enhancement module that incorporates spatial cues. Furthermore, considering that the contributions of homogeneous and modality-specific features to object detection vary across scenarios, we propose a frequency-aware query selection module to dynamically regulate their contributions. Experimental results on the FLIR, LLVIP, and M3FD datasets demonstrate that WD-FQDet achieves state-of-the-art performance across multiple evaluation metrics.",
+      "authors": [
+        "Chunjin Yang",
+        "Xiwei Zhang",
+        "Yiming Xiao",
+        "Fanman Meng"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-13T14:51:05+00:00",
+      "link": "https://arxiv.org/pdf/2605.13621v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.5,
+      "llm_evidence_en": "multispectral object detection with frequency-aware feature fusion",
+      "llm_evidence_cn": "具有频率感知特征融合的多光谱目标检测",
+      "llm_evidence": "具有频率感知特征融合的多光谱目标检测",
+      "canonical_evidence": "具有频率感知特征融合的多光谱目标检测",
+      "llm_tldr_en": "Introduces a multispectral detection transformer using wavelet decomposition for frequency-aware feature fusion.",
+      "llm_tldr_cn": "引入一种利用小波分解进行频率感知特征融合的多光谱检测 Transformer。",
+      "llm_tldr": "引入一种利用小波分解进行频率感知特征融合的多光谱检测 Transformer。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.05328v1",
+      "source": "arxiv",
+      "title": "Query2Uncertainty: Robust Uncertainty Quantification and Calibration for 3D Object Detection under Distribution Shift",
+      "abstract": "Reliable uncertainty estimation for 3D object detection is critical for deploying safe autonomous systems, yet modern detectors remain poorly calibrated, especially under distribution shifts. Although post-hoc calibration methods address this issue and provide improved calibration for in-distribution tests, they fail to adapt in distribution-shifted scenarios. In this work, we address this issue and introduce a density-aware calibration method that couples post-hoc calibrators with the feature density of latent object queries from DETR-style 3D object detectors. These queries form a compact, location and class-aware feature, ideal for density estimation, allowing our approach to adjust model confidences in distribution-shift scenarios. By fitting a density estimator on these query features, our approach jointly recalibrates both classification and bounding box regression uncertainties. On both a multi-view camera and LiDAR-based detector, our approach consistently outperforms standard post-hoc methods in both in-distribution and distribution-shifted scenarios. Code available https://tillbeemelmanns.github.io/query2uncertainty/ .",
+      "authors": [
+        "Till Beemelmanns",
+        "Alexey Nekrasov",
+        "Stefan Vilceanu",
+        "Jonas Steinhaus",
+        "Timo Woopen",
+        "Bastian Leibe",
+        "Lutz Eckstein"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.RO"
+      ],
+      "published": "2026-05-06T18:01:19+00:00",
+      "link": "https://arxiv.org/pdf/2605.05328v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.5,
+      "llm_evidence_en": "uncertainty quantification for 3D object detection using latent queries",
+      "llm_evidence_cn": "利用潜在查询进行 3D 目标检测的不确定性量化",
+      "llm_evidence": "利用潜在查询进行 3D 目标检测的不确定性量化",
+      "canonical_evidence": "利用潜在查询进行 3D 目标检测的不确定性量化",
+      "llm_tldr_en": "Proposes a density-aware calibration method for robust uncertainty estimation in 3D object detection.",
+      "llm_tldr_cn": "提出一种密度感知校准方法，用于 3D 目标检测中鲁棒的不确定性估计。",
+      "llm_tldr": "提出一种密度感知校准方法，用于 3D 目标检测中鲁棒的不确定性估计。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.12640v1",
+      "source": "arxiv",
+      "title": "MambaPanoptic: A Vision Mamba-based Structured State Space Framework for Panoptic Segmentation",
+      "abstract": "Panoptic segmentation requires the simultaneous recognition of countable thing instances and amorphous stuff regions, placing joint demands on long-range context modelling, multi-scale feature representation, and efficient dense prediction. Existing convolutional and transformer-based methods struggle to satisfy all three requirements concurrently: convolutional architectures are limited in their capacity to model long-range dependencies, while transformer-based methods incur quadratic computational cost that is prohibitive at high resolutions. In this paper, we propose MambaPanoptic, a fully Mamba-based panoptic segmentation framework that addresses these limitations through two principal contributions. First, we introduce MambaFPN, a top-down feature pyramid that leverages Mamba blocks to generate globally coherent, multi-scale feature representations with linear computational complexity. Second, we adopt a PanopticFCN-style kernel generator that produces unified thing and stuff kernels for proposal-free panoptic prediction, enhanced by a QuadMamba-based feature refinement module applied at multiple network stages. Experiments on the Cityscapes and COCO panoptic segmentation benchmarks demonstrate that MambaPanoptic consistently outperforms PanopticDeepLab and PanopticFCN under comparable model sizes, and matches or surpasses Mask2Former on Cityscapes in PQ and AP while requiring fewer parameters.",
+      "authors": [
+        "Qing Cheng",
+        "Damiano Bertolini",
+        "Wei Zhang",
+        "Dong Wang",
+        "Niclas Zeller",
+        "Daniel Cremers"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-12T18:30:49+00:00",
+      "link": "https://arxiv.org/pdf/2605.12640v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.5,
+      "llm_evidence_en": "Multi-scale feature representation for panoptic segmentation using Vision Mamba",
+      "llm_evidence_cn": "使用Vision Mamba进行全景分割的多尺度特征表示",
+      "llm_evidence": "使用Vision Mamba进行全景分割的多尺度特征表示",
+      "canonical_evidence": "使用Vision Mamba进行全景分割的多尺度特征表示",
+      "llm_tldr_en": "MambaPanoptic uses Vision Mamba for efficient multi-scale feature representation in panoptic segmentation.",
+      "llm_tldr_cn": "MambaPanoptic利用Vision Mamba在全景分割中实现高效的多尺度特征表示。",
+      "llm_tldr": "MambaPanoptic利用Vision Mamba在全景分割中实现高效的多尺度特征表示。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.10349v1",
+      "source": "arxiv",
+      "title": "Portable Active Learning for Object Detection",
+      "abstract": "Annotating bounding boxes is costly and limits the scalability of object detection. This challenge is compounded by the need to preserve high accuracy while minimizing manual effort in real-world applications. Prior active learning methods often depend on model features or modify detector internals and training schedules, increasing integration overhead. Moreover, they rarely jointly exploit the benefits of image-level signals, class-imbalance cues, and instance-level uncertainty for comprehensive selection. We present Portable Active Learning (PAL), a detector-agnostic, easily portable framework that operates solely on inference outputs. PAL combines class-wise instance uncertainty with image-level diversity to guide data selection. At each round, PAL trains lightweight class-specific logistic classifiers to distinguish true from false positives, producing entropy-based uncertainty scores for proposals. Candidate images are then refined using global image entropy, class diversity, and image similarity, yielding batches that are both informative and diverse. PAL requires no changes to model internals or training pipelines, ensuring broad compatibility across detectors. Extensive experiments on COCO, PASCAL VOC, and BDD100K demonstrate that PAL consistently improves label efficiency and detection accuracy compared to existing active learning baselines, making it a practical solution for scalable and cost-effective deployment of object detection in real-world settings.",
+      "authors": [
+        "Rashi Sharma",
+        "Justin Timothy C. Bersamin",
+        "Karthikk Subramanian"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-05-11T10:52:23+00:00",
+      "link": "https://arxiv.org/pdf/2605.10349v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "active learning for data selection in object detection",
+      "llm_evidence_cn": "用于目标检测数据选择的主动学习",
+      "llm_evidence": "用于目标检测数据选择的主动学习",
+      "canonical_evidence": "用于目标检测数据选择的主动学习",
+      "llm_tldr_en": "A detector-agnostic active learning framework that uses uncertainty and diversity for efficient data selection.",
+      "llm_tldr_cn": "一种不依赖检测器的主动学习框架，利用不确定性和多样性进行高效数据选择。",
+      "llm_tldr": "一种不依赖检测器的主动学习框架，利用不确定性和多样性进行高效数据选择。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "oversampling and augmentation strategies for small objects",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.12491v1",
+      "source": "arxiv",
+      "title": "Elastic Attention Cores for Scalable Vision Transformers",
+      "abstract": "Vision Transformers (ViTs) achieve strong data-driven scaling by leveraging all-to-all self-attention. However, this flexibility incurs a computational cost that scales quadratically with image resolution, limiting ViTs in high-resolution domains. Underlying this approach is the assumption that pairwise token interactions are necessary for learning rich visual-semantic representations. In this work, we challenge this assumption, demonstrating that effective visual representations can be learned without any direct patch-to-patch interaction. We propose VECA (Visual Elastic Core Attention), a vision transformer architecture that uses efficient linear-time core-periphery structured attention enabled by a small set of learned cores. In VECA, these cores act as a communication interface: patch tokens exchange information exclusively through the core tokens, which are initialized from scratch and propagated across layers. Because the $N$ image patches only directly interact with a resolution invariant set of $C$ learned \"core\" embeddings, this yields linear complexity $O(N)$ for predetermined $C$, which bypasses quadratic scaling. Compared to prior cross-attention architectures, VECA maintains and iteratively updates the full set of $N$ input tokens, avoiding a small $C$-way bottleneck. Combined with nested training along the core axis, our model can elastically trade off compute and accuracy during inference. Across classification and dense tasks, VECA achieves performance competitive with the latest vision foundation models while reducing computational cost. Our results establish elastic core-periphery attention as a scalable alternative building block for Vision Transformers.",
+      "authors": [
+        "Alan Z. Song",
+        "Yinjie Chen",
+        "Mu Nan",
+        "Rui Zhang",
+        "Jiahang Cao",
+        "Weijian Mai",
+        "Muquan Yu",
+        "Hossein Adeli",
+        "Deva Ramanan",
+        "Michael J. Tarr",
+        "Andrew F. Luo"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-05-12T17:59:26+00:00",
+      "link": "https://arxiv.org/pdf/2605.12491v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "efficient linear-time core-periphery structured attention",
+      "llm_evidence_cn": "高效的线性时间核心-边缘结构注意力",
+      "llm_evidence": "高效的线性时间核心-边缘结构注意力",
+      "canonical_evidence": "高效的线性时间核心-边缘结构注意力",
+      "llm_tldr_en": "Introduces a scalable ViT architecture using learned cores for efficient attention.",
+      "llm_tldr_cn": "引入了一种使用学习核心进行高效注意力的可扩展ViT架构。",
+      "llm_tldr": "引入了一种使用学习核心进行高效注意力的可扩展ViT架构。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "spatial and channel attention for small object feature enhancement",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.12220v1/fig-001.webp",
+      "caption": "Figure 1: Detection pipeline overview. The pre-processing part (first step) converts 3D points to our novel BEV encoding and the detection part (second step) produces the 2D predictions on the BEVmap. Lastly, post-processing (third step) generates the final 3D predictions.",
+      "page": 1,
+      "index": 1,
+      "width": 506,
+      "height": 317
+    },
+    {
+      "url": "assets/figures/arxiv/2605.12220v1/fig-002.webp",
+      "caption": "Figure 6: Mean BEV and 3D AP across distance ranges. Each group shows class-wise mAP for cars, pedestrians, and cyclists, with the mean value annotated above.",
+      "page": 7,
+      "index": 2,
+      "width": 492,
+      "height": 371
+    },
+    {
+      "url": "assets/figures/arxiv/2605.12220v1/fig-003.webp",
+      "caption": "Figure 8: Qualitative detection results on validation scenes. The right side displays the TriBand encoded BEV map, and the left side shows the corresponding real camera image with transformed 3D predictions. Detections for pedestrian are shown in purple, car in cyan, and cyclist in yellow. The results demonstrate reliable handling of occlusions as well.",
+      "page": 8,
+      "index": 3,
+      "width": 498,
+      "height": 811
+    },
+    {
+      "url": "assets/figures/arxiv/2605.12220v1/fig-004.webp",
+      "caption": "Figure 7: 3D and BEV precision–recall curves for easy/moderate/hard on all three classes.",
+      "page": 8,
+      "index": 4,
+      "width": 488,
+      "height": 329
+    },
+    {
+      "url": "assets/figures/arxiv/2605.12220v1/fig-005.webp",
+      "caption": "Figure 2: Network overview. The detection pipeline from the BEV input (3 channels) through the backbone and twostage bidirectional neck to the head. Each block is annotated with 𝐶=𝑥 indicating the number of output channels for that feature map. The head predicts, at each spatial location, oriented BEV box parameters (center offsets, width, length, yaw), class logits, and an objectness confidence score.",
+      "page": 4,
+      "index": 5,
+      "width": 475,
+      "height": 598
+    },
+    {
+      "url": "assets/figures/arxiv/2605.12220v1/fig-006.webp",
+      "caption": "Figure 3: Internal components of each module used in the proposed architecture.",
+      "page": 5,
+      "index": 6,
+      "width": 468,
+      "height": 368
+    }
+  ]
+}

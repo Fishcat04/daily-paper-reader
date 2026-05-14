@@ -1,0 +1,142 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.05328v1/fig-001.webp",
+      "caption": "Figure 1. Our density-aware calibration method improves reliability under distribution-shift. An uncalibrated 3D detector exhibits miscalibrated uncertainty estimates when facing distribution shifts, such as a heavy rain or snow. Our method uses feature density to perform density-aware calibration of classification confidences and regression values, improving the model’s trustworthiness.",
+      "page": 1,
+      "index": 1,
+      "width": 414,
+      "height": 488
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05328v1/fig-002.webp",
+      "caption": "Table 18. SECOND - Regression Calibration under Distribution Shift. Class-wise calibration ( Cls. ) and Global calibration ( Glb. ) reported for each corruption as calibration error MCAlwh and MCAϕ (lower is better). Results are averaged over all detection thresholds and corruption severities. Ours: DA-TS.",
+      "page": 15,
+      "index": 2,
+      "width": 1031,
+      "height": 225
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05328v1/fig-003.webp",
+      "caption": "Table 17. SECOND - Regression Calibration under Distribution Shift. Class-wise calibration ( Cls. ) and Global calibration ( Glb. ) reported for each corruption as calibration error MCAxyz and KSxyz (lower is better). Results are averaged over all detection thresholds and corruption severities. Ours: DA-TS.",
+      "page": 15,
+      "index": 3,
+      "width": 960,
+      "height": 264
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05328v1/fig-004.webp",
+      "caption": "Table 11. Sample-base Methods - PETR - In-Distribution. Accuracy (mAP and NDS) measured without thresholding. D-ECE and MCAxyz measured at threshold 0.05. Bold indicates the configuration used for main experiments.",
+      "page": 14,
+      "index": 4,
+      "width": 494,
+      "height": 475
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05328v1/fig-005.webp",
+      "caption": "Figure 2. Overview of Query2Uncertainty We feed 3D features (either LiDAR or multi-view camera) as tokens into a standard DETR-style 3D object detector where they interact with object queries z. The refined queries at the last decoder layer are passed through a feature density estimator, that returns zdense a measure how well each individual query aligns with True Positives queries from the train set. This module is followed by the detection heads that return probabilistic 3D box parameters and class scores. To obtain well calibrated uncertainties for ID and distribution shift data, we propose our density-aware post-hoc calibration module that calibrates box variances and scores.",
+      "page": 3,
+      "index": 5,
+      "width": 1036,
+      "height": 231
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05328v1/fig-006.webp",
+      "caption": "Figure 9. In-Distribution PETR - DE [26].",
+      "page": 18,
+      "index": 6,
+      "width": 972,
+      "height": 490
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05328v1/fig-007.webp",
+      "caption": "Figure 10. In-Distribution PETR - MCD [13].",
+      "page": 18,
+      "index": 7,
+      "width": 972,
+      "height": 489
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05328v1/fig-008.webp",
+      "caption": "Figure 12. Distribution Shift - Snow Level 2 PETR with KL [56] calibrated with DA-TS for regression and DA-IR for classification.",
+      "page": 19,
+      "index": 8,
+      "width": 972,
+      "height": 489
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05328v1/fig-009.webp",
+      "caption": "Figure 11. Distribution Shift - Snow Level 2 PETR with KL [56] - Uncalibrated.",
+      "page": 19,
+      "index": 9,
+      "width": 972,
+      "height": 490
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05328v1/fig-010.webp",
+      "caption": "Figure 8. In-Distribution PETR with KL [56] calibrated with DA-TS for regression and DA-IR for classification.",
+      "page": 17,
+      "index": 10,
+      "width": 972,
+      "height": 489
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05328v1/fig-011.webp",
+      "caption": "Figure 7. In-Distribution PETR with KL [56] - Uncalibrated.",
+      "page": 17,
+      "index": 11,
+      "width": 972,
+      "height": 490
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05328v1/fig-012.webp",
+      "caption": "Figure 14. Distribution Shift - Brightness Level 1 PETR with KL [56] calibrated with DA-TS for regression and DA-IR for classification.",
+      "page": 20,
+      "index": 12,
+      "width": 972,
+      "height": 489
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05328v1/fig-013.webp",
+      "caption": "Figure 13. Distribution Shift - Brightness Level 1 PETR with KL [56] - Uncalibrated.",
+      "page": 20,
+      "index": 13,
+      "width": 972,
+      "height": 490
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05328v1/fig-014.webp",
+      "caption": "Figure 3. Uncertainties under distributional shift. We visualize classification entropy, centroid total variance, and query density for increasing brightness severity levels. The progressive drift of the query density histogram indicates that the density estimator effectively captures distributional shifts in the input data.",
+      "page": 5,
+      "index": 14,
+      "width": 468,
+      "height": 312
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05328v1/fig-015.webp",
+      "caption": "Table 21. PETR - Regression Calibration under Distribution Shift. Class-wise calibration ( Cls. ) and Global calibration ( Glb. ) reported for each corruption as calibration error MCAxyz and KSxyz (lower is better). Results are averaged over all detection thresholds and corruption severities. Ours: DA-TS.",
+      "page": 16,
+      "index": 15,
+      "width": 1031,
+      "height": 204
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05328v1/fig-016.webp",
+      "caption": "Table 20. PETR - Regression Calibration under Distribution Shift. Class-wise calibration ( Cls. ) and Global calibration ( Glb. ) reported for each corruption as calibration error MCAxyz and KSxyz (lower is better). Results are averaged over all detection thresholds and corruption severities. Ours: DA-TS.",
+      "page": 16,
+      "index": 16,
+      "width": 827,
+      "height": 252
+    },
+    {
+      "url": "assets/figures/arxiv/2605.05328v1/fig-017.webp",
+      "caption": "Table 22. PETR - Classification Calibration under Distribution Shift. All results are reported for class-wise calibration ( Cls. ) and are averaged over all detection thresholds and all three corruption severities.",
+      "page": 16,
+      "index": 17,
+      "width": 1031,
+      "height": 205
+    }
+  ]
+}
