@@ -1,0 +1,70 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.13194v1/fig-001.webp",
+      "caption": "Figure 2: The ECG-NAT framework: a) The masked autoencoder architecture learns robust ECG representations by reconstructing masked signal segments, capturing meaningful patterns, and pretraining on standard unlabeled datasets enhances generalization capability; b) The pre-trained encoder is used for fine-tuning using a dual-loss approach, combining contrastive and cross-entropy losses; c) The NAT Block employs local attention mechanisms to extract contextually relevant features within neighborhoods; d) Contrastive loss pulls the source ECG signal closer to positive examples (A) from the same class while pushing it away from negative samples (B, C) of different classes, creating a representation space that effectively discriminates between ECG patterns.",
+      "page": 6,
+      "index": 1,
+      "width": 757,
+      "height": 572
+    },
+    {
+      "url": "assets/figures/arxiv/2605.13194v1/fig-002.webp",
+      "caption": "Table 4: ECG-NAT model hyperparameter configuration information",
+      "page": 11,
+      "index": 2,
+      "width": 650,
+      "height": 362
+    },
+    {
+      "url": "assets/figures/arxiv/2605.13194v1/fig-003.webp",
+      "caption": "Figure 3: t-SNE visualization of learned ECG representations with and without supervised contrastive loss. Top row (a,b): CPSC2018 dataset (9 classes) shows improved cluster separation (Silhouette: -0.185 → -0.160, Davies-Bouldin: 9.84 → 8.32). Bottom row (c,d): PTB-XL dataset (5 classes) demonstrates enhanced inter-class boundaries. Embedding quality improvements align with classification performance gains in Tables 2 and 3.",
+      "page": 15,
+      "index": 3,
+      "width": 817,
+      "height": 804
+    },
+    {
+      "url": "assets/figures/arxiv/2605.13194v1/fig-004.webp",
+      "caption": "Table 8: Ablation study on two components, contrastive loss and masking, assessed in terms of Accuracy, F1-score, and AUROC",
+      "page": 14,
+      "index": 4,
+      "width": 606,
+      "height": 244
+    },
+    {
+      "url": "assets/figures/arxiv/2605.13194v1/fig-005.webp",
+      "caption": "Table 6: Performance comparison of self-supervised learning methods for ECG classification after fine-tuning, evaluated using Accuracy, Macro F1-score, and AUROC",
+      "page": 13,
+      "index": 5,
+      "width": 706,
+      "height": 235
+    },
+    {
+      "url": "assets/figures/arxiv/2605.13194v1/fig-006.webp",
+      "caption": "Figure 5: Performance efficiency analysis of ECG-NAT versus transformer baselines. (a) Model parameters in MB and (b) runtime resources, including memory (GB) and FLOPs (G), show ECGNAT’s significant computational advantages over existing architectures.",
+      "page": 17,
+      "index": 6,
+      "width": 822,
+      "height": 328
+    },
+    {
+      "url": "assets/figures/arxiv/2605.13194v1/fig-007.webp",
+      "caption": "Figure 6: Convergence analysis of NAT model showing training and test loss curves over 100 epochs for (a) PTB-XL dataset and (b) CPSC2018 dataset",
+      "page": 17,
+      "index": 7,
+      "width": 826,
+      "height": 276
+    },
+    {
+      "url": "assets/figures/arxiv/2605.13194v1/fig-008.webp",
+      "caption": "Figure 4: hyperparameter analysis showing model accuracy with different configurations of kernel size (neighborhood size), batch size, and weight decay across various learning rates for both datasets during the fine-tuning stage",
+      "page": 16,
+      "index": 8,
+      "width": 794,
+      "height": 517
+    }
+  ]
+}

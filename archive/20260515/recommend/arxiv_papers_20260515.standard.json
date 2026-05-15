@@ -1,0 +1,330 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-05-15T21:27:03.587600+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 1,
+    "deep_cap": 6,
+    "deep_selected": 1,
+    "quick_candidates": 7,
+    "quick_skim_target": 11,
+    "quick_selected": 7
+  },
+  "deep_dive": [
+    {
+      "id": "2605.14346v1",
+      "source": "arxiv",
+      "title": "Learning with Semantic Priors: Stabilizing Point-Supervised Infrared Small Target Detection via Hierarchical Knowledge Distillation",
+      "abstract": "Single-frame Infrared Small Target Detection (ISTD) aims to localize weak targets under heavy background clutter, yet dense pixel-wise annotations are expensive. Point supervision with online label evolution reduces annotation cost; however, lightweight CNN detectors often lack sufficient semantics, leading to noisy pseudo-masks and unstable optimization. To address this, we propose a hierarchical VFM-driven knowledge distillation framework that uses a frozen Vision Foundation Model (VFM) during training. We formulate point-supervised learning as a bilevel optimization process: the inner loop adapts a VFM-embedded teacher on reweighted training samples, while the outer loop transfers validation-guided knowledge to a lightweight student to mitigate pseudo-label noise and training-set bias. We further introduce Semantic-Conditioned Affine Modulation (SCAM) to inject VFM semantics into CNN features at multiple layers. In addition, a dynamic collaborative learning strategy with cluster-level sample reweighting enhances robustness to imperfect pseudo-masks. Experiments on diverse challenging cases across multiple ISTD backbones demonstrate consistent improvements in detection accuracy and training stability. Our code is available at https://github.com/yuanhang-yao/semantic-prior.",
+      "authors": [
+        "Yuanhang Yao",
+        "Ping Qian",
+        "Zhu Liu",
+        "Long Ma",
+        "Weimin Wang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-14T04:12:08+00:00",
+      "link": "https://arxiv.org/pdf/2605.14346v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "Infrared small target detection (ISTD) using point supervision and knowledge distillation",
+      "llm_evidence_cn": "使用点监督和知识蒸馏的红外小目标检测",
+      "llm_evidence": "使用点监督和知识蒸馏的红外小目标检测",
+      "canonical_evidence": "使用点监督和知识蒸馏的红外小目标检测",
+      "llm_tldr_en": "Proposes a VFM-driven distillation framework to stabilize point-supervised infrared small target detection.",
+      "llm_tldr_cn": "提出一种VFM驱动的蒸馏框架，以稳定点监督下的红外小目标检测。",
+      "llm_tldr": "提出一种VFM驱动的蒸馏框架，以稳定点监督下的红外小目标检测。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2605.08825v3",
+      "source": "arxiv",
+      "title": "Rethinking Event-Based Object Dtection through Representation-Level Temporal Aggregation and Model-Level Hypergraph Reasoning",
+      "abstract": "Event cameras provide microsecond-level temporal resolution, low latency, and high dynamic range, offering potential for perception under fast motion and challenging illumination conditions. However, existing Event-based Object Detection (EOD) methods face limitations at both the representation and model levels: prior event representations usually encode temporal information indirectly through redundant structures, while detection models struggle to explicitly aggregate fragmented event responses into coherent high-order object features. To address these limitations, we present Event Dual Temporal-Relational Aggregation Detector (Ev-DTAD), a unified EOD framework that integrates representation-level temporal encoding with model-level temporal-hypergraph reasoning. Specifically, we introduce Hierarchical Temporal Aggregation (HTA), a compact three-channel pseudo-RGB representation that explicitly embeds temporal information across intra- and inter-window events. To further enhance detection under sparse and fragmented event responses, we propose Frequency-aware Hypergraph Temporal Fusion (FHTF), which refines multi-scale event features through temporal evolution modeling and high-order relational reasoning. Extensive experiments on Gen1 (+0.8 mAP and 1.7$\\times$ faster), 1Mpx/Gen4 (+0.5 mAP and 1.6$\\times$ faster), and eTraM (+3.0 mAP and 2.0$\\times$ faster) demonstrate that Ev-DTAD achieves a competitive accuracy-efficiency trade-off, validating the complementarity between compact temporal representation and temporal-hypergraph feature reasoning.",
+      "authors": [
+        "Meisen Wang",
+        "Hao Deng",
+        "Wei Bao",
+        "Ma Yuanxiao",
+        "Chengjie Wang",
+        "Zhiqiang Tian",
+        "Shaoyi Du",
+        "Siqi Li"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-09T09:20:34+00:00",
+      "link": "https://arxiv.org/pdf/2605.08825v3",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.5,
+      "llm_evidence_en": "event-based object detection framework for fragmented responses",
+      "llm_evidence_cn": "针对碎片化响应的基于事件的目标检测框架",
+      "llm_evidence": "针对碎片化响应的基于事件的目标检测框架",
+      "canonical_evidence": "针对碎片化响应的基于事件的目标检测框架",
+      "llm_tldr_en": "Introduces Ev-DTAD to aggregate fragmented event responses into coherent object features for detection.",
+      "llm_tldr_cn": "引入Ev-DTAD框架，将碎片化的事件响应聚合为连贯的目标特征以进行检测。",
+      "llm_tldr": "引入Ev-DTAD框架，将碎片化的事件响应聚合为连贯的目标特征以进行检测。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.12064v1",
+      "source": "arxiv",
+      "title": "TAR: Text Semantic Assisted Cross-modal Image Registration Framework for Optical and SAR Images",
+      "abstract": "Existing deep learning-based methods can capture shared features from optical and synthetic aperture radar (SAR) images for spatial alignment. However, optical-SAR registration remains challenging under large geometric deformations, because the model needs to simultaneously handle cross-modal appearance discrepancies and complex spatial transformations. To address this issue, this paper proposes a text semantic-assisted cross-modal image registration framework, named TAR, for optical and SAR images. TAR exploits text semantic priors from remote sensing scenes and land-cover categories to alleviate the modality gap and enhance cross-modal feature learning. TAR consists of three components: a multi-scale visual feature learning (MSFL) module, a text-assisted feature enhancement (TAFE) module, and a coarse-to-fine dense matching (CFDM) module. MSFL extracts multi-scale visual features from optical and SAR images. TAFE constructs text descriptors related to remote sensing scenes and land-cover objects, and uses a frozen RemoteCLIP text encoder to extract text features. These text features are introduced through visual-text interaction to enhance high-level visual features for more reliable coarse matching. CFDM then establishes coarse correspondences based on the enhanced high-level features and refines the matched locations using low-level features. Experimental results on cross-modal remote sensing images demonstrate the effectiveness of TAR, which achieves stronger matching performance than several state-of-the-art methods and yields significant gains under large geometric deformations.",
+      "authors": [
+        "Zhuoyu Cai",
+        "Dou Quan",
+        "Ning Huyan",
+        "Pei He",
+        "Shuang Wang",
+        "Licheng Jiao"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-12T12:50:36+00:00",
+      "link": "https://arxiv.org/pdf/2605.12064v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.5,
+      "llm_evidence_en": "multi-scale visual feature learning for cross-modal registration",
+      "llm_evidence_cn": "用于跨模态配准的多尺度视觉特征学习",
+      "llm_evidence": "用于跨模态配准的多尺度视觉特征学习",
+      "canonical_evidence": "用于跨模态配准的多尺度视觉特征学习",
+      "llm_tldr_en": "Proposes a text-assisted framework for optical-SAR image registration using multi-scale feature learning.",
+      "llm_tldr_cn": "提出一种利用多尺度特征学习进行光学与SAR图像配准的文本辅助框架。",
+      "llm_tldr": "提出一种利用多尺度特征学习进行光学与SAR图像配准的文本辅助框架。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.14110v1",
+      "source": "arxiv",
+      "title": "SToRe3D: Sparse Token Relevance in ViTs for Efficient Multi-View 3D Object Detection",
+      "abstract": "Vision Transformers (ViTs) enable strong multi-view 3D detection but are limited by high inference latency from dense token and query processing across multiple views and large 3D regions. Existing sparsity methods, designed mainly for 2D vision, prune or merge image tokens but do not extend to full-model sparsity or address 3D object queries. We introduce SToRe3D, a relevance-aligned sparsity framework that jointly selects 2D image tokens and 3D object queries while storing filtered features for reactivation. Mutual 2D-3D relevance heads allocate compute to driving-critical content and preserve other embeddings. Evaluated on nuScenes and our new nuScenes-Relevance benchmark, SToRe3D achieves up to 3x faster inference with marginal accuracy loss, establishing real-time large-scale ViT-based 3D detection while maintaining accuracy on planning-critical agents.",
+      "authors": [
+        "Sandro Papais",
+        "Lezhou Feng",
+        "Charles Cossette",
+        "Lingting Ge"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.RO"
+      ],
+      "published": "2026-05-13T20:53:03+00:00",
+      "link": "https://arxiv.org/pdf/2605.14110v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "multi-view 3D object detection with sparse token relevance in ViTs",
+      "llm_evidence_cn": "ViT中基于稀疏标记相关性的多视图3D目标检测",
+      "llm_evidence": "ViT中基于稀疏标记相关性的多视图3D目标检测",
+      "canonical_evidence": "ViT中基于稀疏标记相关性的多视图3D目标检测",
+      "llm_tldr_en": "Introduces SToRe3D to improve 3D object detection efficiency using relevance-aligned sparsity in Transformers.",
+      "llm_tldr_cn": "引入SToRe3D框架，通过Transformer中的相关性对齐稀疏化提高3D目标检测效率。",
+      "llm_tldr": "引入SToRe3D框架，通过Transformer中的相关性对齐稀疏化提高3D目标检测效率。",
+      "llm_tags": [
+        "query:sod:composite"
+      ],
+      "matched_query_tag": "query:sod:composite",
+      "matched_query_text": "Papers central to 小目标检测相关论文检索, especially work that connects or combines: deep learning methods for small object detection; FPN and its variants for multi-scale object detection; oversampling and augmentation strategies for small objects; spatial and channel attention for small object feature enhancement; multi-scale feature fusion techniques in computer vision; specialized loss functions for small object localization; state of the art deep learning methods for small object detection; benchmarking small object detection on public datasets.",
+      "matched_requirement_id": "req-composite-sod",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.12762v1",
+      "source": "arxiv",
+      "title": "Multi-Quantile Regression for Extreme Precipitation Downscaling",
+      "abstract": "Deep super-resolution networks for precipitation downscaling achieve strong bulk skill yet systematically under-predict the heavy-tail events that drive flood risk. We demonstrate that the primary obstacle is the loss function, not the data: under intensity-weighted MAE, real and synthetic labels at the same input are simply averaged, meaning data augmentation shifts the predicted mean rather than the conditional distribution. We resolve this with Q-SRDRN, a multi-quantile super-resolution network trained with pinball loss at tau in 0.50, 0.95, 0.99, 0.999. Two CNN-specific design choices make this practical: IncrementBound enforces monotonicity while preserving each quantile channel's gradient identity, and separate per-quantile output heads provide independent filter banks for bulk and tail detection. Under this design, data augmentation via cVAE becomes complementary: the median head absorbs synthetic patterns without contaminating upper quantiles. Empirically, on Florida (convective/tropical-cyclone dominated), the un-augmented Q-SRDRN P999 head detects 1,598 of 2,111 events at 200 mm/day versus 88 for the deterministic baseline--an 18x detection-rate gain (4.2% to 75.7%)--with 63% lower KL divergence and 3.9% lower RMSE. Adding cVAE-generated samples lifts the P50 channel from 14 to 1,038 hits at 200 mm/day. On California (atmospheric-river dominated), the architecture reaches near-perfect detection (P999 SEDI >= 0.996 through 300 mm/day). On Texas, the baseline catches only 2 of 10,720 events at 200 mm/day while the P999 head catches 8,776 (81.9%). While the cVAE does not transfer across regions, multi-quantile regression captures extremes wherever the large-scale signal is strong, while augmentation rescues the median where it is not.",
+      "authors": [
+        "Hamed Najafi",
+        "Gareth Lagerwall",
+        "Jayantha Obeysekera",
+        "Jason Liu"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-05-12T21:17:26+00:00",
+      "link": "https://arxiv.org/pdf/2605.12762v1",
+      "tags": [
+        "keyword:SOD"
+      ],
+      "llm_score": 6.5,
+      "llm_evidence_en": "specialized loss function for heavy-tail events",
+      "llm_evidence_cn": "针对重尾事件的专门损失函数",
+      "llm_evidence": "针对重尾事件的专门损失函数",
+      "canonical_evidence": "针对重尾事件的专门损失函数",
+      "llm_tldr_en": "Proposes a multi-quantile loss function to improve prediction of extreme events in super-resolution.",
+      "llm_tldr_cn": "提出了一种多分位数损失函数，以改善超分辨率中极端事件的预测。",
+      "llm_tldr": "提出了一种多分位数损失函数，以改善超分辨率中极端事件的预测。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "specialized loss functions for small object localization",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.15088v1",
+      "source": "arxiv",
+      "title": "SAGE3D: Soft-guided attention and graph excitation for 3D point cloud corner detection",
+      "abstract": "We present SAGE3D, a hybrid Transformer-based model for corner detection in airborne LiDAR point clouds. We propose a multi-stage solution built on a hierarchical encoder-decoder architecture that progressively downsamples point clouds through Set Abstraction layers and recovers per-point predictions via Feature Propagation. We introduce two innovations: Soft-Guided Attention, which injects ground-truth corner labels as a log-prior into attention logits during training to improve precision; then an Excitatory Graph Neural Network positioned at strategic resolutions in the hierarchy, employing positive-only message passing where high-confidence corners reinforce predictions through learned boosting, optimizing for recall. The hierarchical design enables multi-scale feature extraction while our guided attention and excitatory modules ensure corner signals are amplified rather than diluted across scales.",
+      "authors": [
+        "Batuhan Arda Bekar",
+        "Can Sarı",
+        "Hüseyin Can Gülkan",
+        "Barış Özcan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-14T17:08:35+00:00",
+      "link": "https://arxiv.org/pdf/2605.15088v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "soft-guided attention and hierarchical encoder-decoder for point cloud detection",
+      "llm_evidence_cn": "用于点云检测的软引导注意力和分层编解码器",
+      "llm_evidence": "用于点云检测的软引导注意力和分层编解码器",
+      "canonical_evidence": "用于点云检测的软引导注意力和分层编解码器",
+      "llm_tldr_en": "Presents SAGE3D for LiDAR corner detection using soft-guided attention and excitatory graph networks.",
+      "llm_tldr_cn": "提出SAGE3D，利用软引导注意力和兴奋性图网络进行LiDAR点云角点检测。",
+      "llm_tldr": "提出SAGE3D，利用软引导注意力和兴奋性图网络进行LiDAR点云角点检测。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "spatial and channel attention for small object feature enhancement",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.14609v1",
+      "source": "arxiv",
+      "title": "Deep Image Segmentation via Discriminant Feature Learning",
+      "abstract": "Accurate image segmentation remains challenging, particularly in generating sharp, confident boundaries. While modern architectures have advanced the field, many of them still rely on standard loss functions like Cross-Entropy and Dice, which often neglect the discriminative structure of learned features, leading to inaccurate boundaries. This work introduces Deep Discriminant Analysis (DDA), a differentiable, architecture-agnostic loss function that embeds classical discriminant principles for network training. DDA explicitly maximizes between-class variance while minimizing within-class one, promoting compact and separable feature distributions without increasing inference cost. Evaluations on the DIS5K benchmark demonstrate that DDA consistently improves segmentation accuracy, boundary sharpness, and model confidence across various architectures. Our results show that integrating discriminant analysis offers a simple, effective path for building more robust segmentation models.",
+      "authors": [
+        "Adam Dawid Sztamborski",
+        "Raül Pérez-Gonzalo",
+        "Antonio Agudo"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-05-14T09:25:36+00:00",
+      "link": "https://arxiv.org/pdf/2605.14609v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.5,
+      "llm_evidence_en": "differentiable loss function for discriminative feature learning and boundary accuracy",
+      "llm_evidence_cn": "用于判别性特征学习和边界准确性的可微分损失函数",
+      "llm_evidence": "用于判别性特征学习和边界准确性的可微分损失函数",
+      "canonical_evidence": "用于判别性特征学习和边界准确性的可微分损失函数",
+      "llm_tldr_en": "Introduces a differentiable loss function to improve feature separability and boundary accuracy in segmentation.",
+      "llm_tldr_cn": "引入一种可微分损失函数，以提高分割中的特征可分性和边界准确性。",
+      "llm_tldr": "引入一种可微分损失函数，以提高分割中的特征可分性和边界准确性。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "specialized loss functions for small object localization",
+      "matched_requirement_id": "req-6",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.13194v1",
+      "source": "arxiv",
+      "title": "ECG-NAT: A Self-supervised Neighborhood Attention Transformer for Multi-lead Electrocardiogram Classification",
+      "abstract": "Electrocardiogram (ECG) arrhythmia classification remains challenging due to signal variability, noise, limited labeled data, and the difficulty in achieving both accuracy and efficiency in models. While self-supervised learning reduces label dependency, most methods target either global contextual features or local morphological patterns, but rarely implement hierarchical multi-scale feature extraction. ECG signals require architectures that simultaneously capture fine-grained beat-level morphology and broader rhythm-level dependencies with computational efficiency. To overcome this limitation, this paper proposes the Electrocardiogram Neighborhood Attention Transformer (ECG-NAT), a novel self-supervised learning approach tailored for multi-lead ECG classification. Our two-stage approach begins with generative pretraining, using a masked autoencoder to reconstruct partially masked ECG signals across multiple diverse datasets, enabling the model to learn robust, domain-invariant representations from unlabeled data. This is followed by discriminative fine-tuning with a dual-loss function that combines supervised contrastive and cross-entropy losses, aligning representation learning with label prediction. The hierarchical attention mechanism efficiently captures multi-scale temporal features from localized beat morphology to broader rhythm patterns at low computational cost. ECG-NAT achieves robust performance on benchmark datasets, with 88.1\\% accuracy using only 1\\% labeled data, demonstrating strong efficacy in low-resource settings. The framework combines superior classification performance with computational efficiency, making it practical for real-time ECG diagnosis. The code will be made available upon acceptance at: https://github.com/Mahsagazeran/ECG-NAT.",
+      "authors": [
+        "Mahsa Gazeran",
+        "Sayvan Soleymanbaigi",
+        "Fatemeh Daneshfar",
+        "Amjad Seyedi",
+        "Fardin Akhlaghian Tab"
+      ],
+      "primary_category": "cs.LG",
+      "categories": [
+        "cs.LG",
+        "cs.AI"
+      ],
+      "published": "2026-05-13T08:50:00+00:00",
+      "link": "https://arxiv.org/pdf/2605.13194v1",
+      "tags": [
+        "keyword:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "hierarchical multi-scale feature extraction",
+      "llm_evidence_cn": "分层多尺度特征提取",
+      "llm_evidence": "分层多尺度特征提取",
+      "canonical_evidence": "分层多尺度特征提取",
+      "llm_tldr_en": "ECG-NAT uses a neighborhood attention transformer for hierarchical multi-scale feature extraction in ECG.",
+      "llm_tldr_cn": "ECG-NAT采用邻域注意力Transformer进行心电图信号的分层多尺度特征提取。",
+      "llm_tldr": "ECG-NAT采用邻域注意力Transformer进行心电图信号的分层多尺度特征提取。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

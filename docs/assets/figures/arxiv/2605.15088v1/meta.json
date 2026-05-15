@@ -1,0 +1,30 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.15088v1/fig-001.webp",
+      "caption": "Fig. 2. SAGE3D architecture. The encoder uses four Set Abstraction layers with Point Transformer blocks; CentroidGNN modules at SA2 and SA4 boost corner features. The decoder upsamples via 3-NN interpolation with skip connections.",
+      "page": 3,
+      "index": 1,
+      "width": 1054,
+      "height": 465
+    },
+    {
+      "url": "assets/figures/arxiv/2605.15088v1/fig-002.webp",
+      "caption": "Fig. 3. k-NN grouping at different depths. Same K covers larger spatial extent in deeper layers.",
+      "page": 3,
+      "index": 2,
+      "width": 512,
+      "height": 374
+    },
+    {
+      "url": "assets/figures/arxiv/2605.15088v1/fig-003.webp",
+      "caption": "Fig. 4. CentroidGNN probability boost (∆p). Red regions show increased corner confidence after excitatory message passing.",
+      "page": 4,
+      "index": 3,
+      "width": 435,
+      "height": 614
+    }
+  ]
+}

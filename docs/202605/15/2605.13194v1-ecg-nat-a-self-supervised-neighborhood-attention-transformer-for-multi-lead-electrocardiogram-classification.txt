@@ -1,0 +1,509 @@
+Title: ECG-NAT: A Self-supervised Neighborhood Attention Transformer for Multi-lead Electrocardiogram Classification
+
+URL Source: https://arxiv.org/pdf/2605.13194v1
+
+Published Time: Thu, 14 May 2026 01:02:38 GMT
+
+Number of Pages: 21
+
+Markdown Content:
+# ECG-NAT: A Self-supervised Neighborhood Attention Transformer for Multi-lead Electrocardiogram Classification 
+
+Mahsa Gazeran †, Sayvan Soleymanbaigi †, Fatemeh Daneshfar †,Amjad Seyedi ‡, Fardin Akhlaghian Tab †,∗†Department of Computer Engineering, University of Kurdistan, Sanandaj, Iran 
+
+> ‡
+
+Department of Mathematics and Operational Research, University of Mons, Mons, Belgium 
+
+{mahsa.gazeran, s.soleymanbaigi, f.daneshfar, f.akhlaghian}@uok.ac.ir seyedamjad.seyedi@umons.ac.be 
+
+## Abstract 
+
+Electrocardiogram (ECG) arrhythmia classification remains challenging due to signal variability, noise, limited labeled data, and the difficulty in achieving both accuracy and efficiency in models. While self-supervised learning reduces la-bel dependency, most methods target either global contextual features or local morphological patterns, but rarely implement hierarchical multi-scale feature ex-traction. ECG signals require architectures that simultaneously capture fine-grained beat-level morphology and broader rhythm-level dependencies with computational efficiency. To overcome this limitation, this paper proposes the Electrocardiogram Neighborhood Attention Transformer (ECG-NAT), a novel self-supervised learn-ing approach tailored for multi-lead ECG classification. Our two-stage approach begins with generative pretraining, using a masked autoencoder to reconstruct partially masked ECG signals across multiple diverse datasets, enabling the model to learn robust, domain-invariant representations from unlabeled data. This is followed by discriminative fine-tuning with a dual-loss function that combines supervised contrastive and cross-entropy losses, aligning representation learning with label prediction. The hierarchical attention mechanism efficiently captures multi-scale temporal features from localized beat morphology to broader rhythm patterns at low computational cost. ECG-NAT achieves robust performance on benchmark datasets, with 88.1% accuracy using only 1% labeled data, demonstrat-ing strong efficacy in low-resource settings. The framework combines superior classification performance with computational efficiency, making it practical for real-time ECG diagnosis. The code will be made available upon acceptance at: https://github.com/Mahsagazeran/ECG-NAT. 
+
+## 1 Introduction 
+
+Cardiovascular disease (CVD) remains the foremost contributor to global mortality, responsible for an estimated 17.9 million lives lost each year, a staggering 32% of all deaths worldwide [ 1]. The electrocardiogram (ECG) serves as a vital diagnostic tool, enabling clinicians to detect and monitor cardiac abnormalities effectively [ 2]. It is widely valued for its simplicity, cost efficiency, and non-invasive nature [ 3 ]. Numerous analysis methodologies have been devised to enhance the utility of ECG beyond its traditional applications. These include tasks for disease detection and classification [ 4], annotation and localization [ 5], sleep staging [6 ], biometric human identification [ 7 ], and 
+
+> Preprint.
+> arXiv:2605.13194v1 [cs.LG] 13 May 2026
+
+denoising [ 8], demonstrating the versatility and extensive application of ECG in modern medical diagnostics [9]. Accurate ECG labeling presents a significant challenge due to the complex, non-linear structure of cardiac signals, which is further complicated by the limited availability of annotated datasets that require time-consuming manual extraction and specialized clinical expertise [ 10 ]. As a solution, numerous machine learning models have been developed to assist in ECG interpretation. However, traditional approaches often fail to capture critical temporal patterns accurately and rely heavily on labeled data [ 11 ]. These limitations underscore the need for more efficient methods to leverage unlabeled data and decode intricate ECG waveform patterns [12]. To improve the capability of detecting complex data structures, deep learning techniques have been increasingly adopted. Deep learning has transformed this field by automating the extraction of meaningful patterns from complex data. Early approaches employed convolutional neural networks (CNNs) [ 12 ] to detect local signal features. For sequential data modeling, recurrent neural networks (RNNs) [ 13 ] are naturally suited for ECG signals due to their recursive connections, which explicitly model temporal dependencies between consecutive heartbeats. Long short-term memory networks (LSTMs) [ 14 ] extended this capability with gated mechanisms to better capture long-range rhythm patterns that standard RNNs often miss. More recently, Transformer-based approaches have demon-strated superior sequential modeling capabilities by processing complete input sequences in parallel through self-attention mechanisms. This paradigm shift enables more effective pattern recognition across all time steps, leading to improved performance in time-series classification tasks [15, 16]. Self-supervised learning (SSL) represents a significant advancement in machine learning, especially beneficial for fields with abundant unlabeled data [ 17 ]. Specifically in ECG analysis, SSL techniques leverage unannotated datasets to derive meaningful representations that enhance signal classification and anomaly detection [ 18 ]. A key technique in self-supervised learning, contrastive learning [ 19 ], strengthens feature representation by optimizing models to maximize the distance between dissimilar samples and minimize it for similar ones [ 20 ]. Alternatively, generative approaches, such as Masked Autoencoders (MAE) [ 21 ], learn robust latent representations by reconstructing masked ECG seg-ments. These self-supervised strategies enhance feature extraction and pattern discovery without requiring labeled data [22]. Conventional transformer designs rely on global self-attention processes where each token interacts with all others in the sequence [ 23 ], inherently resulting in O(n2) computational complexity [ 24 ], where n is the number of tokens. For long sequences, this results in high computational and memory costs [ 25 ]. Local attention techniques address this by computing attention within fixed-size token windows centered at each position, achieving O(nk ) complexity where k is the window size in tokens [ 26 ]. Larger windows approach the computational cost of global attention, while smaller ones improve efficiency at the cost of potentially missing long-range dependencies. Furthermore, recent techniques that integrate different forms of local attention have been devised. Some examples of transformers based on local attention are the Longformer [ 27 ], Swin Transformer [ 28 ], and the newly launched Neighborhood Attention Transformer (NAT) [ 29 ]. NAT employs fixed-window attention, where each token interacts only with nearby tokens in its neighborhood. This design was initially proven effective for image data, where local pixel relationships dominate. It builds hierarchical representations through successive layers, progressively capturing broader context without incurring the computational costs of global attention. While ECG data is inherently sequential, its periodicity exhibits recurring cyclical patterns with diagnostically important features spanning multiple temporal scales [ 30 ]. Accurate arrhythmia classi-fication requires simultaneously detecting localized beat abnormalities (e.g., ST-segment deviations, premature contractions) and sustained rhythm irregularities (e.g., atrial fibrillation) across multiple cardiac cycles a challenge that single-scale methods struggle to address. This makes hierarchical local attention mechanisms particularly suitable, as they can progressively expand their receptive field to capture both fine-grained morphology and broader rhythmic patterns while maintaining computational efficiency. Most ECG classification methods critically depend on supervised learning, yet the large annotated datasets this requires are realistically unavailable [ 31 ]. Self-supervised learning with local attention offers a practical solution by first training on widely available unlabeled ECG data and then fine-tuning with limited annotations. This strategy aligns with the inherent structure of the ECG and reduces the reliance on manually labeled examples. Motivated by these insights, this work proposes ECG-NAT, a self-supervised framework that employs hierarchical local attention to learn multi-scale 2-0   
+
+> -
+> 1500 1000 500 2000
+> -
+> 0.25 0.20
+> -(a) Standard Self-Attention (SA) K=5
+> -
+> 00.20 0.25
+> -
+> -
+> -
+> 1500 1000 500 2000
+> -(b) Neighborhood Attention (NA)
+
+Figure 1: Standard self-attention (SA) computes attention weights across all sequence positions, leading to quadratic complexity and potential loss of local cardiac patterns. Neighborhood Attention (NA), illustrated here with k=5 (k-nearest neighbors or k-NN), restricts computation to nearest neighbors only, reducing computational cost while better capturing the localized diagnostic features essential for ECG analysis. temporal representations, combined with a dual-loss fine-tuning strategy to optimize performance across diverse ECG classification tasks. The proposed design integrates a hierarchical local attention mechanism that substantially reduces computational overhead (illustrated in Figure 1) while capturing physiologically meaningful patterns such as QRS complexes and ST segments across multiple temporal scales. Our methodology is centered around three fundamental advances that function synergistically. We first adapt a hierarchical local attention architecture tailored for multi-lead ECG signals, enabling multi-scale temporal feature extraction through progressive receptive field expansion, which is crucial for capturing both localized beat abnormalities and broader rhythm irregularities in arrhythmia classification. We substitute 2D patch embeddings with 1D convolutions in the tokenizer to process temporal ECG data, implement neighborhood attention across time steps in the NAT blocks, and utilize transposed convolutions in the decoder for signal reconstruction. These improvements utilize NAT’s local attention mechanism to efficiently collect morphological and rhythmic traits within physiologically pertinent neighborhoods, while substantially reducing processing requirements compared to global attention techniques. These improvements leverage localized attention to capture morphological and rhythm-related cues within physiologically relevant neighborhoods, while reducing computation compared to full self-attention. Secondly, we utilize self-supervised pretraining with a masked autoencoder architecture, trained on various different unlabeled ECG datasets. This multi-dataset methodology compels the model to acquire resilient, domain-invariant representations through the reconstruction of masked signal segments, facilitating generalization across diverse signal patterns without necessitating costly manual annotations. Third, we implement a dual-loss optimization technique during fine-tuning that integrates supervised contrastive loss with cross-entropy loss. This method concurrently improves inter-class feature distinction and promotes classification precision, allowing the model to optimize both discriminative representation learning and accurate label prediction. Collectively, these innovations establish a robust framework where the local attention mechanism tackles the inherent periodicity and computational limitations of the ECG signal, self-supervised pretraining mitigates the issue of label scarcity commonly found in clinical environments, and the dual-loss fine-tuning strategy converts generalized representations into task-specific classifiers. ECG-NAT achieves cutting-edge classification performance on challenging benchmarks such as PTB-XL [ 32 ] and CPSC2018 [ 33 ], while simultaneously preserving computational efficiency and maintaining robust performance in low-resource clinical settings. To summarize, our key contributions are outlined below: • ECG-NAT framework achieves computational efficiency and robust representation learning through hierarchical local attention that captures multi-scale temporal dependencies from beat-level morphology to rhythm-level patterns in multi-lead ECG signals, exploiting the inherent periodicity and hierarchical structure of cardiac activity. • We propose a self-supervised framework combining local neighborhood attention and masked autoencoder reconstruction to capture localized ECG patterns like QRS complexes and ST segments, efficiently learning morphological features and generalizing across diverse datasets. • Our fine-tuning stage employs a dual-loss strategy, combining contrastive and cross-entropy losses. This approach enhances the model’s ability to differentiate among similar classes, thereby improving classification performance. 3• By combining generative self-supervised learning with discriminative fine-tuning, ECG-NAT achieves state-of-the-art performance on challenging benchmarks like CPSC2018 and PTB-XL. The model also demonstrates strong efficacy in low-resource settings, delivering high performance even with very minimal labeled data. This paper is organized into several sections. Section 2 focuses on related work, while Section 3 provides a comprehensive description of the proposed approach and its architectural design. Section 4 details the experimental configuration and presents findings. Finally, Section 5 summarizes the work and suggests future avenues. 
+
+## 2 Related Work 
+
+This section discusses advanced ECG methods, including state-of-the-art transformer-based super-vised models and recent self-supervised techniques, which enhance signal pattern capturing and data efficiency in ECG classification, thereby improving arrhythmia detection and classification. 
+
+2.1 ECG analysis using supervised methods 
+
+Under the supervised paradigm, numerous deep learning techniques have been proposed to classify ECG signals with labeled data. Zhai & Tin [ 12 ] proposed a method that utilizes the Continuous Wavelet Transform (CWT) in conjunction with CNN to transform ECG signals into time-frequency scalograms for arrhythmia classification. Meanwhile, Feyisa et al. [ 34 ] developed a lightweight CNN with diverse receptive fields. This design, which incorporates filters of varied sizes and dilation rates, was developed to effectively model temporal features in cardiac signals. To address CNNs’ limitations in modeling long-range dependencies, recurrent models like RNNs and LSTMs have been explored. Saadatnejad et al. [ 14 ] designed a lightweight LSTM-based model with wavelet pre-processing and MLP fusion, optimized for real-time ECG applications. Abrishami et al. [ 13 ]applied bidirectional LSTM-RNNs to ECG interval segmentation, achieving accurate diagnostics with local features. More recently, transformers have emerged as the dominant architectures for sequence modeling, leveraging self-attention to model long-range dependencies that surpass those of recurrent models. Natarajan et al. [ 25 ] proposed a Transformer model with a combined wide and deep structure, incorporating both handcrafted and learned features to enable simultaneous prediction and classification of various conditions from 12-lead ECG recordings. Hu et al. [ 35 ] introduced a Transformer-CNN hybrid, framing arrhythmia detection as an object detection problem, which eliminates manual segmentation while supporting wearable use. El-Ghaish & Eldele [ 36 ] further ad-vanced this approach via ECGTransForm, which integrates multi-scale convolutions and bidirectional transformers. Recent techniques for ECG classification increasingly use Vision Transformers (ViTs) because they effectively model global signal dependencies and capture diagnostically important local features. Dong et al. [ 26 ] advanced transformer applications through ViTs with deformable attention, which enables more adaptable ECG morphology modeling and sets a new benchmark for multi-lead ECG classification effectiveness. Zhang et al. [ 15 ] presented a multi-scale network that integrates both CNN and Transformer components, featuring a two-branch Transformer module for classifying 12-lead ECGs. This network combines learnable CNN blocks for multi-scale feature extraction and multi-scale embedding layers (MSEL) for patch-level representation. In contrast, Cheng et al. [ 16 ]developed the MSW-Transformer, a Transformer network that employs a multi-scale window shifting approach, where attention slides across different scales to collect diverse aspects of ECG signals, effectively addressing the variable frequency components inherent in ECG signals. Concluding this review of supervised methodologies, transformer-based models have achieved leading performance in ECG classification. They accomplish this by utilizing self-attention to capture both localized and global features, thereby enabling robust modeling of complex waveform patterns. 
+
+2.2 ECG analysis using self-supervised methods 
+
+Self-supervised learning has revolutionized pre-trained models by enabling the extraction of rich features from unlabeled data without human annotations [ 17 ]. In this paradigm, models generate their supervisory signals through pretext tasks, learning features suitable for task-specific adaptation in downstream problems, often outperforming conventional supervised methods. This approach has become especially valuable in ECG classification due to the large quantity of unlabeled recordings and limited expert annotations. The most recent developments in self-supervised ECG classification 4learning involve examining contrastive and generative approaches. This facilitates the extraction of robust, broadly applicable features from unlabeled electrocardiogram signals. Contrastive methods learn by distinguishing between similar and dissimilar samples by creating different views of the same ECG signal through augmentations [ 19 ]. Key examples include SimCLR [ 20 ], which uses various data augmentations; MoCo v3 (Momentum Contrast Version 3) [ 37 ], employing momentum encoders to improve representation quality; and CMSC (Contrastive Multi-segment Coding) [ 38 ], designed for multi-lead ECG data. Eldele et al. [ 39 ] developed TS-TCC, a technique for learning representations from time-series data that utilizes contrasting across temporal and contextual elements, and applied cross-view prediction to acquire robust features. Le et al. [ 40 ] proposed sCL-ST, which enhances multi-label classification by using label information to correctly identify positive and negative pairs, addressing limitations of random negative sampling in traditional contrastive techniques. Generative self-supervised methods utilize encoder-decoder architectures, where encoders extract representations from partially masked inputs, and decoders reconstruct missing portions [ 41 ]. In ECG classification, Masked Autoencoders (MAEs) have proven effective by randomly removing ECG signal segments and training models to predict these missing components [ 21 ]. Unlike con-trastive methods requiring carefully designed augmentations, these approaches learn directly from signal structure and temporal dependencies, enabling models to leverage unlabeled ECG data while preserving physiologically significant features. Yang et al. [ 22 ] combined multi-scale CNNs with transformers for acquiring both localized features and global patterns from ECG signals. This complementary approach enables better reconstruction of heavily masked inputs and produces su-perior representations for downstream ECG classification tasks. Zhang et al. [ 42 ] proposed the Cross Reconstruction Transformer (CRT), reconstructing dropped patches across time and frequency domains to capture meaningful temporal patterns. Yang et al. [ 31 ] introduced MassMIB, an ECG representation learning approach based on masked self-supervision, which leverages a Multi-view Information Bottleneck methodology. This methodology processes time and frequency domain views simultaneously, applying information bottleneck principles to filter redundant information. Zhang et al. [ 43 ] presented MaeFE, a family of masked autoencoders tailored for ECG signals, comprising variations such as MTAE (a time-domain masked autoencoder), MLAE (a lead-dimension masked au-toencoder), and MLTAE (a lead and time-domain masked autoencoder), each with a unique masking strategy. Na et al. [ 44 ] presented ST-MEM (Spatio-Temporal Masked Electrocardiogram Modeling), which reconstructs masked segments across spatial and temporal dimensions, employing lead-wise shared decoders to capture relationships between ECG leads. In summary, generative self-supervised learning represents an advancement in ECG analysis by modeling signal patterns directly, without the need for complex data transformations. More advanced self-supervised approaches that integrate both contrastive and generative methods could further advance automated ECG classification, particularly in scenarios with limited labeled data, making them especially promising. 
+
+## 3 Proposed Method 
+
+In this section, we present the proposed ECG-NAT framework, which is designed to efficiently learn and classify ECG signals through a combination of self-supervised representation learning and local attention mechanisms. The ECG-NAT framework begins with thorough signal pre-processing to standardize and enhance the raw ECG signals. Following pre-processing, self-supervised pretraining creates robust representations. The subsequent fine-tuning stage includes supervised contrastive loss and linear classification for specific tasks. The local attention mechanism in Neighborhood Attention Transformer (NAT) effectively captures the critical localized waveform patterns in these pre-processed signals, which is a key component of accurate ECG classification. An overview of the ECG-NAT framework is shown in Figure 2. 
+
+3.1 Data Pre-processing 
+
+The ECG pre-processing pipeline (Figure 2, preparation stage) ensures data quality before model input. Initially, a band-pass digital filter [ 45 ] with a frequency range of 0.5-40.0 Hz eliminates undesired noise; then, the signal amplitudes undergo normalization. The final step involves down-sampling from 500 Hz to 250 Hz, reducing the number of time points from 5000 to 2500. The standardized process is uniformly applied across all four datasets, ensuring a fair comparison with current best-performing baselines that follow analogous pre-processing protocols. To ensure uniform input dimensions across datasets with variable-length recordings, all ECG signals are standardized to 5Datasets     
+
+> Original 12-Lead ECG
+> Up Sampler
+> Reconstructed signals
+> Decoder
+> a) Pre-training stage
+> Linear Classification
+> Encoder
+> b) Fine-tuning stage c) NAT BLOCK d) Supervised contrastive loss ( )
+> AA
+> pre-processing
+> Tokenizer
+> 1D CNN
+> 1D CNN
+> Preparation Encoder
+> Preparation
+> Positive
+> Negative
+> Representation
+> Space
+> CB
+> Masked Tokens
+> Dataset
+> Pre-training Datasets Fine-tuning Datasets
+> LN NA LN MLP
+> Tokenizer
+> Down-Sampler
+> A
+> Conv
+> 0.7 0.05
+> Number of class
+> 0.1
+> NAT Block
+> NAT Block
+> F.ReLU
+
+Figure 2: The ECG-NAT framework: a) The masked autoencoder architecture learns robust ECG representations by reconstructing masked signal segments, capturing meaningful patterns, and pre-training on standard unlabeled datasets enhances generalization capability; b) The pre-trained encoder is used for fine-tuning using a dual-loss approach, combining contrastive and cross-entropy losses; c) The NAT Block employs local attention mechanisms to extract contextually relevant features within neighborhoods; d) Contrastive loss pulls the source ECG signal closer to positive examples (A) from the same class while pushing it away from negative samples (B, C) of different classes, creating a representation space that effectively discriminates between ECG patterns. 10 seconds (2500 time points). Shorter signals are zero-padded, while longer signals are segmented into non-overlapping 10-second windows, with the first segment used for classification. 
+
+3.2 Pre-training stage 
+
+During pretraining, as depicted in Figure 2, we utilize a self-supervised autoencoder framework that leverages multiple unlabeled ECG datasets. This multi-dataset approach ensures our model generalizes well across varied signal patterns and prevents overfitting to characteristics specific to any single dataset. Following standard pre-processing, signal segments are randomly masked with Gaussian noise before input to the encoder. Subsequently, the decoder reconstructs the original signals from these corrupted inputs. This compels the model to acquire robust latent representations of essential ECG characteristics for downstream tasks. 
+
+3.2.1 Encoder 
+
+To get ECG signals ready for self-supervised learning, as illustrated in Figure 2 part (a), we first tokenized the continuous input X ∈ RL×D , where L is the number of leads and D is the signal duration per lead. During tokenization, signals are segmented into overlapping windows. This results in a tokenized sequence U ∈ RL′×D′
+
+, where L′ denotes the number of channels and D′
+
+indicates the spatial dimension. The value D′ = D/ 4 results from applying two consecutive CNN layers with a stride of 2, which reduces the token count by a factor of 4, as shown in the figure. 6Overlapping ensures continuity and preserves significant ECG properties across segment borders. A subset of these tokens is then randomly masked with Gaussian noise. Before being fed into the encoder, the masked tokens pass through a NAT block to further process the information. The encoder then receives these processed, noisy signals. Concurrently, the decoder undertakes reconstruction of the original, uncorrupted signal. Such strategic masking enables the model to acquire robust and meaningful representations that can generalize across diverse ECG patterns. Building on this tokenization approach, the encoder establishes a hierarchical structure by utilizing localized attention mechanisms to efficiently process ECG data. The design interleaves attention blocks with CNN-based down-sampler modules, progressively reducing temporal resolution while expanding the receptive field to capture multi-scale temporal dependencies. Figure 2 (c) illustrates the NAT blocks, which begin by processing tokenized ECG signals. Here, each element undergoes three linear transformations, generating the query matrix Q, the key matrix K,and the value matrix V . Through this local attention mechanism, the model can effectively pinpoint and examine crucial patterns and relationships within ECG signals by focusing on the local vicinities of tokens. The attention weights for the i-th input, given a neighborhood size k, represented as Aki ,are determined as: 
+
+Aki =
+
+
+
+QiK⊤ 
+
+> μ1(i)
+
++ B(i, μ 1(i)) 
+
+QiK⊤ 
+
+> μ2(i)
+
++ B(i, μ 2(i)) 
+
+...
+
+QiK⊤  
+
+> μk(i)
+
++ B(i, μ k(i)) 
+
+ , (1) where Qi is the query vector associated with the i-th token, while Kμj (i) refers to the key vector for the j-th neighbor of token i. The notation μj (i) identifies the j-th nearest neighbor of token i.The term B(i, μ j (i)) incorporates relative positional biases between token i and its neighbor μj (i),thereby capturing their spatial relationships during attention computation. The neighboring values matrix V ki is built by gathering value vectors from token i’s k nearest neighbors, where each row is a value projection of a neighboring token: 
+
+V ki =
+
+h
+
+V ⊤ 
+
+> μ1(i)
+
+V ⊤ 
+
+> μ2(i)
+
+· · · V ⊤ 
+
+> μk(i)
+
+.
+
+i⊤
+
+(2) Neighborhood Attention for the i-th token with neighborhood size k is then defined as: 
+
+N A k(i) = softmax 
+
+ Aki
+
+√d
+
+
+
+V ki , (3) where √d serves as the scaling parameter, utilized to normalize attention scores and maintain numerical stability during training. This process is applied to each ECG signal token. Following the NAT blocks in the encoder, the down-sampler modules serve a key function in the hierarchical representation by reducing spatial dimensions while enriching feature channels, as shown in Figure 2 part(a). The down-sampler processes inputs with dimensions [L′, D ′], with L′
+
+indicating the channel count and D′ representing the spatial dimension. Through convolutional layers (kernel-size 3, stride 2) and ReLU activation, these inputs are transformed to dimensions [2 L′, D ′/2] ,effectively halving the spatial size while doubling the channel count. This design integrates NAT blocks with CNN-based down-sampling to progressively reduce spatial resolution while expanding the receptive field, allowing the network to capture both local features and broader context. The complete ECG-NAT architecture, through this encoder structure, accurately identifies key diagnostic patterns including abnormal waveforms, irregular rhythms, and segment distortions. This multi-scale analysis significantly improves arrhythmia classification across different types while preserving computational efficiency. This hierarchical design progressively expands receptive fields through down-sampling, allowing ECG-NAT to maintain efficient local feature extraction while building broader temporal context crucial for capturing both beat-level morphology and rhythm-level patterns in ECG analysis. 73.2.2 Decoder 
+
+During pretraining, the decoder receives the latent representation Z from the encoder and reconstructs the original ECG signal ˆX through a sequence of transposed convolutional layers, as illustrated in Figure 2 part(a). The reconstructed signal is then compared to the original input X using a mean squared error (MSE) loss, which encourages the model to learn robust feature representations that capture key temporal and morphological characteristics of the ECG. The MSE loss is formally defined as follows: 
+
+Lrecon = X
+
+> i∈I
+
+∥Xi − ˆXi∥2, ˆX = rec (X) , (4) where the reconstruction loss Lrecon quantifies the squared difference between the original signal values Xi and their reconstructed counterparts ˆXi for each masked sample at index i ∈ I. The set (I) comprises the index of the samples that were masked for reconstruction. This guides the model to recover the masked signal effectively. This reconstruction process enables the model to form robust representations of ECG patterns. The decoder’s multi-layer CNN structure ensures smooth and accurate restoration of essential cardiac features, maintaining signal integrity even in the presence of noise. 
+
+3.3 Fine-tuning with Supervised Contrastive Loss 
+
+Task-specific fine-tuning investigates the ability of the pre-trained representations to transfer to downstream cardiac diagnostic tasks. In this stage, we investigate the extent to which features learned through self-supervised pretraining can be transferred to other classification goals. We use two complementary approaches: linear evaluation and full fine-tuning. For linear evaluation, the encoder, pre-trained in masked autoencoding, is frozen and used as a static feature extractor, while only the linear classification layer is trained. This process reveals the inherent characteristics of the representations learned without influencing them. Full fine-tuning, however, removes the restrictions on the pre-trained encoder and enables joint optimization of both the encoder and the classifier. Notably, the general representations achieved with pretraining inherently encompass vast amounts of morphological and rhythmic features with high discriminative strength. Fine-tuning significantly enhances these representations by tailoring them to the specifics of individual classification tasks, thereby refining decision boundaries and improving model performance. This composite ability, strong generalization via pretraining and specialized tuning via fine-tuning, illustrates the flexibility and efficacy of our self-supervised solution for electrocardiogram analysis. Unlike generative pretraining, this fine-tuning stage employs discriminative learning through super-vised contrastive loss, which explicitly optimizes for class separation in the representation space. The fine-tuning methodology employs a joint training approach, where the encoder and classifier are optimized simultaneously using a combination of supervised contrastive loss and cross-entropy classification loss, as shown in Figure 2 (b). The encoder parameters evolve through backpropagation guided by both supervised contrastive loss and cross-entropy loss functions, creating a representation 
+
+Z that becomes increasingly tailored to specific ECG classification tasks. The supervised contrastive component plays a crucial role in this process by enhancing feature discrimination between different ECG classes. This optimization strategy is applied to multiple demanding ECG datasets, demon-strating the approach’s robustness across different clinical contexts while maintaining the benefits of supervised contrastive learning. The supervised contrastive loss Lcon enhances feature discrimination by drawing together embeddings of similar ECG signals (positive pairs) while pushing apart embeddings of dissimilar signals (negative pairs). Unlike the self-supervised approach in SimCLR [ 20 ], which generates positive pairs through data augmentation, our supervised contrastive loss explicitly utilizes class label information. It contrasts embeddings from the same class (positive set) against embeddings from different classes in the batch (negative set). The supervised contrastive loss is formulated as: 
+
+Lcon = − X
+
+> i∈I
+
+1
+
+|P (i)|
+
+X 
+
+> p∈P(i)
+
+log exp ( sim (Zi, Z p)/τ )
+
+P 
+
+> j∈A(i)
+
+exp ( sim (Zi, Z j )/τ ) , (5) 8where Zi denotes the encoder output (embedding) for the i-th sample, and Zp represents the embed-dings of samples that share the same class label as sample i. The set A(i) is defined as all batch indices excluding i, that is, A(i) = I \ { i}. The set of positive indices P (i) includes all indices 
+
+p ∈ A(i) such that yp = yi, i.e., P (i) = {p ∈ A(i) : yp = yi}. The parameter τ is a temperature scalar that controls the sensitivity of similarity measurements. For measuring relationships between embedding vectors, we employ the cosine similarity metric from among several possible similarity functions. The cosine similarity function sim (Z1, Z 2) that quantifies embedding alignment is defined as: sim (Z1, Z 2) = Z⊤ 
+
+> 1
+
+Z2
+
+∥Z1∥∥ Z2∥ , (6) where Z1 and Z2 represent embedding vectors in the representation space. This similarity measure effectively captures the relationship between different embeddings, enabling the model to learn discriminative features specific to ECG classification tasks. The supervised contrastive loss, Lcon , ensures that embeddings of ECG signals sharing the same class label are pulled closer together. In contrast, embeddings of samples from different classes are pushed further apart. This structured optimization facilitates a well-separated representation space, improving downstream task performance, such as ECG signal classification and anomaly detection. Simultaneously, the cross-entropy loss Lcls is used to ensure accurate class predictions. It is mathematically defined as: 
+
+Lcls = −X
+
+> i∈IC
+
+X
+
+> c=1
+
+yc log ˆ yc, (7) where yc is the true label for the i-th sample, and ˆyc is the predicted probability for the sample. This loss minimizes the discrepancy between the predicted and actual labels, encouraging high-confidence predictions. The combined ECG-NAT loss function for fine-tuning is defined as: 
+
+Lt = αL con + (1 − α)Lcls , (8) where 0 ≤ α ≤ 1 is a weighting parameter that controls the balance between the supervised contrastive loss and the classification loss. By optimizing Lt, the model adapts its encoder and classifier to improve both feature extraction and classification performance on ECG-specific tasks. This fine-tuning framework enables ECG-NAT to adapt effectively to diverse ECG classification tasks. It maintains the model’s ability to extract meaningful and discriminative features from ECG signals, achieving robust performance across various downstream applications. 
+
+## 4 Experimental Results 
+
+Presented in this section are comprehensive evaluations of ECG-NAT across multiple datasets, with performance comparisons against current best-performing techniques. This includes analyzing its effectiveness in low-resource scenarios and examining the impact of architectural components and hyperparameters on classification accuracy and computational efficiency. Table 1: Overview of datasets for ECG-NAT model                        
+
+> Stage Datasets Patients Records Duration (s) Sampling Frequency (Hz)
+> Pretraining Chapman [46] 10,646 10,646 10s 500 Hz Ningbo [47] 45,152 34,905 10s 500 Hz Fine-tuning PTB-XL [32] 18,885 21,837 10s 500 Hz CPSC2018 [33] 9,831 6,877 6-60s 500 Hz
+
+4.1 Datasets and Evaluation metrics 
+
+The ECG-NAT framework was developed and validated using several standard ECG datasets, which are summarized in Table 1. Our approach comprises two main phases: self-supervised pre-training, followed by supervised fine-tuning, each utilizing specific datasets and loss functions. For the initial self-supervised pretraining, two extensive unlabeled datasets, Chapman [46] and Ningbo [47], were used to learn robust and generalizable ECG representations from diverse signal patterns. Subsequently, 9for supervised fine-tuning and performance evaluation on specific classification tasks, the widely recognized benchmark datasets PTB-XL [ 32 ] and CPSC2018 [ 33 ] were employed. For each dataset, we randomly split the samples into 80% for training and 20% for testing. To account for variability due to random splits, this process was repeated five times, and the reported performance metrics are the averages across these runs. This division makes sure that the model’s ability to generalize to new data is thoroughly tested. For the fine-tuning phase, we adopt a multi-class classification framework on PTB-XL and CPSC2018. Both datasets contain recordings with multiple concurrent diagnostic labels, which presents a challenge for multi-class classification. Following standard preprocessing protocols [ 44 , 43 ], we retain only single-label instances to ensure a well-defined multi-class setting. This filtering approach maintains consistency with prior benchmarking studies while enabling direct comparison with existing methods on the same datasets. Table 1 offers a comprehensive summary of all datasets employed in our methodology, while Table 2 and Table 3 present detailed diagnostic distributions for PTB-XL and CPSC2018, respectively. Table 2: Distribution of ECG Record Counts in the PTB-XL Dataset             
+
+> Superclass Description Original
+> NORM Normal ECG 9528 MI Myocardial Infarction 5486 STTC ST/T Change 5250 CD Conduction Disturbance 4907 HYP Hypertrophy 2655
+
+Table 3: Summary of ECG Conditions and Instance Counts in the CPSC2018 Dataset                     
+
+> Type Description Original
+> NNormal 918 AF Atrial fibrillation 1098 I-AVB 1st-degree atrioventricular block 704 LBBB Left bundle branch block 207 RBBB Right bundle branch block 1695 PAC Premature atrial contraction 574 PVC Premature ventricular contraction 653 STD ST-segment depression 826 STE ST-segment elevated 202
+
+The pre-training phase of our evaluation utilizes Mean Squared Error (MSE). A thorough assessment of the fine-tuned model’s performance on ECG-NAT considers Accuracy (Acc) for direct predictive correctness. To guarantee an equitable performance evaluation, especially with imbalanced data, F1-score (F1) and Area Under the Curve (AUC) are also included. The terms TP, TN, FP, and FN refer to the corresponding numbers of true positives, true negatives, false positives, and false negatives. The fine-tuning process relies on a dual-loss framework that merges cross-entropy classification with supervised contrastive loss, aiming to extract distinguishing features and enhance class prediction precision. Evaluation metrics are detailed below: 
+
+Accuracy = T P + T N T P + T N + F P + F N , (9) 
+
+F 1 = 1
+
+class 
+
+X
+
+> i
+
+2 × precision i × recall i
+
+precision i + recall i
+
+, (10) 
+
+AU C =
+
+Z 10
+
+T P R (F P R −1(t)) dt, (11) where: 
+
+precision = T P T P + F P , recall = T P T P + F N ,
+
+10 Table 4: ECG-NAT model hyperparameter configuration information                                                                            
+
+> Stage Module Layer Details Feature Shape
+> Time Domain Input -12 ×2500 Tokenizer Conv1d ×2Ks= 3,3, st = 2,2, P= 0,0 48 ×1250 92 ×625 Encoder NAT Block ×4emb = 96, n-head = (2,4,8,16), mlp-ratio = 4.0 92 ×625 192 ×312 Conv1d ×3Ks= 2,2,2, st = 2,2,2, P= 0,0,0 384 ×156 768 ×78 Decoder ConvTranspose1d ×1Ks= 3, st = 2, P= 0 768 ×78 384 ×156 ConvTranspose1d ×4Ks= 2,2,2,4, st = 2,2,2,4, P= 0,0,0,0 192 ×312 92 ×625 48 ×1250 Classifier Fully-Connected Linear(768 ×78, n-classes) n-classes
+
+T P R = T P T P + F N , F P R = F P F P + T N .
+
+This approach enables a comprehensive evaluation of the model’s performance during fine-tuning across various datasets. 
+
+4.2 Setting 
+
+The ECG-NAT model architecture employs a self-supervised neighborhood attention transformer for ECG representation learning, as detailed in Table 4. The pre-processing and normalization of 12-lead ECG signals, comprising 2500 time points per lead, initiates our pipeline, followed by their passage through several precisely crafted steps. During the tokenization phase, pre-processed signals are transformed into significant token embeddings by two Conv1d layers. The encoding stage then employs four specialized NAT blocks, each with a precise configuration: an embedding dimension of 96, variable attention heads, and an MLP ratio of 4.0. Essential for hierarchical representation are the down-sampler modules, composed of three Conv1d layers, each with ReLU activation, as they reduce spatial dimensions and increase feature channels after the NAT blocks. A fully connected layer handles the final classification tasks, while the decoder’s ConvTranspose1d layers reconstruct the original signal during pretraining. The complete ECG-NAT model utilizes the NAT-Tiny configuration, which contains approximately 30 million parameters. In the training phase, Gaussian noise is introduced into the tokenized input embeddings. This is performed by introducing minor alterations that follow a normal distribution with a standard deviation of 0.2. This noise injection helps the model acquire more general and robust representations while preserving the fundamental structure of the original ECG signals. Moreover, the temperature parameter τ is utilized within the supervised contrastive loss to modulate similarity scores, thereby refining the sharpness of the loss landscape. Our system was developed using PyTorch and our custom NATTEN package, which provides optimized C++ and CUDA kernels for enhanced computational speed. The model training employed cosine annealing learning rate scheduling in conjunction with the AdamW optimizer. All trials were conducted on an Ubuntu 22.04 LTS system, utilizing a single RTX 2080Ti GPU with 12 GB of memory. 
+
+4.3 Method Comparisons 
+
+In this work, ECG-NAT is compared against state-of-the-art methods to evaluate its performance. The comparison frameworks include established techniques in the field and self-supervised learning (SSL) methods. • MOCO V3 [ 37 ] employs a self-supervised vision transformer with contrastive learning, proving that such models match or exceed traditional supervised approaches in complex feature extraction tasks. • CMSC [ 48 ] enhances model reliability and value by mitigating noise-related estimation loss. It achieves this through learning from distinctions in cardiac signals across spatial, temporal, and patient dimensions. 11 • MaeFE [43 ], a family of masked autoencoders based on the Vision Transformer (ViT) architecture, is designed for self-supervised learning of ECG signals using three masking strategies: temporal (MTAE), spatial (MLAE), and combined (MLTAE). • CRT [42 ] is a self-supervised approach for learning time series representations. It operates by converting signals into temporal and spectral domains and subsequently dropping patches from both. An associated Transformer encoder then reconstructs the initial data from these dropped inputs, utilizing inter-domain correlations and an instance-level discrimination criterion to produce robust and distinct representations. • ASTCL [19 ] (The Adversarial Spatiotemporal Contrastive Learning) functions as a self-supervised learning paradigm for ECG signals that employs noise-based augmentations and adversarial training. It learns robust spatiotemporal representations through patient-level positive pairs without negative examples. This approach significantly improves classification performance even with minimal labeled data. • ST-MEM [ 44 ] captures spatial and temporal relationships in electrocardiograms through masking and lead-specific processing, excelling in arrhythmia classification after fine-tuning various ECG datasets. • DLA [ 49 ], a self-supervised learning technique, pre-trains models using unlabeled multi-lead ECG data. To improve lead-specific features, it uses an asymmetric architecture that combines both single-lead and multi-lead encoders. It does this by performing contrastive learning between the representations from the two types of encoders. Subsequently, a classifier is incorporated for follow-up tasks and optimized to classify ECGs for the diagnosis of cardiovascular conditions accurately. Even with restricted labeled data, this approach yields scalable and highly effective models, rendering them well-suited for diverse Internet of Medical Things (IoMT) applications. • LFBT [50 ] (Lead-Fusion Barlow Twins) is a self-supervised method for multi-lead ECGs that fuses intra- and inter-lead Barlow Twins losses. It avoids negative pairs and large batches, enabling efficient fusion of all leads during pretraining. • JAMC [51 ] (Jigsaw-based Autoencoder with Masked Contrastive Learning) unifies con-trastive and jigsaw-based reconstruction learning. It applies lead permutation and masking to form view pairs, learning both global invariances and local morphological details from 12-lead ECGs. 
+
+4.4 Method Comparison Results 
+
+The experimental evaluation assesses ECG-NAT against other state-of-the-art self-supervised learning methods using two cases of linear evaluation and fine-tuning approaches. The results presented here are sourced directly from the original papers of each comparative method under similar experimental circumstances, including consistent pre-processing protocols, resampling to 2500 Hz, and comparable self-supervised architectural frameworks to ensure rigorous and standardized benchmarking. In linear evaluation, all pre-trained model parameters remain frozen except for the final classification layer, which directly assesses the quality of learned representations during masked autoencoder pretraining by effectively employing ECG-NAT as a feature extractor. In contrast, fine-tuning optimizes the entire model architecture for downstream tasks by unfreezing the encoder that was initially pre-trained with the masked autoencoder technique. This approach allows backpropagation through the entire model with contrastive loss while simultaneously training the linear classifier, enabling the model to adapt its representations from the masked autoencoder pretraining specifically for the classification task. As shown in Table 5, under the linear evaluation protocol, where all pre-trained model parameters remain frozen except for the final classification layer, ECG-NAT demonstrates superior performance compared to other self-supervised methods. On the PTB-XL dataset, it achieves an accuracy of 
+
+0.800 ± 0.032 , an F1-score of 0.799 ± 0.003 , and an AUROC of 0.960 ± 0.001 . On CPSC2018, ECG-NAT attains an accuracy of 0.782 ± 0.004 , an F1-score of 0.855 ± 0.005 , and an AUROC of 
+
+0.965 ± 0.005 , outperforming all baseline methods across both datasets. These results highlight the quality of representations learned during masked autoencoder pretraining as a robust foundation for downstream tasks. When fine-tuned and evaluated on PTB-XL and CPSC2018 (see Table 6), ECG-NAT further improves upon these results, surpassing other self-supervised approaches such as CRT [ 42 ] and ST-MEM [ 44 ]. 12 Table 5: Performance comparison of self-supervised learning methods for ECG classification using linear evaluation, measured by Accuracy, Macro F1-score, and AUROC                                                  
+
+> Method PTB-XL CPSC2018 Accuracy F1-score AUROC Accuracy F1-score AUROC
+> MOCOV3(2021) [37] 0.552 ± 0.000 0.142 ± 0.000 0.739 ± 0.006 0.268 ± 0.055 0.080 ± 0.038 0.712 ± 0.054 CMSC(2021) [38] 0.681 ± 0.032 0.441 ± 0.058 0.797 ± 0.038 0.361 ± 0.005 0.238 ± 0.022 0.724 ± 0.013 MTAE(2022) [43] 0.683 ± 0.008 0.437 ± 0.012 0.807 ± 0.006 0.486 ± 0.012 0.349 ± 0.034 0.818 ± 0.010 MLAE(2022) [43] 0.649 ± 0.008 0.382 ± 0.020 0.779 ± 0.008 0.443 ± 0.014 0.263 ± 0.021 0.794 ± 0.016 ASTCL(2024) [19] --0.823 ± 0.006 --0.842 ± 0.046 ST-MEM(2024) [44] 0.726 ± 0.005 0.508 ± 0.008 0.838 ± 0.011 0.723 ± 0.008 0.641 ± 0.010 0.938 ± 0.002 ECG-NAT (ours) 0.800 ± 0.032 0.799 ± 0.003 0.960 ± 0.001 0.782 ± 0.004 0.855 ± 0.005 0.965 ± 0.005
+
+Table 6: Performance comparison of self-supervised learning methods for ECG classification after fine-tuning, evaluated using Accuracy, Macro F1-score, and AUROC                                                                          
+
+> Method PTB-XL CPSC2018 Accuracy F1-score AUROC Accuracy F1-score AUROC
+> MOCO V3(2021) [37] 0.799 ± 0.004 0.644 ± 0.010 0.913 ± 0.002 0.852 ± 0.002 0.838 ± 0.002 0.967 ± 0.003 CMSC(2021) [38] 0.724 ± 0.067 0.510 ± 0.115 0.877 ± 0.003 0.736 ± 0.006 0.717 ± 0.006 0.938 ± 0.006 MTAE(2022) [43] 0.789 ± 0.002 0.613 ± 0.015 0.910 ± 0.001 0.793 ± 0.004 0.769 ± 0.004 0.961 ± 0.001 MLAE(2022) [43] 0.802 ± 0.004 0.625 ± 0.009 0.915 ± 0.001 0.834 ± 0.007 0.816 ± 0.009 0.973 ± 0.002 CRT(2023) [42] 0.878 ± 0.029 0.684 ± 0.058 0.892 ± 0.007 ---ASTCL(2024) [19] -0.572 ± 0.077 --0.631 ± 0.067 -ST-MEM(2024) [44] 0.825 ± 0.002 0.655 ± 0.003 0.933 ± 0.003 0.872 ± 0.009 0.857 ± 0.012 0.980 ± 0.001 DLA(2025) [49] 0.779 ± 0.007 0.624 ± 0.003 0.901 ± 0.000 0.706 ± 0.002 0.670 ± 0.001 0.931 ± 0.000 LEBT(2025) [50] ––0.908 ± 0.000 ––0.936 ± 0.000 JAMC(2025) [51] –––0.706 ± 0.000 0.666 ± 0.000 0.915 ± 0.000 ECG-NAT (ours) 0.902 ± 0.002 0.904 ± 0.009 0.977 ± 0.002 0.903 ± 0.005 0.895 ± 0.007 0.986 ± 0.001
+
+Specifically, on PTB-XL, it achieves an accuracy of 0.902 ± 0.002 , an F1-score of 0.904 ± 0.009 , and an AUROC of 0.977 ± 0.002 . On CPSC2018, it attains an accuracy of 0.903 ± 0.005 , an F1-score of 0.895 ± 0.007 , and an AUROC of 0.986 ± 0.001 . These consistent improvements demonstrate that ECG-NAT not only extracts high-quality representations during pretraining but also effectively adapts them to specific classification tasks, outperforming contemporary methods. 
+
+4.5 Low-Resource Classification Performance Results 
+
+ECG-NAT provides exceptional benefits in low-resource clinical environments where labeled ECG data is scarce. This scarcity is a common challenge in healthcare settings due to the multitude of heart diseases and the limited availability of skilled cardiologists. As shown in Table 7, ECG-NAT was evaluated across different amounts of training data (1%, 5%, and 100%) from each dataset. The model maintained outstanding stability under these extremely constrained circumstances, even as conventional supervised techniques exhibited notable performance drops. Using only 1% of the training data on the PTB-XL dataset, ECG-NAT achieved an AUROC of 
+
+0.880 ± 0.002 . This demonstrates that it is very competitive with, or even better than, most other methods that use 5% of the data. For example, ST-MEM (2024) achieved an AUROC of 0.878 ±0.011 
+
+with 5% of the data, but ECG-NAT performed just as well or better with significantly less data. ECG-NAT reaches an AUROC of 0.931 ± 0.001 with only 1% of the training data. This is much better than any other method tested in the same low-resource conditions. The 0.952 ± 0.004 AUROC achieved by ST-MEM(2024) with five times as much training data (5%) is very close to this result. These results demonstrate that ECG-NAT consistently outperforms other self-supervised methods, using different amounts of training data, and shows superior capability in identifying important ECG patterns even under severely limited labeled data conditions. 
+
+4.6 Ablation Study 
+
+This section describes the effects of major design changes on ECG-NAT’s performance, as evaluated through ablation experiments focusing on four key components: Gaussian noise masking, the contrastive loss function, and NAT transformer architecture compared to alternative transformer variants. These components were separately tested on the PTB-XL and CPSC2018 datasets, with results detailed in Table 8. 13 Table 7: Experimental results under low-resource conditions (1% and 5% training data) compared to full training data (100%), using consistent test sets and measuring AUROC scores across 12-lead ECG signals (averaged over three random samplings).                                                                                                                          
+
+> Method PTB-XL CPSC2018 1% 5% 100% 1% 5% 100%
+> MOCO V3(2021) [37] 0.797 ±0.006 0.826 ±0.015 0.913 ±0.002 0.791 ±0.045 0.903 ±0.019 0.967 ±0.003
+> CMSC(2021) [38] 0.648 ±0.064 0.773 ±0.023 0.877 ±0.003 0.625 ±0.013 0.732 ±0.038 0.938 ±0.006
+> MTAE(2022) [43] 0.707 ±0.024 0.713 ±0.001 0.910 ±0.001 0.670 ±0.032 0.756 ±0.013 0.961 ±0.001
+> MLAE(2022) [43] 0.793 ±0.007 0.838 ±0.018 0.915 ±0.001 0.860 ±0.013 0.922 ±0.007 0.973 ±0.002
+> ST-MEM(2024) [44] 0.815 ±0.012 0.878 ±0.011 0.933 ±0.003 0.897 ±0.025 0.952 ±0.004 0.980 ±0.001
+> DLA(2025) [49] 0.789 ± 0.002 -0.920 ± 0.000 0.823 ± 0.002 -0.945 ± 0.003 ECG-NAT (ours) 0.880 ±0.001 0.927 ±0.005 0.977 ±0.002 0.931 ±0.001 0.961 ±0.002 0.986 ±0.001
+
+Table 8: Ablation study on two components, contrastive loss and masking, assessed in terms of Accuracy, F1-score, and AUROC                                                                                               
+
+> Dataset Method Accuracy F1-score AUROC
+> PTB-XL Zero-mask 0.855 ±0.002 0.856 ±0.002 0.955 ±0.001 No-Contrastive Loss 0.875 ±0.002 0.876 ±0.002 0.965 ±0.001 ECG-ViT 0.775 ±0.000 0.758 ±0.000 0.906 ±0.000 ECG-Swin 0.806 ±0.000 0.791 ±0.000 0.912 ±0.000 ECG-NAT (Ours) 0.902 ±0.002 0.904 ±0.009 0.977 ±0.002
+> CPSC2018 Zero-mask 0.845 ±0.005 0.839 ±0.008 0.965 ±0.001 No-Contrastive Loss 0.878 ±0.002 0.879 ±0.007 0.975 ±0.001 ECG-ViT 0.794 ±0.000 0.776 ±0.000 0.928 ±0.000 ECG-Swin 0.834 ±0.000 0.819 ±0.000 0.940 ±0.000 ECG-NAT (Ours) 0.903 ±0.005 0.895 ±0.007 0.986 ±0.001
+
+On PTB-XL, with the incorporation of Gaussian noise masking, the ECG-NAT model performs noticeably better than the zero-mask version, suggesting improved robustness to realistic ECG signal variability. Accuracy increases by 4.7% (from 0.855 ± 0.002 to 0.902 ± 0.002 ), and on CPSC2018, it increases by 5.8% (from 0.845 ± 0.005 to 0.903 ± 0.005 ). The F1-score and AUROC metrics show similar improvements, supporting the conclusion that Gaussian noise masking improves representation stability under noise and perturbations commonly observed in ECG recordings. The impact of the contrastive loss function on fine-tuning is also evident. ECG-NAT performs better than the “No-Contrastive Loss” version. For example, accuracy increases from 0.875 ± 0.002 
+
+to 0.902 ± 0.002 on PTB-XL and from 0.878 ± 0.002 to 0.903 ± 0.005 on CPSC2018. These results suggest that supervised contrastive learning improves the model’s ability to distinguish between clinically important ECG pattern variations by enhancing class separability in the learned representation space. In addition, we visualize the learned embeddings using t-SNE on both CPSC2018 and PTB-XL test sets in Figure 3. Models trained with supervised contrastive loss exhibit enhanced cluster separability, achieving a 13.7% improvement in Silhouette Score and a 15.4% reduction in Davies-Bouldin Index on the CPSC2018 dataset. These embedding quality improvements align with the classification performance gains reported in Table 8, providing supporting evidence that contrastive learning enhances discriminative feature learning. Moreover, ViT and Swin transformers were replaced in our ablation study to further validate the effectiveness of our NAT-based architecture. Specifically, we used the Tiny variants of both ViT and Swin to ensure a fair comparison with the NAT-Tiny model, maintaining parity in model size and complexity. These architectures represent commonly adopted transformer baselines in self-supervised ECG classification research. To ensure consistent evaluation, the NAT backbone was substituted with ViT and Swin transformers while preserving the same pretraining and fine-tuning pipeline. Each model underwent identical masked autoencoder pretraining followed by fine-tuning for downstream classification tasks. The results demonstrate that ECG-NAT consistently outperforms both alternatives. It improves accuracy over ViT by 12.7% on PTB-XL (from 0.775 ± 0.000 to 0.902 ± 0.002 ) and 10.9% on CPSC2018 (from 0.794 ± 0.000 to 0.903 ± 0.005 ). Similarly, ECG-NAT surpasses Swin Transformer on PTB-XL (9.6%) and CPSC2018 (6.9%), indicating that neighborhood attention is 14 well-suited for ECG classification by emphasizing localized waveform patterns, while the hierarchical architecture enables receptive field growth to incorporate broader temporal context. All of these components work together in our two-step training process: Gaussian noise masking enhances the robustness of feature representation during pretraining, and contrastive loss improves feature discriminability during fine-tuning. This enables ECG-NAT to transition from understanding general signal properties to identifying specific clinical differences. The full ECG-NAT model outperforms all ablated variants and baseline transformer architectures on both evaluation datasets and all metrics. This demonstrates that our architectural and methodological choices are suitable for a wide range of clinical ECG classification scenarios. t-SNE Dimension 1 
+
+> t-SNE Dimension 2
+> Normal
+> AF
+> 1-AVB
+> LBBB
+> RBBB
+> PAC
+> PVC
+> STD
+> STE
+
+(a) CPSC2018 without Contrastive Loss t-SNE Dimension 1  
+
+> t-SNE Dimension 2
+> Normal
+> AF
+> 1-AVB
+> LBBB
+> RBBB
+> PAC
+> PVC
+> STD
+> STE
+
+(b) CPSC2018 with Supervised Contrastive Loss t-SNE Dimension 1     
+
+> t-SNE Dimension 2
+> NORM MI STTC CD HYP
+
+(c) PTB-XL without Contrastive Loss t-SNE Dimension 1      
+
+> t-SNE Dimension 2
+> NORM MI STTC CD HYP
+
+(d) PTB-XL with Supervised Contrastive Loss 
+
+Figure 3: t-SNE visualization of learned ECG representations with and without supervised contrastive loss. Top row (a,b): CPSC2018 dataset (9 classes) shows improved cluster separation (Silhouette: -0.185 → -0.160, Davies-Bouldin: 9.84 → 8.32). Bottom row (c,d): PTB-XL dataset (5 classes) demonstrates enhanced inter-class boundaries. Embedding quality improvements align with classifi-cation performance gains in Tables 2 and 3. 
+
+4.7 Parameter Analysis 
+
+This section examines the impact of three critical settings: kernel size (which determines the k-nearest neighbors or k-NN), batch size, and weight decay on the performance of our ECG-NAT model during the fine-tuning stage. To grasp their interconnected effects on classification accuracy, we have used 3D 15 1e-2 
+
+> 1e-4
+> 1e-6
+> Learning Rate
+> 7
+> 9
+> 11
+> Kernel Size
+> 50
+> 60
+> 70
+> 80
+> 90
+> 100
+> ACC 1e-2
+> 1e-4
+> 1e-6
+> Learning Rate
+> 32
+> 64
+> 128
+> Batch Size
+> 50
+> 60
+> 70
+> 80
+> 90
+> 100
+> ACC 1e-2
+> 1e-4
+> 1e-6
+> Learning Rate
+> 4e-4
+> 1e-4
+> 1e-2
+> Weight Decay
+> 50
+> 60
+> 70
+> 80
+> 90
+> 100
+> ACC
+
+(a) PTB-XL dataset parameter analysis 1e-2 
+
+> 1e-4
+> 1e-6
+> Learning Rate
+> 7
+> 9
+> 11
+> Kernel Size
+> 50
+> 60
+> 70
+> 80
+> 90
+> 100
+> ACC 1e-2
+> 1e-4
+> 1e-6
+> Learning Rate
+> 32
+> 64
+> 128
+> Batch Size
+> 50
+> 60
+> 70
+> 80
+> 90
+> 100
+> ACC 1e-2
+> 1e-4
+> 1e-6
+> Learning Rate
+> 4e-4
+> 1e-4
+> 1e-2
+> Weight Decay
+> 50
+> 60
+> 70
+> 80
+> 90
+> 100
+> ACC
+
+(b) CPSC dataset parameter analysis 
+
+Figure 4: hyperparameter analysis showing model accuracy with different configurations of kernel size (neighborhood size), batch size, and weight decay across various learning rates for both datasets during the fine-tuning stage visualization plots. This thorough analysis has been conducted on both the PTB-XL and CPSC2018 datasets, providing a clear picture of how these hyperparameters interact to shape the model’s overall effectiveness. After exhaustively experimenting with the PTB-XL and CPSC2018 datasets (Figure 4), we found that our best working configurations for the ECG classification model include a kernel size of 7 (corresponding to a neighborhood size), a batch size of 32, and a weight decay of 4e−4. These findings are further supported by results from the CPSC2018 dataset, as shown in Figure 4 (b), where smaller kernel sizes, equal to 7, proved better for capturing localized ECG patterns. Similarly, smaller batch sizes of 32, in contrast to larger ones such as 64 and 128, consistently outperformed across all evaluation metrics. A moderate weight decay value, such as 4e−4, provides the best regularization compromise between overfitting and maintaining model capacity. From the analysis presented in Figure 4, the configuration with a kernel size of 7, batch size of 32, and weight decay of 4e-4 consistently achieves strong performance on both the PTB-XL and CPSC2018 datasets. The plots clearly illustrate that this setting maintains high accuracy and training stability, whereas deviations from these values lead to noticeable declines in performance. The consistent trends observed in parts(a) and (b) of Figure 4 further support the suitability of these hyperparameters for ECG classification tasks. 
+
+4.8 Computational Complexity and Convergence Loss 
+
+Examining the computational complexity analysis shows that our ECG-NAT model, at the fine-tuning stage based on the NAT-Tiny architecture, is more efficient than the ViT and Swin baselines under our reported settings. Figure 5 shows that NAT-Tiny requires 29.31 million parameters, which is about 23% fewer than ViT and 48% fewer than Swin. It also uses 1.10GB of memory, corresponding to about 39% and 52% lower memory usage than ViT and Swin, respectively. NAT-Tiny requires 1.57G FLOPs, which is about 35% lower than ViT and 50% lower than Swin. These reductions indicate that NAT-Tiny can be a practical option in resource-constrained settings. We also analyzed the convergence behavior during the fine-tuning stage, as shown in Figure 6. On both the PTB-XL and CPSC-2018 datasets, the model reaches its best observed performance around 25 epochs. The training and test loss curves decrease over training and do not show clear divergence in the reported runs. This relatively fast convergence suggests that fewer epochs may be sufficient to reach strong 16 (a) Parameters (MB) (b) Memory (GB) and FLOPs (G) 
+
+Figure 5: Performance efficiency analysis of ECG-NAT versus transformer baselines. (a) Model parameters in MB and (b) runtime resources, including memory (GB) and FLOPs (G), show ECG-NAT’s significant computational advantages over existing architectures.  
+
+> (a) Loss convergence on the PTB-XL dataset (b) Loss convergence on the CPSC2018 dataset
+
+Figure 6: Convergence analysis of NAT model showing training and test loss curves over 100 epochs for (a) PTB-XL dataset and (b) CPSC2018 dataset performance. For practical ECG analysis where processing capacity is constrained, the reduced training time and resource requirements can be beneficial. 
+
+## 5 Discussion and Conclusion 
+
+This paper proposes ECG-NAT, a novel framework integrating Neighborhood Attention Transformer with a two-stage self-supervised learning method made for classifying multi-lead ECG signals. Our approach combines local neighborhood attention with masked autoencoder pretraining on unlabeled datasets, followed by a dual-loss fine-tuning strategy that balances contrastive and cross-entropy loss to enhance feature discriminability and classification performance. ECG-NAT addresses key challenges in ECG analysis by capturing multi-scale temporal features through hierarchical local attention. The architecture efficiently learns fine-grained morphological patterns within individual beats (e.g., QRS morphology, ST segments) while progressively expanding its receptive field across layers to capture broader rhythm-level patterns across multiple cardiac cycles, enabling accurate detection of both localized beat abnormalities and sustained rhythm irregularities. This multi-scale approach achieves computational efficiency with O(nk ) complexity compared to O(n2) for full self-attention while maintaining superior classification performance. Our real-world results demonstrate significant enhancements in several evaluation metrics. The model is more effective than other state-of-the-art models on PTB-XL, with 90.2% accuracy and 90.4% F1-score, and 98.6% AUROC on CPSC2018. This model is also more computationally efficient than regular transformer architectures. Notably, ECG-NAT is very strong in low-resource settings, maintaining high performance (88.1% accuracy) even when trained on only 1% of labeled data. This demonstrates its applicability in clinical settings where resources are limited. 17 While our ECG-NAT model is highly accurate, this study did not explore its interpretability and explainability, both important considerations for clinical application. Although MAE and NAT’s attention mechanisms offer a degree of inherent interpretability, there is still room to enhance the model’s overall transparency. Future work should explore structured, low-rank, or pattern-guided attention, along with disentangled latent representations aligned with interpretable ECG features. Additionally, integrating multimodal data, such as PPG, EMR, or respiratory waveforms, could enhance diagnostic performance and contextual understanding. Finally, we plan to extend our neighborhood attention mechanism to broader time-series classification tasks in healthcare and biomedical signal analysis, including EEG, EMG, PPG, and respiratory monitoring. 
+
+## Acknowledgment 
+
+Amjad Seyedi acknowledges the support by the European Union (ERC consolidator, eLinoR, no 101085607). 
+
+## References 
+
+[1] Mohammed B Abubaker and Bilal Babayi˘ git. Detection of cardiovascular diseases in ecg images using machine learning and deep learning methods. IEEE transactions on artificial intelligence , 4(2):373–382, 2022. [2] Jean-Jacques Goy, Jean-Christophe Stauffer, Jürg Schlaepfer, and Pierre Christeler. Electrocar-diography (ECG) , volume 1. Bentham Science Publishers, 2013. [3] Patricia Paglini-Oliva, MS Lo Presti, and H Walter Rivarola. Electrocardiography as a diagnos-tic method for Chagas disease in patients and experimental models . InTech, 2012. [4] Hao Dai, Hsin-Ginn Hwang, and Vincent S Tseng. Convolutional neural network based automatic screening tool for cardiovascular diseases using different intervals of ECG signals. 
+
+Computer Methods and Programs in Biomedicine , 203:106035, 2021. [5] Chuang Han, Jiajia Sun, Yingnan Bian, Wenge Que, and Li Shi. Automated detection and localization of myocardial infarction with interpretability analysis based on deep learning. IEEE Transactions on Instrumentation and Measurement , 72:1–12, 2023. [6] Samandokht Rashidi and Babak Mohammadzadeh Asl. Strength of ensemble learning in automatic sleep stages classification using single-channel EEG and ECG signals. Medical & Biological Engineering & Computing , 62(4):997–1015, 2024. [7] Anfal Ahmed Aleidan, Qaisar Abbas, Yassine Daadaa, Imran Qureshi, Ganeshkumar Perumal, Mostafa EA Ibrahim, and Alaa ES Ahmed. Biometric-based human identification using ensemble-based technique and ECG signals. Applied Sciences , 13(16):9454, 2023. [8] Yanrui Jin, Chengjin Qin, Jinlei Liu, Yunqing Liu, Zhiyuan Li, and Chengliang Liu. A novel deep wavelet convolutional neural network for actual ECG signal denoising. Biomedical Signal Processing and Control , 87:105480, 2024. [9] Atul Luthra. ECG made easy . Jaypee Brothers Medical Publishers, 2019. [10] Andrejs Fedjajevs, Willemijn Groenendaal, Carlos Agell, and Evelien Hermeling. Platform for analysis and labeling of medical time series. Sensors , 20(24):7302, 2020. [11] Ana Mincholé, Julià Camps, Aurore Lyon, and Blanca Rodríguez. Machine learning in the electrocardiogram. Journal of electrocardiology , 57:S61–S64, 2019. [12] Xiaolong Zhai and Chung Tin. Automated ECG classification using dual heartbeat coupling based on convolutional neural network. IEEE Access , 6:27465–27472, 2018. [13] Hedayat Abrishami, Chia Han, Xuefu Zhou, Matthew Campbell, and Richard Czosek. Su-pervised ECG interval segmentation using LSTM neural network. In Proceedings of the International Conference on Bioinformatics & Computational Biology (BIOCOMP) , pages 71–77, 2018. 18 [14] Saeed Saadatnejad, Mohammadhosein Oveisi, and Matin Hashemi. LSTM-based ECG classifi-cation for continuous monitoring on personal wearable devices. IEEE journal of biomedical and health informatics , 24(2):515–523, 2019. [15] Siyuan Zhang, Cheng Lian, Bingrong Xu, Junbin Zang, and Zhigang Zeng. A token selection-based multi-scale dual-branch CNN-transformer network for 12-lead ECG signal classification. 
+
+Knowledge-Based Systems , 280:111006, 2023. [16] Renjie Cheng, Zhemin Zhuang, Shuxin Zhuang, Lei Xie, and Jingfeng Guo. MSW-Transformer: Multi-scale shifted windows transformer networks for 12-lead ECG classification. arXiv preprint arXiv:2306.12098 , 2023. [17] Guo-Jun Qi and Jiebo Luo. Small data challenges in big data era: A survey of recent progress on unsupervised and semi-supervised methods. IEEE Transactions on Pattern Analysis and Machine Intelligence , 44(4):2168–2187, 2020. [18] Temesgen Mehari and Nils Strodthoff. Self-supervised representation learning from 12-lead ECG data. Computers in biology and medicine , 141:105114, 2022. [19] Ning Wang, Panpan Feng, Zhaoyang Ge, Yanjie Zhou, Bing Zhou, and Zongmin Wang. Adver-sarial spatiotemporal contrastive learning for electrocardiogram signals. IEEE Transactions on Neural Networks and Learning Systems , 35(10):13845–13859, 2023. [20] Ting Chen, Simon Kornblith, Mohammad Norouzi, and Geoffrey Hinton. A simple framework for contrastive learning of visual representations. In International conference on machine learning , pages 1597–1607. PMLR, 2020. [21] Rui Hu, Jie Chen, and Li Zhou. Spatiotemporal self-supervised representation learning from multi-lead ECG signals. Biomedical Signal Processing and Control , 84:104772, 2023. [22] Shunxiang Yang, Cheng Lian, and Zhigang Zeng. Masked autoencoder for ECG representation learning. In 2022 12th International Conference on Information Science and Technology (ICIST) , pages 95–98. IEEE, 2022. [23] Yunji Liang, Huihui Li, Bin Guo, Zhiwen Yu, Xiaolong Zheng, Sagar Samtani, and Daniel D Zeng. Fusion of heterogeneous attention mechanisms in multi-view convolutional neural network for text classification. Information Sciences , 548:295–312, 2021. [24] Ankur Parikh, Oscar Täckström, Dipanjan Das, and Jakob Uszkoreit. A decomposable attention model for natural language inference. In Proceedings of the 2016 Conference on Empirical Methods in Natural Language Processing , pages 2249–2255, 2016. [25] Annamalai Natarajan, Yale Chang, Sara Mariani, Asif Rahman, Gregory Boverman, Shruti Vij, and Jonathan Rubin. A wide and deep transformer neural network for 12-lead ECG classification. In 2020 Computing in Cardiology , pages 1–4. IEEE, 2020. [26] Yanfang Dong, Miao Zhang, Lishen Qiu, Lirong Wang, and Yong Yu. An arrhythmia classifica-tion model based on vision transformer with deformable attention. Micromachines , 14(6):1155, 2023. [27] Iz Beltagy, Matthew E Peters, and Arman Cohan. Longformer: The long-document transformer. 
+
+arXiv preprint arXiv:2004.05150 , 2020. [28] Ze Liu, Yutong Lin, Yue Cao, Han Hu, Yixuan Wei, Zheng Zhang, Stephen Lin, and Baining Guo. Swin transformer: Hierarchical vision transformer using shifted windows. In Proceedings of the IEEE/CVF international conference on computer vision , pages 10012–10022, 2021. [29] Ali Hassani, Steven Walton, Jiachen Li, Shen Li, and Humphrey Shi. Neighborhood attention transformer. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 6185–6194, 2023. [30] Sanghyun Baek, Jiyong Jang, and Sungroh Yoon. End-to-end blood pressure prediction via fully convolutional networks. IEEE Access , 7:185458–185468, 2019. 19 [31] Shunxiang Yang, Cheng Lian, Zhigang Zeng, Bingrong Xu, Yixin Su, and Chenyang Xue. Masked self-supervised ECG representation learning via multiview information bottleneck. 
+
+Neural Computing and Applications , pages 1–13, 2024. [32] Patrick Wagner, Nils Strodthoff, Ralf-Dieter Bousseljot, Dieter Kreiseler, Fatima I Lunze, Wojciech Samek, and Tobias Schaeffter. PTB-XL, a large publicly available electrocardiography dataset. Scientific data , 7(1):1–15, 2020. [33] Feifei Liu, Chengyu Liu, Lina Zhao, Xiangyu Zhang, Xiaoling Wu, Xiaoyan Xu, Yulin Liu, Caiyun Ma, Shoushui Wei, Zhiqiang He, et al. An open access database for evaluating the algorithms of electrocardiogram rhythm and morphology abnormality detection. Journal of Medical Imaging and Health Informatics , 8(7):1368–1373, 2018. [34] Degaga Wolde Feyisa, Taye Girma Debelee, Yehualashet Megersa Ayano, Samuel Rahimeto Kebede, and Tariku Fekadu Assore. Lightweight multireceptive field CNN for 12-lead ECG signal classification. Computational Intelligence and Neuroscience , 2022(1):8413294, 2022. [35] Rui Hu, Jie Chen, and Li Zhou. A transformer-based deep neural network for arrhythmia detection using continuous ECG signals. Computers in Biology and Medicine , 144:105325, 2022. [36] Hany El-Ghaish and Emadeldeen Eldele. ECGTransForm: Empowering adaptive ECG arrhyth-mia classification framework with bidirectional transformer. Biomedical Signal Processing and Control , 89:105714, 2024. [37] Xinlei Chen, Saining Xie, and Kaiming He. An empirical study of training self-supervised vision transformers. In Proceedings of the IEEE/CVF international conference on computer vision , pages 9640–9649, 2021. [38] Dani Kiyasseh, Tingting Zhu, and David A Clifton. CLOCS: Contrastive learning of cardiac signals across space, time, and patients. In International Conference on Machine Learning ,pages 5606–5615. PMLR, 2021. [39] Emadeldeen Eldele, Mohamed Ragab, Zhenghua Chen, Min Wu, Chee-Keong Kwoh, Xiaoli Li, and Cuntai Guan. Self-supervised contrastive representation learning for semi-supervised time-series classification. IEEE Transactions on Pattern Analysis and Machine Intelligence , 45 (12):15604–15618, 2023. [40] Duc Le, Sang Truong, Patel Brijesh, Donald A Adjeroh, and Ngan Le. sCL-ST: Supervised con-trastive learning with semantic transformations for multiple lead ECG arrhythmia classification. 
+
+IEEE journal of biomedical and health informatics , 27(6):2818–2828, 2023. [41] Kaiming He, Xinlei Chen, Saining Xie, Yanghao Li, Piotr Dollár, and Ross Girshick. Masked autoencoders are scalable vision learners. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 16000–16009, 2022. [42] Wenrui Zhang, Ling Yang, Shijia Geng, and Shenda Hong. Self-supervised time series repre-sentation learning via cross reconstruction transformer. IEEE Transactions on Neural Networks and Learning Systems , 35(11):16129–16138, 2024. [43] Huaicheng Zhang, Wenhan Liu, Jiguang Shi, Sheng Chang, Hao Wang, Jin He, and Qijun Huang. MaeFE: Masked autoencoders family of electrocardiogram for self-supervised pretraining and transfer learning. IEEE Transactions on Instrumentation and Measurement , 72:1–15, 2022. [44] Yeongyeon Na, Minje Park, Yunwon Tae, and Sunghoon Joo. Guiding masked representa-tion learning to capture spatio-temporal relationship of electrocardiogram. In The Twelfth International Conference on Learning Representations , 2024. [45] Anton G Constantinides. Spectral transformations for digital filters. In Proceedings of the Institution of Electrical Engineers , volume 117, pages 1585–1590. IET, 1970. [46] Ary L. Goldberger et al. The Chapman University and Shaoxing People’s Hospital ECG database. 
+
+PhysioNet , 2020. URL https://physionet.org/content/chapmanecg/1.0.0/ .20 [47] Jianwei Zheng, Huimin Chu, Daniele Struppa, Jianming Zhang, Sir Magdi Yacoub, Hesham El-Askary, Anthony Chang, Louis Ehwerhemuepha, Islam Abudayyeh, Alexander Barrett, et al. Optimal multi-stage arrhythmia classification approach. Scientific reports , 10(1):2898, 2020. [48] Jungwoo Oh, Hyunseung Chung, Joon-myoung Kwon, Dong-gyun Hong, and Edward Choi. Lead-agnostic self-supervised learning for local and global representations of electrocardiogram. In Conference on Health, Inference, and Learning , pages 338–353. PMLR, 2022. [49] Wenhan Liu, Shurong Pan, Sheng Chang, Qijun Huang, and Nan Jiang. Direct lead assignment: A simple and scalable contrastive learning method for ECG and its IoMT applications. IEEE Internet of Things Journal , 12(5):5672–5686, 2024. [50] Wenhan Liu, Shurong Pan, Zhoutong Li, Sheng Chang, Qijun Huang, and Nan Jiang. Lead-fusion barlow twins: A fused self-supervised learning method for multi-lead electrocardiograms. 
+
+Information Fusion , 114:102698, 2025. [51] Yue Ge, Huaicheng Zhang, Jiguang Shi, Deyu Luo, Sheng Chang, Jin He, Qijun Huang, and Hao Wang. Jamc: A jigsaw-based autoencoder with masked contrastive learning for cardiovascular disease diagnosis. Knowledge-Based Systems , 311:113090, 2025. 21
