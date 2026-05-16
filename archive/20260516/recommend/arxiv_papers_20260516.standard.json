@@ -1,0 +1,56 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-05-16T20:02:36.245720+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2605.07549v1",
+      "source": "arxiv",
+      "title": "Probabilistic Object Detection with Conformal Prediction",
+      "abstract": "Conformal Prediction (CP) is a distribution-free method for constructing prediction sets with marginal finite-sample coverage guarantees, making it a suitable framework for reliable uncertainty quantification in safety-critical object detection. However, object detection introduces structured multi-output predictions, complicating the application of classical CP theory developed for single outputs. In addition, standard, unscaled CP produces fixed-width prediction intervals across inputs, leading to unnecessary width for low-uncertainty predictions. While scaled CP addresses this by adapting the interval width to an input-dependent uncertainty estimate, prior work has neither systematically compared unscaled and scaled CP for multi-class object detection, nor integrated CP with a complementary uncertainty quantification method in this setting. We fill this gap by: (i) applying CP coordinate-wise to bounding box corners with a Bonferroni correction for box-level guarantees; (ii) scaling the resulting intervals using per-prediction aleatoric uncertainty estimates derived from a probabilistic object detector trained with loss attenuation, evaluated in uncalibrated and two calibrated variants; (iii) extending to a two-step pipeline that constructs prediction sets for the class using RAPS and conditions the conformalized bounding boxes on the predicted class set. Across three autonomous driving datasets (KITTI, BDD, CODA), including a cross-domain setting under distribution shift, scaled CP consistently improves interval sharpness over unscaled CP, achieving up to 19% higher IoU and 39% lower interval scores, without sacrificing coverage. Class-wise calibration further improves coverage for both variants with a negligible effect on sharpness. Together, these improvements yield more actionable uncertainty estimates for real-time, real-world object detection.",
+      "authors": [
+        "Christopher Ries",
+        "Moussa Kassem Sbeyti",
+        "Nicolas Bianco",
+        "Nadja Klein"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2026-05-08T10:23:43+00:00",
+      "link": "https://arxiv.org/pdf/2605.07549v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.5,
+      "llm_evidence_en": "uncertainty quantification for multi-class object detection",
+      "llm_evidence_cn": "多类别目标检测的不确定性量化",
+      "llm_evidence": "多类别目标检测的不确定性量化",
+      "canonical_evidence": "多类别目标检测的不确定性量化",
+      "llm_tldr_en": "This paper applies Conformal Prediction to object detection for reliable uncertainty quantification.",
+      "llm_tldr_cn": "本文将符合预测应用于目标检测，以实现可靠的不确定性量化。",
+      "llm_tldr": "本文将符合预测应用于目标检测，以实现可靠的不确定性量化。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

@@ -1,0 +1,370 @@
+Title: Probabilistic Object Detection with Conformal Prediction
+
+URL Source: https://arxiv.org/pdf/2605.07549v1
+
+Published Time: Mon, 11 May 2026 01:36:08 GMT
+
+Number of Pages: 19
+
+Markdown Content:
+# Probabilistic Object Detection with Conformal Prediction 
+
+Christopher Ries uliaz@student.kit.edu 
+
+Moussa Kassem Sbeyti moussa.sbeyti@kit.edu 
+
+Nicolas Bianco nicolas.bianco@kit.edu 
+
+Nadja Klein nadja.klein@kit.edu 
+
+Karlsruhe Institute of Technology (KIT), Karlsruhe, Germany 
+
+Abstract 
+
+Conformal Prediction (CP) is a distribution-free method for constructing prediction sets with marginal finite-sample coverage guarantees, making it a suitable framework for reliable uncertainty quantification in safety-critical object detection. However, object detection in-troduces structured multi-output predictions, complicating the application of classical CP theory developed for single outputs. In addition, standard, unscaled CP produces fixed-width prediction intervals across inputs, leading to unnecessary width for low-uncertainty predictions. While scaled CP addresses this by adapting the interval width to an input-dependent uncertainty estimate, prior work has neither systematically compared unscaled and scaled CP for multi-class object detection, nor integrated CP with a complementary uncertainty quantification method in this setting. We fill this gap by: (i) applying CP coordinate-wise to bounding box corners with a Bonferroni correction for box-level guaran-tees; (ii) scaling the resulting intervals using per-prediction aleatoric uncertainty estimates derived from a probabilistic object detector trained with loss attenuation, evaluated in un-calibrated and two calibrated variants; (iii) extending to a two-step pipeline that constructs prediction sets for the class using Regularized Adaptive Prediction Sets (RAPS) and condi-tions the conformalized bounding boxes on the predicted class set. Across three autonomous driving datasets (KITTI, BDD, CODA), including a cross-domain setting under distribu-tion shift, scaled CP consistently improves interval sharpness over unscaled CP, achieving up to 19% higher IoU and 39% lower interval scores, without sacrificing coverage. Class-wise calibration further improves coverage for both variants with a negligible effect on sharpness. Together, these improvements yield more actionable uncertainty estimates for real-time, real-world object detection. Code is available at https://github.com/mos-ks/OD-CP .
+
+Keywords: Calibration; real-time object detection; safety-critical application; scoring function; uncertainty quantification. 
+
+1. Introduction 
+
+Deploying object detectors in safety-critical applications such as autonomous driving re-quires not only accurate predictions but also reliable associated uncertainty estimates. Without the latter, a model that is wrong with high confidence poses a direct risk. However, state-of-the-art object detectors rely on deterministic neural networks that regress bounding boxes and classify objects with corresponding sigmoid-based scores without any uncertainty estimation. While several probabilistic object detectors have been proposed (Choi et al., 2019; Feng et al., 2022), the underlying Uncertainty Quantification (UQ) methods are typ-ically model-specific as well as computationally expensive, thereby limiting their broad ap-plicability (Gawlikowski et al., 2023). Conformal Prediction (CP) addresses this limitation: 
+
+> arXiv:2605.07549v1 [cs.CV] 8 May 2026
+
+it is a post-hoc, model-agnostic, and distribution-free framework. Given a pre-defined mis-coverage level α ∈ [0 , 1], CP constructs prediction intervals for regression or prediction sets for classification that contain the true value with probability of at least 1 −α (Papadopoulos et al., 2002; Vovk et al., 2005; Vovk, 2013). This guarantee holds in finite samples without assumptions on the underlying model, relying solely on the exchangeability of the calibra-tion and test data. However, CP in its original form has been designed for single outputs and is thus not directly applicable to the multi-output predictions of object detectors. Standard (unscaled) CP produces prediction intervals of constant width across inputs. Therefore, it ignores the varying difficulty of individual predictions. Scaled CP, instead, addresses this by adapting the interval width to an input-dependent uncertainty estimate. In object detection, a natural candidate for this estimate is aleatoric uncertainty, which captures irreducible noise inherent in the data. Unlike epistemic uncertainty, aleatoric uncertainty is directly observable from the data and thus well-suited to characterize the difficulty of individual predictions at inference time (Kassem Sbeyti et al., 2023, 2024). Loss attenuation (Kendall and Gal, 2017) provides a computationally efficient, sampling-free means to estimate this uncertainty by learning a per-prediction variance alongside the regression target. However, the behaviour of aleatoric uncertainty-scaled CP in the context of multi-class object detection remains poorly understood. In particular, no prior work has systematically studied whether scaling CP with such estimates improves over the unscaled baseline, nor how uncertainty calibration affects this scaling. In this work, we build on an EfficientDet-based probabilistic object detector trained with loss attenuation (Kassem Sbeyti et al., 2023), which provides per-prediction aleatoric uncer-tainty estimates. We use these estimates as scaling factors for scaled CP, evaluated in three forms: raw (uncalibrated) and two calibrated variants based on isotonic regression (Barlow and Brunk, 1972; Kuleshov et al., 2018), applied either globally or per-coordinate and per-class. We compare these against unscaled CP across class-agnostic and class-wise settings on three autonomous driving datasets. The three datasets cover both in-domain evaluation and a cross-domain setting, representing a realistic distribution shift scenario. Furthermore, following Timans et al. (2025), we evaluate a two-step pipeline that applies CP to both the regression and classification heads of the object detector, using RAPS (Angelopoulos et al., 2021) to produce class-conditional prediction sets that condition the conformalized bound-ing boxes. Our pipeline is shown in Figure 1. The contributions of this work are: (i) We provide a systematic comparison of unscaled and scaled CP for multi-class object detection, evaluated not only on coverage but also on interval sharpness metrics in-cluding Intersection over Union (IoU) and interval score, across both in-domain and cross-domain settings under distribution shift. (ii) We study the effect of uncertainty calibration on scaled CP, comparing raw loss at-tenuation estimates against two calibrated variants. (iii) We evaluate class-wise CP for bounding box regression and demonstrate its effect on coverage and sharpness relative to the class-agnostic setting. (iv) We evaluate a two-step pipeline that jointly conformalize the classification and regres-sion heads. Loss Attenuation Class-wise? Class-wise? RAPS Quantile Selection no no yes yes Class-agnostic Quantile Class-agnostic Quantile Unscaled class-agnostic conformalized boxes Unscaled class-wise conformalized boxes Scaled class-wise conformalized boxes Scaled class-agnostic conformalized boxes Figure 1: Overview of the pipeline. The upper branch applies unscaled CP and the lower branch applies scaled CP, where the prediction intervals are scaled by aleatoric uncertainty estimates derived via loss attenuation. In both branches, the class-wise path additionally computes prediction sets for the classification head using RAPS, followed by class-conditional quantile selection. In summary, we demonstrate that scaled CP consistently achieves sharper intervals than unscaled CP without sacrificing the validity of the coverage guarantee, and that this finding holds across all datasets and experimental settings considered. 
+
+2. Related Work 
+
+Uncertainty Quantification in Deep Learning. Uncertainty in deep learning models can be decomposed into epistemic uncertainty, reflecting model ignorance that can in princi-ple be reduced with more data, and aleatoric uncertainty, capturing irreducible noise inher-ent in the observations themselves (Kendall and Gal, 2017). Methods for estimating these uncertainties broadly fall into two categories. Distributional approaches modify the model or training procedure to produce uncertainty estimates directly. Common examples include deep ensembles (Lakshminarayanan et al., 2017) and Monte Carlo (MC) dropout (Gal and Ghahramani, 2016) for epistemic uncertainty, and loss attenuation (Kendall and Gal, 2017) for aleatoric uncertainty in regression. Sampling-based methods such as ensembles and MC dropout are computationally expensive, requiring either multiple training runs or multiple forward passes at inference (Gawlikowski et al., 2023). Methods such as MC dropout additionally require architectural modifications, limiting their applicability. Post-hoc approaches, by contrast, are applied to a fixed pre-trained model and make no assump-tions about the underlying architecture, making them implementation-agnostic. Calibration methods such as isotonic regression (Kuleshov et al., 2018) and conformal prediction (Vovk et al., 2005) fall into this category. 
+
+Uncertainty Quantification in Object Detection. Object detection introduces specific challenges for uncertainty quantification compared to standard classification or re-gression tasks. Predictions are structured and multi-output: a detector produces both a bounding box and a class label for each detected object, each carrying its own source of uncertainty (Choi et al., 2021). The localization output is a four-dimensional continu-ous variable, and object detectors operate on cluttered scenes with varying object scales, occlusion levels, and lighting conditions, all of which affect prediction difficulty in an input-dependent manner. General UQ methods such as MC dropout and deep ensembles have been applied to object detection (Harakeh et al., 2020; Lyu et al., 2020), but their compu-tational cost and architectural requirements limit their practical use in real-time detection pipelines (Gawlikowski et al., 2023). Moreover, epistemic uncertainty reflects model igno-rance that diminishes with more data and a better model, and is therefore less informative about the difficulty of individual predictions at inference time. Aleatoric uncertainty, by contrast, is tied to the irreducible noise in each input and remains informative at inference time even for a well-trained model. Crucially, Kassem Sbeyti et al. (2023) demonstrate that aleatoric uncertainty estimated via loss attenuation correlates with task-relevant error sources such as occlusion, object distance, and image quality in object detection, making it a well-motivated scaling signal for input-adaptive prediction intervals. Probabilistic object detectors capture this by modelling the bounding box output as a Gaussian distribution 
+
+N (μ, σ 2), where σ2 represents the per-coordinate aleatoric uncertainty (Choi et al., 2019). Loss attenuation (Kassem Sbeyti et al., 2023) achieves this by learning the variance alongside the regression target through a heteroscedastic negative log-likelihood objective, without re-quiring multiple forward passes or architectural changes beyond the output head. However, the raw estimates produced by loss attenuation are typically miscalibrated (Kassem Sbeyti et al., 2023), motivating post-hoc calibration via isotonic regression before being used as scaling factors for CP. 
+
+Conformal Prediction in Deep Learning. CP (Papadopoulos et al., 2002; Vovk et al., 2005; Vovk, 2013) has emerged as a post-hoc and model-agnostic approach to un-certainty quantification, offering finite-sample marginal coverage guarantees under the as-sumption of exchangeability of the calibration and test data. Unlike the distributional and sampling-based methods discussed above, CP requires only a single model evaluation and makes no assumptions about the underlying architecture, making it applicable to any black-box predictor. For regression, CP constructs prediction intervals around the model output; for classification, it constructs prediction sets containing the true class with a user-specified probability. Several algorithms have been proposed for the classification setting, including Adaptive Prediction Sets (APS) (Romano et al., 2020) and RAPS (Angelopoulos et al., 2021), which build adaptive prediction sets by accumulating sorted class probabilities until a calibrated threshold is reached. CP in deep learning has demonstrated strong potential in safety-critical domains including medical imaging (Lu et al., 2022; Vazquez and Facelli, 2022; Ghoshal et al., 2025), autonomous driving (de Grancey et al., 2022; Timans et al., 2025), and railway signaling (Andeol et al., 2023). A key requirement is exchangeability, which requires the joint distribution of calibration and test data to be invariant to finite permutations (Vovk et al., 2005; Vovk, 2013). This assumption may be violated when cali-bration and deployment conditions differ, for example under domain shift (Tibshirani et al., 2019), which we explicitly investigate in our cross-domain evaluation. 
+
+Conformal Prediction in Object Detection. Applying CP to object detection is non-trivial for two reasons. First, bounding box regression is a multi-output problem: CP must be applied to each of the four box coordinates independently, requiring a multiple testing correction to obtain joint box-level coverage guarantees. The standard choice is the Bonferroni correction (Bland and Altman, 1995), which allocates a miscoverage of α/ 4to each coordinate, ensuring an overall miscoverage no greater than α. While conserva-tive (de Grancey et al., 2022; Timans et al., 2025), it does not require assumptions about the dependence structure of the coordinate-wise errors. Alternatives that exploit the de-pendence structure between coordinates, such as copula-based corrections (Mukama et al., 2024), have been proposed and can yield tighter intervals. However, they require estimating the joint dependence structure from the calibration data, adding implementation complexity and potentially increasing sensitivity to distribution shift. Hence, in this paper, we adopt the Bonferroni approach for simplicity and comparability with prior work (de Grancey et al., 2022; Timans et al., 2025). Beyond the choice of correction, previous work differ in which heads of the detector CP is applied to and whether fixed or adaptive interval widths are used. De Grancey et al. (2022) apply unscaled CP exclusively to the localization head, comparing coordinate-wise, box-wise, and image-wise variants, and conclude that coordinate-wise and box-wise CP are better suited for pedestrian localization. However, they do not address the classification head or scaled CP. The work most closely related to ours is by Timans et al. (2025), who extend CP to both the classification and regression heads through a two-step pipeline: prediction sets for the class are first computed, and the conformalized bounding boxes are then conditioned on the predicted class. They further introduce a scaled variant based on a conformal ensemble. While their approach demonstrates the value of adaptive interval width, it relies on an ensemble, making it computationally expensive. In contrast, our work evaluates scaling based on aleatoric uncertainty derived from loss attenuation, which is sampling-free and requires only a single forward pass. Furthermore, unlike Timans et al. (2025), we systematically compare unscaled and scaled CP across multiple datasets and both calibrated and uncalibrated uncertainty estimates, evaluating performance on coverage and sharpness metrics and explicitly testing robustness under distribution shift. 
+
+3. Method 
+
+In this section, we first provide the necessary background on CP for regression and clas-sification, and then describe how CP is applied to object detection to obtain prediction intervals for bounding boxes as well as prediction sets for object classes, forming the basis of our experimental evaluation. 
+
+3.1. Conformal Prediction 
+
+Let Y ∈ Y ⊆ R and X ∈ X ⊆ Rp be an outcome and p-dimensional input variable, respectively. Let ( Xi, Y i) ∼ PXY be independent and identically distributed pairs of input vectors and output i = 1 , . . . n with unknown on X × Y . CP aims to provide a prediction interval (for regression) or set (for classification) C(Xn+1 ) such that for some new input and output pair ( Xn+1 , Y n+1 ) ∼ PXY for any fixed miscoverage level α ∈ [0 , 1]: 
+
+P(Yn+1 ∈ C (Xn+1 )) ≥ 1 − α, (1) where the quantity 1 − α is also called marginal coverage , and the probability is taken with respect to PXY .According to how C(Xn+1 ) is computed, CP can be categorized into full (Vovk et al., 2005) and split (Vovk et al., 2005; Vovk, 2013). The first one requires to fit a model for each possible one-hold-out split of the dataset, therefore being accurate but computationally demanding. On the other hand, split CP considers a single split into a calibration and evaluation set, often leading to larger prediction interval/set (Vovk et al., 2005; Vovk, 2015) but at a reduced computational cost (Angelopoulos and Bates, 2021). In this work, we consider split CP. Assume that we observe n + m samples D =
+
+{(yi, x i)}n+mi=1 that have not been used during training and randomly split D into a cali-bration set Dcal of size n and an evaluation set Deval of size m. Moreover, we denote with ˆf : X → Y a prediction function and with ˆ yi = ˆf (xi) the prediction of the outcome at input 
+
+xi. Define a score function s(ˆ y, y ) that returns higher values for worse predictions ˆ y of y,and s(ˆ y, y ) = 0 if and only if ˆ y = y. The score function is also called conformity score .Its choice determines the width and adaptivity of the resulting prediction intervals or sets (scaled vs. unscaled), and we describe the relevant options for regression and classification separately below. 
+
+Regression. Our aim is to create a prediction interval [ l(x), u (x)] based on: (Unscaled) s(ˆ y, y ) = | ˆf (x) − y|, (2) (Scaled) s(ˆ y, y ) = | ˆf (x) − y|
+
+ˆσ(x) . (3) The score function (2) corresponds to the absolute value of the regression residuals, while (3) rescales the residuals by input-dependent uncertainty estimate ˆ σ(x) > 0 (Lei et al., 2018). The prediction intervals are constructed as: (Unscaled) bC(x) = [ ˆf (x) − ˆq, ˆf (x) + ˆ q](Scaled) bC(x) = [ ˆf (x) − ˆq · ˆσ(x), ˆf (x) + ˆ q · ˆσ(x)] ,
+
+for the unscaled and scaled CP, respectively, where ˆ q is the ⌈(n + 1)(1 − α)⌉/n -quantile of the respective score vector s = ( s(ˆ y1, y 1), . . . , s (ˆ yn, y n)) ⊤ computed on the calibration set 
+
+Dcal = {(yi, x i)}ni=1 .For both, unscaled and scaled CP, the marginal coverage defined in (1) holds. Empir-ically, this means that for the samples in the evaluation set Deval = {(yi, x i)}mi=1 it holds that 1
+
+m
+
+> m
+
+X
+
+> i=1
+
+I
+
+
+
+yi ∈ bC(xi)
+
+
+
+∈
+
+
+
+1 − α, 1 − α + 1
+
+n + 1 
+
+
+
+,
+
+where I(·) is the indicator function. In this work, the learned variance ˆ σ(x) via loss attenuation serves as the input-dependent scaling factor in Equation (3), directly linking aleatoric uncertainty to the width of the conformalized prediction intervals. 
+
+Classification. Assume a multi-class classification problem with K classes. In this context, the prediction ˆ y = ˆf (x) is a K-dimensional vector of per-class probabilities ˆ y =(ˆ y1, . . . , ˆyK )⊤ for some input value x. Let π(x) be the permutation such that the output probabilities ˆ yπ(x) are sorted from highest to lowest. The prediction set is then constructed by including the highest probability classes in order until a calibrated threshold is reached. The choice of score function determines how this threshold is computed; in this work we con-sider APS (Romano et al., 2020; Angelopoulos and Bates, 2021) and RAPS (Angelopoulos et al., 2021), which differ as follows: (APS) s(ˆ y, y ) = 
+
+> k
+
+X 
+
+> j=1 |ˆyj≤ˆy⋆
+
+ˆyπj (x), (4) (RAPS) s(ˆ y, y ) = 
+
+> k
+
+X 
+
+> j=1 |ˆyj≤ˆy⋆
+
+
+
+ˆyπj (x) + aI(j > b )
+
+
+
+, (5) where ˆ y⋆ is the probability of the true class k⋆. Note that RAPS score function is built to encourage small prediction sets and depends on two hyperparameters ( a, b ). The role of these is explained in the work of Angelopoulos et al. (2021). In this work, we use the hyperparameter suggested in the work of Angelopoulos and Bates (2021). During inference, the prediction set is defined as the collection of k classes bC(x) = {π1(x), . . . , π k(x)} such that: 
+
+k = sup 
+
+
+
+> k′
+
+X
+
+> j=1
+
+ˆf (x)πj (x) < ˆq
+
+ + 1 , (6) where ˆ q is the ⌈(n + 1)(1 − α)⌉/n -quantile of the score vector s = ( s(ˆ y1, y 1), . . . , s (ˆ yn, y n)) ⊤
+
+computed on the calibration set Dcal = {(yi, x i)}ni=1 . This construction of the predictions set achieve the theoretical marginal coverage in (1), while empirically it holds that for the samples in the evaluation set Deval = {(yi, x i)}mi=1 :1
+
+m
+
+> m
+
+X
+
+> i=1
+
+I
+
+
+
+ki,⋆ ∈ bC(xi)
+
+
+
+∈
+
+
+
+1 − α, 1 − α + 1
+
+n + 1 
+
+
+
+.
+
+RAPS also has the ability to enforce non-empty prediction sets (Angelopoulos and Bates, 2021; Angelopoulos et al., 2021). This is achieved by first checking if the prediction set is empty, and if it is, adding the class with the largest softmax output to the prediction set. 
+
+3.2. Applying Conformal Prediction to Object Detection 
+
+Let I ∈ RH×W ×D be an input image H, W and D corresponding to height, width, and depth, respectively. For each image, a vector of coordinates ( cx, 0, c y, 0, c x, 1, c y, 1) ∈ R4 cor-responding to the corners of the object present in the image is available together with the true label of the class k ∈ { 1, . . . , K } to which the object belongs to. The true bounding box is the boundary of the rectangle A = [ cx, 0, c x, 1] × [cy, 0, c y, 1], which we denote by δ(A). CP in the context of object detection can be used to i) obtain prediction intervals around the bounding box (regression) or ii) obtain these jointly with a prediction set for the class of the detected object (regression and classification). 
+
+Class-Agnostic Conformal Prediction: Regression. The first task requires to construct a prediction interval for the bounding box using a single set of conformity scores computed across all classes, regardless of the object category. In a class-agnostic setting and for a new input image I with true bounding box δ(A), the CP procedure should provide a predictive area C(I) = A+ \ A− where: 
+
+A+ = [ a+
+
+> x, 0
+
+, a +
+
+> x, 1
+
+] × [a+
+
+> y, 0
+
+, a +
+
+> y, 1
+
+]
+
+A− = [ a−
+
+> x, 0
+
+, a −
+
+> x, 1
+
+] × [a−
+
+> y, 0
+
+, a −
+
+> y, 1
+
+].
+
+such that P(δ(A) ∈ C (I)) = 1 − αbbox , for αbbox ∈ [0 , 1]. Note that A+ and A− can be defined in terms of the prediction intervals for each corner, where 
+
+a+ 
+
+> i,j
+
+= C+ 
+
+> i,j
+
+(I) = max  
+
+> i
+
+Ci,j (I)
+
+a− 
+
+> i,j
+
+= C− 
+
+> i,j
+
+(I) = min  
+
+> i
+
+Ci,j (I),
+
+for i = x, y and j = 0 , 1. Define the event that the coordinate ci,j is included in the prediction interval Ci,j (I) as Ei,j (I) = {ci,j ∈ C i,j (I)}, and let E(I) = ∩i∈{ x,y },j ∈{ 0,1}Ei,j (I)be the event that each corner of the bounding box is included in the prediction interval simultaneously. Then, 
+
+P(δ(A) ∈ C (I)) = P (E(I)) = 1 − αbbox ,
+
+for αbbox ∈ [0 , 1]. However, since we apply CP to each of the four corners individually, we can only obtain a lower bound on the aforementioned probability. Assume that we require the same marginal coverage 1 − α per each corner, applying Boole’s inequality it holds that: 
+
+P (E(I)) = 1 − P  ∪i∈{ x,y },j ∈{ 0,1}Eci,j (I)
+
+≥ 1 − X
+
+> i∈{ x,y },j ∈{ 0,1}
+
+P  Eci,j (I)
+
+= 1 − 4α, (7) where Eci,j (I) = {ci,j ̸ ∈ C i,j (I)} is the complementary event of Ei,j (I). It follows that choosing α = αbbox /4 is a sufficient condition to ensure a lower bound probability of 1 −αbbox 
+
+on the coverage of the entire bounding box. This is the Bonferroni correction applied to the four bounding box coordinates (Bland and Altman, 1995), and it does not require any assumptions about the dependence structure of the coordinate-wise errors. 
+
+Class-Conditional Conformal Prediction: Regression. Equation (7) only pro-vides marginal coverage across all classes but not a class-conditional coverage. To achieve this, we use class-wise CP, where the calibration set is split in smaller sub-sets according to the ground truth class, where the latter is assumed to be known. The conformal scores and prediction set are computed per each class k ∈ { 1, . . . , K }:
+
+P (E(I) | Y = k) ≥ 1 − αbbox . (8) The advantage of this approach is to adapt the width of prediction intervals to each class. However, in this setting, the calibration set cannot be selected at random. Instead, it must be constructed through stratified sampling to ensure that each class is represented by at least a minimum number of samples. Joint Conformal Prediction: Classification and Regression. While Equation (8) assumes that the class k used for conditioning is known at inference time, this is not the case in practice. The true class must therefore be predicted, and its uncertainty quantified jointly with that of the bounding box, yielding a prediction set for the object class and a prediction interval for the bounding box coordinates simultaneously. A naive solution applies CP with coverage 1 − αbbox to each class k ∈ { 1, . . . , K }
+
+separately and takes the widest prediction interval across all classes as a worst-case bound. While this guarantees coverage, it discards class information entirely and leads to overly large intervals. The second alternative, following Timans et al. (2025), first applies CP to the classifi-cation head to obtain a prediction set Cclass (I) for the unknown true class. The bounding box quantile is then selected as the worst case over only the classes in Cclass (I) ⊂ { 1, . . . , K }
+
+rather than all K classes, yielding tighter intervals while maintaining coverage. Under the assumption that CP for the class and bounding box are independent, Timans et al. (2025) show that this two-step procedure achieves the following joint coverage: 
+
+P ({k ∈ C class (I)} ∧ E(I) | Y = k) = P(k ∈ C class (I)|Y = k)P(E(I) | Y = k)
+
+≥ (1 − αclass )(1 − αbbox ),
+
+where αclass and αbbox are the miscoverage levels for the classification and bounding box regression steps, respectively. Our two-step and one-step pipeline can be seen in Figure 1, where for both the scaled and unscaled variants, the class-wise option is enabled. 
+
+4. Experiments 
+
+This section is organized into three parts. The first evaluates CP applied solely to the bound-ing box regression task using a single class-agnostic quantile computed across all classes. The second extends this to a class-wise setting, where separate quantiles are computed per class under the assumption that the ground truth class is known. The third relaxes this assumption by incorporating CP for the classification head via a two-step pipeline, jointly conformalizing both regression and classification. We begin by defining the evaluation met-rics and experimental setup common to all three parts. 
+
+Metrics. We evaluate all methods on three complementary metrics. The primary metric for CP is empirical coverage , defined as 
+
+dCov = 1
+
+m
+
+> m
+
+X
+
+> i=1
+
+I(δ(Ai) ∈ C (Ii)) , (9) where m is the number of samples in Deval and C(Ii) is the conformalized bounding box for image Ii with ground truth box δ(Ai). Coverage alone is insufficient to distinguish methods, since arbitrarily large intervals trivially achieve high coverage. We therefore additionally report the IoU between the ground truth bounding box and the outer conformalized bound-ing box (Zou et al., 2023), which measures how tightly the conformalized box aligns with the ground truth. Finally, we report the interval score (Gneiting and Raftery, 2007), a proper scoring rule that jointly penalizes interval width and coverage violations: 
+
+Sint ,α (l, u ; c) = ( u − l) + 2
+
+α (l − c)I{c < l } + 2
+
+α (c − u)I{c > u }, (10) where l and u are the lower and upper bounds of the interval, c ∈ { cx, 0, c y, 0, c x, 1, c y, 1} is the true value of the corresponding bounding box coordinate in pixel space, and α is the per-coordinate miscoverage level. The interval score for the full bounding box is obtained by summing over all four corners. A lower interval score indicates a better trade-off between sharpness and coverage. Together, these three metrics capture the full picture: coverage tells us whether the guarantee is met, IoU measures alignment tightness, and the interval score penalizes both excessive width and coverage failures simultaneously. 
+
+Statistical testing. To assess whether differences between scaled and unscaled CP are statistically significant, we use a two-sided paired t-test. The paired design is appropriate since both methods are evaluated on identical random splits, eliminating between-split variance. The null hypothesis is equal means between scaled and unscaled CP for each metric. 
+
+Experimental setup. All experiments use 100 random splits of 80% calibration and 20% evaluation data. The miscoverage level α is specified per coordinate, such that the nominal coverage guarantee for the full bounding box is 1 − 4α according to the Bonferroni correction. Three autonomous driving datasets are considered: KITTI (Geiger et al., 2012) (1589 predictions), BDD (Yu et al., 2020) (37189 predictions), and CODA (Li et al., 2022) (4931 predictions). The underlying object detector is EfficientDet-d0 (Tan et al., 2020) trained with loss attenuation, following the setup of Kassem Sbeyti et al. (2024). Specifi-cally, a dedicated model is trained and evaluated on KITTI, a second model is trained and evaluated on BDD, and the BDD-trained model is additionally evaluated on CODA using the eight classes common to both datasets. CODA therefore represents a cross-domain evaluation under distribution shift. For scaled CP, three uncertainty estimates derived from loss attenuation are evaluated: the raw uncalibrated output (LA), and two calibrated variants based on relative isotonic regression applied globally (Rel. isotonic regression (IR)) or per-coordinate and per-class (Rel. IR per-coordinate (PCo) per-class (PC)). Relative isotonic regression (Kassem Sbeyti et al., 2023) extends standard isotonic regression by normalizing the predicted uncertainty and the residuals by the width and height of the corresponding bounding box prior to calibration, preventing the uncertainty of large objects from disproportionately influencing the calibration of smaller ones. 
+
+4.1. Results 
+
+4.1.1. Class-agnostic Conformal Prediction: Regression 
+
+Table 1 reports results for α = 0 .1 across all three datasets. All differences between scaled and unscaled CP are statistically significant at the 1% level ( p < 0.01) for all three metrics and all datasets. The results reveal a consistent pattern across all datasets. Unscaled CP achieves the highest empirical coverage, but this comes at the cost of unnecessarily wide intervals, as evidenced by its lowest IoU and highest interval score in all settings. This behaviour is a Table 1: Results using α = 0 .1, 100 runs, and an 80/20 split for KITTI (1589 predictions), BDD (37189 predictions), and CODA (4931 predictions). ∗∗ indicates p < 0.01 for the two-sided paired t-test against unscaled CP.                                                
+
+> KITTI BDD CODA
+> Method Cov. ↑IoU (%) ↑Int. Score ↓Cov. ↑IoU (%) ↑Int. Score ↓Cov. ↑IoU (%) ↑Int. Score ↓
+> Unscaled 0.75 75.01 130529 0.74 43.18 5154395 0.72 44.82 1731316 Scaled LA 0.72 ∗∗ 80.40 ∗∗ 106572 ∗∗ 0.72 ∗∗ 46.21 ∗∗ 4732494 ∗∗ 0.70 ∗∗ 50.56 ∗∗ 1539478 ∗∗
+> Scaled Rel. IR 0.71 ∗∗ 80.35 ∗∗ 103879 ∗∗ 0.72 ∗∗ 46.23 ∗∗ 4724573 ∗∗ 0.70 ∗∗ 50.68 ∗∗ 1533441 ∗∗
+> Scaled Rel. IR PCo PC 0.71 ∗∗ 80.25 ∗∗ 98261 ∗∗ 0.71 ∗∗ 46.80 ∗∗ 4499971 ∗∗ 0.69 ∗∗ 51.13 ∗∗ 1500083 ∗∗
+
+direct consequence of the fixed quantile. A single large value is applied uniformly across all predictions regardless of their individual difficulty, inflating the conformalized boxes beyond what is needed for easy predictions while still potentially under-covering genuinely hard ones. Scaled CP improves substantially on both sharpness metrics while maintaining valid coverage. The absolute IoU gain of scaled LA over unscaled CP is 5.4% on KITTI (75.01% to 80.40%), 3.0% on BDD (43.18% to 46.21%), and 5.7% on CODA (44.82% to 50.56%), with corresponding interval score reductions of 18.4%, 8.2%, and 11.1% respectively. The largest absolute IoU improvement is achieved by Rel. IR PCo PC on CODA (44.82% to 51.13%, +6.3%), which is also the setting with the largest domain shift. This suggests that aleatoric uncertainty scaling is particularly beneficial when the detector operates further from its training distribution, precisely the scenario where adaptive interval width matters most. Among the scaled variants, the benefit of uncertainty calibration is modest but consis-tent. The uncalibrated LA already captures the largest share of the gain over unscaled CP, while the per-coordinate and per-class calibrated variant Rel. IR PCo PC achieves the best interval score across all datasets. This indicates that fine-grained calibration provides an ad-ditional but incremental benefit in sharpness without affecting coverage. The near-identical IoU values of LA and Rel. IR on KITTI and BDD further suggest that global isotonic regression calibration adds little over the raw uncertainty estimate when the detector is evaluated in-domain. Figure 2 shows the percentage of predictions that fall below a given IoU threshold with the ground truth but are now fully contained within the conformalized bounding box. Two findings stand out. First, decreasing α increases the percentage of recovered predic-tions across all methods and datasets, as expected from the resulting wider conformalized boxes. Second, the recovery rates are highest on KITTI and BDD, where the detectors are evaluated in-domain, and noticeably lower on CODA, where the BDD-trained model faces distribution shift. This indicates that CP cannot fully compensate for degraded base detector performance, and that the quality of the aleatoric uncertainty estimates from loss attenuation is tied to how well the detector generalises to the evaluation domain. Figure 2: Percentage of true bounding boxes falling below a given IoU threshold with the point prediction that are now fully contained within the conformalized bounding box, shown for KITTI (left), BDD (mid), and CODA (right) at different IoU thresholds. Colors represent unscaled, LA, Rel. IR, and Rel. IR PCo PC. Solid lines ( -) correspond to α = 0 .025 and dashed lines ( --) to α = 0 .1. 
+
+4.1.2. Class-wise Conformal Prediction: Regression 
+
+We now evaluate class-wise CP, which computes separate calibration quantiles per ground truth class, yielding class-conditional coverage guarantees as in Equation (8). Since Sec-tion 4.1.1 showed that uncalibrated LA already captures the largest gain over unscaled CP with minimal additional cost, we restrict this evaluation to LA for the scaled variant. This evaluation assumes that the classifier is always correct, i.e., ground truth class labels are used for stratification, representing a theoretical upper bound on what class-wise CP can achieve in practice. The relaxation of this assumption is addressed in Section 4.1.3. Table 2: Class-wise results for α = 0 .1, 100 runs, and an 80/20 split. Only the uncalibrated uncertainty estimate is used for scaled CP. Coverage and IoU are weighted by class frequency; the interval score is summed over classes and averaged over runs.                              
+
+> KITTI BDD CODA
+> Method Cov. ↑IoU (%) ↑Int. Score ↓Cov. ↑IoU (%) ↑Int. Score ↓Cov. ↑IoU (%) ↑Int. Score ↓
+> Unscaled 0.74 75.47 126945 0.73 44.02 5024715 0.72 47.17 1625116 Scaled 0.71 80.05 97627 0.72 46.31 4691174 0.69 50.97 1432600
+
+The qualitative ordering from the class-agnostic setting is fully preserved. Scaled CP consistently achieves a higher IoU and lower interval score than unscaled CP across all three datasets, while unscaled CP retains higher empirical coverage. The key finding from comparing Table 2 with Table 1 is that class-wise stratification reduces the interval score for both methods without meaningfully changing coverage or IoU. On KITTI, the interval score decreases by 2.7% for unscaled (130528 to 126944) and by 8.4% for scaled (106571 to 97627). The larger reduction for scaled CP suggests that class-conditional quantiles interact more favorably with the scaling by aleatoric uncertainty. When calibration is stratified by class, the per-class uncertainty estimates from loss attenuation are better aligned with the difficulty distribution of each class, yielding sharper intervals without additional coverage loss. The improvement is more pronounced on CODA than on BDD, consistent with the greater heterogeneity of object appearances under domain shift, where class-specific calibra-tion of the uncertainty estimates provides more benefit. We note that the weighted averages in Table 2 reflect class imbalance across all three datasets. For minority classes with few calibration samples, class-wise quantiles may be less stable (Angelopoulos and Bates, 2021), which partially explains why the gains over the class-agnostic setting are moderate rather than large. This is further discussed in Section 6. 
+
+4.1.3. Joint Conformal Prediction: Classification and Regression 
+
+The class-wise results in Section 4.1.2 rely on access to the true class labels at inference time, which is unavailable in practice. We now address this by incorporating CP for the classification head via a two-step pipeline. A prediction set for the class is first constructed using RAPS, and the conformalized bounding box is then conditioned on the predicted class set by selecting the largest class-specific quantile. Under the independence assumption between classification and regression CP, this yields a joint coverage of at least (1 −αclass )(1 −
+
+αbbox ) as shown in Equation (3.2). This evaluation is restricted to KITTI, as the two-step pipeline requires the classifier to be sufficiently certain to produce small, informative prediction sets. On BDD the class distribution is more imbalanced, and on CODA the model operates under distribution shift from its BDD training domain; both factors increase classification uncertainty, leading to larger prediction sets and overly conservative bounding box intervals. We compare unscaled and scaled CP with uncalibrated LA only. 
+
+Selecting the classification CP algorithm. Table 3 compares APS and RAPS for αclass = 0 .01 on KITTI. All methods satisfy the coverage guarantee but they differ substantially in the size of prediction sets. APS produces sets roughly twice as large as both RAPS variants (3.457 vs. 1.762 and 1.765), which would directly inflate the bounding box intervals in the two-step pipeline by propagating larger worst-case quantiles. Between the two RAPS variants, allowing empty sets reduces both coverage (99.50% vs. 99.85%) and set size marginally. Empty prediction sets are inadmissible in our pipeline since they yield a class quantile of zero, collapsing the bounding box interval to a degenerate estimate. We therefore use RAPS without empty sets for all subsequent experiments. Table 3: Coverage and mean prediction set size for APS and RAPS variants evaluated over 100 random splits with αclass = 0 .01 on KITTI. Method Coverage ↑ Mean Set Size ↓
+
+APS 99.94 % 3.46 RAPS with empty sets 99.50% 1.76 
+
+RAPS w.o. empty sets 99.85% 1.77 (a) α = 0 .01 (b) α = 0 .05 (c) α = 0 .1
+
+(d) α = 0 .01 (e) α = 0 .05 (f) α = 0 .1Figure 3: Distribution of empirical average coverage over 1000 runs using 1589 evaluation samples on KITTI. The top row shows RAPS without empty prediction sets and the bottom row shows RAPS with empty prediction sets, evaluated at α ∈{0.01 , 0.05 , 0.1}.Figure 3 shows the distribution of empirical coverage over 1000 runs for both RAPS variants at three values of α. For RAPS without empty sets, the coverage distribution is sharply concentrated near 1.0 regardless of α. This is a consequence of EfficientDet’s high classification accuracy on KITTI (above 99%). The conformal quantile ˆ q is already large enough to include the true class with near-certainty for any reasonable α, such that additional regularization with RAPS does only marginally provide benefits. For RAPS with empty sets, the distribution correctly shifts toward 1 − α as α increases, confirming that the CP guarantee is properly calibrated when empty sets are permitted. The near-perfect coverage of RAPS without empty sets is therefore a property of the in-domain detector accuracy on KITTI rather than a failure of the CP procedure itself. Table 4 shows results for the two-step pipeline at two miscoverage levels. As expected, tightening the requirement from α = 0 .1 to α = 0 .05 increases empirical coverage for both methods while reducing IoU and increasing the interval score, reflecting the wider conformalized boxes required to meet the stricter guarantee. In comparison with the class-agnostic regression results in Table 1 for α = 0 .1, three observations emerge. First, incorporating classification CP increases empirical coverage for both methods (unscaled: 0.75 to 0.77; scaled: 0.72 to 0.76). This is expected: the two-step pipeline selects the largest quantile among the predicted class set, which is on average more conservative than a single class-agnostic quantile. Second, IoU decreases for both Table 4: Results for the two-step pipeline on KITTI using αclass = 0 .01 and α ∈ { 0.05 , 0.1}
+
+per bounding box corner. 100 runs, 80/20 split, 1589 evaluation samples. 
+
+α = 0 .1 α = 0 .05 Method Cov. ↑ IoU (%) ↑ Int. Score ↓ Cov. ↑ IoU (%) ↑ Int. Score ↓
+
+Unscaled 0.77 68.48 147854 0.88 59.03 267126 Scaled 0.76 76.65 103020 0.88 70.19 162895 
+
+methods (unscaled: 75.01 to 68.48; scaled: 80.40 to 76.65), reflecting this more conservative interval construction. Third, and most importantly, the interval score decreases for scaled CP (106571 to 103020, −3.3%) but increases substantially for unscaled CP (130528 to 147854, +13 .3%). This divergence is the key result of the two-step evaluation. For scaled CP, conditioning on the predicted class set and scaling by aleatoric uncertainty jointly produce intervals that remain well-calibrated to the difficulty of individual predictions even under the more conservative class-conditional quantile selection. For unscaled CP, the fixed-width intervals are further inflated by the worst-case class quantile with no compensating mechanism, substantially worsening the sharpness-coverage trade-off. This finding provides the strongest argument for scaled CP in the full two-step pipeline. Not only does it produce sharper intervals in isolation, it degrades more gracefully when combined with classification uncertainty. 
+
+5. Conclusion 
+
+We systematically compare unscaled and scaled CP for multi-class object detection on three autonomous driving datasets, including an in-domain and a cross-domain evaluation under distribution shift. Scaled CP, where prediction intervals are adapted using aleatoric uncer-tainty estimates derived from loss attenuation, consistently produces sharper and better-aligned conformalized bounding boxes than unscaled CP, as measured by the IoU and interval score. Crucially, this improvement in sharpness does not negatively affect coverage guarantee. Both variants maintain valid marginal coverage, with unscaled CP tending to over-cover beyond the nominal level. The largest performance gain is achieved by switching from unscaled to scaled CP with an uncalibrated uncertainty estimate. Further calibrating the uncertainty via relative iso-tonic regression yields only marginal additional improvements, suggesting that the raw aleatoric uncertainty from loss attenuation already captures the most relevant variation in prediction difficulty. Class-wise CP reduces the interval score for both variants with negli-gible effect on coverage, and with the reduction being more pronounced for scaled CP. This suggests that class-conditional quantiles interact more favourably with aleatoric uncertainty scaling, yielding sharper intervals when prediction difficulty varies across classes. For the two-step pipeline combining classification and regression CP, scaled CP again outperforms unscaled CP, and notably its interval score decreases relative to the regression-only setting while that of unscaled CP increases. This reveals an important asymmetry: scaled CP degrades more gracefully when combined with classification uncertainty, making it the preferred choice for the full two-step pipeline. This pipeline further requires that the classification CP algorithm produces non-empty prediction sets, making RAPS without empty sets the appropriate choice, and benefits from high base classifier accuracy. Taken together, our results demonstrate that scaling CP intervals by aleatoric uncer-tainty estimates is a simple, computationally efficient, and principled way to improve the sharpness of conformalized object detectors without sacrificing validity. Moreover, this find-ing is robust across datasets, uncertainty calibration strategies, and pipeline configurations. 
+
+6. Limitations 
+
+A first limitation concerns the size of the calibration set in the class-wise setting. Angelopou-los and Bates (2021) recommend approximately 1000 calibration samples per class for stable CP quantile estimates. This requirement is not met for all classes in our datasets due to class imbalance, which may reduce the stability of the class-wise quantiles and partially explains why the gains from class-wise CP over the class-agnostic setting are moderate. Future work could investigate the effect of enforcing a minimum per-class calibration set size, for example, through oversampling or dataset curation. Second, the hyperparameters of RAPS are not tuned in this work and are set to the values suggested by Angelopoulos and Bates (2021). Tuning them could further reduce prediction set sizes and improve the sharpness of the conformalized bounding boxes in the two-step pipeline. Third, the theoretical guarantees of CP rely on the exchangeability of calibration and test data. This assumption may be violated in real-world autonomous driving scenarios, for example, under changes in weather, lighting, or sensor conditions between calibration and deployment. The cross-domain evaluation on CODA, where the BDD-trained model is evaluated under distribution shift, already illustrates the practical consequences of this vio-lation. Recovery rates are lower and the benefits of uncertainty scaling are less pronounced than in the in-domain settings. Developing CP variants that are robust to distribution shift, for example, through weighted conformal prediction (Tibshirani et al., 2019), represents a promising direction for future work. 
+
+Acknowledgments 
+
+This work has been partially funded by the Pilot Program for Core Informatics (KiKIT) at the KIT of the Helmholtz Association. The authors also acknowledge support by the state of Baden-W¨ urttemberg through bwHPC. 
+
+References 
+
+Leo Andeol, Thomas Fel, Florence de Grancey, and Luca Mossina. Confident object de-tection via conformal prediction and conformal risk control: an application to railway signaling. In Proceedings of the Twelfth Symposium on Conformal and Probabilistic Pre-diction with Applications , pages 36–55. PMLR, 2023. Anastasios N. Angelopoulos and Stephen Bates. A gentle introduction to confor-mal prediction and distribution-free uncertainty quantification. arXiv preprint , 2021. arXiv:2107.07511. Anastasios N. Angelopoulos, Stephen Bates, Jitendra Malik, and Michael I. Jordan. Uncer-tainty sets for image classifiers using conformal prediction. In International Conference on Learning Representations , 2021. Richard E. Barlow and Hugh D. Brunk. The isotonic regression problem and its dual. 
+
+Journal of the American Statistical Association , 67(337):140–147, 1972. Martin J. Bland and Douglas G. Altman. Multiple significance tests: the Bonferroni method. 
+
+BMJ (Clinical Research Ed.) , 310(6973):170, 1995. Jiwoong Choi, Dayoung Chun, Hyun Kim, and Hyuk-Jae Lee. Gaussian YOLOv3: an accurate and fast object detector using localization uncertainty for autonomous driving. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pages 502–511, 2019. Jiwoong Choi, Ismail Elezi, Hyuk-Jae Lee, Clement Farabet, and Jose M. Alvarez. Ac-tive learning for deep object detection via probabilistic modeling. In 2021 IEEE/CVF International Conference on Computer Vision , pages 10244–10253, 2021. Florence de Grancey, Jean-Luc Adam, Lucian Alecu, S´ ebastien Gerchinovitz, Franck Ma-malet, and David Vigouroux. Object detection with probabilistic guarantees: a conformal prediction approach. In Computer Safety, Reliability, and Security. SAFECOMP 2022 Workshops , pages 316–329. Springer International Publishing, 2022. Di Feng, Ali Harakeh, Steven L. Waslander, and Klaus Dietmayer. A review and compar-ative study on probabilistic object detection in autonomous driving. IEEE Transactions on Intelligent Transportation Systems , 23(8):9961–9980, 2022. Yarin Gal and Zoubin Ghahramani. Dropout as a Bayesian approximation: representing model uncertainty in deep learning. In Proceedings of the 33rd International Conference on Machine Learning , pages 1050–1059. PMLR, 2016. Jakob Gawlikowski, Cedrique Rovile Njieutcheu Tassi, Mohsin Ali, Jongseok Lee, Matthias Humt, Jianxiang Feng, Anna Kruspe, Rudolph Triebel, Peter Jung, Ribana Roscher, Muhammad Shahzad, Wen Yang, Richard Bamler, and Xiao Xiang Zhu. A survey of uncertainty in deep neural networks. Artificial Intelligence Review , 56(1):1513–1589, 2023. A. Geiger, P. Lenz, and R. Urtasun. Are we ready for autonomous driving? The KITTI vision benchmark suite. In 2012 IEEE Conference on Computer Vision and Pattern Recognition , pages 3354–3361. IEEE, 2012. Biraja Ghoshal, William Woof, Bernardo Mendes, Saoud Al-Khuzaei, Thales Anto-nio Cabral De Guimaraes, Malena Daich Varela, Yichen Liu, Sagnik Sen, Siying Lin, Mital Shah, Yu Fujinami-Yokokawa, Andrew R. Webster, Omar A. Mahroo, Kaoru Fu-jinami, Frank Holz, Philipp Herrmann, Juliana Sallum, Konstantinos Balaskas, Savita Madhusudhan, Susan M. Downes, Michel Michaelides, and Nikolas Pontikos. Making deep learning models clinically useful — improving diagnostic confidence in inherited retinal disease with conformal prediction. In Uncertainty for Safe Utilization of Machine Learning in Medical Imaging , pages 47–58. Springer Nature Switzerland, 2025. Tilmann Gneiting and Adrian E. Raftery. Strictly proper scoring rules, prediction, and estimation. Journal of the American Statistical Association , 102(477):359–378, 2007. Ali Harakeh, Michael Smart, and Steven L. Waslander. BayesOD: A Bayesian approach for uncertainty estimation in deep object detectors. In Proceedings of the IEEE International Conference on Robotics and Automation (ICRA) , pages 87–93. IEEE, 2020. Moussa Kassem Sbeyti, Michelle Karg, Christian Wirth, Azarm Nowzad, and Sahin Al-bayrak. Overcoming the limitations of localization uncertainty: efficient and exact non-linear post-processing and calibration. In Machine Learning and Knowledge Discovery in Databases: Research Track , pages 52–68. Springer Nature Switzerland, 2023. Moussa Kassem Sbeyti, Michelle Karg, Christian Wirth, Nadja Klein, and Sahin Albayrak. Cost-sensitive uncertainty-based failure recognition for object detection. In Proceedings of the Fortieth Conference on Uncertainty in Artificial Intelligence , pages 1890–1900. PMLR, 2024. Alex Kendall and Yarin Gal. What uncertainties do we need in Bayesian deep learning for computer vision? In Advances in Neural Information Processing Systems , volume 30. Curran Associates, Inc., 2017. Volodymyr Kuleshov, Nathan Fenner, and Stefano Ermon. Accurate uncertainties for deep learning using calibrated regression. In Proceedings of the 35th International Conference on Machine Learning , pages 2796–2804. PMLR, 2018. Balaji Lakshminarayanan, Alexander Pritzel, and Charles Blundell. Simple and scalable predictive uncertainty estimation using deep ensembles. In Advances in Neural Informa-tion Processing Systems , volume 30. Curran Associates, Inc., 2017. Jing Lei, Max G’Sell, Alessandro Rinaldo, Ryan J. Tibshirani, and Larry Wasserman. Distribution-free predictive inference for regression. Journal of the American Statisti-cal Association , 113(523):1094–1111, 2018. Kaican Li, Kai Chen, Haoyu Wang, Lanqing Hong, Chaoqiang Ye, Jianhua Han, Yukuai Chen, Wei Zhang, Chunjing Xu, Dit-Yan Yeung, Xiaodan Liang, Zhenguo Li, and Hang Xu. CODA: a real-world road corner case dataset for object detection in autonomous driving. In Computer Vision – ECCV 2022 , page 406–423. Springer Nature Switzerland, 2022. Charles Lu, Andr´ eanne Lemay, Ken Chang, Katharina H¨ obel, and Jayashree Kalpathy-Cramer. Fair conformal predictors for applications in medical imaging. In Proceedings of the AAAI Conference on Artificial Intelligence , pages 12008–12016, 2022. Zongyao Lyu, Nolan Gutierrez, Aditya Rajguru, and William J. Beksi. Probabilistic object detection via deep ensembles. In Computer Vision – ECCV 2020 Workshops , pages 67–75. Springer, 2020. Bruce Cyusa Mukama, Soundouss Messoudi, Sylvain Rousseau, and S´ ebastien Destercke. Copula-based conformal prediction for object detection: a more efficient approach. In 
+
+Proceedings of the Thirteenth Symposium on Conformal and Probabilistic Prediction with Applications , volume 230, pages 140–157. PMLR, 2024. Harris Papadopoulos, Kostas Proedrou, Volodya Vovk, and Alex Gammerman. Inductive confidence machines for regression. In Machine Learning: ECML 2002 , pages 345–356. Springer Berlin Heidelberg, 2002. Yaniv Romano, Matteo Sesia, and Emmanuel Candes. Classification with valid and adaptive coverage. In Advances in Neural Information Processing Systems , volume 33, pages 3581– 3591. Curran Associates, Inc., 2020. Mingxing Tan, Ruoming Pang, and Quoc V. Le. EfficientDet: scalable and efficient object detection. In 2020 IEEE/CVF Conference on Computer Vision and Pattern Recognition ,pages 10778–10787. IEEE, 2020. Ryan J. Tibshirani, Rina Foygel Barber, Emmanuel Candes, and Aaditya Ramdas. Confor-mal prediction under covariate shift. Advances in Neural Information Processing Systems ,32, 2019. Alexander Timans, Christoph-Nikolas Straehle, Kaspar Sakmann, and Eric Nalisnick. Adaptive bounding box uncertainties via two-step conformal prediction. In Computer Vision – ECCV 2024 , pages 363–398. Springer Nature Switzerland, 2025. Janette Vazquez and Julio C. Facelli. Conformal prediction in clinical medical sciences. 
+
+Journal of Healthcare Informatics Research , 6(3):241–252, 2022. Vladimir Vovk. Conditional validity of inductive conformal predictors. Machine Learning ,92(2–3):349–376, 2013. Vladimir Vovk. Cross-conformal predictors. Annals of Mathematics and Artificial Intelli-gence , 74(1):9–28, 2015. Vladimir Vovk, Alexander Gammerman, and Glenn Shafer. Algorithmic Learning in a Random World . Springer-Verlag, 2005. Fisher Yu, Haofeng Chen, Xin Wang, Wenqi Xian, Yingying Chen, Fangchen Liu, Vashisht Madhavan, and Trevor Darrell. BDD100K: a diverse driving dataset for heterogeneous multitask learning. In 2020 IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 2633–2642. IEEE, 2020. Zhengxia Zou, Keyan Chen, Zhenwei Shi, Yuhong Guo, and Jieping Ye. Object detection in 20 years: a survey. Proceedings of the IEEE , 111(3):257–276, 2023.

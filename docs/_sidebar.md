@@ -1,6 +1,9 @@
 * <a class="dpr-sidebar-root-link" href="#/">首页</a>
 * <a class="dpr-sidebar-root-link dpr-sidebar-noactive-link" href="javascript:void(0)" data-dpr-hash="#/tutorial/README">使用教程</a>
 * Daily Papers
+  * 2026-05-16 <!--dpr-date:20260516-->
+    * 速读区
+      * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202605/16/2605.07549v1-probabilistic-object-detection-with-conformal-prediction" data-sidebar-item="{&quot;title&quot;: &quot;Probabilistic Object Detection with Conformal Prediction&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2605.07549v1-probabilistic-object-detection-with-conformal-prediction&quot;, &quot;score&quot;: &quot;6.5&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;sod&quot;}], &quot;evidence&quot;: &quot;多类别目标检测的不确定性量化&quot;}">Probabilistic Object Detection with Conformal Prediction</a>
   * 2026-05-15 <!--dpr-date:20260515-->
     * 精读区
       * <a class="dpr-sidebar-item-link dpr-sidebar-item-structured" href="#/202605/15/2605.14346v1-learning-with-semantic-priors-stabilizing-point-supervised-infrared-small-target-detection-via-hierarchical-knowledge-distillation" data-sidebar-item="{&quot;title&quot;: &quot;Learning with Semantic Priors: Stabilizing Point-Supervised Infrared Small Target Detection via Hierarchical Knowledge Distillation&quot;, &quot;link&quot;: &quot;https://arxiv.org/abs/2605.14346v1-learning-with-semantic-priors-stabilizing-point-supervised-infrared-small-target-detection-via-hierarchical-knowledge-distillation&quot;, &quot;score&quot;: &quot;10.0&quot;, &quot;tags&quot;: [{&quot;kind&quot;: &quot;query&quot;, &quot;label&quot;: &quot;sod&quot;}], &quot;evidence&quot;: &quot;使用点监督和知识蒸馏的红外小目标检测&quot;}">Learning with Semantic Priors: Stabilizing Point-Supervised Infrared Small Target Detection via Hierarchical Knowledge Distillation</a>

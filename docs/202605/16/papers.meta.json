@@ -1,0 +1,24 @@
+{
+  "label": "2026-05-16",
+  "date": "2026-05-16",
+  "generated_at": "2026-05-16T20:03:23",
+  "count": 1,
+  "papers": [
+    {
+      "paper_id": "202605/16/2605.07549v1-probabilistic-object-detection-with-conformal-prediction",
+      "section": "quick",
+      "title_en": "Probabilistic Object Detection with Conformal Prediction",
+      "authors": "Christopher Ries, Moussa Kassem Sbeyti, Nicolas Bianco, Nadja Klein",
+      "date": "2026-05-08",
+      "pdf": "https://arxiv.org/pdf/2605.07549v1",
+      "score": "6.5",
+      "evidence": "多类别目标检测的不确定性量化",
+      "tldr": "本研究针对安全关键型目标检测中的不确定性量化，提出了一种结合保形预测（CP）与概率目标检测的框架。通过对边界框坐标应用坐标级CP并结合Bonferroni校正，利用偶然不确定性估计对预测区间进行动态缩放，并结合RAPS处理类别预测。在KITTI等自动驾驶数据集上的实验表明，该方法在保证覆盖率的同时显著提升了预测区间的紧凑性。",
+      "tags": "query:sod",
+      "abstract_en": "Conformal Prediction (CP) is a distribution-free method for constructing prediction sets with marginal finite-sample coverage guarantees, making it a suitable framework for reliable uncertainty quantification in safety-critical object detection. However, object detection introduces structured multi-output predictions, complicating the application of classical CP theory developed for single outputs. In addition, standard, unscaled CP produces fixed-width prediction intervals across inputs, leading to unnecessary width for low-uncertainty predictions. While scaled CP addresses this by adapting the interval width to an input-dependent uncertainty estimate, prior work has neither systematically compared unscaled and scaled CP for multi-class object detection, nor integrated CP with a complementary uncertainty quantification method in this setting. We fill this gap by: (i) applying CP coordinate-wise to bounding box corners with a Bonferroni correction for box-level guarantees; (ii) scaling the resulting intervals using per-prediction aleatoric uncertainty estimates derived from a probabilistic object detector trained with loss attenuation, evaluated in uncalibrated and two calibrated variants; (iii) extending to a two-step pipeline that constructs prediction sets for the class using RAPS and conditions the conformalized bounding boxes on the predicted class set. Across three autonomous driving datasets (KITTI, BDD, CODA), including a cross-domain setting under distribution shift, scaled CP consistently improves interval sharpness over unscaled CP, achieving up to 19% higher IoU and 39% lower interval scores, without sacrificing coverage. Class-wise calibration further improves coverage for both variants with a negligible effect on sharpness. Together, these improvements yield more actionable uncertainty estimates for real-time, real-world object detection.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,30 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.07549v1/fig-001.webp",
+      "caption": "Figure 3: Distribution of empirical average coverage over 1000 runs using 1589 evaluation samples on KITTI. The top row shows RAPS without empty prediction sets and the bottom row shows RAPS with empty prediction sets, evaluated at α ∈ {0.01, 0.05, 0.1}.",
+      "page": 14,
+      "index": 1,
+      "width": 808,
+      "height": 529
+    },
+    {
+      "url": "assets/figures/arxiv/2605.07549v1/fig-002.webp",
+      "caption": "Figure 1: Overview of the pipeline. The upper branch applies unscaled CP and the lower branch applies scaled CP, where the prediction intervals are scaled by aleatoric uncertainty estimates derived via loss attenuation. In both branches, the classwise path additionally computes prediction sets for the classification head using RAPS, followed by class-conditional quantile selection.",
+      "page": 3,
+      "index": 2,
+      "width": 902,
+      "height": 369
+    },
+    {
+      "url": "assets/figures/arxiv/2605.07549v1/fig-003.webp",
+      "caption": "Figure 2: Percentage of true bounding boxes falling below a given IoU threshold with the point prediction that are now fully contained within the conformalized bounding box, shown for KITTI (left), BDD (mid), and CODA (right) at different IoU thresholds. Colors represent unscaled, LA, Rel. IR, and Rel. IR PCo PC. Solid lines (-) correspond to α = 0.025 and dashed lines (--) to α = 0.1.",
+      "page": 12,
+      "index": 3,
+      "width": 902,
+      "height": 323
+    }
+  ]
+}
