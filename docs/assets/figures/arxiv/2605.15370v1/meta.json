@@ -1,0 +1,70 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.15370v1/fig-001.webp",
+      "caption": "Fig. 4: Gradient diagnostics for circuit variants with logged quantum-parameter gradients. (a) ℓ2 norm of quantumparameter gradients. (b) Variance on a logarithmic axis with the barren-plateau floor for n=4 qubits overlaid. Observed variances of 7.4 × 10−8 to 1.6 × 10−7 sit roughly 105 times below the 2−4≈0.063 floor predicted for random 4- qubit circuits [17]. The shallow design (2 layers, local PauliZ measurements) stays in the trainable regime across every variant.",
+      "page": 7,
+      "index": 1,
+      "width": 522,
+      "height": 306
+    },
+    {
+      "url": "assets/figures/arxiv/2605.15370v1/fig-002.webp",
+      "caption": "Fig. 5: Skip-attention circuit variants on the SolidUNet backbone (128 × 128, 30 epochs). Every variant shares the same classical architecture; only the quantum circuit design differs. The dashed vertical line marks the classical baseline (0.7794). Data re-uploading (qdressed_reupload, 0.7882) gives the largest gain (+0.88 pp) among the eight circuits tested, consistent with the universality argument of Pérez-Salinas et al. [15]. Increasing qubit count from 4 to 6 (qbottleneck_6q) does not surpass 4-qubit re-uploading, suggesting feature quality rather than Hilbert-space dimension bounds performance at this backbone scale. Exact values appear in Table II.",
+      "page": 7,
+      "index": 2,
+      "width": 523,
+      "height": 381
+    },
+    {
+      "url": "assets/figures/arxiv/2605.15370v1/fig-003.webp",
+      "caption": "TABLE II: Skip-attention results on SolidUNet (∼8.23 M classical parameters, 128× 128, 30 epochs). Gradient diagnostics are reported for variants where we logged them.",
+      "page": 7,
+      "index": 3,
+      "width": 504,
+      "height": 248
+    },
+    {
+      "url": "assets/figures/arxiv/2605.15370v1/fig-004.webp",
+      "caption": "Fig. 6: TGS mean-IoU versus encoder capacity across every configuration. Squares denote 128 × 128 runs, circles denote 256×256 runs, and diamonds/crosses denote the two classical comparisons on the same backbone family. The 72-parameter quantum circuit is identical in every Q-FPN run; differences in score track encoder quality, pretraining scale, and resolution rather than circuit capacity. EfficientNetV2-L with Q-FPN gating is the only configuration that exceeds the Kaggle firstplace reference (dashed line); the two evaluation sets differ (Section IV-F).",
+      "page": 8,
+      "index": 4,
+      "width": 523,
+      "height": 383
+    },
+    {
+      "url": "assets/figures/arxiv/2605.15370v1/fig-005.webp",
+      "caption": "Fig. 1: Parameterized quantum circuit used in all architectures. Four qubits initialized to |0⟩, two layers with data re-uploading. Teal boxes: RY (xi) encodings re-applied at each layer [15]. Slate boxes: general Rot(ϕ, θ, ω) rotations with trainable parameters. CNOT rings entangle adjacent qubits; Pauli-Z expectations produce four scalars in [−1, 1]. 24 variational parameters per circuit × 3 gates = 72 quantum parameters total.",
+      "page": 4,
+      "index": 5,
+      "width": 973,
+      "height": 276
+    },
+    {
+      "url": "assets/figures/arxiv/2605.15370v1/fig-006.webp",
+      "caption": "Fig. 2: Quantum FPN Gate (one merge level). Lateral (Flat) and top-down (Ftd) feature maps are compressed by global average pooling, concatenated, projected to R4, and rescaled via a learnable s⊙tanh+b into [−π, π]. A 4-qubit, 2-layer PQC with data reuploading (24 variational parameters; 72 total across three merge levels) produces four Pauli-Z expectations, which a linear layer and sigmoid convert to a channel-wise gate g ∈ (0, 1)C . The output is the convex combination Fout = g⊙Flat +(1−g)⊙Ftd.",
+      "page": 4,
+      "index": 6,
+      "width": 1056,
+      "height": 559
+    },
+    {
+      "url": "assets/figures/arxiv/2605.15370v1/fig-007.webp",
+      "caption": "TABLE VI: Comparison with published TGS Salt results. “OOF” = out-of-fold CV on 4,000 images. “LB” = Kaggle private leaderboard (18,000 test images). “TGS-mAP” is mean precision at IoU thresholds 0.50, 0.55, . . . , 0.95 (the official competition metric). †: simple IoU, not the multi-threshold competition metric.",
+      "page": 9,
+      "index": 7,
+      "width": 523,
+      "height": 292
+    },
+    {
+      "url": "assets/figures/arxiv/2605.15370v1/fig-008.webp",
+      "caption": "Fig. 3: Two integration topologies for parameterized quantum circuits. (a) Skip-connection attention: the PQC modulates encoder features before they reach the decoder, acting as a per-channel filter on one feature stream. (b) FPN gating: the PQC controls how lateral encoder features and top-down features combine at each pyramid level, computing a per-channel mixing ratio between two streams. Teal blocks marked “Q” are identical 4-qubit, 2-layer PQCs; the structural difference is filter one stream versus blend two streams. See Section III-C and Section III-D.",
+      "page": 5,
+      "index": 8,
+      "width": 1039,
+      "height": 460
+    }
+  ]
+}

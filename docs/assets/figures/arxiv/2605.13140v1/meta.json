@@ -1,0 +1,126 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.13140v1/fig-001.webp",
+      "caption": "Table 12: Ablation study on DS token configuration. Class-wise frequency and performance drop relationship. Comparison of our class-agnostic (Exp. #1) and the class-specific strategies (Exp. #2).",
+      "page": 25,
+      "index": 1,
+      "width": 456,
+      "height": 287
+    },
+    {
+      "url": "assets/figures/arxiv/2605.13140v1/fig-002.webp",
+      "caption": "Figure 6: Impact of class frequency on performance gap. Under a class-specific configuration, rare classes (e.g., Bike, Motor) exhibit greater performance degradation, whereas frequent classes (e.g., Car, Sign) are less affected.",
+      "page": 25,
+      "index": 2,
+      "width": 514,
+      "height": 281
+    },
+    {
+      "url": "assets/figures/arxiv/2605.13140v1/fig-003.webp",
+      "caption": "Table 2: Comparison of MSDA performance in a mixed-domain setting, evaluated on Daytime of BDD100K.",
+      "page": 15,
+      "index": 3,
+      "width": 735,
+      "height": 427
+    },
+    {
+      "url": "assets/figures/arxiv/2605.13140v1/fig-004.webp",
+      "caption": "Table 8: Ablation on the configuration of DA token and DS token.",
+      "page": 21,
+      "index": 4,
+      "width": 490,
+      "height": 259
+    },
+    {
+      "url": "assets/figures/arxiv/2605.13140v1/fig-005.webp",
+      "caption": "Figure 2: Overall Framework of MS-DePro. Following the mean-teacher framework, MS-DePro consists of an unlabeled target teacher (top) and a labeled multi-source student (bottom). We exploit depth maps to propose regions for localization, and our learnable prompt is encoded for classification. The teacher generates pseudo-labels for the target domain. The student learns from multiple sources and adapts to the target domain. The depth map is used only during training, while at inference time, only the teacher model with saved token buffers πDS and πDA is utilized. F̂R and F̂D denote the shallow feature maps from BBR and BBD.",
+      "page": 7,
+      "index": 5,
+      "width": 814,
+      "height": 535
+    },
+    {
+      "url": "assets/figures/arxiv/2605.13140v1/fig-006.webp",
+      "caption": "Table 1: Comparison of MSDA performance. Each column represents source domains, evaluated on subsets of BDD100K for cross-time (Dawn/Dusk) and cross-camera (Daytime).",
+      "page": 14,
+      "index": 6,
+      "width": 814,
+      "height": 464
+    },
+    {
+      "url": "assets/figures/arxiv/2605.13140v1/fig-007.webp",
+      "caption": "Figure 1: Comparison of MSDA methods. (a) Existing MSDA methods rely solely on RGB images to learn domain-agnostic features, while also encoding domain-specific features from them, which leads to a training conflict. (b) Our MS-DePro leverages additional domain-agnostic modalities—depth map and text—to encode domain-agnostic features.",
+      "page": 3,
+      "index": 7,
+      "width": 814,
+      "height": 410
+    },
+    {
+      "url": "assets/figures/arxiv/2605.13140v1/fig-008.webp",
+      "caption": "Table 5: Comparison of performance and computational cost.",
+      "page": 18,
+      "index": 8,
+      "width": 814,
+      "height": 336
+    },
+    {
+      "url": "assets/figures/arxiv/2605.13140v1/fig-009.webp",
+      "caption": "Figure 4: Visualization of an RGB image and its corresponding low-quality depth map, where raindrops on the windshield and low-light conditions resulted in degraded depth estimation.",
+      "page": 23,
+      "index": 9,
+      "width": 610,
+      "height": 246
+    },
+    {
+      "url": "assets/figures/arxiv/2605.13140v1/fig-010.webp",
+      "caption": "Figure 5: (a) Confidence scores of region proposals from RGB and depth maps. (b) Counts of pseudo-boxes from RGB and depth maps, with averages shown above the bars.",
+      "page": 23,
+      "index": 10,
+      "width": 610,
+      "height": 269
+    },
+    {
+      "url": "assets/figures/arxiv/2605.13140v1/fig-011.webp",
+      "caption": "Table 4: Comparison of MSDG performance on Real to Artistic.",
+      "page": 17,
+      "index": 11,
+      "width": 772,
+      "height": 229
+    },
+    {
+      "url": "assets/figures/arxiv/2605.13140v1/fig-012.webp",
+      "caption": "Figure 7: (Top) Detection visualization results in the cross-time domain adaptation. We qualitatively compare MS-DePro with ground-truth and PMT [7]. (Bottom) Detection visualization results in diverse weather domain generalization. We qualitatively compare MS-DePro with ground-truth and PDOC [46].",
+      "page": 27,
+      "index": 12,
+      "width": 772,
+      "height": 952
+    },
+    {
+      "url": "assets/figures/arxiv/2605.13140v1/fig-013.webp",
+      "caption": "Figure 3: (a) t-SNE visualization of feature distribution for RGB and Depth map. (b) Region proposals on RGB and depth map images: green (common), white (spurious), red (RGB-only), and purple (depth-only).",
+      "page": 9,
+      "index": 13,
+      "width": 814,
+      "height": 337
+    },
+    {
+      "url": "assets/figures/arxiv/2605.13140v1/fig-014.webp",
+      "caption": "Table 6: Ablation on main components of MS-DePro. πDA and πDS respectively indicate DA and DS token.",
+      "page": 20,
+      "index": 14,
+      "width": 610,
+      "height": 233
+    },
+    {
+      "url": "assets/figures/arxiv/2605.13140v1/fig-015.webp",
+      "caption": "Table 3: Comparison of MSDG performance on Diverse Weather Dataset. Highest performance in bold, second-highest underlined.",
+      "page": 16,
+      "index": 15,
+      "width": 735,
+      "height": 343
+    }
+  ]
+}

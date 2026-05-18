@@ -1,0 +1,451 @@
+Title: Multi-Modal Guided Multi-Source Domain Adaptation for Object Detection
+
+URL Source: https://arxiv.org/pdf/2605.13140v1
+
+Published Time: Thu, 14 May 2026 00:50:25 GMT
+
+Number of Pages: 37
+
+Markdown Content:
+# Multi-Modal Guided Multi-Source Domain Adaptation for Object Detection 
+
+Sangin Lee a,1 , Seokjun Kwon a,1 , Jeongmin Shin a, Namil Kim b, Yukyung Choi a,c, ∗
+
+> a
+
+Sejong University, Seoul, Republic of Korea 
+
+> b
+
+NAVER LABS, Seongnam, Republic of Korea 
+
+> c
+
+Artificial Intelligence and Robotics Institute (AIRI), Seoul, Republic of Korea 
+
+Abstract 
+
+General object detection (OD) struggles to detect objects in the target do-main that differ from the training distribution. To address this, recent studies demonstrate that training from multiple source domains and explicitly pro-cessing them separately for multi-source domain adaptation (MSDA) outper-forms blending them for unsupervised domain adaptation (UDA). However, existing MSDA methods learn domain-agnostic features from domain-specific RGB images while preserving domain-specific information from the domain-agnostic feature map. To address this, we propose MS-DePro: Multi-Source Detector with Depth and Prompt, composed of (1) depth-guided localization and (2) multi-modal guided prompt learning. We leverage domain-agnostic input modalities, namely depth maps and text, to encode domain-agnostic characteristics. Specifically, we utilize depth maps to generate domain-agnostic region proposals for localization and integrate multi-modal features to align learnable text embeddings for classification. MS-DePro achieves state-of-the-art performance on MSDA benchmarks, and comprehensive ablations demon-strate the effectiveness of our contributions. Our code is available on GitHub. 
+
+Keywords: Object Detection, Domain Adaptation, Multi-Source Domain Adaptation 
+
+> ∗
+
+Corresponding author at: Sejong University, Seoul, Republic of Korea 
+
+Email addresses: silee@rcv.sejong.ac.kr (Sangin Lee), 
+
+sjkwon@rcv.sejong.ac.kr (Seokjun Kwon), jmshin@rcv.sejong.ac.kr (Jeongmin Shin), namil.kim@naverlabs.com (Namil Kim), ykchoi@sejong.ac.kr (Yukyung Choi) 
+
+> 1
+
+These authors contributed equally to this work 
+
+> arXiv:2605.13140v1 [cs.CV] 13 May 2026
+
+1. Introduction 
+
+Over the past decades, object detection (OD) has witnessed remarkable progress in various challenging scenarios, including closed-set and open-world settings. However, general object detectors often struggle in target (test) do-mains that differ from their training source domains, as domain shifts arise from several factors such as time (day vs. night), style (real vs. synthetic), and camera artifacts (sensor, resolution). To address this issue, unsupervised domain adaptation (UDA) methods [1, 2, 3, 4] have emerged, aiming to miti-gate the domain gap between the labeled source data and the unlabeled target data. Despite existing UDA methods assuming a single-source domain, mul-tiple datasets are available for training. Moreover, utilizing multiple sources can yield more robust and reliable performance [5]. However, previous studies have shown that naively combining multiple sources and performing single-source UDA performs worse than using a sin-gle source [5, 6]. In this setting, the model struggles to learn a common latent space between multiple sources and the target domain due to the discrepancies among the source domains. To tackle this issue, multi-source domain adaptation (MSDA) for OD has been proposed [5, 6, 7, 8] to mit-igate interference between multiple sources by treating each source domain separately. MSDA methods typically consist of two main components: 1) a domain-agnostic network and 2) a domain-specific network. The domain-agnostic network extracts common latent features through adversarial learn-ing with a gradient reversal layer (GRL). As the GRL-based domain-agnostic network tends to remove high-level semantic information [9], they simul-taneously learn domain-relevant knowledge in the domain-specific network. For instance, DMSN [5] and TPKP [6] employ separate subnets for each source domain, while PMT [7] and ACIA [8] develop a prototype network and attention-based instance alignment method, respectively. Although existing MSDA methods for OD have shown promising re-sults, they have a fundamental limitation in modeling domain-agnostic and domain-specific knowledge. As shown in Figure 1-(a), these methods first learn domain-invariant representations from domain-specific RGB images by intentionally suppressing domain-specific knowledge using GRL. From these domain-agnostic features, they then strive to encode domain-specific repre-sentations. This paradoxical process causes a training conflict between the 2Figure 1: Comparison of MSDA methods. (a) Existing MSDA methods rely solely on RGB images to learn domain-agnostic features, while also encoding domain-specific fea-tures from them, which leads to a training conflict. (b) Our MS-DePro leverages additional domain-agnostic modalities—depth map and text—to encode domain-agnostic features. 
+
+objectives of these two networks, which impedes optimization and slows con-vergence. Furthermore, encoding domain-agnostic features from RGB images is fundamentally constrained, as they are highly sensitive to variations in illumination, color, and texture. To address this, we explicitly disentangle domain-specific and domain-agnostic features and extract them separately by leveraging additional domain-agnostic modalities. To this end, we con-sider depth maps and text (see Figure 1-(b)). Compared to RGB images, depth maps provide more consistent representations by focusing on object shape and structure, thereby reducing reliance on domain-specific cues [10]. Additionally, the text modality conveys high-level semantic information that remains consistent across domains [11]. We argue that employing domain-agnostic modalities at the input level prevents interference from domain-specific knowledge. In this paper, we propose a novel framework termed Multi-Source De-tector with Depth and Prompt (MS-DePro). Our MS-DePro consists of two main components: (1) depth-guided localization and (2) multi-modal guided text prompt learning. First, we exploit depth maps for domain-invariant ob-ject localization. To this end, we employ off-the-shelf monocular depth es-timation models [12, 13] to extract relative depth maps from input RGB 3images, which are only used during the training phase. The depth maps sup-port RGB-only localization by complementing regions characterized by shape and structural cues. Next, multi-modal guided prompt learning leverages the high-level domain-agnostic characteristics of the text modality. Specifically, the domain-agnostic parts of the text prompt are enriched with features from depth maps, thus enhancing shared representations across multiple domains. Meanwhile, the domain-specific parts of the text prompt adjust text embed-dings using RGB features, enabling domain-aware alignment between text and visual regions for improved object classification. Leveraging our pro-posed components, MS-DePro effectively encodes domain-agnostic features without relying on domain adversarial learning. The main contributions of this work are threefold: 1. We introduce MS-DePro, a novel MSDA framework for OD, which leverages auxiliary modalities, i.e., depth map and text, to explicitly encode domain-invariant representations. 2. We propose depth-guided localization and multi-modal guided prompt learning. The depth-guided localization exploits depth maps to assist object localization, and multi-modal guided prompt learning explicitly integrates domain-agnostic and domain-specific features for improved classification. 3. We conduct extensive experiments on MSDA benchmarks, and our MS-DePro achieves state-of-the-art performance. We further evaluate its generalization by extending experiments to the domain generalization setting. The remainder of this manuscript is organized as follows: Section 2 pro-vides a brief overview of the related work. Section 3 elaborates the proposed MS-DePro and its two constituent modules. Section 4 presents extensive experimental results on the MSDA and MSDG benchmarks and thorough ablation studies. Section 5 summarizes the findings and outlines the limita-tions. 
+
+2. Related Work 
+
+2.1. Domain-Agnostic Representation Learning 
+
+As a branch of domain adaptation, research in multi-target [14], blended-target [15], and source-free [16, 17] scenarios has focused on distribution 4alignment to minimize domain discrepancy. These diverse branches demon-strate that effectively mitigating domain shifts fundamentally relies on cap-turing domain-agnostic representations. Meanwhile, some studies [18, 19, 20] have focused on learning causal representations to disentangle invari-ant features from spurious correlations through causal interventions within the RGB space, aiming to yield domain-agnostic representations. Specifi-cally, Ouyang et al. [18] eliminated domain-specific appearance shortcuts, while Song et al. [19] and Zhou et al. [20] enforced causal separation through target style imitation and graph autoencoders, respectively. In this paper, we ensure the extraction of domain-agnostic features by leveraging depth maps and text directly at the input level, as RGB images are fundamentally domain-specific. By incorporating these inherently invariant modalities, our MS-DePro bypasses the limitations of relying solely on RGB inputs and en-ables the explicit capture of shared representations. 
+
+2.2. Multi-Source Domain Adaptation for Object Detection. 
+
+Multi-source domain adaptation (MSDA) for object detection assumes that training samples are collected from multiple sources. Following this as-sumption, several studies have aimed to adapt the model to a given target domain [5, 6, 7, 8]. For example, DMSN [5] introduced a pseudo subnet to estimate target parameters by aggregating multi-source weights. TPKP [6] disentangled detection heads for each source domain to retain target-relevant knowledge. PMT [7] performed class-conditioned alignment using domain-specific prototypes. ACIA [8] proposed an additional attention-based class alignment coupled with an adversarial domain discriminator. All these meth-ods were trained only on RGB images with strong domain-specific semantic cues, and attempted to learn domain-agnostic features implicitly through ad-versarial training or alignment-based techniques. In our method, we leverage additional input modalities, i.e., depth maps and text, both of which inher-ently contain domain-agnostic cues, to achieve domain-invariant localization and domain-tailored classification. 
+
+2.3. Depth-Assisted Object Detection. 
+
+Monocular depth estimation [12, 13, 21] estimates a relative or metric scale depth map from an RGB image. For example, Depth Anything [12] and Depth Pro [13], trained on large-scale datasets, demonstrated notable zero-shot generalization performance. Recent studies leveraged depth maps for object detection, effectively reducing reliance on texture cues and preserving 5object shapes. For example, OVM3D-Det [22] utilized a depth estimation model to generate pseudo-LiDAR for open-vocabulary 3D object detection. WSOD-AMPLIFIER [10] employed a Siamese network to learn hierarchical features from RGB and hallucinated depth maps for weakly supervised object detection. In this paper, we propose a depth-guided localization method that exploits depth maps and design a decoupled network for each domain to support RGB feature localization. 
+
+2.4. Prompt Learning. 
+
+Prompt learning has been widely studied to effectively leverage the knowl-edge encoded in pretrained VLMs for specific downstream tasks. CoOp [23] introduced automated prompt engineering by replacing fixed context words with learnable continuous vectors. CoCoOp [24] constructs a meta-token us-ing a meta-network and appends it to the context tokens, thereby incorpo-rating image-level features. DetPro [25] extended CoOp for object detection by learning continuous prompt representations that distinguish the inter-pretation of the foreground and background. However, since those meth-ods [23, 24, 25] struggle with multiple domain scenarios, DAPL [9] and DA-Pro [26] separately learned domain-agnostic and domain-specific prompts for domain adaptation. While these works [9, 26] have explored the separation of domain-agnostic and domain-specific components, they do not offer explicit guidance tailored to each part. In this paper, we propose multi-modal guided prompt learning to explicitly design domain-agnostic parts using depth map features and domain-specific parts using RGB features. 
+
+3. Method 
+
+3.1. Problem Formulation 
+
+We introduce MS-DePro, a novel MSDA framework for OD. Figure 2 shows a summary of MS-DePro, which consists of two components: (1) depth-guided localization and (2) multi-modal guided prompt learning. In this sec-tion, we formalize the MSDA setting. Following that, we provide an overview of the model architecture. Then, in Section 3.2 and Section 3.3, we describe the details of the proposed components. 
+
+MSDA Setting. MSDA assumes access to S source domains D1, D2, · · · , DS
+
+and a target domain T . Each i-th source domain Di consists of N j labeled samples, where each sample includes an image Ij and a set of annotations 
+
+Aj . Each j-th annotation is denoted as (B, l ), where B denotes the bounding 6Figure 2: Overall Framework of MS-DePro. Following the mean-teacher framework, MS-DePro consists of an unlabeled target teacher (top) and a labeled multi-source student (bottom). We exploit depth maps to propose regions for localization, and our learnable prompt is encoded for classification. The teacher generates pseudo-labels for the target domain. The student learns from multiple sources and adapts to the target domain. The depth map is used only during training, while at inference time, only the teacher model with saved token buffers πDS and πDA is utilized. ˆFR and ˆFD denote the shallow feature maps from BB R and BB D.
+
+box, and l is the corresponding label. For the target domain T , only N T
+
+images are available without any annotation. 
+
+Model Architecture. The overall architecture of MS-DePro is depicted in Figure 2. We use RegionCLIP [27], a vision-language model based on Faster R-CNN [28]. We initialized the backbone with pretrained ResNet-50 [29] weights of RegionCLIP and the text encoder T (·) with pretrained CLIP [30] weights. Following the mean-teacher framework [31, 3], we first train the la-beled multi-source student on D1, D2, · · · , DS source domains using a super-vised loss Lsup , named the burn-in stage. In the domain adaptation stage, the unlabeled target teacher network is initialized with the exponential moving average (EMA) of the student weights. The teacher model generates pseudo-7labels (B, l ), which are then jointly optimized using an unsupervised loss (Lunsup ) to train the student model. Note that the depth map is used only during training, while only the teacher model is used for inference. 
+
+3.2. Depth-Guided Localization 
+
+Our goal is to leverage depth maps and seamlessly integrate them into ob-ject localization to explicitly encode domain-agnostic features. This approach is motivated by the observation that models trained on RGB images tend to be biased toward domain-specific features, leading to shortcut learning [32]. Although domain-specific features provide useful visual patterns for localiza-tion, this bias prevents the model from effectively capturing domain-agnostic cues, such as shape and structure, which are essential for precise localization. For instance, style cues—color and texture—are effective for localizing visu-ally distinctive objects, yet they are highly sensitive to illumination changes (e.g., daytime vs. night). Therefore, relying solely on domain-specific fea-tures often degrades localization performance. To mitigate this, we exploit depth maps as an auxiliary domain-agnostic modality. As shown in Figure 3-(a), depth map features provide more consistent representations than RGB features. Further details are provided in Section 4.4.1. Building on this, we in-troduce depth-guided localization, which complements domain-agnostic cues to guide the localization of RGB features. Concretely, given an input RGB image Ii 
+
+> R
+
+from the i-th source domain, we estimate a relative depth map Ii 
+
+> D
+
+using an off-the-shelf monocular depth estimation model [12, 13], formulated as Ii 
+
+> D
+
+= Φ( Ii
+
+> R
+
+). Here, Φ( ·) denotes the monocular depth estimation model. Then, Ii 
+
+> R
+
+and Ii 
+
+> D
+
+are fed into their own decoupled backbone ( BB R, BB D) and region proposal network (RPN) (RP N R, RP N D). This design helps the model explicitly encode domain-specific and domain-agnostic features from RGB and depth maps, respectively. We then aggregate region proposals pR and pD, generated from RGB and depth map RPN, respectively. In this step, we project the positional offsets of pD
+
+onto the RGB feature map FR so that the model can encode regions that might be missed when using only RGB features. Subsequently, we select top-
+
+k proposals with the highest objectness logits, defined as p = TopK( pR ∪ pD).These selected proposals are encoded as object embeddings within the RGB feature map using RoIAlign [33], formulated as o = RoIAlign( FR, p ).This framework is also employed by the teacher model for the unlabeled target domain to generate pseudo-labels. During the initial adaptation, we find that the model relying solely on domain-specific features struggles to 8Figure 3: (a) t-SNE visualization of feature distribution for RGB and Depth map. (b) Region proposals on RGB and depth map images: green (common), white (spurious), red (RGB-only), and purple (depth-only). 
+
+generate reliable pseudo-labels due to the domain shift between the source and the unseen target domains. To compensate for this, we extract domain-agnostic regions from the depth map to refine pR and generate complementary pseudo-boxes to improve adaptation. As depicted in Figure 3-(b), depth map proposals encode regions missed by RGB (purple) and filter out spurious ones (white). For common regions (green), we apply a weighted sum to yield a more precise offset. As shown in Figure 2, the depth-guided localization network ( BB D, RP N D)is structurally disentangled from the RGB network ( BB R, RP N R) and oper-ates exclusively during training, as indicated by dashed arrows. In this de-sign, it provides auxiliary spatial guidance that encourages the RGB branch to learn domain-agnostic localization cues. At inference, the depth branch is simply removed without architectural modification, and detection is per-formed using the RGB network alone. This explicit separation enables a seamless transition between training and testing, while ensuring no addi-tional memory or latency overhead during inference. 
+
+3.3. Multi-Modal Guided Prompt Learning 3.3.1. Preliminaries 
+
+CLIP [30] leverages a hand-crafted prompt, such as “a photo of a [CLS]", to encode image-level text embeddings. However, since manual prompt tuning is time-consuming and often suboptimal, CoOp [23] introduces a learnable 9context prompt for adaptive prompting. Specifically, the learnable prompt ti
+
+for the i-th class consists of M learnable tokens and is defined as follows: 
+
+ti = [v 1][v 2] . . . [v M ][CLS i], (1) where each [v m]( m ∈ { 1, 2, . . . , M }) represents a vector of the same dimen-sion as text embeddings, and CLS i denotes the tokenized vector. 
+
+3.3.2. Multi-Modal Guided Learnable Prompt 
+
+We leverage the text modality, which inherently provides domain-invariant representations through consistent high-level semantic information, to achieve robust object classification. We aim to incorporate domain-agnostic repre-sentations into the text prompt, capturing shared knowledge across multiple domains. Moreover, we consider domain-specific features to handle variations tailored to each domain’s unique characteristics. To this end, we propose a multi-modal guided learnable prompt that explicitly disentangles domain-specific and domain-agnostic knowledge, and captures both representations in a structured manner, as shown in the middle of Figure 2. We decompose the M learnable tokens in Equation (1) into two sets: [v m] ( m ∈ 1, . . . , M 1) and [d m] ( m ∈ 1, . . . , M 2), designed to be combined with domain-agnostic and domain-specific information, respectively: 
+
+ti = [v 1][v 2] . . . [v M1 ][d 1][d 2] . . . [d M2 ][CLS i]. (2) First, we inject domain-specific characteristics extracted from the RGB im-ages into the prompt, aiming to handle domain shifts. Following the pre-vious studies [34], we consider shallow RGB features to contain domain-specific style cues. Unlike image classification, which utilizes holistic image-level information, object detection demands region-level understanding of both foreground and background. To address this, we extract region-level features by pooling shallow RGB features ˆFR using predicted region off-sets. We then apply RoIAlign( ˆFR, ˆp), where ˆp denotes the subset of top-k
+
+proposals p including all foreground and only 10% of background propos-als. In the target domain without ground-truth, objectness logits of pro-posals are employed. Subsequently, our domain-specific network (DS-Net) 
+
+hDS (·) extracts a domain-specific token (DS token) from ˆFR, computed as 
+
+πDS = hDS (RoIAlign( ˆFR, ˆp)) . The domain-specific parts of the prompt are then configured as dm(IR) = d m + πDS , where m ∈ { 1, 2, . . . , M 2}.10 Meanwhile, we focus on the depth modality, which provides domain-invariant geometric cues to facilitate the capture of domain-agnostic informa-tion shared across all domains. The domain-agnostic prompt is generated by injecting these domain-invariant attributes derived from shallow depth fea-tures ˆFD into learnable prompts. Specifically, given ˆFD, our domain-agnostic network (DA-Net) hDA (·) extracts the domain-agnostic token (DA token) 
+
+πDA = hDA ( ˆFD) and combines it with the vm, where m ∈ { 1, 2, . . . , M 1}.Consequently, our domain-agnostic parts of the prompt are represented as 
+
+vm(ID) = v m + πDA .Taken together, our multi-modal guided learnable prompt is formulated as follows: 
+
+ti(ID, I R) =[v 1(ID)][v 2(ID)] . . . [v M1 (ID)] [d 1(IR)][d 2(IR)] . . . [d M2 (IR)][CLS i]. (3) As the text representation “background” fails to capture the characteristics of background regions adequately, we allow the background category to learn its own embedding, additionally incorporating πDA and πDS . Notably, the decomposed learnable token sets [v m] and [d m] are shared across all domains, ensuring that the total number of parameters remains constant as the number of domains increases. 
+
+3.4. Training and Inference 3.4.1. Training Overview 
+
+During training, we integrate our proposed prompt into the detection head. The prediction probability for class y is calculated as the distance be-tween the object embedding o and the text embeddings wi = T (ti(ID, I R)) ∈
+
+RY ×d:
+
+ˆqy = exp( s(o, w y)/τ )
+
+PYi=1 exp( s(o, w i)/τ ), (4) where s(·, ·) is the cosine similarity, Y denotes the number of classes along with a background, and τ is a temperature parameter. Finally, the predicted label is computed as ˆl = arg max y∈{ 1,2,...,Y } ˆqy. The total training loss for the 11 student model is: 
+
+L = Lsup + αLunsup 
+
+=
+
+
+
+> DS
+
+X 
+
+> i=1
+> Ni
+
+X
+
+> j=1
+
+Lcls (ˆlij , l ij ) + Lbbox (ˆbij , B ij )
+
+
+
++ α
+
+ 
+
+> NT
+
+X
+
+> k=1
+
+Lcls (ˆlTk , l k) + Lbbox (ˆbTk , B k)
+
+ .
+
+(5) We employ focal loss [35] for classification ( Lcls ) and smooth-L1 loss [28] for bounding box regression ( Lbbox ), with ˆl and ˆb denoting the predicted label and bounding box. α is the hyperparameter for weighting the loss. The teacher’s weights are updated via an EMA of the student’s weights at each iteration, defined as θ(i) 
+
+> t
+
+= λα · θ(i−1)  
+
+> t
+
++ (1 − λα) · θ(i) 
+
+> s
+
+, where θt and θs respectively denote the teacher and student model weights, i is the current iteration, and λα is the weight smoothing coefficient. Similarly, the teacher’s DA-Net, DS-Net, and the learnable token sets [v m] and [d m] are updated via EMA from their student counterparts with the same weight smoothing coefficient λα.
+
+3.4.2. Inference with Token Buffer 
+
+As mentioned in Section 3.2, since depth maps are only used during train-ing, the DA token πDA cannot be constructed at inference. Therefore, we pre-construct a DA token buffer πDA during training to replace πDA at inference. To this end, πDA is updated via EMA, following πiter  
+
+> DA
+
+= λβ πiter −1DA +(1 −λβ )πiter  
+
+> DA
+
+,at each training iteration. In the target adaptation phase, we configure the DS token buffer πDS in a similar manner to the approach described above. Note that while the DA token πDA is obtained from all domains, the DS to-ken πDS is derived from the target domain. Leveraging these buffers, we can pre-compute an offline text prompt for inference, as follows: 
+
+ti = [v 1][v 2] . . . [v M1 ][d 1][d 2] . . . [d M2 ][CLS i], (6) where dm = d m + πDS . Using the offline text prompt avoids calculating both the DA and DS tokens during inference, achieving an ensemble effect with-out introducing any additional computational cost. The probability is then computed by applying Equation (4), where the text embeddings wi are given by T (t i).12 4. Experiments 
+
+In this section, we evaluate MS-DePro on standard MSDA benchmarks. We also extend our experiments to a multi-source domain generalization benchmark to demonstrate the effect of explicitly modeling domain-invariant representations. Subsequently, we conduct ablations to analyze the contri-butions of the proposed components: (1) depth-guided localization and (2) multi-modal guided prompt learning. 
+
+Evaluation Metrics. For all experiments, we evaluate performance with mAP@0.5 (mean Average Precision), computed at an IoU (Intersection over Union) threshold of 0.5. 
+
+Implementation Details. We follow the experimental settings of [6, 7] for MSDA. For input images, we resized the shorter side to 600 pixels while maintaining aspect ratio, and all augmentations followed the methodology of [36]. Here, RGB and depth map inputs were processed identically. We first trained our labeled multi-source student for 80k iterations in a supervised setting. Subsequently, we optimized for 80k iterations under both supervised and unsupervised settings. We used SGD for optimization, with a batch size of 8 for the source domain and 4 for the target domain, and a learning rate of 0.002. We set the EMA weight smoothing coefficients, λα and λβ , to 0.9996 and 0.99, respectively. We configured the following hyperparameters: α was set to 1 for weighting loss; M1 and M2 were both set to 8 for the number of learnable tokens; and the pseudo-label confidence threshold was fixed at 0.9. All experiments were conducted on 4 NVIDIA A6000 GPUs, implemented using Detectron2 [37]. 
+
+4.1. Multi-Source Domain Adaptation 
+
+Datasets. For our MSDA experiments, we use 5 datasets: BDD100K [38], Cityscapes [39], KITTI [40], MS-COCO [41], and Synscapes [42]. For more details about the datasets, please refer Section Appendix A.1. 
+
+Baselines. We consider the following four baselines: (1) Lower Bound: Zero-shot and Source-only. In Source-only, RegionCLIP [27] is trained only with the source domain. (2) UDA: all source domains are aggregated into a single set, (3) MSDA: state-of-the-art (SOTA) MSDA methods designed for object detection, and (4) Oracle: Target-only and All-combined. In Target-only, Re-gionCLIP is trained with the labeled target domain. All-combined is trained with both source and labeled target domain datasets. 13 Table 1: Comparison of MSDA performance. Each column represents source domains, eval-uated on subsets of BDD100K for cross-time ( Dawn/Dusk ) and cross-camera ( Daytime ).                                                                                                      
+
+> Setting Method Venue Cross-time Cross-camera DND+N CKC+K Lower Bound ∗Zero-shot CVPR’22 --15.3 --43.5 Source-only 42.8 32.9 36.1 47.2 41.9 45.2 UDA UMT [2] CVPR’21 33.8 21.6 33.5 47.5 35.4 47.0 A.T. [3] CVPR’22 34.9 27.8 34.6 49.8 40.1 48.4 MSDA MDAN [43] NeurIPS’19 --27.6 --43.2 M3SDA [44] ICCV’19 --26.5 --44.1 DMSN [5] ICCV’21 --35.0 --49.2 TPKP [6] CVPR’22 --39.8 --58.4 PMT [7] WACV’24 --45.3 --58.7 ACIA [8] WACV’25 --47.9 --59.1 MS-DePro (Ours) KBS’26 --53.7 --68.4
+> Oracle ∗Target-only CVPR’22 --43.0 --75.4 All-combined --50.8 --76.0
+> * All results for Lower Bound and Oracle are evaluated using RegionCLIP.
+
+4.1.1. Cross-time and Cross-camera Adaptation 
+
+Setup. For cross-time adaptation, we use the Daytime (D) and Night (N) subsets of BDD100K as source domains, while the Dawn/Dusk (DD) subset of BDD100K serves as the target domain. As images are acquired at different times, changes such as illumination and object density cause a domain shift. Similarly, for cross-camera adaptation, we use Cityscapes (C) and KITTI (K) as source domains, with Daytime as the target domain. In this setting, domain shift stems from different geographical locations and camera parame-ters. We conduct experiments on common categories between the source and target domains: 10 classes for cross-time and only car for cross-camera. 
+
+Results. UDA methods exhibit a slight performance drop when trained on multi-source domains compared to their single-source counterparts. This re-sult implies that simply blending source domains leads to interference be-tween multiple sources (D+N and C+K). In comparison, SOTA MSDA meth-ods [7, 8] show improved performance by modeling domain-specific features such as prototype and instance-level alignment. However, they rely solely on adversarial learning to learn domain-agnostic features. By contrast, we exploit additional depth maps and text modalities at the input level to 14 Table 2: Comparison of MSDA performance in a mixed-domain setting, evaluated on  
+
+> Daytime of BDD100K.
+
+Setting Method Venue Mixed-domain C C+M C+M+S Lower Bound ∗ Zero-shot CVPR’22 - - 18.2 Source-only 32.6 34.1 34.9 UDA UMT [2] CVPR’21 - 29.7 30.9 A.T. [3] CVPR’22 - 22.9 29.6 MSDA TPKP [6] CVPR’22 - 35.3 37.1 PMT [7] WACV’24 - 38.7 39.7 ACIA [8] WACV’25 - 41.0 42.3 MS-DePro (Ours) KBS’26 - 43.9 46.7 
+
+Oracle ∗ Target-only CVPR’22 - - 53.3 All-combined - 53.8 54.2 
+
+> * All results for Lower Bound and Oracle are evaluated using RegionCLIP.
+
+design domain-invariant representations explicitly. Consequently, our MS-DePro achieves SOTA performance, outperforming ACIA [8] by 5.8 mAP in cross-time and 9.3 mAP in cross-camera settings. It is noteworthy that MS-DePro is the first to outperform the Oracle All-combined baseline by 2.9 mAP in the cross-time setting. 
+
+4.1.2. Mixed-domain Adaptation 
+
+Setup. We employ the Cityscapes (C), MS-COCO (M), and Synscapes (S) datasets as source domains, while the Daytime subset of BDD100K serves as the target domain. In this setting, the number of source domains is in-creased from two (C+M) to three (C+M+S) to simulate more challenging domain discrepancies. A domain shift mainly results from variations in scene (indoor vs. outdoor) and style (real vs. synthetic). We train and evaluate on 7 categories common to the sources and a target domain. 
+
+Results. Table 2 presents the results. We observe a consistent performance gain across all methods, even with the increased complexity introduced by the synthetic dataset (S). MS-DePro achieves SOTA performance, surpassing the previous SOTA method [8] by 2.9 mAP in the C+M and 4.4 mAP in the C+M+S setting. We argue that domain-agnostic features play a key role in mitigating domain shift, particularly when the number of source domains 15 Table 3: Comparison of MSDG performance on Diverse Weather Dataset. Highest perfor-mance in bold, second-highest underlined. 
+
+Method Venue Source Unseen Target mPC* DS NC DF DR NR CLIP-Gap [45] CVPR’23 45.0 43.9 28.8 21.9 16.0 22.2 PDOC [46] CVPR’24 47.1 46.3 32.0 24.4 16.9 24.4 DivAlign [47] CVPR’24 46.5 47.7 34.2 34.9 29.2 32.7 G-NAS [48] AAAI’24 51.4 48.0 32.4 30.1 22.8 28.4 OA-DG [49] AAAI’24 54.1 36.6 36.0 32.0 18.7 28.9 PhysAug [50] AAAI’25 51.0 45.7 34.9 35.1 27.1 32.4 Diff. Guided [51] CVPR’25 54.3 49.3 39.7 32.4 25.6 32.6 MS-DePro (Ours) KBS’26 55.5 62.8 38.3 35.2 29.7 34.4 
+
+> * mPC: Average mAP across unseen target domains.
+
+increases. 
+
+4.2. Extension to Domain Generalization 
+
+Although MS-DePro is fundamentally developed for MSDA, we also ex-tend our experiments to the multi-source domain generalization (MSDG) for object detection to evaluate how well our designed domain-invariant repre-sentations generalize to unseen domains. In the MSDG setting, where a DS token buffer πDS for the target domain cannot be pre-constructed, we com-pute the text embedding wi = T (t i(IR)) using the text prompt described below: 
+
+ti(IR) =[v 1][v 2] . . . [v M1 ][d 1(IR)][d 2(IR)] . . . [d M2 (IR)][CLS i]. (7) Note that only the burn-in stage is conducted without the adaptation stage, and inference is performed using only the student model. 
+
+Datasets. In our experiments, we utilize 9 datasets: BDD100k [38], FoggyC-ityscapes [52], AdverseWeather [53], VDD-DAOD [54], MS COCO [41], Pas-cal VOC [55], Clipart1k (CP), Comic2k (CM) and Watercolor2k (WC) [56]. Please refer to Section Appendix A.2 for more details about the dataset. 
+
+Baseline. We re-implement SOTA single-source domain generalization for object detection (S-DGOD) methods in the MSDG setting, using ResNet-50 [29] as a backbone for a fair comparison with our method. 16 Table 4: Comparison of MSDG performance on Real to Artistic.                                     
+
+> Method Venue Source Unseen Target mPC** VOC COCO* Clipart Comic Watercolor CLIP-Gap [45] CVPR’23 ---32.7 48.1 -PDOC [46] CVPR’24 76.4 -16.7 27.2 41.7 28.5 OA-DG [49] AAAI’24 78.7 -29.7 20.4 44.0 31.4 MS-DePro (Ours) KBS’26 78.8 -47.5 42.5 57.5 49.2
+> * MS COCO is not evaluated, being used only for training. ** mPC: Average mAP across unseen target domains.
+
+4.2.1. Diverse Weather Domain Generalization 
+
+Setup. The conventional S-DGOD follows [56, 57], training on DS and then evaluating on the unseen domains (NC, DF, DR, and NR). We extend this setting to MSDG setting, performing training on DS and NC (DS+NC) and then evaluating on DF, DR, and NR. We train and evaluate on 7 categories shared across all source and target domains. 
+
+Results. In Table 3, MS-DePro achieves the best performance on all source (seen) and unseen domains—except DF, where it ranks second—as well as on the mPC metric, which averages mAP over the unseen domains. Among previous methods, only PDOC [46] and CLIP-Gap [45] utilize text. However, their text prompts implicitly assume target domain knowledge is available for unseen domains ( e.g., “an image taken on a fog day ”, “an image taken on a rain night ”). In contrast, our learnable prompts integrate domain knowledge from input modalities. Moreover, MS-DePro employs explicit feature separation to encode domain-relevant and domain-invariant representations, in comparison with prior methods, which mainly rely on image augmentation. 
+
+4.2.2. Real to Artistic Domain Generalization 
+
+Setup. By default, real to artistic generalization is trained on a real-world domain [55] and evaluated on multiple artistic domains [56] to assess general-ization on the real-world to artistic domain gap. To preserve the experimental assumption that real and artistic domains remain distinct, we additionally include MS COCO in the source domain (COCO), extending it into a multi-source setting. 
+
+Results. Table 4 shows the results. We benchmark SOTA S-DGOD methods in the real to artistic setting and observe that our MS-DePro consistently outperforms them. In particular, CLIP-Gap [45] and PDOC [46] exhibited 17 Table 5: Comparison of performance and computational cost.                                                                                          
+
+> Method Backbone Weight Depth Text 1mAP (%) Train Test #Param (M) #Param (M) FLOPs (G) Latency (ms) BB. 2Det. 2BB. 2Det. 2
+> Baseline (Faster R-CNN) VGG-16 ImageNet --44.9 14.7 29.2 14.7 29.2 223.6 36.1 ResNet-50 ImageNet --45.4 23.3 24.5 23.3 24.5 267.0 42.2 RegionCLIP --47.7 23.3 24.5 23.3 24.5 267.0 42.2 ACIA [8] VGG-16 ImageNet --47.9 14.7 29.2 14.7 29.2 223.6 36.1 MS-DePro (Ours) VGG-16 ImageNet ✓-48.2 29.4 31.6 14.7 29.2 223.6 36.1 ResNet-50 ImageNet ✓-48.8 46.6 34.0 23.3 24.5 267.0 42.2 RegionCLIP ✓-49.7 46.6 34.0 23.3 24.5 267.0 42.2
+> ✓✓53.7 46.6 34.1 23.3 24.5 267.0 42.4
+> 1
+> A dash (–) in text column indicates a linear classifier without the text modality.
+> 2
+> BB. and Det. denote the backbone and detection modules ( e.g., RPN and RoI Head), respectively.
+> *Here, Depth and Text refer to depth-guided localization and multi-modal guided prompt learning, respectively.
+
+limited performance, even though they used art-domain prompts ( e.g. , “an image in the comics style”) that contradict the experimental assumption of having no prior knowledge of the unseen target domain. In contrast, our MS-DePro explicitly leverages auxiliary domain-agnostic modalities to learn domain-invariant features at the input level. 
+
+4.3. Ablation Studies 
+
+We present comprehensive ablation studies to analyze our proposed com-ponents. To this end, we conduct experiments under the cross-time setting in Section 4.1.1. The results demonstrate that the proposed components are effective and contribute synergistically to the model performance. 
+
+4.3.1. Impact of Backbone and Pretrained Weights. 
+
+Unlike previous MSDA methods that utilize the VGG-16 backbone, we adopt ResNet-50 backbone from RegionCLIP to incorporate the text modal-ity. To ensure a fair comparison and validate that the performance gain comes from our proposed components rather than the backbone change, we ana-lyze the impact of different backbones and pretrained weights in Table 5. First, ResNet-50 weights of RegionCLIP [27] are pretrained on the large-scale CC3M dataset [58], which is larger than ImageNet and shows higher baseline performance (Baseline in Table 5). Nevertheless, it is worth noting that the CC3M dataset does not overlap with any target domains used in our experiments. 18 With the VGG-16 backbone, our method with depth-guided localization (48.2 mAP) surpasses both ACIA (47.9 mAP) and the baseline (44.9 mAP). Moreover, when using the ResNet-50 backbone with RegionCLIP weights, MS-DePro significantly outperforms the baseline (53.7 vs. 47.7 mAP). No-tably, this is a substantial improvement over our model variant without text (49.7 mAP), which confirms the strong contribution of our multi-modal guided prompt learning. 
+
+4.3.2. Comparison of Computational Cost. 
+
+In Table 5, we also report the number of parameters (#Param), FLOPs, and latency. Although the proposed depth-guided localization introduces ex-tra training costs, it is applied exclusively during training and removed during inference. As the comparison between our baseline (row 3) and the model with depth-guided localization (row 7) shows, the number of Parameters, FLOPs, and Latency at test time are identical. Moreover, while our multi-modal guided prompt learning introduces only negligible computational over-head, it delivers a substantial performance gain (49.7 → 53.7 mAP). Finally, compared to ACIA, our MS-DePro incurs a slight increase in test time com-putational cost (223.6G → 267.0G FLOPs; 36.1ms → 42.4ms latency) but achieves a significant performance improvement of +5.8 mAP. 
+
+4.3.3. Effects of the Main Components. 
+
+Table 6 shows the effects of our main contributions. Using a linear clas-sifier (Exp. #1 and Exp. #2), depth guidance provides a 2.0% gain in mAP, while employing a text-guided classifier (Exp. #3 —#6) achieves consis-tently higher performance. For depth-guided localization, we observe perfor-mance gains of 1.1% (Exp. #3 → #4) and 1.6% (Exp. #5 → #6) for fixed and learnable prompt types, respectively. The usage of a learnable prompt achieves higher performance than a fixed prompt (Exp. #3 vs. Exp. #5). Note that when the depth map is not used, only πDS is applied in Exp. #5. Consequently, the combination of these components yields synergistic gains, outperforming their individual effects (Exp. #6). 
+
+4.3.4. Ablation on Diverse Geometric Cues. 
+
+In Table 7, we evaluate the effect of various geometric cues. To this end, we exploit three models to encode depth and normal maps, i.e. , Depth Pro [13], Depth Anything V2 [12], and Omnidata [59]. We confirm that leveraging geometric cues consistently improves performance compared to RGB-only 19 Table 6: Ablation on main components of MS-DePro. πDA and πDS respectively indicate DA and DS token.                                        
+
+> Exp. # Depth-Guided Loc. Classifier Prompt mAP Type Token 1-linear --47.7 2✓--49.7 3-text fix -51.3 4✓fix -52.4 5-learnable πDS 52.1 6✓learnable πDA , π DS 53.7
+> Table 7: Ablation on diverse geometric cues.
+> Geometric Method mAP -RGB-only 52.1 Normal Omnidata [59] 52.9 Depth Depth Anything V2 [12] 53.1 Depth Depth Pro [13] 53.7
+
+(+0.8, +1.0, and +1.6 mAP). These results suggest that using geometric cues enhances the quality of region proposal and pseudo-label in the domain adaptation stage. 
+
+4.3.5. Where do Features for Tokens come from? 
+
+As described in Section 3.3.2, we construct two types of additional tokens, 
+
+πDA and πDS . We conduct an empirical experiment to determine the optimal set of additional tokens in Table 8. Incorporating tokens generated from shallow image-level RGB and depth features (Exp. #5) improves performance to 52.8 mAP, showing a 2.2 mAP gain over Exp. #1, which does not apply any tokens (same as CoOp [23] in Equation (1)). However, as object detection inherently predicts the class of regions, we consider that domain-specific style information in these regions is crucial. Thus, we extract the DS token at the proposal-level, achieving our best performance, as presented in Exp. #6. A comparison between Exp. #4 and Exp. #6 shows that incorporating global geometric information at the image level, rather than the proposal level, facilitates more effective domain-agnostic representations. 20 Table 8: Ablation on the configuration of DA token and DS token. 
+
+Exp. # Additional-Token mAP 
+
+πDA πDS 
+
+1 - - 50.6 2 - Proposal-level 52.4 3 Image-level - 52.7 4 Proposal-level Proposal-level 52.2 5 Image-level Image-level 52.8 6 Image-level Proposal-level 53.7 
+
+> Table 9: Ablation on different prompt templates.
+
+Method Template mAP CLIP [30] “a photo of a [CLS] ” 52.4 CoOp [23] “[v 1][v 2] . . . [v M ][CLS] ” 50.6 CoCoOp [24] “[v 1(IR)][v 2(IR)] . . . [v M (IR)][CLS] ” 51.1 DAPL [9] “[v 1] . . . [v M1 ][d d
+
+> 1
+
+] . . . [d dM2 ][CLS] ” 47.8 Ours “[v 1] . . . [v M1 ][d 1] . . . [d M2 ][CLS] ” 53.7 
+
+4.3.6. Comparison with other Prompting Strategies. 
+
+We compare our multi-modal guided learnable prompt with other prompt-ing studies, as illustrated in Table 9. To ensure a fair comparison, we use the same network while varying only the prompting strategy. While CoOp [23] underperforms CLIP [30] on the target domain, it yields a 0.7 higher mAP under daytime conditions that share a similar distribution with the source domain. This discrepancy suggests that simply learning prompts without any feature conditioning and explicit guidance leads to overfitting on the source domains. DAPL [9] considers domain-specific attributes but still performs worse than CLIP, as it shares the same limitation as CoOp, namely learn-ing prompts directly without feature guidance. Moreover, since its domain-specific tokens ( [d d
+
+> 1
+
+] . . . [d dM2 ]) are constructed independently for each domain, they become biased toward unreliable pseudo-labels during the early target adaptation stage. On the other hand, CoCoOp [24] guides each token with RGB deep features but lacks a design suited for domain adaptation and ob-ject detection, resulting in 51.1 mAP. Unlike previous approaches, we leverage depth and RGB features to guide domain-agnostic and domain-specific to-21 Table 10: Ablation on the number of learnable prompt tokens. 
+
+Template M1 M2 mAP “[v 1] . . . [v M1 ][d 1] . . . [d M2 ][CLS] ”8 8 53.7 
+
+0 16 52.7 16 0 53.1 16 16 53.3   
+
+> Table 11: Ablation on objectness logits (%) for constructing target DS token πDS and pseudo-labels.
+
+Objectness Logits mAP 10% 53.7 
+
+30% 53.4 50% 53.4 100% 53.3 
+
+kens, respectively. We achieve 53.7 mAP, the highest among all methods, highlighting the effectiveness of our prompting strategy for MSDA. 
+
+4.3.7. Impact of Learnable Prompt Token Lengths 
+
+We investigate the impact of the number of learnable prompt tokens, 
+
+M1 and M2, to identify the optimal balance between domain-agnostic and domain-specific components. As shown in Table 10, a balanced configuration of M1 = 8 and M2 = 8 achieves the highest performance with 53.7 mAP. Notably, allocating the entire token budget to either the domain-specific (M1 = 16 ) or domain-agnostic ( M2 = 16 ) component alone results in a per-formance decline. This suggests that the synergistic interaction between both types of prompts is more effective than relying on a single attribute for repre-sentation. Furthermore, increasing the total tokens to 32 ( M1 = 16 , M 2 = 16 )provides no additional gains. Consistent with the findings in DA-Pro [26], this suggests that excessive prompt lengths cause overfitting to source-specific characteristics, thereby hindering effective adaptation to target domains. 
+
+4.3.8. Effective Pseudo-Labels for Target Adaptation. 
+
+In MS-DePro, the DS token πDS is constructed from the entire foreground and 10% of the background region to encode discriminative object-level char-acteristics across domains. In the case of the target domain, where ground-22 Figure 4: Visualization of an RGB image and its corresponding low-quality depth map, where raindrops on the windshield and low-light conditions resulted in degraded depth estimation. 
+
+> Figure 5: (a) Confidence scores of region proposals from RGB and depth maps. (b) Counts of pseudo-boxes from RGB and depth maps, with averages shown above the bars.
+
+truth bounding boxes are unavailable, we cannot explicitly separate fore-ground and background regions. Thus, we utilize only the top 10% of pro-posals ranked by objectness logits during pseudo-label generation in MSDA for target adaptation. In Table 11, we analyze the impact of varying object-ness logits on target adaptation performance. As higher objectness logits are incorporated, more background regions contribute to the configuration of πDS 
+
+and pseudo-labels. Consequently, selecting the top 10% of objectness logits yield the highest performance at 53.7 mAP, whereas utilizing all proposals (i.e. , 100% of objectness logits) leads to a slight performance degradation of 0.4 mAP. This indicates that appropriately selecting proposals based on objectness logits influences the quality of both the target DS token πDS and the pseudo-labels. 23 4.4. Analysis 4.4.1. Do depth maps have consistent representation? 
+
+As discussed in Section 3.2, we visualize feature distributions to investi-gate whether depth maps provide more consistent representations than RGB images (see Figure 3-(a)). To this end, we employ four different domains, including adverse weather (Daytime Sunny, Night Rainy) and artistic style (Comic, Watercolor) [56]. These domains differ in lighting and weather condi-tions (Daytime Sunny vs. Night Rainy) and in style (real vs. artistic: Comic, Watercolor). As illustrated in the t-SNE visualization results of Figure 3-(a), RGB features are clearly separated into domain-specific clusters, whereas depth features are aggregated into a single cluster. Moreover, we compute the average distribution distances of features. Specifically, we measure the distance between feature distributions using the Euclidean distance of their means. As a result, RGB features exhibit larger distances (40.558 for mean) compared to depth features (0.510 for mean), indicating that depth features remain closer across domains. These results suggest that depth maps are more consistent feature representations than RGB images. 
+
+4.4.2. In-Depth Analysis of Depth Map Quality 
+
+Although our MS-DePro achieves SOTA performance, the depth maps tend to be noisy under challenging conditions such as motion blur, severe oc-clusion, adverse weather, and poor lighting. Hence, a natural question arises: 
+
+“How do low-quality depth maps affect model training?" . To explore this, we conduct an in-depth analysis of low-quality depth maps and their impact on the model. As illustrated in Figure 4, we first sample 100 low-quality depth maps generated by a monocular depth estimation model [13]. Specifically, we calculate entropy from depth histograms and cosine similarity between the gradient magnitudes of the RGB and the depth map. Then, depth maps whose quality score Q is lower than a threshold are classified as low-quality samples. Next, we analyze the confidence scores of proposals generated from the sampled depth maps. As shown in Figure 5-(a), the proposals from low-quality depth maps show lower confidence scores than those from RGB im-ages, and are mainly distributed between −2 and 0. This indicates that the model mainly relies on RGB proposals when generating pseudo-labels, as also observed in Figure 5-(b). In Figure 5-(b), pseudo-labels generated from low-quality depth maps are markedly fewer than those from RGB (avg. 4.52 vs. 95.48), whereas high-quality depth maps provide considerably more pseudo-labels (avg. 37.08 vs. 62.94). From these results, we argue that low-quality 24 Table 12: Ablation study on DS token configuration. Class-wise frequency and performance drop relationship. Comparison of our class-agnostic (Exp. #1) and the class-specific strate-gies (Exp. #2).                                                 
+
+> Class mAP Performance Gap (Exp. #1 - Exp. #2) Name Frequency Exp. #1 Exp. #2 Car 8649 77.3 75.9 1.4 Sign 2550 66.3 62.2 4.1 Light 2128 62.7 55.9 6.8 Person 1060 57.9 55.4 2.5 Truck 355 59.8 47.1 12.7 Bus 137 61.0 51.7 9.3 Bike 66 64.4 49.3 15.1 Rider 47 43.0 38.3 4.7 Motor 28 44.7 33.6 11.1 Train ----mAP 53.7 46.9 6.8
+
+Figure 6: Impact of class frequency on performance gap. Under a class-specific configu-ration, rare classes ( e.g., Bike, Motor) exhibit greater performance degradation, whereas frequent classes ( e.g., Car, Sign) are less affected. 
+
+depth maps only have a negligible impact on pseudo-label generation, while in most cases with high-quality depth maps, they provide meaningful guidance for model localization. 
+
+4.4.3. Class-specific DS Token 
+
+In Section 3.3, we configure a DS token πDS based on the region offset of predicted foreground and background proposals. Intuitively, to effectively teach the model class-wise distinctions, πDS can be constructed in a class-specific manner by assigning the class for each proposal. However, configur-ing πDS in a class-specific manner results in a significant performance drop 25 (see Table 12 and Figure 6). Exp. #1 corresponds to our original model (class-agnostic approach), while Exp. #2 adopts the class-specific approach. Notably, we observe an inverse correlation between class frequency and per-formance degradation. Specifically, frequent classes ( e.g., Car, Sign, Light) exhibit minimal performance drops, whereas rare classes ( e.g., Bike, Motor) suffer more substantial declines. It is worth exploring DS token design tech-niques that address the class imbalance in future work. 
+
+4.4.4. Visualization Results 
+
+Figure 7 illustrates object detection visualizations, showing cross-time do-main adaptation in the top 3 rows and diverse weather domain generalization in the bottom 3 rows. In the top 3 rows, PMT [8] exhibits more false posi-tives in specific categories ( e.g. , traffic sign, person). Conversely, MS-DePro demonstrates remarkable qualitative results. For the extended domain gener-alization experiments in the bottom 3 rows, PDOC [46] is susceptible to chal-lenges, especially in night and rainy weather (Dusk Rainy and Night Rainy). Our MS-DePro successfully detects objects missed by [46], demonstrating its generalization across diverse weather. Interestingly, in the Daytime Foggy scene, we find that our method detects the “bike” class objects that do not appear to be annotated in the ground-truth. 
+
+5. Conclusion 
+
+In this paper, we introduce a novel MSDA framework, MS-DePro. Our key idea is the explicit design of domain-invariant representations by lever-aging easy-to-access additional modalities—depth map and text. To achieve this, we propose depth-guided localization and multi-modal guided prompt learning. Consequently, MS-DePro achieves SOTA performance on MSDA benchmarks. Furthermore, we extend experiments to the MSDG benchmark, and MS-DePro also demonstrates SOTA results, validating the generalization capabilities of its dedicated components. Despite these impressive results, it also has some limitations. Depth maps are often distorted by motion blur, oc-clusion, and semi-transparent surfaces, which can degrade model performance by generating inaccurate region proposals and unstable features for the DA token. We leave the task of addressing these challenges to future research to improve overall performance. Ultimately, we believe our work highlights the importance of auxiliary modalities in encoding domain-agnostic features for effective adaptation to the target domain. 26 Figure 7: (Top) Detection visualization results in the cross-time domain adaptation. We qualitatively compare MS-DePro with ground-truth and PMT [7]. (Bottom) Detection visualization results in diverse weather domain generalization. We qualitatively compare MS-DePro with ground-truth and PDOC [46]. 
+
+27 6. Acknowledgements 
+
+This work was partly supported by the IITP(Institute of Information & Communications Technology Planning & Evaluation)-ICAN(ICT Challenge and Advanced Network of HRD)(IITP-2025-RS-2022-00156345, 50%) and ITRC(Information Technology Research Center)(IITP-2025-RS-2024-004374 94, 25%) grant funded by the Korea government(MSIT). This research was partly supported by Unmanned Vehicles Core Technology Research and De-velopment Program through the National Research Foundation of Korea (NRF) and Unmanned Vehicle Advanced Research Center (UVARC) funded by the Ministry of Science and ICT, the Republic of Korea (NRF-2023M3C1C 1A01098408, 25%). 28 Appendix A. Dataset Details 
+
+Appendix A.1. Multi-Source Domain Adaptation Appendix A.1.1. Cross-time Adaptation 
+
+In this setting, we train and evaluate on 10 categories in BDD100K [38]: 
+
+bike, bus, car, motor, person, rider, traffic light, traffic sign, train, truck .
+
+Daytime (D) consists of 36,728 images, which were captured during the daytime. Night (N) consists of 27,961 images for training. Dawn/Dusk (DD) served as the target domain, selecting 5,027 images for unlabeled do-main adaptation and 778 for evaluation. 
+
+Appendix A.1.2. Cross-camera Adaptation 
+
+In this setting, we train and evaluate only on a car class. Cityscapes (C) [39] is a dataset of high-resolution daytime images from various European cities, from which we selected 2,824 images for training. KITTI (K) [40] is a popular dataset for self-driving research. We selected 6,684 images for training from its trainval set, using only those images that include the car 
+
+class. 
+
+Appendix A.1.3. Mixed-domain Adaptation 
+
+For our experiments, we train and evaluate on 7 categories common to the source and target domain: person, car, rider, truck, motor, bicycle, bus .
+
+Cityscapes (C). We selected 2,975 images from Cityscapes (C) [39] for training. For the target domain, we used 36,728 images for adaptation and 5,528 for evaluation MS COCO (M) [41] is a large-scale computer vision benchmark. We selected 70,082 training images containing objects from 6 cat-egories, as the rider class is not available. Synscapes (S) [42] is a synthetic dataset for autonomous driving, simulating various sensor and illumination effects. We selected its entire set of 25,000 images. 
+
+Appendix A.2. Multi-Source Domain Generalization Appendix A.2.1. Diverse Weather Domain Generalization 
+
+In our experiments, we train and evaluate on 7 categories common to the source and target domain: bus, bike, car, motor, person, rider, truck . Day-time Sunny (DS) is an urban-scene detection subset from BDD100K [38]. We selected 19,318 images for training and 8,313 for evaluation from it. 
+
+Night Clear (NC) , a BDD100K subset captured at night. We followed 29 the setup of [45] and selected 7,756 images for training and 27,961 for test-ing. Daytime Foggy (DF) served as a target evaluation domain with 3,775 images. It combines synthetic data (FoggyCityscapes [52]) and real images (AdverseWeather [53]) to create domain shifts in weather, style, and camera parameters. Dusk Rainy (DR) is a collection of rendered images designed to simulate rainy conditions. It comprises 3,501 images generated from the 
+
+Dawn/Dusk subset of BDD100K. 
+
+Night Rainy (NR) [54] is synthesized from Night Clear. We selected 2,494 images. 
+
+Appendix A.2.2. Real to Artistic Domain Generalization 
+
+We used real-world datasets Pascal VOC [55] and MS COCO [41], along-side art datasets Clipart1k, Comic2k, and Watercolor2k [56]. We trained the model on 20 classes, using the common categories from Pascal VOC and MS COCO. While Clipart1k shares these 20 classes, Comic2k and Watercolor2k contain only 6 classes ( bicycle, bird, car, cat, dog, person ). Consequently, Cli-part1k was evaluated on 20 classes, while Comic2k and Watercolor2k were evaluated on 6 classes. We used the Pascal VOC (VOC) [55] dataset. We aggregated 16,551 trainval images (VOC2007 / 2012) for training and used the 4,952 images from the VOC2007 test set for in-domain evaluation, fol-lowing [56]. MS COCO (M) [41] is a large-scale real-world dataset with 80 categories. From its 118,287 training images, we selected 95,279 images containing objects from the 20 categories it shares with Pascal VOC. Cli-part1k (CP) [56] is an art-domain benchmark sourced from CMPlaces [60], OpenClipart, and Pixabay. We used all 1,000 images (3,165 instances) for out-domain evaluation. We selected the 1,000-image test set from Comic2k (CM) [56], an art-style dataset sourced from BAM! [61], for evaluation. Wa-tercolor2k (WC) [56] is an art-domain benchmark, primarily of the bird 
+
+and person classes. We selected its 1,000-image test set for evaluation. 
+
+References 
+
+[1] X. Wei, S. Liu, Y. Xiang, Z. Duan, C. Zhao, Y. Lu, Incremental learning based multi-domain adaptation for object detection, Knowledge-Based Systems 210 (2020) 106420. [2] J. Deng, W. Li, Y. Chen, L. Duan, Unbiased mean teacher for cross-domain object detection, in: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, 2021, pp. 4091–4101. 30 [3] Y.-J. Li, X. Dai, C.-Y. Ma, Y.-C. Liu, K. Chen, B. Wu, Z. He, K. Kitani, P. Vajda, Cross-domain adaptive teacher for object detection, in: Pro-ceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, 2022, pp. 7581–7590. [4] Y. Bai, C. Liu, R. Yang, X. Li, Misalignment-resistant domain adaptive learning for one-stage object detection, Knowledge-Based Systems 305 (2024) 112605. [5] X. Yao, S. Zhao, P. Xu, J. Yang, Multi-source domain adaptation for object detection, in: Proceedings of the IEEE/CVF International Con-ference on Computer Vision, 2021, pp. 3273–3282. [6] J. Wu, J. Chen, M. He, Y. Wang, B. Li, B. Ma, W. Gan, W. Wu, Y. Wang, D. Huang, Target-relevant knowledge preservation for multi-source domain adaptive object detection, in: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, 2022, pp. 5301–5310. [7] A. Belal, A. Meethal, F. P. Romero, M. Pedersoli, E. Granger, Multi-source domain adaptation for object detection with prototype-based mean teacher, in: Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision, 2024, pp. 1277–1286. [8] A. Belal, A. Meethal, F. P. Romero, M. Pedersoli, E. Granger, Attention-based class-conditioned alignment for multi-source domain adaptation of object detectors, in: Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision, 2025, pp. 8566–8575. [9] C. Ge, R. Huang, M. Xie, Z. Lai, S. Song, S. Li, G. Huang, Domain adaptation via prompt learning, IEEE Transactions on Neural Networks and Learning Systems (2023). [10] C. Gungor, A. Kovashka, Boosting weakly supervised object detection using fusion and priors from hallucinated depth, in: Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision, 2024, pp. 739–748. [11] S. Addepalli, A. R. Asokan, L. Sharma, R. V. Babu, Leveraging vision-language models for improving domain generalization in image classifica-31 tion, in: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, 2024, pp. 23922–23932. [12] L. Yang, B. Kang, Z. Huang, Z. Zhao, X. Xu, J. Feng, H. Zhao, Depth anything v2, in: Advances in Neural Information Processing Systems, Vol. 37, 2024, pp. 21875–21911. [13] A. Bochkovskii, A. Delaunoy, H. Germain, M. Santos, Y. Zhou, S. R. Richter, V. Koltun, Depth pro: Sharp monocular metric depth in less than a second, arXiv preprint arXiv:2410.02073 (2024). [14] Y. Lu, H. Huang, X. Hu, Z. Lai, Multiple adaptation network for multi-source and multi-target domain adaptation, IEEE Transactions on Mul-timedia 27 (2025) 5731–5745. [15] Y. Lu, Y. Yang, W. K. Wong, A. Toomey, Z. Lai, X. Li, Energy-driven explicit alignment network: A blended-target domain adaptation ap-proach, IEEE Transactions on Multimedia (2026). [16] Y. Lu, Y. Lan, H. Yang, Z. Lai, X. Li, Exploring generic knowledge and reactivating source model for source-free universal domain adaptation, IEEE Transactions on Multimedia (2026). [17] Y. Lu, H. Huang, W. K. Wong, X. Hu, Z. Lai, X. Li, Adaptive dispersal and collaborative clustering for few-shot unsupervised domain adapta-tion, IEEE Transactions on Image Processing (2025). [18] C. Ouyang, C. Chen, S. Li, Z. Li, C. Qin, W. Bai, D. Rueckert, Causality-inspired single-source domain generalization for medical image segmen-tation, IEEE Transactions on Medical Imaging 42 (4) (2022) 1095–1106. [19] J. Song, H. Chen, Y. Lyu, W. Nie, A.-A. Liu, Causality-inspired un-supervised domain adaptation with target style imitation for medical image segmentation, IEEE Transactions on Circuits and Systems for Video Technology (2025). [20] K. Zhou, M. Jiang, B. Gabrys, Y. Xu, Learning causal representations based on a gae embedded autoencoder, IEEE Transactions on Knowl-edge and Data Engineering (2025). 32 [21] J. Wang, Y. Chen, Z. Dong, M. Gao, H. Lin, Q. Miao, Sabv-depth: A biologically inspired deep learning network for monocular depth estima-tion, Knowledge-Based Systems 263 (2023) 110301. [22] R. Huang, H. Zheng, Y. Wang, Z. Xia, M. Pavone, G. Huang, Training an open-vocabulary monocular 3d detection model without 3d data, Advances in Neural Information Processing Systems 37 (2024) 72145– 72169. [23] K. Zhou, J. Yang, C. C. Loy, Z. Liu, Learning to prompt for vision-language models, International Journal of Computer Vision 130 (9) (2022) 2337–2348. [24] K. Zhou, J. Yang, C. C. Loy, Z. Liu, Conditional prompt learning for vision-language models, in: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, 2022, pp. 16816–16825. [25] Y. Du, F. Wei, Z. Zhang, M. Shi, Y. Gao, G. Li, Learning to prompt for open-vocabulary object detection with vision-language model, in: Pro-ceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, 2022, pp. 14084–14093. [26] H. Li, R. Zhang, H. Yao, X. Song, Y. Hao, Y. Zhao, L. Li, Y. Chen, Learning domain-aware detection head with prompt tuning, Advances in Neural Information Processing Systems 36 (2023) 4248–4262. [27] Y. Zhong, J. Yang, P. Zhang, C. Li, N. Codella, L. H. Li, L. Zhou, X. Dai, L. Yuan, Y. Li, et al., Regionclip: Region-based language-image pretraining, in: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, 2022, pp. 16793–16803. [28] S. Ren, K. He, R. Girshick, J. Sun, Faster r-cnn: Towards real-time object detection with region proposal networks, IEEE Transactions on Pattern Analysis and Machine Intelligence 39 (6) (2016) 1137–1149. [29] K. He, X. Zhang, S. Ren, J. Sun, Deep residual learning for image recog-nition, in: Proceedings of the IEEE/CVF Conference on Computer Vi-sion and Pattern Recognition, 2016, pp. 770–778. [30] A. Radford, J. W. Kim, C. Hallacy, A. Ramesh, G. Goh, S. Agarwal, G. Sastry, A. Askell, P. Mishkin, J. Clark, et al., Learning transferable 33 visual models from natural language supervision, in: Proceedings of the 38th International Conference on Machine Learning, PMLR, 2021, pp. 8748–8763. [31] A. Tarvainen, H. Valpola, Mean teachers are better role models: Weight-averaged consistency targets improve semi-supervised deep learning re-sults, Advances in neural information processing systems 30 (2017). [32] R. Geirhos, J.-H. Jacobsen, C. Michaelis, R. Zemel, W. Brendel, M. Bethge, F. A. Wichmann, Shortcut learning in deep neural networks, Nature Machine Intelligence 2 (11) (2020) 665–673. [33] K. He, G. Gkioxari, P. Dollár, R. Girshick, Mask r-cnn, in: Proceedings of the IEEE/CVF International Conference on Computer Vision, 2017, pp. 2961–2969. [34] X. Pan, P. Luo, J. Shi, X. Tang, Two at once: Enhancing learning and generalization capacities via ibn-net, in: Proceedings of the European Conference on Computer Vision, 2018, pp. 464–479. [35] T.-Y. Ross, G. Dollár, Focal loss for dense object detection, in: Proceed-ings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, 2017, pp. 2980–2988. [36] Y.-C. Liu, C.-Y. Ma, Z. He, C.-W. Kuo, K. Chen, P. Zhang, B. Wu, Z. Kira, P. Vajda, Unbiased teacher for semi-supervised object detection, arXiv preprint arXiv:2102.09480 (2021). [37] Y. Wu, A. Kirillov, F. Massa, W.-Y. Lo, R. Girshick, Detectron2, https: //github.com/facebookresearch/detectron2 (2019). [38] F. Yu, H. Chen, X. Wang, W. Xian, Y. Chen, F. Liu, V. Madhavan, T. Darrell, Bdd100k: A diverse driving dataset for heterogeneous mul-titask learning, in: Proceedings of the IEEE/CVF Conference on Com-puter Vision and Pattern Recognition, 2020, pp. 2636–2645. [39] M. Cordts, M. Omran, S. Ramos, T. Rehfeld, M. Enzweiler, R. Benen-son, U. Franke, S. Roth, B. Schiele, The cityscapes dataset for semantic urban scene understanding, in: Proceedings of the IEEE/CVF Confer-ence on Computer Vision and Pattern Recognition, 2016, pp. 3213–3223. 34 [40] A. Geiger, P. Lenz, R. Urtasun, Are we ready for autonomous driving? the kitti vision benchmark suite, in: Proceedings of the IEEE/CVF Con-ference on Computer Vision and Pattern Recognition, 2012, pp. 3354– 3361. [41] T.-Y. Lin, M. Maire, S. Belongie, J. Hays, P. Perona, D. Ramanan, P. Dollár, C. L. Zitnick, Microsoft coco: Common objects in context, in: Proceedings of the European Conference on Computer Vision, Springer, 2014, pp. 740–755. [42] M. Wrenninge, J. Unger, Synscapes: A photorealistic synthetic dataset for street scene parsing, arXiv preprint arXiv:1810.08705 (2018). [43] H. Zhao, S. Zhang, G. Wu, J. M. Moura, J. P. Costeira, G. J. Gordon, Adversarial multiple source domain adaptation, Advances in neural in-formation processing systems 31 (2018). [44] X. Peng, Q. Bai, X. Xia, Z. Huang, K. Saenko, B. Wang, Moment matching for multi-source domain adaptation, in: Proceedings of the IEEE/CVF International Conference on Computer Vision, 2019, pp. 1406–1415. [45] V. Vidit, M. Engilberge, M. Salzmann, Clip the gap: A single domain generalization approach for object detection, in: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, 2023, pp. 3219–3229. [46] D. Li, A. Wu, Y. Wang, Y. Han, Prompt-driven dynamic object-centric learning for single domain generalization, in: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, 2024, pp. 17606–17615. [47] M. S. Danish, M. H. Khan, M. A. Munir, M. S. Sarfraz, M. Ali, Improv-ing single domain-generalized object detection: A focus on diversification and alignment, in: Proceedings of the IEEE/CVF Conference on Com-puter Vision and Pattern Recognition, 2024, pp. 17732–17742. [48] F. Wu, J. Gao, L. Hong, X. Wang, C. Zhou, N. Ye, G-nas: Generalizable neural architecture search for single domain generalization object detec-tion, in: Proceedings of the AAAI Conference on Artificial Intelligence, Vol. 38, 2024, pp. 5958–5966. 35 [49] W. Lee, D. Hong, H. Lim, H. Myung, Object-aware domain generaliza-tion for object detection, in: Proceedings of the AAAI Conference on Artificial Intelligence, Vol. 38, 2024, pp. 2947–2955. [50] X. Xu, J. Yang, W. Shi, S. Ding, L. Luo, J. Liu, Physaug: A physical-guided and frequency-based data augmentation for single-domain gen-eralized object detection, in: Proceedings of the AAAI Conference on Artificial Intelligence, Vol. 39, 2025, pp. 21815–21823. [51] B. He, Y. Ji, Q. Ye, Z. Tan, L. Wu, Generalized diffusion detector: Min-ing robust features from diffusion models for domain-generalized detec-tion, in: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, 2025, pp. 9921–9932. [52] C. Sakaridis, D. Dai, L. Van Gool, Semantic foggy scene understand-ing with synthetic data, International Journal of Computer Vision 126 (2018) 973–992. [53] M. Hassaballah, M. A. Kenk, K. Muhammad, S. Minaee, Vehicle detec-tion and tracking in adverse weather using a deep learning framework, IEEE Transactions on Intelligent Transportation Systems 22 (7) (2020) 4230–4242. [54] A. Wu, R. Liu, Y. Han, L. Zhu, Y. Yang, Vector-decomposed disentan-glement for domain-invariant object detection, in: Proceedings of the IEEE/CVF International Conference on Computer Vision, 2021, pp. 9342–9351. [55] M. Everingham, S. M. A. Eslami, L. Van Gool, C. K. I. Williams, J. Winn, A. Zisserman, The pascal visual object classes challenge: A retrospective, International Journal of Computer Vision 111 (1) (2015) 98–136. [56] N. Inoue, R. Furuta, T. Yamasaki, K. Aizawa, Cross-domain weakly-supervised object detection through progressive domain adaptation, in: Proceedings of the IEEE/CVF Conference on Computer Vision and Pat-tern Recognition, 2018, pp. 5001–5009. [57] A. Wu, C. Deng, Single-domain generalized object detection in ur-ban scene via cyclic-disentangled self-distillation, in: Proceedings of the 36 IEEE/CVF Conference on Computer Vision and Pattern Recognition, 2022, pp. 847–856. [58] P. Sharma, N. Ding, S. Goodman, R. Soricut, Conceptual captions: A cleaned, hypernymed, image alt-text dataset for automatic image cap-tioning, in: Proceedings of the 56th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), 2018, pp. 2556– 2565. [59] A. Eftekhar, A. Sax, J. Malik, A. Zamir, Omnidata: A scalable pipeline for making multi-task mid-level vision datasets from 3d scans, in: Pro-ceedings of the IEEE/CVF International Conference on Computer Vi-sion, 2021, pp. 10786–10796. [60] L. Castrejon, Y. Aytar, C. Vondrick, H. Pirsiavash, A. Torralba, Learn-ing aligned cross-modal representations from weakly aligned data, in: Proceedings of the IEEE/CVF Conference on Computer Vision and Pat-tern Recognition, 2016, pp. 2940–2949. [61] M. J. Wilber, C. Fang, H. Jin, A. Hertzmann, J. Collomosse, S. Belongie, Bam! the behance artistic media dataset for recognition beyond photog-raphy, in: Proceedings of the IEEE/CVF International Conference on Computer Vision, 2017, pp. 1202–1211. 37

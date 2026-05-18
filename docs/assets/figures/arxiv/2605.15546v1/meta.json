@@ -1,0 +1,46 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.15546v1/fig-001.webp",
+      "caption": "Figure 7: Illustration of the basic sparse-conv block. This",
+      "page": 7,
+      "index": 1,
+      "width": 517,
+      "height": 471
+    },
+    {
+      "url": "assets/figures/arxiv/2605.15546v1/fig-002.webp",
+      "caption": "Figure 1: Illustration of the damage to the geometric structure",
+      "page": 3,
+      "index": 2,
+      "width": 487,
+      "height": 357
+    },
+    {
+      "url": "assets/figures/arxiv/2605.15546v1/fig-003.webp",
+      "caption": "Figure 8: Heatmap of voxel generation block",
+      "page": 8,
+      "index": 3,
+      "width": 485,
+      "height": 512
+    },
+    {
+      "url": "assets/figures/arxiv/2605.15546v1/fig-004.webp",
+      "caption": "Figure 2: Top: The overall architecture of our proposed 3DTMDet. First, the point cloud data is converted into voxels and",
+      "page": 4,
+      "index": 4,
+      "width": 1029,
+      "height": 419
+    },
+    {
+      "url": "assets/figures/arxiv/2605.15546v1/fig-005.webp",
+      "caption": "Figure 9: The Qualitative Results Visualization of DSVT, LION and Ours.",
+      "page": 9,
+      "index": 5,
+      "width": 979,
+      "height": 1094
+    }
+  ]
+}
