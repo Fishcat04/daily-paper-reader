@@ -1,0 +1,78 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.16901v1/fig-001.webp",
+      "caption": "Figure 7. Pytorch-like code snippet of the Q-branch MatMul-aware compensation. The function constructs the Sylvester equation AX + XB = C and solves for the compensation matrix ∆W .",
+      "page": 15,
+      "index": 1,
+      "width": 1074,
+      "height": 1125
+    },
+    {
+      "url": "assets/figures/arxiv/2605.16901v1/fig-002.webp",
+      "caption": "Figure 2. Reconstruction loss across decoder blocks in SAM. Reconstruction loss of different module types (Self-Attention, Cross-Attention, and MLP) under 4-bit quantization. The loss exhibits strong oscillations along the decoding depth, with the largest fluctuations appearing at cross-attention layers, indicating the high quantization sensitivity of the bidirectionally coupled cross-attention modules.",
+      "page": 2,
+      "index": 2,
+      "width": 493,
+      "height": 298
+    },
+    {
+      "url": "assets/figures/arxiv/2605.16901v1/fig-003.webp",
+      "caption": "Table 3. Quantization results of object detection",
+      "page": 7,
+      "index": 3,
+      "width": 410,
+      "height": 331
+    },
+    {
+      "url": "assets/figures/arxiv/2605.16901v1/fig-004.webp",
+      "caption": "Table 2. Segmentation results of quantized SAM2 evaluated on the COCO dataset. ”W/A” refers to the bit-width of weights and activations, respectively. A dash (–) denotes cases where the quantized model yields near-zero performance.",
+      "page": 7,
+      "index": 4,
+      "width": 1014,
+      "height": 181
+    },
+    {
+      "url": "assets/figures/arxiv/2605.16901v1/fig-005.webp",
+      "caption": "Table 6. Detection results of quantized SAM2 on COCO (vertical layout). FP denotes the full-precision reference. “–” indicates unavailable.",
+      "page": 13,
+      "index": 5,
+      "width": 471,
+      "height": 263
+    },
+    {
+      "url": "assets/figures/arxiv/2605.16901v1/fig-006.webp",
+      "caption": "Figure 5. Storage and compute under FP32 vs. W4A4 across SAM/SAM2 variants. The top row illustrates the storage requirements, while the bottom row depicts the corresponding FLOPs.",
+      "page": 8,
+      "index": 6,
+      "width": 493,
+      "height": 302
+    },
+    {
+      "url": "assets/figures/arxiv/2605.16901v1/fig-007.webp",
+      "caption": "Figure 6. Visualization of segmentation performance of the SAMB model under W4A4 quantization.",
+      "page": 8,
+      "index": 7,
+      "width": 496,
+      "height": 467
+    },
+    {
+      "url": "assets/figures/arxiv/2605.16901v1/fig-008.webp",
+      "caption": "Figure 3. Overview of the proposed framework. The top-left panel illustrates the overall architecture of the SAM mask decoder. The bottom-left diagram depicts the error propagation between its two cross-attention modules: when reconstructing the latter cross-attention, the Jacobian term Jf from the preceding module introduces a cross-term error that couples their optimization dynamics. The right panel shows our MatMul-Aware Compensation (MAC) mechanism. For both matmul operations (QK⊤ and AV ), we estimate the quantization errors of the input variables Q, K, and V , and propagate these errors backward as compensation into the preceding projection layers, effectively achieving cross-layer error compensation.",
+      "page": 4,
+      "index": 8,
+      "width": 1034,
+      "height": 385
+    },
+    {
+      "url": "assets/figures/arxiv/2605.16901v1/fig-009.webp",
+      "caption": "Figure 4. Each circle denotes an attention module, with S and C representing self- and cross-attention. The first column shows QDrop’s reconstruction level, while the right panel reports mAP under different granularities. Jointly reconstructing the two crossattention modules yields the highest mAP, confirming the benefit of coupled optimization.",
+      "page": 5,
+      "index": 9,
+      "width": 495,
+      "height": 285
+    }
+  ]
+}

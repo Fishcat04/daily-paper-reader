@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.14913v1/fig-001.webp",
+      "caption": "Figure 3: Analysis of representative token construction. Left: translation robustness under shifted inputs. Middle: ImageNet-1K accuracy-FLOPs trade-off across efficient attention variants. Right: query-response visualization.",
+      "page": 6,
+      "index": 1,
+      "width": 826,
+      "height": 275
+    },
+    {
+      "url": "assets/figures/arxiv/2605.14913v1/fig-002.webp",
+      "caption": "Figure 1: Motivation of Representative Attention. (a) An input image with three query locations Q1, Q2, and Q3. (b) Spatial token compression constructs intermediate tokens from fixed coordinate layouts, which may not align with the semantic organization of visual features. (c) Representative Attention gathers spatial tokens into learned representative tokens according to representation similarity. (d) Spatial attention responses are affected by coordinate-based grouping. (e) Representative Attention produces representation-driven responses that better align with object-level visual structures.",
+      "page": 2,
+      "index": 2,
+      "width": 826,
+      "height": 296
+    },
+    {
+      "url": "assets/figures/arxiv/2605.14913v1/fig-003.webp",
+      "caption": "Table 1: ImageNet-1K classification comparison. Baseline results follow the corresponding backbone papers, FLatten Transformer [47], Agent Attention [21], and PolaFormer [12].",
+      "page": 7,
+      "index": 3,
+      "width": 826,
+      "height": 436
+    },
+    {
+      "url": "assets/figures/arxiv/2605.14913v1/fig-004.webp",
+      "caption": "Figure A.2: Efficiency comparison under different input resolutions on an NVIDIA RTX 4090D GPU with batch size 32 and AMP/FP16 inference. Left: throughput in images per second. Middle: relative speedup of RPAttention-PVT-Tiny over PVT-Tiny and Agent-PVT-Tiny. Right: CUDA inference latency in milliseconds.",
+      "page": 14,
+      "index": 4,
+      "width": 826,
+      "height": 270
+    },
+    {
+      "url": "assets/figures/arxiv/2605.14913v1/fig-005.webp",
+      "caption": "Figure A.1: Additional query-response visualizations. For selected query locations, RPAttention produces response maps that align with semantically related image regions, illustrating how representatives mediate global information exchange beyond fixed spatial layouts.",
+      "page": 13,
+      "index": 5,
+      "width": 664,
+      "height": 970
+    },
+    {
+      "url": "assets/figures/arxiv/2605.14913v1/fig-006.webp",
+      "caption": "Table 2: COCO object detection (Mask R-CNN) and ADE20K semantic segmentation (SemanticFPN). Baseline results follow Agent Attention [21]. Detection FLOPs are computed with input resolution 1333× 800. Segmentation FLOPs are computed with input resolution 512× 2048.",
+      "page": 8,
+      "index": 6,
+      "width": 668,
+      "height": 528
+    },
+    {
+      "url": "assets/figures/arxiv/2605.14913v1/fig-007.webp",
+      "caption": "Figure 2: Overview of Representative Attention. Spatial tokens are gathered into a compact set of representatives according to representation similarity (Gather). These tokens then model global dependencies through lightweight self-attention in the compact token space (Interact). Finally, the refined representations are distributed back to all spatial tokens through query-driven cross-attention (Distribute). A parallel depth-wise convolution branch preserves local structural details.",
+      "page": 5,
+      "index": 7,
+      "width": 826,
+      "height": 496
+    }
+  ]
+}

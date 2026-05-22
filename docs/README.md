@@ -6,40 +6,61 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-05-18
-- 运行时间：2026-05-18 20:40:46 UTC
+- 最新运行日期：2026-05-22
+- 运行时间：2026-05-22 21:13:13 UTC
 - 运行状态：成功
-- 本次总论文数：6
+- 本次总论文数：13
 - 精读区：2
-- 速读区：4
+- 速读区：11
 
 ### 今日简报（AI）
-1) 今日精选 6 篇视觉感知前沿论文，深度解析 3D 目标检测与水下、地震等特殊场景的算法突破。
-2) 重点推荐 Transformer 与 SSM 协同的 3D 检测新架构，以及针对水下复杂环境的动态结构化显著性检测技术。
-3) 建议优先研读 9.0 分的 3DTMDet 论文，掌握状态空间模型（SSM）在点云处理中的最新跨界应用。
-- 详情：[/202605/18/README](/202605/18/README)
+今日聚焦水面垃圾监测与多模态感知分割，深度解析 13 篇前沿视觉论文。
+重点关注满分力作 CANSURF 填补的水面垃圾追踪空白，以及结合轴向关系与 SSM 的光电融合分割新范式。
+建议深入探索 ASV 视觉感知与多源数据融合技术，把握环保与遥感领域的落地新趋势。
+- 详情：[/202605/22/README](/202605/22/README)
 
 ### 精读区论文标签
-1. [3DTMDet: A Dual-Path Synergy Network of Transformer and SSM for 3D Object Detection in Point Clouds](/202605/18/2605.15546v1-3dtmdet-a-dual-path-synergy-network-of-transformer-and-ssm-for-3d-object-detection-in-point-clouds)  
-   标签：评分：9.0/10、query:sod
-   evidence：利用SSM和Transformer检测点云中的远距离和小目标
-2. [Learning Dynamic Structural Specialization for Underwater Salient Object Detection](/202605/18/2605.15535v1-learning-dynamic-structural-specialization-for-underwater-salient-object-detection)  
+1. [CANSURF: An ASV-View Can Dataset and Benchmark for Detection and Tracking of Surface-Level Debris](/202605/22/2605.16774v1-cansurf-an-asv-view-can-dataset-and-benchmark-for-detection-and-tracking-of-surface-level-debris)  
+   标签：评分：10.0/10、query:sod
+   evidence：包含增强策略的小型碎片检测基准
+2. [Axial-Relation Guided Fusion State Space Model for Optical-Elevation Sensing Image Segmentation](/202605/22/2605.16768v1-axial-relation-guided-fusion-state-space-model-for-optical-elevation-sensing-image-segmentation)  
    标签：评分：8.0/10、query:sod
-   evidence：用于水下显著性目标检测与定位的动态结构专门化
+   evidence：多尺度上下文建模与特征融合
 
 ### 速读区论文标签
-1. [Quantum Feature Pyramid Gating for Seismic Image Segmentation](/202605/18/2605.15370v1-quantum-feature-pyramid-gating-for-seismic-image-segmentation)  
+1. [RIDE: Retinex-Informed Decoupling for Exposing Concealed Objects](/202605/22/2605.15450v1-ride-retinex-informed-decoupling-for-exposing-concealed-objects)  
+   标签：评分：7.5/10、query:sod
+   evidence：隐藏目标检测与密集预测
+2. [DigitAb: Domain-Adaptive Cell Type Prediction Method from Light Microscopy Images](/202605/22/biorxiv-10-64898-2026-05-19-726313-v1-digitab-domain-adaptive-cell-type-prediction-method-from-light-microscopy-images)  
+   标签：评分：7.5/10、query:sod
+   evidence：显微图像中细胞类型预测的深度学习框架
+3. [Weighted Reverse Convolution for Feature Upsampling](/202605/22/2605.17472v1-weighted-reverse-convolution-for-feature-upsampling)  
    标签：评分：7.0/10、query:sod
-   evidence：用于特征金字塔中横向和自上而下特征融合的量子特征门控
-2. [SToRe3D: Sparse Token Relevance in ViTs for Efficient Multi-View 3D Object Detection](/202605/18/2605.14110v1-store3d-sparse-token-relevance-in-vits-for-efficient-multi-view-3d-object-detection)  
+   evidence：用于细粒度定位和密集预测的特征上采样
+4. [Weighted Reverse Convolution for Feature Upsampling](/202605/22/2605.17472v2-weighted-reverse-convolution-for-feature-upsampling)  
+   标签：评分：7.0/10、query:sod
+   evidence：用于细粒度定位和密集预测的特征上采样
+5. [Co-Fusion4D: Spatio-temporal Collaborative Fusion for Robust 3D Object Detection](/202605/22/2605.20301v1-co-fusion4d-spatio-temporal-collaborative-fusion-for-robust-3d-object-detection)  
+   标签：评分：7.0/10、query:sod
+   evidence：用于3D目标检测的时空协作融合
+6. [Lighting-aware Unified Model for Instance Segmentation](/202605/22/2605.20436v1-lighting-aware-unified-model-for-instance-segmentation)  
+   标签：评分：7.0/10、query:sod
+   evidence：用于鲁棒实例分割的光照卷积注意力适配器
+7. [Representative Attention For Vision Transformers](/202605/22/2605.14913v1-representative-attention-for-vision-transformers)  
    标签：评分：6.5/10、query:sod
-   evidence：具有稀疏令牌相关性和特征融合的多视图3D目标检测
-3. [Multi-Modal Guided Multi-Source Domain Adaptation for Object Detection](/202605/18/2605.13140v1-multi-modal-guided-multi-source-domain-adaptation-for-object-detection)  
+   evidence：视觉Transformer中表示空间的动态令牌压缩
+8. [Synthetic Aperture Radar Image Change Detection Based on Global Dynamic Context-Aware Network](/202605/22/2605.16764v1-synthetic-aperture-radar-image-change-detection-based-on-global-dynamic-context-aware-network)  
+   标签：评分：6.5/10、query:sod
+   evidence：用于微小变化的全局动态上下文感知网络
+9. [Multi-task learning on partially labeled datasets via invariant/equivariant semi-supervised learning](/202605/22/2605.17624v1-multi-task-learning-on-partially-labeled-datasets-via-invariantequivariant-semi-supervised-learning)  
+   标签：评分：6.5/10、query:sod
+   evidence：在计算机视觉中流行的目标检测任务上评估性能
+10. [CAR-SAM: Cross-Attention Reconstruction for Post-Training Quantization of the Segment Anything Model](/202605/22/2605.16901v1-car-sam-cross-attention-reconstruction-for-post-training-quantization-of-the-segment-anything-model)  
    标签：评分：6.0/10、query:sod
-   evidence：域自适应目标检测中的深度引导定位
-4. [Towards Accurate Single Panoramic 3D Detection: A Semantic Gaussian Centric Approach](/202605/18/2605.14601v1-towards-accurate-single-panoramic-3d-detection-a-semantic-gaussian-centric-approach)  
+   evidence：用于分割掩码的交叉注意力重构
+11. [Token-Space Mask Prediction for Efficient Vision Transformer Segmentation](/202605/22/2605.18177v1-token-space-mask-prediction-for-efficient-vision-transformer-segmentation)  
    标签：评分：6.0/10、query:sod
-   evidence：全景图像中的3D目标检测
+   evidence：用于高效分割的令牌空间掩码预测
 
 
 <div class="dpr-home-promo-card">

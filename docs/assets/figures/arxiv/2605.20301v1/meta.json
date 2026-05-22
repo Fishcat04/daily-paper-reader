@@ -1,0 +1,30 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.20301v1/fig-001.webp",
+      "caption": "TABLE I 3D OBJECT DETECTION PERFORMANCE ON THE NUSCENES TEST SET. THE NOTION OF MODALITY: CAMERA (C), LIDAR (L) AND TEMPORAL (T). ‘C.V.’, ‘T.L.’, ‘B.R.’, ‘M.T.’, ‘PED.’, AND ‘T.C.’ INDICATE THE CONSTRUCTION VEHICLE, TRAILER, BARRIER, MOTORCYCLE, PEDESTRIAN, AND TRAFFIC CONE, RESPECTIVELY. THE BEST RESULTS IN EACH COLUMN ARE MARKED IN BOLD FONT.",
+      "page": 7,
+      "index": 1,
+      "width": 1060,
+      "height": 450
+    },
+    {
+      "url": "assets/figures/arxiv/2605.20301v1/fig-002.webp",
+      "caption": "TABLE II PERFORMANCE COMPARISON ON THE NUSCENES VALIDATION SET.",
+      "page": 7,
+      "index": 2,
+      "width": 504,
+      "height": 300
+    },
+    {
+      "url": "assets/figures/arxiv/2605.20301v1/fig-003.webp",
+      "caption": "Fig. 3. Intra-frame Static Attention.",
+      "page": 5,
+      "index": 3,
+      "width": 524,
+      "height": 231
+    }
+  ]
+}

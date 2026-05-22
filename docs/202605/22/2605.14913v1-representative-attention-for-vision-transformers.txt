@@ -1,0 +1,344 @@
+Title: Representative Attention For Vision Transformers
+
+URL Source: https://arxiv.org/pdf/2605.14913v1
+
+Published Time: Fri, 15 May 2026 01:33:53 GMT
+
+Number of Pages: 15
+
+Markdown Content:
+# Representative Attention For Vision Transformers 
+
+Yuntong Li, Hainuo Wang, Hengxing Liu, Mingjia Li, Xiaojie Guo ∗
+
+College of Intelligence and Computing, Tianjin University, Tianjin 300350, China 
+
+lytong@tju.edu.cn hainuo@tju.edu.cn chrisliu.jz@gmail.com mingjiali@tju.edu.cn xj.max.guo@gmail.com 
+
+# Abstract 
+
+Linear attention has emerged as a promising direction for scaling Vision Trans-formers beyond the quadratic cost of dense self-attention. A prevalent strategy is to compress spatial tokens into a compact set of intermediate proxies that mediate global information exchange. However, existing methods typically derive these proxy tokens from predefined spatial layouts, causing token compression to remain anchored to image coordinates rather than the semantic organization of visual content. To overcome this limitation, we propose Representative Attention (RPAt-tention), a linear global attention mechanism that performs token compression directly in representation space . Instead of constructing intermediate tokens from fixed spatial partitions, it dynamically forms a compact set of learned representative tokens to enable semantically related regions to communicate regardless of their spatial distance, by following a lightweight Gather–Interact–Distribute paradigm. Spatial tokens are first softly gathered into representative tokens through competi-tive similarity-based routing. The representatives then perform global interaction within a compact latent space, before broadcasting the refined information back to all spatial tokens via query-driven cross-attention. Via replacing coordinate-driven aggregation with representation-driven compression, RPAttention preserves global receptive fields while adaptively aligning token communication with the content structure of each input. RPAttention reduces the dominant token interaction complexity from quadratic to linear scaling with respect to the number of spatial tokens, while maintaining expressive global context modeling. Extensive experi-ments across diverse vision transformer backbones on image classification, object detection, and semantic segmentation demonstrate the effectiveness of our design. Code is available at github.com/Liyuntong123/RPAtten. 
+
+# 1 Introduction 
+
+Vision Transformers (ViTs) [ 1] have been widely adopted in vision tasks for their ability to model global context through self-attention. However, this computational approach leads to an O(N 2)
+
+complexity with respect to the number of spatial tokens N . Common methods reduce the cost by designing sparse or local attention patterns, such as spatially reducing keys and values [ 2, 3, 4] or restricting attention to local windows [ 5 , 4, 6, 7, 8 ]. But these strategies either reduce the amount of global information available to each query or constrain interactions to predefined spatial regions. Linear attention aims to retain the global communication ability of Softmax attention while reducing its quadratic complexity to linear scaling. A widely adopted approach [ 9, 10 , 11 , 12 , 13 , 14 , 15 , 16 ]approximates the Softmax kernel by mapping queries and keys into a feature space, enabling the attention output to be computed in O(N ) without forming the full attention matrix. However, these kernel-based methods primarily change the computation of token affinities while leaving the original 
+
+> ∗Corresponding author. Preprint.
+> arXiv:2605.14913v1 [cs.CV] 14 May 2026
+
+Figure 1: Motivation of Representative Attention. (a) An input image with three query locations 
+
+Q1, Q2, and Q3. (b) Spatial token compression constructs intermediate tokens from fixed coordinate layouts, which may not align with the semantic organization of visual features. (c) Representative At-tention gathers spatial tokens into learned representative tokens according to representation similarity. (d) Spatial attention responses are affected by coordinate-based grouping. (e) Representative Atten-tion produces representation-driven responses that better align with object-level visual structures. spatial token sequence unchanged. In addition, visual tokens are redundant, as many spatial tokens may carry repetitive or semantically overlapping information [17, 18, 19, 20]. To exploit such redundancy, another strategy compresses the input into a set of compact intermediate proxy tokens and uses them to mediate global information exchange. Since intermediate tokens serve as the bottleneck through which global information is aggregated and redistributed, their construction directly determines what information is preserved during token compression. Existing methods [2, 3, 21] typically construct such intermediate tokens from predefined spatial layouts. For example, Spatial Reduction Attention [ 2] shortens the key-value sequence through strided spatial reduction, while Agent Attention [ 21 ] commonly obtains agent tokens through spatial pooling. These designs are simple and computationally convenient, but they bind token compression to image coordinates. As illustrated in Figure 1(b), the compressed tokens are determined by fixed coordinate regions and therefore tend to aggregate spatially neighboring information rather than semantically related content. Consequently, the resulting attention responses tend to follow spatial grouping rather than semantic structure, as shown in Figure 1(d). However, visual representatives are not necessarily organized according to fixed spatial layouts: distant tokens may correspond to similar visual concepts, whereas neighboring tokens may belong to different semantic regions [ 22 ]. This motivates constructing intermediate tokens by representation similarity rather than spatial location. To better align token compression with visual representations, we propose Representative Attention , a linear global attention mechanism for Vision Transformers. Instead of deriving intermediate tokens from fixed spatial layouts, Representative Attention constructs them according to representation similarity. The key idea is to treat intermediate tokens as learned representatives of visual patterns, rather than as downsampled patches tied to specific image regions. In this way, tokens that are spatially distant but similar in representation space can contribute to the same representative token, while neighboring tokens with different visual content are not forced into the same compressed token. Conceptually, this difference can be formulated as 
+
+Tspatial = Cspatial (X; Π) , Trepr = Crepr (X; A(X, R)) , (1) where X denotes the spatial tokens, Π denotes a predefined spatial layout such as pooling grids or strided regions, R denotes learned representative tokens, and A(X, R) measures representation simi-larity between input tokens and learned representatives. Spatial compression constructs intermediate tokens according to fixed image coordinates, whereas Representative Attention constructs them in representation space. As shown in Figure 1(c), the resulting intermediate tokens summarize visual content beyond fixed coordinate layouts. This representation-driven compression produces attention responses that better align with object-level visual structures, as visualized in Figure 1(e). Representative Attention is structured around a Gather-Interact-Distribute process. Spatial tokens are first gathered into M learned representative tokens based on representation similarity, forming a compact summary of the input in representation space. A lightweight self-attention among the 2M representative tokens then captures global dependencies within this compact token space. The refined representatives are finally distributed back to all spatial tokens through query-driven cross-attention. Because the bottleneck is defined in representation space rather than coordinate space, the intermediate tokens adapt to the structure of each input while maintaining a global receptive field. With M ≪ N , the dominant interaction cost is reduced from O(N 2) to O(N M + M 2), scaling linearly with the number of spatial tokens. Extensive experiments validate the effectiveness and generality of Representative Attention across representative Vision Transformer backbones. The main contributions of this work are summarized as follows: • We propose Representative Attention (RPAttention), a linear global attention mechanism for Vision Transformers. It constructs compact intermediate tokens according to representation similarity rather than predefined spatial layouts. • We introduce a Gather-Interact-Distribute process for visual linear attention. The module gathers spatial tokens into learned representative tokens, models global interactions in the compact token space, and distributes refined information back to the original spatial tokens. • We analyze the linear token complexity of Representative Attention and instantiate it across representative vision transformer backbones, with evaluations on ImageNet-1K classification, COCO object detection, and ADE20K semantic segmentation. 
+
+# 2 Related Work 
+
+Vision Transformers. Since the pioneering Vision Transformer (ViT) [ 1], transformer-based architectures have achieved broad success in computer vision [ 23 , 24 , 25 , 26 , 27 , 28 ]. DeiT [ 29 ]improves data efficiency through distillation, while hierarchical backbones such as PVT [ 2] and Twins [ 4] progressively reduce spatial resolution for dense prediction. Swin Transformer [ 5 ], NAT [ 6], and CSwin [ 7] further lower cost through windowed or local attention patterns. These designs reduce computation effectively, but their localized interactions limit global context modeling in early network stages. Focal Transformer [ 30 , 31 ] partially addresses this by combining fine-grained local attention with coarse global attention on summarized focal tokens, while HiLo Attention [ 32 ] separates heads into high-frequency local and low-frequency global (pooled) streams. Both designs still rely on spatial subsampling for the global component, binding global compression to image coordinates. Beyond windowed or hierarchical designs, several architectures explore alternative global token mixers. TransNeXt [ 33 ] proposes aggregated attention with learnable tokens, yielding foveal-style global perception. VMamba [ 34 ] adapts state-space modeling to vision through 2D selective scan, providing linear-time context modeling for high-resolution inputs. MambaVision [ 35 ] further shows that hybrid Mamba-Transformer backbones benefit from self-attention in later stages to recover long-range spatial dependencies. Vision-TTT [ 36 ] brings test-time-training sequence layers into visual representation learning, targeting linear-time global modeling. These works highlight the importance of scalable global token mixing; RPAttention follows the same efficiency motivation, but keeps the attention interface while changing how representatives are constructed. 
+
+Linear Attention. Linear attention mechanisms aim to mitigate the quadratic cost of global self-attention by scaling linearly with the number of spatial tokens. To achieve this O(N ) complexity, existing methods generally follow two main paradigms. The first line of work directly linearizes the Softmax operation. Performer [ 10 ], Linformer [ 13 ], cosFormer [ 11 ], and Nyströmformer [ 14 ] utilize kernel mappings or matrix approximations to decouple the full attention matrix. However, these mathematical approximations often suffer from reduced expressive capacity in complex visual scenes. RALA [ 37 ] explicitly analyzes this low-rank dilemma in visual linear attention and augments rank to approach Softmax attention performance. CARE Transformer [ 38 ] instead utilizes decoupled dual interaction to make linear visual attention more suitable for mobile deployment. While other efficient approaches, such as Deformable Attention Transformer (DAT) [ 39 ] and BiFormer [ 40 ], dynamically route regions to save compute, they still operate primarily within the physical coordinate space and rely on localized subsets rather than full global interactions. The second paradigm achieves linear complexity through proxy-based attention via spatial reduction. Spatial Reduction Attention (SRA) [ 2 ], alongside Agent Attention [ 21 ], reduces the computational 3cost to O(N ) by introducing a smaller, fixed number of intermediate tokens to aggregate global context. In standard implementations, however, these intermediate tokens are derived from fixed-stride convolutions or grid pooling, intrinsically tying the proxy generation to physical coordinates. Token reduction studies for dense prediction further reveal that blindly shortening token sequences can severely harm attention diversity in pixel-level tasks [ 41 ]. This observation closely aligns with our core motivation: a linear proxy construction should preserve semantic diversity rather than merely reduce the token count. RPAttention follows this proxy-based linear paradigm but generates latent tokens driven by representation similarity, enabling content-aware global aggregation without imposing rigid spatial partitions or predefined downsampling grids. 
+
+Representation Similarity. RPAttention is fundamentally driven by representation similarity, a concept deeply related to semantic grouping and clustering-based feature aggregation. Slot Atten-tion [ 27 ] and Capsule Networks [ 42 ] discover compositional entities from input features, while STEGO [ 43 ] explores unsupervised semantic segmentation. These methods suggest that visual scenes are better represented as semantic entities rather than fixed spatial grids. Perceiver IO [ 44 ] uses latent arrays for arbitrary inputs but compresses features through query-driven cross-attention over spatial tokens. RPAttention instead performs competitive gathering over latent slots, shifting representatives generation from coordinate-driven reduction to similarity-based semantic routing. In the context of vision backbones, GroupViT [ 45 ] and kMaX-DeepLab [ 46 ] demonstrate that grouping blocks or k-means-style clustering can aggregate semantic structures effectively. However, a critical limitation of existing object-centric models, particularly Slot Attention, is their reliance on costly recurrent iterations (e.g., via GRUs) to achieve clustering convergence. This iterative process introduces significant computational overhead, making it impractical to integrate these modules into deep, general-purpose vision backbones. Unlike these iterative approaches, RPAttention reformulates the complex semantic aggregation into a highly efficient, single-step Expectation-Maximization (EM) operation. By leveraging globally learned semantic anchors across the channel dimension, our method achieves one-shot dynamic routing, successfully bridging object-centric semantics with efficient hierarchical vision architectures. 
+
+# 3 Methodology 
+
+Representative Attention (RPAttention) is designed as a drop-in replacement for the attention block in vision transformers. It keeps the standard input-output interface of multi-head attention, but replaces direct token-to-token interaction with a compact semantic bottleneck. Given an input feature map 
+
+X ∈ RB×N ×C , where B is the batch size, N is the number of spatial tokens, and C is the channel dimension, RPAttention first computes the standard projections and reshapes them into h heads: 
+
+Q, K, V = XW q , XW k, XW v , Q, K, V ∈ RB×h×N ×d, (2) where C = hd . Standard global attention performs 
+
+Attn S (Q, K, V) = Softmax 
+
+ QK ⊤
+
+√d
+
+
+
+V, (3) This operation explicitly materializes all pairwise token affinities. RPAttention instead constructs M
+
+latent representatives, with M ≪ N , and follows a Gather-Interact-Distribute computation: 
+
+ORP = Distribute  Q, KL, Interact (VL)| {z }
+
+> spatial tokens query repr.
+
+, {KL, VL} = Gather (K, V)
+
+| {z }
+
+> tokens routed to repr.
+
+. (4) This formulation preserves the standard attention interface while constructing intermediate tokens through representation similarity rather than coordinate-based reduction. Figure 2 provides an overview of the complete Representative Attention module. 
+
+3.1 Representatives Gather 
+
+The gather step is the key distinction between Representative Attention and spatially driven token compression methods. Instead of deriving intermediate tokens from fixed grid pooling or strided reduction, Representative Attention constructs them in per-head representation space using a set of 4Figure 2: Overview of Representative Attention. Spatial tokens are gathered into a compact set of representatives according to representation similarity ( Gather ). These tokens then model global dependencies through lightweight self-attention in the compact token space ( Interact ). Finally, the refined representations are distributed back to all spatial tokens through query-driven cross-attention (Distribute ). A parallel depth-wise convolution branch preserves local structural details. learned representative tokens. Let Wg ∈ Rd×M be the gather projection applied within each head. The gather logits are computed directly from the key features as 
+
+A = Softmax( KW g ), A ∈ Rh×N ×M . (5) We apply the gather projection to keys rather than queries, since keys encode what information each token can provide, making them a natural basis for deciding which representative should receive that information. The softmax over the M learned representatives makes the gathering competitive: each spatial token is softly routed in representation space across a small set of representative tokens, rather than being tied to a fixed spatial region. However, direct weighted aggregation can cause large background regions to dominate the gathered representative tokens. To prevent this imbalance, we normalize the assignment weights across the token dimension: 
+
+ˆAn,m = An,m 
+
+PNt=1 At,m + ϵ . (6) This normalization keeps the representative features on comparable scales, allowing small fore-ground structures to form meaningful slots when their representation similarity is strong. Using the normalized assignments, we gather the latent keys and values as 
+
+KL = ˆA⊤K, VL = ˆA⊤V, KL, VL ∈ Rh×M ×d. (7) An alternative view of the gather step is through an EM-inspired perspective. The soft assignment A
+
+plays a role analogous to an E-step, estimating how strongly each spatial token contributes to each learned representative. The normalized aggregations ˆA⊤K and ˆA⊤V then resemble a corresponding update step that forms representative features from these assignments. Unlike iterative object-centric routing methods, Representative Attention performs this process in a single feed-forward pass, since the gather projection Wg is learned end-to-end during training and introduces no recurrent refinement at inference time. A more detailed discussion of this connection is provided in Appendix A.3. 
+
+3.2 Latent Interaction and Distribution 
+
+After gathering, RPAttention performs interaction in the compact latent space among the learned representatives. Let ¯KL and ¯VL denote the latent keys and values normalized by Layer Normalization 5Figure 3: Analysis of representative token construction. Left: translation robustness under shifted inputs. Middle: ImageNet-1K accuracy-FLOPs trade-off across efficient attention variants. Right: query-response visualization. (LN). Since the latent values encapsulate the aggregated semantic content of each slot, we derive the latent self-attention queries, keys, and values entirely from ¯VL:
+
+˜QL = ¯VLWLq , ˜KL = ¯VLWLk , ˜VL = ¯VLWLv . (8) The refined latent representation ZL is then computed by residual self-attention over the M represen-tatives to model their dependencies within the compact token space: 
+
+ZL = ¯VL + Softmax ˜QL ˜K⊤
+
+> L
+
+√d
+
+!
+
+˜VL. (9) We derive these projections from ¯VL rather than ¯KL so that the key space remains dedicated to token gathering and distribution. In this design, ¯KL provides a stable routing geometry, while ¯VL carries the contextual content that benefits from interaction among representative tokens. This step captures global dependencies within the compact token space, with computational cost quadratic only in M .Finally, the spatial tokens retrieve the refined global information from the compact representation space. To do so, we use ¯KL as the distribution key so that the distribution step remains aligned with the representative-token structure established during gathering. Meanwhile, to compensate for local details that may be weakened by the compact bottleneck, we follow FLatten Transformer [ 47 ] and introduce a lightweight local bypass implemented with depth-wise convolution (DWC). The global cross-attention output and the local bypass are then fused to produce the final module output: 
+
+Oglobal = Softmax 
+
+ Q ¯K⊤
+
+> L
+
+√d
+
+
+
+ZL, Xout = Wo (Oglobal + DWC (XW v )) . (10) This dual-path design separates global context modeling from local structure preservation until the final projection, helping preserve boundaries and fine-grained details for dense prediction tasks. Figure 3 further illustrates the effect of representation-driven gathering. In the left panel, we shift the same input image by an increasing number of pixels and measure the cosine similarity between the resulting latent features and the original features. Agent Attention constructs agent tokens by grid pooling, so its latent features change noticeably as the image shifts across grid cells. In contrast, RPAttention gathers tokens by representation similarity, and its latent features remain nearly stable under the same shifts. The right panel shows a query-response case: RPAttention produces a broader and more object-aligned response than spatially driven responses, indicating that the representatives can connect semantically related regions beyond fixed spatial neighborhoods. 
+
+3.3 Complexity Analysis 
+
+RPAttention can replace an existing attention block without changing the surrounding transformer layer, patch embedding, MLP, or residual structure. The number of representatives M can be set per architecture or per stage. Ignoring lower-order normalization and dropout terms, the dominant cost is 
+
+Ω = 4 N C 2
+
+| {z } 
+
+> Proj
+
++ 3 N M C | {z }
+
+> Gather
+
++ 2 M 2C| {z } 
+
+> Interaction
+
++ 2 N M C | {z }
+
+> Distribute
+
++ k2N C | {z } 
+
+> DWC
+
+, (11) 6Table 1: ImageNet-1K classification comparison. Baseline results follow the corresponding backbone papers, FLatten Transformer [47], Agent Attention [21], and PolaFormer [12]. 
+
+Method Params FLOPs Top-1 
+
+DeiT-T 5.7M 1.2G 72.2 + FLatten 6.1M 1.1G 74.1 (+1.9) + Agent 6.0M 1.2G 74.9 (+2.7) + RPAttention 5.9M 1.2G 75.4 (+3.2) DeiT-S 22.1M 4.6G 79.8 + Agent 22.7M 4.4G 80.5 (+0.7) + RPAttention 22.3M 4.7G 80.6 (+0.8) PVT-T 13.2M 1.9G 75.1 + FLatten 12.2M 2.0G 77.8 (+2.7) + PolaFormer 12M 2.0G 78.8 (+3.7) + Agent 11.6M 2.0G 78.4 (+3.3) + RPAttention 11.5M 2.0G 79.1 (+4.0) PVT-S 24.5M 3.8G 79.8 + FLatten 21.7M 4.0G 81.7 (+1.9) + PolaFormer 21.0M 4.1G 81.9 (+2.1) + Agent 20.6M 4.0G 82.2 (+2.4) + RPAttention 20.5M 4.4G 82.5 (+2.7) 
+
+Method Params FLOPs Top-1 
+
+PVTv2-B0 3.7M 0.5G 70.5 + FLatten 3.6M 0.6G 71.1 (+0.6) + PolaFormer 3.4M 0.6G 72.3 (+1.8) + RPAttention 3.2M 0.6G 73.1 (+2.6) PVTv2-B1 13.1M 2.1G 78.7 + FLatten 12.9M 2.2G 79.5 (+0.7) + PolaFormer 13.0M 2.2G 80.2 (+1.5) + RPAttention 12.3M 2.2G 80.4 (+1.7) PVTv2-B2 25.4M 4.0G 82.0 + FLatten 22.6M 4.3G 82.5 (+0.5) + PolaFormer – – –+ RPAttention 21.3M 4.3G 82.6 (+0.6) Swin-T 29.0M 4.5G 81.3 + FLatten 29.0M 4.5G 82.1 (+0.8) + Agent 29.0M 4.5G 82.6 (+1.3) + PolaFormer 29.0M 4.5G 82.6 (+1.3) + RPAttention 28.4M 4.9G 82.7 (+1.4) where C = hd is the channel dimension and k = 3 is the depth-wise convolution kernel size. The factor 4N C 2 accounts for the QKV and output projections. In the gather step, the gather projection contributes N M C and the key/value aggregation adds 2N M C , totalling 3N M C . The latent interaction costs 2M 2C for the M × M self-attention (with a lower-order 3M C 2/h latent QKV projection omitted). Distribution back to N spatial queries adds another 2N M C for the cross-attention product and value readout. For comparison, standard self-attention incurs 2N 2C for the attention matrix and value aggregation alone. Since M ≪ N , RPAttention replaces this quadratic term with 5N M C + 2 M 2C, scaling linearly with the number of spatial tokens while preserving a global receptive field through the representatives. The middle panel of Figure 3 compares the ImageNet-1K accuracy-FLOPs trade-off across efficient attention variants. RPAttention improves Top-1 accuracy at comparable computational cost, showing that the representative bottleneck preserves useful global information while keeping the dominant token interaction cost linear in N .
+
+# 4 Experimental Validation 
+
+4.1 Experimental Setup 
+
+We evaluate RPAttention on three standard vision benchmarks: ImageNet-1K [ 48 ] for image clas-sification, COCO 2017 [ 49 ] for object detection and instance segmentation, and ADE20K [ 50 ] for semantic segmentation. RPAttention is instantiated as a drop-in attention replacement in DeiT [ 29 ], PVT [ 2 ], PVTv2 [ 3], and Swin Transformer [ 5], with all other components kept identical to the original backbones. For each benchmark, we compare RPAttention against the original backbone attention as well as representative efficient attention methods, including FLatten Transformer [ 47 ], Agent Attention [ 21 ], and PolaFormer [ 12 ], under matched training settings to ensure fair comparison. 
+
+4.2 ImageNet-1K Classification ImageNet-1K training. All classification models are trained on ImageNet-1K from scratch for 300 epochs using the AdamW [ 51 ] optimizer with a cosine learning rate decay and 20 epochs of linear warmup. We set the initial learning rate to 1 × 10 −3 for a batch size of 1024 and linearly scale it with the batch size. Following DeiT [ 29 ], we use RandAugment [ 52 ], Mixup [ 53 ], CutMix [ 54 ], and random erasing [ 55 ] to prevent overfitting. We also apply a weight decay of 0.05 . We follow the training recipes of the original backbones [ 29 , 2, 3, 5] to ensure fair comparison. Table 1 reports the ImageNet-1K classification results across the evaluated backbones. 7Table 2: COCO object detection (Mask R-CNN) and ADE20K semantic segmentation (SemanticFPN). Baseline results follow Agent Attention [ 21 ]. Detection FLOPs are computed with input resolution 
+
+1333 × 800 . Segmentation FLOPs are computed with input resolution 512 × 2048 .
+
+(a) Mask R-CNN Method FLOPs Sch. AP b AP b 
+
+> 50
+
+AP b 
+
+> 75
+
+AP m AP m 
+
+> 50
+
+AP m
+
+> 75
+
+PVT-T 240G 1x 36.7 59.2 39.3 35.1 56.7 37.3 + Agent 211G 1x 39.0 61.7 42.1 36.7 58.7 39.3 + RPAttention 211G 1x 40.1 62.8 43.7 37.8 59.8 40.6 PVT-S 305G 1x 40.4 62.9 43.8 37.8 60.1 40.3 + Agent 251G 1x 41.8 64.5 46.0 39.2 61.7 42.2 + RPAttention 252G 1x 44.1 66.6 48.5 40.8 63.7 44.0 Swin-T 267G 1x 43.7 66.6 47.7 39.8 63.3 42.7 + Agent 261G 1x 41.4 63.5 45.2 38.9 60.2 40.2 + RPAttention 262G 1x 44.5 67.3 48.4 40.5 64.2 43.3 
+
+(b) SemanticFPN Method FLOPs Params mIoU mAcc 
+
+PVT-T 158G 17M 36.57 46.72 + Agent 127G 15M 39.01 50.49 + RPAttention 128G 15M 39.17 50.71 PVT-S 225G 28M 41.95 53.02 + Agent 169G 24M 42.26 54.39 + RPAttention 169G 24M 42.91 55.04 
+
+4.3 Object Detection and Instance Segmentation 
+
+We use ImageNet-pretrained RPAttention backbones for standard COCO detection and ADE20K semantic segmentation frameworks. The comparison reports box AP and mask AP on COCO, and mIoU and mAcc on ADE20K, all under matched training schedules. Table 2 reports Mask R-CNN detection results alongside SemanticFPN segmentation results. 
+
+4.4 Qualitative Analysis and Visualization 
+
+To inspect whether the learned representatives behave as representation-driven proxies in practice, we visualize the assignment maps produced by the gather step and the query-to-slot attention maps produced by the distribute step. Compared with spatially pooled proxies, these maps diagnose whether RPAttention groups tokens according to feature similarity rather than fixed grid cells. Additional query-response cases are provided in Appendix A.1. The responses indicate that RPAttention can aggregate information from semantically related regions through the representatives, rather than relying only on fixed coordinate layouts. 
+
+4.5 Analysis of components 
+
+To isolate the contribution of the representative construction and the latent bottleneck interaction, we compare the full Gather-Interact-Distribute pipeline with two variants. The first replaces our learned one-step gather operation with a k-means routing alternative, testing whether explicit per-input clustering alone is sufficient. The second removes the latent self-attention and directly distributes the gathered slot representations back to spatial queries. All other components, including the local DWC bypass, remain unchanged. Experiments are conducted on PVTv2-B0 with ImageNet-1K under the same 300-epoch training recipe. The k-means variant tests a non-parametric clustering-based construction of representatives, while our gather step uses learned semantic anchors and a single soft assignment. Removing the latent interaction reduces the module to a pure routing bottleneck without representative communication. The comparison quantifies how much the learned one-step gather design and the lightweight M × M self-attention among representatives contribute to the final representation quality under the same training and backbone configuration. 8Table 3: Ablation of representative construction and latent interaction on PVTv2-B0, ImageNet-1K. 
+
+Variant Params FLOPs Top-1 
+
+RPAttention (Gather-Distribute) 3.22M 0.59G 72.8 (-0.3) RPAttention (K-means routing) 3.23M 0.63G 72.6 (-0.5) RPAttention (Gather-Interact-Distribute) 3.24M 0.60G 73.1 Table 3 shows that both the learned gather design and the latent interaction are useful. Removing the interaction stage reduces Top-1 accuracy by 0.3%, while saving only marginal parameters and FLOPs, indicating that communication among representatives improves the quality of the distributed features. The k-means routing variant is 0.5% lower than the full model and requires 5.0% more FLOPs, suggesting that explicit per-input clustering is less effective than learned semantic anchors in this setting. These results show that the Gather-Interact-Distribute pipeline provides the strongest accuracy-efficiency trade-off among the evaluated variants. 
+
+# 5 Limitation 
+
+Figure 4 shows a representative qualitative case where Representative Attention works well but still has room for improvement. For each query point, the figure compares SAtten and RPAtten responses side by side. For the cat query Q1, RPAtten covers most of the cat body more completely than SAtten, instead of focusing only on nearby pixels. This shows that the representative tokens help each query access broader object-level information. 
+
+Figure 4: Qualitative limitation case. SAtten and RPAtten denote spatial attention and Representative Attention responses, respectively. RPAtten gives broader and more coherent responses for the cat query Q1. However, the red circle marks a blossom-like patch on the cat that resembles the background blossoms. Because of this local similarity, the background query Q2 and ground query 
+
+Q3 can still place some attention on the cat. The same example also reveals a limitation. The red circle highlights a small blossom-like patch on the cat body. When the query point is on the background ( Q2) or on the ground ( Q3), RPAtten can connect this patch with similar blossom or ground regions outside the cat. As a result, part of the response is still assigned to the cat, even though the query does not belong to the cat. This suggests that RPAttention captures long-range visual similarity effectively, but it may still confuse local textures that appear on different semantic objects. Future work could reduce this effect by making the representative tokens more aware of object boundaries and semantic regions. 
+
+# 6 Conclusion 
+
+We introduced Representative Attention (RPAttention), a linear global attention module that con-structs compact representatives by representation similarity rather than fixed spatial layouts. Its 
+
+Gather–Interact–Distribute pipeline gathers full-resolution tokens into learned representatives, mod-els lightweight interactions among them, and distributes refined information back to spatial tokens with dominant cost O(N M + M 2). Across ImageNet-1K classification, COCO object detection, and ADE20K semantic segmentation, RPAttention consistently improves plain, hierarchical, and window-based backbones, showing that representation-driven token compression is an effective alternative to coordinate-driven linear attention. 97 Acknowledgements 
+
+The computational resources used in this work were generously supported by the TPU Research Cloud (TRC) program. We gratefully acknowledge the support provided by TRC, which enabled the large-scale experiments and model training conducted in this study. 
+
+# References 
+
+[1] Alexey Dosovitskiy, Lucas Beyer, Alexander Kolesnikov, Dirk Weissenborn, Xiaohua Zhai, Thomas Unterthiner, Mostafa Dehghani, Matthias Minderer, Georg Heigold, Sylvain Gelly, et al. An image is worth 16x16 words: Transformers for image recognition at scale. In ICLR , 2021. [2] Wenhai Wang, Enze Xie, Xiang Li, Deng-Ping Fan, Kaitao Song, Ding Liang, Tong Lu, Ping Luo, and Ling Shao. Pyramid vision transformer: A versatile backbone for dense prediction without convolutions. In ICCV , 2021. [3] Wenhai Wang, Enze Xie, Xiang Li, Deng-Ping Fan, Kaitao Song, Ding Liang, Tong Lu, Ping Luo, and Ling Shao. PVT v2: Improved baselines with pyramid vision transformer. 
+
+Computational Visual Media , 2022. [4] Xiangxiang Chu, Zhi Tian, Yuqing Wang, Bo Zhang, Haibing Ren, Xiaolin Wei, Huaxia Xia, and Chunhua Shen. Twins: Revisiting the design of spatial attention in vision transformers. In 
+
+NeurIPS , 2021. [5] Ze Liu, Yutong Lin, Yue Cao, Han Hu, Yixuan Wei, Zheng Zhang, Stephen Lin, and Baining Guo. Swin transformer: Hierarchical vision transformer using shifted windows. In ICCV , 2021. [6] Ali Hassani, Steven Walton, Nikhil Shah, Abudukelimu Abuduweili, Jiachen Li, and Humphrey Shi. Neighborhood attention transformer. In CVPR , 2023. [7] Xiaoyi Dong, Jianmin Bao, Dongdong Chen, Weiming Zhang, Nenghai Yu, Lu Yuan, Dong Chen, and Baining Guo. CSWin transformer: A general vision transformer backbone with cross-shaped windows. In CVPR , 2022. [8] Ashish Vaswani, Prajit Ramachandran, Aravind Srinivas, Niki Parmar, Blake Heathershaw, and Noam Shazeer. Scaling local self-attention for parameter efficient visual backbones. In CVPR ,2021. [9] Angelos Katharopoulos, Apoorv Vyas, Nikolaos Pappas, and François Fleuret. Transformers are RNNs: Fast autoregressive transformers with linear attention. In ICML , 2020. [10] Krzysztof Choromanski, Valerii Llowne, Anton Cassel, Tamas Sarlos, Anne Adrian, et al. Rethinking attention with performers. In ICLR , 2021. [11] Zhen Qin, Weixuan Sun, Hui Deng, Dongxu Li, Yunshen Wei, Baohong Lv, Jun Yan, Lingpeng Kong, and Yiran Zhong. cosFormer: Rethinking Softmax in attention. In ICLR , 2022. [12] Weikang Meng, Yadan Luo, Xin Li, Dongmei Jiang, and Zheng Zhang. PolaFormer: Polarity-aware linear attention for vision transformers. In ICLR , 2025. [13] Sinong Wang, Belinda Z Li, Madian Khabsa, Hanwen Fang, and Hao Ma. Linformer: Self-attention with linear complexity. arXiv preprint arXiv:2006.04768 , 2020. [14] Yunyang Xiong, Zhanpeng Zeng, Rudrasis Chakraborty, Mingxing Tan, Glenn Fung, Yin Li, and Vikas Singh. Nyströmformer: A Nyström-based algorithm for approximating self-attention. In AAAI , 2021. [15] Yuheng Shi, Mingjia Li, Minjing Dong, and Chang Xu. Vssd: Vision mamba with non-causal state space duality. In ICCV 2025 , pages 10819–10829, 2025. [16] Hainuo Wang, Qiming Hu, and Xiaojie Guo. Modem: A morton-order degradation estimation mechanism for adverse weather image recovery. In NeurIPS 2025 , 2025. 10 [17] Kai Han, Yunhe Wang, Qi Tian, Jianyuan Guo, Chunjing Xu, and Chang Xu. Ghostnet: More features from cheap operations. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pages 1580–1589, 2020. [18] Yongming Rao, Wenliang Zhao, Benlin Liu, Jiwen Lu, Jie Zhou, and Cho-Jui Hsieh. Dynam-icViT: Efficient vision transformers with dynamic token sparsification. In Advances in Neural Information Processing Systems (NeurIPS) , volume 34, pages 13937–13949, 2021. [19] Daniel Bolya, Cheng-Yang Fu, Xiaoliang Dai, Peizhao Zhang, Christoph Feichtenhofer, and Judy Hoffman. Token merging: Your ViT but faster. In International Conference on Learning Representations (ICLR) , 2023. [20] Youwei Liang, Chongjian Ge, Zhan Tong, Yang Song, Jue Wang, and Pengtao Xie. Not all patches are what you need: Expediting vision transformers via token reorganizations. In ICLR ,2022. [21] Dongchen Han, Tianzhu Ye, Yizeng Han, Zhuofan Xia, Shiji Song, and Gao Huang. Agent attention: On the integration of softmax and linear attention. In ECCV , 2024. [22] Mathieu Caron, Hugo Touvron, Ishan Misra, Hervé Jégou, Julien Mairal, Piotr Bojanowski, and Armand Joulin. Emerging properties in self-supervised vision transformers. In ICCV , 2021. [23] Hainuo Wang*, Mingjia Li*, and Xiaojie Guo. Wit: Waypoint diffusion transformers via trajectory conflict navigation. arXiv preprint arXiv:2603.15132 , 2026. [24] Hengxing Liu, Mingjia Li, and Xiaojie Guo. Regional attention for shadow removal. In ACM Multimedia 2024 , pages 5949–5957. 2024. [25] Mingjia Li, Tianle Du, Hainuo Wang, Qiming Hu, and Xiaojie Guo. On the global photometric alignment for low-level vision. arXiv preprint arXiv:2604.08172 , 2026. [26] Jin Hu*, Mingjia Li*, and Xiaojie Guo. Shadowhack: Hacking shadows via luminance-color divide and conquer. ICCV 2025 , 2024. [27] Francesco Locatello, Dirk Weissenborn, Thomas Unterthiner, Aravindh Mahendran, Georg Heigold, Jakob Uszkoreit, Alexey Dosovitskiy, and Thomas Kipf. Object-centric learning with slot attention. In NeurIPS , 2020. [28] Qiming Hu, Hainuo Wang, and Xiaojie Guo. Single image reflection separation via dual-stream interactive transformers. Advances in Neural Information Processing Systems , 37:55228–55248, 2024. [29] Hugo Touvron, Matthieu Cord, Matthijs Douze, Francisco Massa, Alexandre Sablayrolles, and Hervé Jégou. Training data-efficient image transformers & distillation through attention. In 
+
+ICML , 2021. [30] Jianwei Yang, Chunyuan Li, Pengchuan Zhang, Xiaodong Dai, Bin Xiao, Lu Yuan, and Jianfeng Gao. Focal self-attention for local-global interactions in vision transformers. In NeurIPS , 2021. [31] Hao Zhao*, Mingjia Li*, Qiming Hu, and Xiaojie Guo. Reversible decoupling network for single image reflection removal. In CVPR 2025 , pages 26430–26439, 2025. [32] Zizheng Pan, Jianfei Cai, and Bohan Zhuang. Fast vision transformers with HiLo attention. In 
+
+NeurIPS , 2022. [33] Dai Shi. TransNeXt: Robust foveal visual perception for vision transformers. In CVPR , 2024. [34] Yue Liu, Yunjie Tian, Yuzhong Zhao, Hongtian Yu, Lingxi Xie, Yaowei Wang, Qixiang Ye, Jianbin Jiao, and Yunfan Liu. VMamba: Visual state space model. In NeurIPS , 2024. [35] Ali Hatamizadeh and Jan Kautz. MambaVision: A hybrid Mamba-transformer vision backbone. In CVPR , 2025. [36] Quan Kong, Yanru Xiao, Yuhao Shen, and Cong Wang. Vision-TTT: Efficient and expressive visual representation learning with test-time training. arXiv preprint arXiv:2603.00518 , 2026. 11 [37] Qihang Fan, Huaibo Huang, and Ran He. Breaking the low-rank dilemma of linear attention. In 
+
+CVPR , 2025. [38] Yuan Zhou, Qingshan Xu, Jiequan Cui, Junbao Zhou, Jing Zhang, Richang Hong, and Hanwang Zhang. CARE transformer: Mobile-friendly linear visual transformer via decoupled dual interaction. In CVPR , 2025. [39] Zhuofan Xia, Xuran Pan, Shiji Song, Haosen Li, and Gao Huang. Vision transformer with deformable attention. In CVPR , 2022. [40] Lei Zhu, Xinjiang Wang, Zhanghan Ke, Wayne Zhang, and Rynson W. H. Lau. BiFormer: Vision transformer with bi-level routing attention. In CVPR , pages 10323–10333, 2023. [41] Cheng Lei, Ao Li, Hu Yao, Ce Zhu, and Le Zhang. Rethinking token reduction with parameter-efficient fine-tuning in ViT for pixel-level tasks. In CVPR , 2025. [42] Sara Sabour, Nicholas Frosst, and Geoffrey E Hinton. Dynamic routing between capsules. In 
+
+NeurIPS , 2017. [43] Mark Hamilton, Zhoutong Zhang, Bharath Hariharan, Noah Snavely, and William T Freeman. STEGO: Unsupervised semantic segmentation by distilling feature correspondences. In ICLR ,2022. [44] Andrew Jaegle, Sebastian Borgeaud, Jean-Baptiste Alayrac, Carl Doersch, Catalin Ionescu, et al. Perceiver IO: A general architecture for structured inputs & outputs. In ICLR , 2022. [45] Jiarui Xu, Shalini De Mello, Sifei Liu, Wonmin Yin, Jan Kautz, and Xiaolong Wang. GroupViT: Semantic segmentation emerges from text supervision. In CVPR , 2022. [46] Qihang Yu, Huiyu Wang, Jiawen Pan, Chunhua Shen, and Alan Yuille. k-means Mask Trans-former. In ECCV , 2022. [47] Dongchen Han, Xuran Pan, Yizeng Han, Shiji Song, and Gao Huang. FLatten transformer: Vision transformer using focused linear attention. In ICCV , pages 5961–5971, 2023. [48] Jia Deng, Wei Dong, Richard Socher, Li-Jia Li, Kai Li, and Li Fei-Fei. ImageNet: A large-scale hierarchical image database. In CVPR , 2009. [49] Tsung-Yi Lin, Michael Maire, Serge Belongie, James Hays, Pietro Perona, Deva Ramanan, Piotr Dollár, and C. Lawrence Zitnick. Microsoft COCO: Common objects in context. In ECCV ,2014. [50] Bolei Zhou, Hang Zhao, Xavier Puig, Tete Xiao, Sanja Fidler, Adela Barriuso, and Antonio Torralba. Semantic understanding of scenes through the ADE20K dataset. International Journal of Computer Vision , 2019. [51] Ilya Loshchilov and Frank Hutter. Decoupled weight decay regularization. In ICLR , 2019. [52] Ekin D Cubuk, Barret Zoph, Jonathon Shlens, and Quoc V Le. RandAugment: Practical automated data augmentation with a reduced search space. In NeurIPS , 2020. [53] Hongyi Zhang, Moustapha Cisse, Yann N Dauphin, and David Lopez-Paz. mixup: Beyond empirical risk minimization. In ICLR , 2018. [54] Sangdoo Yun, Dongyoon Han, Seong Joon Oh, Sanghyuk Chun, Junsuk Choe, and Youngjoon Yoo. CutMix: Regularization strategy to train strong classifiers with localizable features. In 
+
+ICCV , 2019. [55] Zhun Zhong, Liang Zheng, Guoliang Kang, Shaozi Li, and Yi Yang. Random erasing data augmentation. AAAI , 2020. 12 A Appendix 
+
+A.1 Additional Query-Response Visualizations 
+
+Figure A.1: Additional query-response visualizations. For selected query locations, RPAttention produces response maps that align with semantically related image regions, illustrating how represen-tatives mediate global information exchange beyond fixed spatial layouts. 
+
+A.2 Efficiency Analysis 
+
+We further evaluate the practical efficiency of RPAttention under different input resolutions. All measurements are conducted on a single NVIDIA RTX 4090D GPU with batch size 32 and AM-P/FP16 inference. Latency is measured by CUDA events for pure forward inference, counting only 
+
+model(dummy_input) and excluding data loading, preprocessing, model construction, and FLOPs computation. For each resolution, we use 30 warmup iterations, 100 measured iterations, and 3 13 repeated runs, and report the median latency across repeats. We compare RPAttention-PVT-Tiny with PVT-Tiny and Agent-PVT-Tiny at input resolutions 224, 384, 512, and 768. 
+
+Figure A.2: Efficiency comparison under different input resolutions on an NVIDIA RTX 4090D GPU with batch size 32 and AMP/FP16 inference. Left: throughput in images per second. Middle: relative speedup of RPAttention-PVT-Tiny over PVT-Tiny and Agent-PVT-Tiny. Right: CUDA inference latency in milliseconds. As the input resolution increases, RPAttention shows more favorable efficiency scaling than the compared attention variants. At low resolution, the three models have similar throughput and latency because the token sequence is still relatively short. When the resolution becomes larger, the advantage of representation-driven token compression becomes clearer: RPAttention maintains higher throughput and lower CUDA latency, while its relative speedup over the baselines increases. These results indicate that the Gather-Interact-Distribute design not only reduces token interaction complexity theoretically, but also provides practical inference benefits for high-resolution inputs. 
+
+A.3 EM-Style Interpretation of the Gather Step 
+
+The gather step of RPAttention can be understood through the lens of the Expectation-Maximization (EM) algorithm for mixture models. In this appendix we make the connection explicit and clarify how RPAttention differs from iterative object-centric routing methods such as Slot Attention [27]. 
+
+A.3.1 Background: EM for Clustering 
+
+Consider a standard Gaussian Mixture Model (GMM) with M components fitted to N data points 
+
+{xn}Nn=1 , xn ∈ Rd. The EM algorithm alternates between two steps: 
+
+E-step (Assignment). Compute the posterior responsibility of component m for data point xn:
+
+γn,m = πm N (xn | μm, Σm)
+
+PMj=1 πj N (xn | μj , Σj ) , (12) where πm, μm, Σm are the mixing coefficient, mean, and covariance of component m.
+
+M-step (Update). Update each component mean as the responsibility-weighted average of the data: 
+
+μnew  
+
+> m
+
+=
+
+PNn=1 γn,m xn
+
+PNn=1 γn,m 
+
+. (13) The two steps iterate until convergence. 
+
+A.3.2 Gather as One-Step EM 
+
+RPAttention’s gather step performs a single round of E-step and M-step using globally learned parameters, without iterative refinement. 14 E-step → Competitive routing. Let Wg ∈ Rd×M be the gather projection. The columns of Wg
+
+act as learned semantic anchors, analogous to the cluster means {μm} in a GMM. For each spatial key token kn ∈ Rd, the assignment logit to slot m is the inner product k⊤ 
+
+> n
+
+wm, measuring the similarity between the token and the anchor. A softmax over representatives yields the assignment matrix: 
+
+An,m = exp( k⊤ 
+
+> n
+
+wm)
+
+PMj=1 exp( k⊤ 
+
+> n
+
+wj ) . (14) This is directly analogous to Eq. (12) : the softmax normalizes across components, producing a soft assignment where each token distributes its weight across semantically relevant slots. 
+
+M-step → Slot-mass normalization and aggregation. The responsibility-weighted mean in Eq. (13) has two operations: (i) weighting each data point by its assignment, and (ii) dividing by the total assignment mass per component. RPAttention mirrors both: 
+
+ˆAn,m = An,m 
+
+PNt=1 At,m + ϵ , k(m) 
+
+> L
+
+=
+
+> N
+
+X
+
+> n=1
+
+ˆAn,m kn. (15) Here ˆA is the mass-normalized assignment, and k(m) 
+
+> L
+
+is the m-th latent key representative, computed as a weighted average of spatial keys, which is exactly the M-step update for the cluster mean. The same operation is applied to values: v(m) 
+
+> L
+
+= P 
+
+> n
+
+ˆAn,m vn.In matrix form, KL = ˆA⊤K and VL = ˆA⊤V, which is precisely the notation used in the main text. 
+
+A.3.3 Comparison with Slot Attention 
+
+Table A.1 summarizes the structural correspondence and key differences between standard EM, Slot Attention, and RPAttention. Table A.1: Structural comparison of EM-based routing strategies.                         
+
+> Standard EM Slot Attention RPAttention Cluster centers μm(iteratively updated) Slot vectors (GRU-updated) Wgcolumns (globally learned) E-step Posterior γn,m Softmax attention Softmax( KW g)
+> M-step Weighted mean GRU + weighted mean ˆA⊤K,ˆA⊤V
+> Iterations Until convergence T= 3 –7per forward pass 1 (single step)
+> Center adaptation Per-input (iterative) Per-input (iterative) Per-training-set (backprop)
+
+The critical difference lies in when the semantic anchors are adapted. Slot Attention initializes slots randomly (or from learned parameters) and iteratively refines them for each input using a GRU gating mechanism, performing T rounds of E-step and M-step within a single forward pass. This iterative process ensures convergence to input-specific cluster assignments, but introduces O(T · N M ) cost and sequential dependencies that complicate integration into deep, multi-stage vision backbones. This perspective also explains why the gather step can be implemented with standard dense tensor operations rather than a custom clustering loop. The assignment matrix is produced by a learned linear projection followed by a softmax over representatives, and the M-step-style update is a batched matrix multiplication between the mass-normalized assignments and the spatial keys or values. Consequently, the routing procedure remains differentiable, parallelizable, and compatible with common GPU kernels, which is important for preserving the efficiency benefits analyzed in Appendix A.2. RPAttention takes a different approach: the semantic anchors Wg are globally shared parameters 
+
+learned across the entire training set via backpropagation. At inference time, a single E-step (Eq. (14) )followed by a single M-step (Eq. (15) ) suffices to produce meaningful slot assignments, because the anchors have already converged to stable semantic prototypes during training. This eliminates the need for iterative refinement, reducing the routing cost to a single matrix multiplication at O(N M )
+
+and making semantic routing practical within standard hierarchical architectures. 15

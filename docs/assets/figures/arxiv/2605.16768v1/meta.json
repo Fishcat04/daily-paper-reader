@@ -1,0 +1,30 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.16768v1/fig-001.webp",
+      "caption": "Fig. 3. Illustration of the Axial-Relation Guided Fusion Module (ARGFM).",
+      "page": 3,
+      "index": 1,
+      "width": 416,
+      "height": 410
+    },
+    {
+      "url": "assets/figures/arxiv/2605.16768v1/fig-002.webp",
+      "caption": "Fig. 1. The overall architecture of ARG-Mamba. It is a dual-stream encoder–decoder framework for optical-elevation semantic segmentation. It processes optical and DSM inputs in parallel using hierarchical Visual State Space Blocks (VSSBs) and Multi-Scale State Space Modules (MS-SSMs) to efficiently capture long-range dependencies with linear complexity. At each encoder stage, an Axial-Relation Guided Fusion Module (ARGFM) explicitly models global cross-modal correlations via axial relations, enabling progressive interaction between modalities.",
+      "page": 2,
+      "index": 2,
+      "width": 792,
+      "height": 306
+    },
+    {
+      "url": "assets/figures/arxiv/2605.16768v1/fig-003.webp",
+      "caption": "Fig. 4. Classification results of different methods on the ISPRS Vaihingen dataset.",
+      "page": 5,
+      "index": 3,
+      "width": 806,
+      "height": 285
+    }
+  ]
+}

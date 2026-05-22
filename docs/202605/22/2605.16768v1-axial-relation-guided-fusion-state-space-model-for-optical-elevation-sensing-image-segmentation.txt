@@ -1,0 +1,334 @@
+Title: Axial-Relation Guided Fusion State Space Model for Optical-Elevation Sensing Image Segmentation
+
+URL Source: https://arxiv.org/pdf/2605.16768v1
+
+Published Time: Tue, 19 May 2026 00:41:23 GMT
+
+Number of Pages: 5
+
+Markdown Content:
+> IEEE GEOSCIENCE AND REMOTE SENSING LETTERS 1
+
+# Axial-Relation Guided Fusion State Space Model for Optical-Elevation Sensing Image Segmentation 
+
+Feng Gao, Member, IEEE , Zhilin Jin, Yanhai Gan, Junyu Dong, Member, IEEE ,and Qian Du, Fellow, IEEE 
+
+Abstract —Semantic segmentation of multi-source remote sens-ing images is a fundamental task for Earth observation applica-tions. Existing methods often struggle with insufficient multi-scale context modeling and suboptimal cross-modal feature fusion, lim-iting their performance in complex high-resolution scenes. To this end, we propose Axial-Relation Guided Fusion Mamba (ARG-Mamba), a state space model–based framework for optical-elevation remote sensing image segmentation. Specifically, we introduce a Multi-Scale State Space Module to capture both fine-grained local details and global contextual dependencies with linear computational complexity. Moreover, an Axial-Relation Guided Fusion Module is designed to explicitly model global cross-modal correlations along horizontal and vertical axes, enabling efficient feature fusion between optical and elevation modalities. Extensive experiments conducted on the ISPRS Vai-hingen and Potsdam datasets demonstrate that our ARG-Mamba consistently outperforms state-of-the-art methods while maintain-ing favorable computational efficiency. The code will be made publicly available at https://github.com/oucailab/ARG-Mamba. 
+
+Index Terms —Semantic segmentation, remote sensing, state space model, multi-modal fusion, image processing. 
+
+I. I NTRODUCTION 
+
+# SEMANTIC segmentation of high-resolution remote sens-ing imagery plays a critical role in numerous Earth observation applications, such as urban planning, land cover mapping, and disaster management [1]. Most existing semantic segmentation methods are primarily developed based on opti-cal remote sensing images, which mainly capture spectral and textural information of surface materials [2]. However, relying solely on optical imagery often leads to limited segmentation performance in complex scenes. In contrast, elevation data from digital surface model (DSM) provide complementary geometric and structural cues, which are highly discriminative for distinguishing land-cover categories [3]. Therefore, in this letter, we mainly focus on optical-elevation remote sensing image segmentation. Numerous remote sensing image semantic segmentation models have been proposed based on convolutional neural networks (CNNs) and Transformer architectures [4]. In terms of multi-modal interaction, fusion strategies vary from early 
+
+This work was supported in part by Key R & D Program of Shandong Province under Grant 2025CXPT185, and in part by the Natural Science Foundation of Shandong Province under Grant ZR2024MF020. ( Correspond-ing author: Yanhai Gan )Feng Gao, Zhilin Jin, Yanhai Gan and Junyu Dong are with the State Key Laboratory of Physical Oceanography, Ocean University of China, Qingdao 266100, China. (email: ganyanhai@ouc.edu.cn) Qian Du is with the Department of Electrical and Computer Engineering, Mississippi State University, Starkville, MS 39762 USA. 
+
+concatenation [5] to complex feature-level integration. Edge-guided convolution [6], multi-scale modeling [7], and attentive frequency decoupling [8] have been employed for complex contextual feature modeling. Recently, newly emerged state space models (SSMs), particularly Mamba [9], have demon-strated strong capability in capturing long-range dependencies with linear computational complexity. SSMs have achieved competitive performance while offering excellent efficiency advantages across a wide range of remote sensing data in-terpretation tasks [10]. Leveraging SSMs for optical-elevation remote sensing im-age segmentation is a non-trivial task due to the following two challenges: (1) Insufficient exploitation of multi-scale spatial information. Remote sensing images inherently ex-hibit strong multi-scale characteristics. While most SSM-based methods typically operate on a single-scale token sequence, making it difficult to simultaneously capture fine-grained local details and coarse global contextual cues. (2) Cross-modal complementarity between optical and elevation data needs to be enhanced. Optical images capture rich spectral and texture cues, while elevation data encode critical geometric and structural characteristics. The semantic relevance of optical and elevation features varies across object categories, requiring adaptive and context-aware fusion. To address the abovementioned challenges, we propose 
+
+Axial-Relation Guided Fusion Mamba (ARG-Mamba ) net-work for optical-elevation remote sensing image segmenta-tion. First, to enhance multi-scale feature representation, we propose the Multi-Scale State Space Module (MS-SSM) . By performing state space modeling at different spatial scales, MS-SSM captures both long-range global dependencies and fine-grained local structures. Second, to enhance cross-modal complementarity, we present the Axial-Relation Guided Fu-sion Module (ARGFM) . It models contextual relations along horizontal and vertical axes to fuse heterogeneous features. By leveraging axial relations, ARGFM effectively captures long-range structural dependencies across modalities. The contributions of our ARG-Mamba are threefold:  
+
+> •
+
+We propose ARG-Mamba framework for multi-source remote sensing image segmentation, which integrates state space models with explicit axial-relation guided fusion to efficiently capture long-range dependencies.  
+
+> •
+
+MS-SSM is introduced to address the scale variation in high-resolution remote sensing images, enabling joint modeling of fine-grained local details and global contex-tual information in a unified framework.            
+
+> arXiv:2605.16768v1 [cs.CV] 16 May 2026 IEEE GEOSCIENCE AND REMOTE SENSING LETTERS 2Optical image Optical image DSM
+> Conv
+> VSSB
+> MS-SSM
+> Conv
+> VSSB
+> MS-SSM
+> ARGFM
+> Down
+> VSSB
+> MS-SSM
+> Down
+> VSSB
+> MS-SSM
+> ARGFM
+> Down
+> VSSB
+> MS-SSM
+> Down
+> VSSB
+> MS-SSM
+> ARGFM
+> ARGFM
+> Conv
+> VSSB
+> Up
+> Conv
+> VSSB
+> Up
+> Conv
+> VSSB
+> Up
+> GT  HEAD
+> HEAD HEAD HEAD
+> Stage 1 Stage 2 Stage 3 Stage 4
+> Stage 1 Stage 2 Stage 3 Stage 4
+> Decoder
+> Block 1
+> Down
+> VSSB
+> MS-SSM
+> Down
+> VSSB
+> MS-SSM
+> Decoder
+> Block 2 Decoder
+> Block 3
+> Encoder
+> Decoder
+> Optical flow
+> Elevation flow
+> Fusion flow
+> Downsampling
+> Multi-Scale State Space
+> Module
+> VSSB
+> MS-SSM
+> ARGFM Axial-Relation Guided
+> Fusion M odule
+> Up
+> Down
+> Visual State Space Block
+> Upsampling
+
+Fig. 1. The overall architecture of ARG-Mamba . It is a dual-stream encoder–decoder framework for optical-elevation semantic segmentation. It processes optical and DSM inputs in parallel using hierarchical Visual State Space Blocks (VSSBs) and Multi-Scale State Space Modules (MS-SSMs) to efficiently capture long-range dependencies with linear complexity. At each encoder stage, an Axial-Relation Guided Fusion Module (ARGFM) explicitly models global cross-modal correlations via axial relations, enabling progressive interaction between modalities.  
+
+> •
+
+Extensive experiments are conducted on two widely used benchmark optical-elevation datasets. The results demon-strate that our ARG-Mamba outperforms state-of-the-art methods. II. M ETHODOLOGY 
+
+The framework of Axial-Relation Guided Fusion Mamba (ARG-Mamba) network is shown in Fig. 1. It is a dual-stream encoder-decoder network designed for optical-elevation semantic segmentation. It integrates SSM with explicit axial-relation guided fusion, enabling efficient long-range depen-dency modeling and effective cross-modal interaction through-out the network hierarchy. Specifically, the encoder adopts a two-branch architecture, and each branch consists of four hierarchical stages with progressively reduced spatial resolu-tion. Each stage is composed of a Visual State Space Block (VSSB) [11] and a Multi-Scale State Space Module (MS-SSM), which jointly capture both local context and long-range dependencies with linear computational complexity. To enable effective cross-modal interaction, an Axial-Relation Guided Fusion Module (ARGFM) is inserted between corresponding stages of the encoders. ARGFM explicitly models global cross-modal correlations by decomposing dense relations into axial (row-wise and column-wise) interactions, allowing op-tical and elevation features to be mutually enhanced in a structured and efficient manner. In the decoder, high-level fused features are gradually upsampled and refined through a sequence of decoder blocks. Deep supervision is applied by attaching auxiliary prediction heads at multiple decoder stages. 
+
+A. Multi-Scale State Space Module (MS-SSM) 
+
+Details of the MS-SSM is shown in Fig. 2. It has similar architecture of VSSB in VMamba [11]. Meanwhile, the S6 block in Mamba is substituted with the newly proposed multi-scale selective scan (MS-SS2D). To be specific, we employ multiple scanning scales, denoted as {si}Ni=1 . Given an input feature map x ∈ RC×H×W , we split the x into N sub-features 
+
+{xi}Ni=1 along the channel dimension. For the sub-feature xi
+
+with scan scale si, we divide xi into Hsi × Wsi non-overlapping Linear 
+
+> MS-SS2D
+> DConv
+> SiLU
+> LN
+> Linear
+> MS-SSM
+> Selective State Space Model
+> Reshape & Fusion
+> MS-SS2D
+
+Fig. 2. Illustration of the Multi-Scale State Space Module (MS-SSM). 
+
+windows. Then, the SSM scanning is performed within the windows, resulting in the scan input ¯xi. The local window scan restricts scanning distance to minimize attenuation and noise between tokens. For all sub-features, we utilize the two-way scanning method to generate features at the specified scale. Although employing more scanning directions could potentially capture richer spatial relations, we restrict it to two-way scanning to minimize computational redundancy across multiple scales, ensuring the efficiency of MS-SSM. This method generates two token sequences. The resulting sequences are then pro-cessed by SSM [9], and combined to produce the output feature ¯y = {¯yi}Ni=1 as follows: 
+
+¯yi = SS2D (¯ xi) ∈ RCi×H×W , (1) where Ci is the number of channels of the i-th scale. Finally, we concatenate the features from all scales along the channel dimension, yielding the final output feature. To facilitate cross-scale interaction, the concatenated feature is processed by a linear projection and a depth-wise convolution (DConv), which adaptively merges multi-scale cues and reconciles channel-wise redundancies. In our implementations, we use four scales 
+
+{1, 2, 4, 8}. This set is selected to align with the typical spatial hierarchies of remote sensing objects (e.g., small cars to large buildings), ensuring a comprehensive receptive field. 
+
+B. Axial-Relation Guided Fusion Module (ARGFM) 
+
+The Axial-Relation Guided Fusion module is designed to achieve efficient and globally-aware cross-modal fusion IEEE GEOSCIENCE AND REMOTE SENSING LETTERS 3ARAL  LN  
+
+> Linear
+> DConv
+> LN
+> Linear
+> DConv
+> LN
+> Linear
+> LN
+> Linear
+> LN
+> FFN
+> LN
+> FFN
+> Linear
+> Row-wise
+> Conv
+> Linear
+> Softmax
+> Col-wise
+> Conv
+> Linear
+> Softmax
+> Linear
+> Expand
+> Linear
+> Expand  CrossAttn
+> Fus-SSM
+> Axial Relation Attention Layer (ARAL)
+> Axial-Relation Guided Fusion Module
+> Fig. 3. Illustration of the Axial-Relation Guided Fusion Module (ARGFM).
+
+by jointly exploiting axial relation attention and state space sequence modeling. As shown in Fig. 3, it takes optical and elevation features as input and produces a fused representa-tion with enhanced cross-modal consistency and long-range dependency modeling. Specifically, the optical and elevation feature maps Fo and Fe are first projected using a lightweight embedding layer to generate local context enhanced features 
+
+ˆXo and ˆXe. Specifically, the input maps Fo, F e ∈ RC×H×W
+
+are reshaped and projected to the latent dimension C.To explicitly model global cross-modal dependencies, we introduce the Axial Relation Attention Layer (ARAL), which produces relation-aware modulation features: 
+
+(X′
+
+> o
+
+, X ′
+
+> e
+
+) = ARAL( Fo, F e), (2) where X′ 
+
+> o
+
+and X′ 
+
+> e
+
+are the relation-enhanced optical and eleva-tion tokens, respectively. ARAL encodes global cross-modal correlations via axial (row–column) relation decomposition, enabling efficient long-range interaction. Details of ARAL are described in Section II-C. The projected features and relation-aware tokens are jointly fed into a fusion SSM block (Fus-SSM) [10] to model long-range dependencies across modalities: 
+
+(Zo, Z e) = Fus -SSM( ˜Xo, ˜Xe, X ′
+
+> o
+
+, X ′
+
+> e
+
+), (3) Specifically, ˜Xo, ˜Xe ∈ RHW ×C denote the local context tokens, while X′
+
+> o
+
+, X ′ 
+
+> e
+
+∈ RHW ×C serve as relation-aware modulators derived from the ARAL. Within Fus-SSM, these four inputs are cross-concatenated and processed via selective scanning to facilitate deep feature interaction between spectral and geometric cues. The SSM propagates information along the token sequence with linear complexity. The SSM outputs are then linearly projected, followed by a feed-forward net-work (FFN) with residual connections to generate F ′ 
+
+> o
+
+and F ′
+
+> e
+
+.Finally, cross-attention layer and linear projection are em-ployed to explicitly integrate the refined optical and elevation representations: 
+
+Ff = FC(CrossAttn( F ′
+
+> o
+
+, F ′
+
+> e
+
+)) , (4) where CrossAttn denotes the cross-attention computation, and 
+
+FC denotes the linear layer. F ′ 
+
+> o
+
+and F ′ 
+
+> e
+
+are forwarded to the next stages of the optical and elevation streams, respectively, while Ff is passed to the corresponding decoder block. 
+
+C. Axial Relation Attention Layer (ARAL) 
+
+Details of the ARAL are shown in Fig. 3. Our ARAL constructs a dense relation matrix between optical and el-evation tokens. Instead of performing full 2D attention on the relation matrix, ARAL decomposes it into row-wise and column-wise axial attentions, which capture complementary interaction patterns along two orthogonal spatial axes while reducing computational complexity. Given the optical feature Fo ∈ RC×H×W and the ele-vation feature Fe ∈ RC×H×W , we first reshape them into token representations along the spatial dimension as Xo =reshape( Fo) ∈ RHW ×C , Xe = reshape( Fe) ∈ RHW ×C .To explicitly capture the global cross-modal correlations between optical and elevation features, we compute a dense relation matrix as: 
+
+R = XoX⊤ 
+
+> e
+
+∈ RHW ×HW , (5) where each element Rij measures the interaction strength between the i-th optical token and the j-th elevation token. Although the formulation of R involves a computational com-plexity of O(( HW )2), this potential bottleneck is mitigated by the subsequent axial decomposition. After that, we separately perform row-wise and column-wise convolution on the relation matrix R for modality-specific pooling. By decomposing the dense 2D relations into row-wise and column-wise interactions, the computa-tional complexity is significantly reduced from O(( HW )2) to 
+
+O(HW (H + W )) . This orthogonal decomposition is specif-ically chosen to align with the grid-like structural layout of remote sensing objects, such as road networks and building alignments, while maintaining computational parsimony. The obtained features are processed by linear layer and Softmax, respectively. Then, two weighted vectors are computed as follows: 
+
+Ve = Softmax(FC(Conv row (R))) ∈ RHW ×1, (6) 
+
+Vo = Softmax(FC(Conv col (R))) ∈ R1×HW , (7) where Conv row and Conv col reduce the relation matrix R ∈
+
+RHW ×HW to HW × 1 and 1 × HW , respectively. Ve and Vo
+
+are expanded back to RHW ×C to produce the relation-aware tokens X′
+
+> e
+
+, X′
+
+> o
+
+.III. E XPERIMENTAL RESULTS AND ANALYSIS 
+
+A. Datasets and Experimental Setting 
+
+We evaluate the performance of the proposed ARG-Mamba on two multi-source remote sensing datasets for semantic segmentation. Specifically, the first dataset is the ISPRS Vai-hingen dataset. It consists of high-resolution optical and DSM data with the Ground Sampling Distance (GSD) of 9 cm. The second dataset is the ISPRS Potsdam dataset, which IEEE GEOSCIENCE AND REMOTE SENSING LETTERS 4
+
+TABLE I EXPERIMENTAL RESULTS ON THE ISPRS V AIHINGEN DATASET . T HE  
+
+> BOLD AND UNDERLINE DENOTE THE BEST AND SECOND RESULTS
+
+.Method F1 OA mIoU Imp. Building LowVeg. Tree Car PSTNet [12] 88.50 92.23 79.99 92.51 90.62 70.83 80.01 65.99 FEANet [13] 86.64 91.97 77.50 92.45 90.27 69.91 79.11 55.75 GMNet [14] 87.42 92.32 78.63 92.15 91.52 70.57 80.73 58.16 CMNeXt [15] 89.61 92.72 81.61 93.16 90.23 72.27 80.62 71.75 FTransUNet [4] 88.73 92.69 80.42 93.27 92.45 70.75 79.78 65.87 MFNet [16] 90.10 92.94 82.42 93.26 92.11 72.11 80.89 73.73         
+
+> ARG-Mamba 90.96 93.28 83.72 93.82 90.49 74.37 81.99 77.94
+
+consists of optical and DSM data with the GSD of 5 cm. Both datasets contain 6 classes segmentation. The original images are cropped into 512 × 512 patches for training and testing. Our model was implemented using PyTorch and trained on a single NVIDIA RTX 4090 GPU. We used the Adam optimizer and the training phase spanned 200 epochs. The initial learning rate is set to 0.0001, adjusted by a cosine annealing strategy. To evaluate the performance of the proposed ARG-Mamba, we compare it against six state-of-the-art methods: PSTNet [12], FEANet [13], GMNet [14], CMNeXt [15], FTransUNet [4], and MFNet [16]. These methods are assessed through quantitative metrics, including Overall Accuracy (OA), Mean Intersection over Union (mIoU), and F1-score (F1). OA rep-resents the proportion of correctly classified pixels relative to the total number of pixels in the dataset. mIoU calculates the average ratio of the intersection to the union of the predicted and ground truth segments for all classes. The F1-score offers a comprehensive evaluation by calculating the harmonic mean of precision and recall. 
+
+B. Experimental Results and Discussion 
+
+Quantitative Analysis. Tables I and II report quantitative comparisons on the ISPRS Vaihingen and Potsdam datasets, respectively. Overall, ARG-Mamba consistently achieves the best performance across all three global metrics (F1, OA, and mIoU) on both datasets, demonstrating its strong segmentation capability. On the ISPRS Vaihingen dataset, ARG-Mamba ob-tains the highest mIoU, outperforming all competing methods. In terms of per-class performance, ARG-Mamba achieves the best results on Impervious Surface, Low Vegetation, Tree, and Car, with particularly notable improvements on the Car class, indicating its advantage in recognizing small and complex objects. These results highlight the effectiveness of ARG-Mamba in modeling both global context and fine-grained structures. On the ISPRS Potsdam dataset, ARG-Mamba again delivers the best overall performance. It also achieves the best accuracy on Impervious Surface and Low Vegetation, and remains highly competitive on Building, Tree, and Car classes. Compared with strong Transformer- and CNN-based baselines, ARG-Mamba shows more balanced and robust performance across different land-cover categories. 
+
+Qualitative Analysis. Fig. 4 and Fig. 5 present qualita-tive segmentation results of different methods on the ISPRS Vaihingen and Potsdam datasets, respectively. Compared with CNN-based and Transformer-based baselines, ARG-Mamba produces segmentation maps that are visually closer to the 
+
+TABLE II EXPERIMENTAL RESULTS ON THE ISPRS P OTSDAM DATASET . T HE BOLD 
+
+> AND UNDERLINE DENOTE THE BEST AND SECOND RESULTS
+
+.Method F1 OA mIoU Imp. Building LowVeg. Tree Car PSTNet [12] 89.55 88.86 81.47 85.09 94.05 72.26 72.17 83.75 FEANet [13] 91.02 90.26 83.82 87.32 94.52 75.62 74.86 86.79 GMNet [14] 90.44 89.66 82.88 86.55 93.77 73.33 74.86 85.88 CMNeXt [15] 91.28 90.09 84.21 86.35 92.98 76.54 76.07 89.12 FTransUNet [4] 90.93 89.79 83.69 87.40 93.23 74.74 74.61 88.43 MFNet [16] 91.80 90.75 85.10 87.20 93.90 76.50 77.20 89.15         
+
+> ARG-Mamba 91.93 90.89 85.30 87.44 94.14 78.09 77.37 89.46
+
+ground truth on both datasets, exhibiting clearer object bound-aries and more consistent region labeling. Specifically, ARG-Mamba delivers sharper boundaries in building extraction and preserves fine-grained structures in vegetation classes better than competitors. It also shows a distinct advantage in recognizing small objects like cars, where other methods often fail. The reduced clutter noise and improved spatial consistency further indicate that ARG-Mamba benefits from its enhanced multi-scale context modeling capability. 
+
+Computational Efficiency. Table III summarizes the com-putational costs of different methods in terms of model parameters, FLOPs, and inference time. Compared with Transformer-based and hybrid architectures, ARG-Mamba re-quires significantly fewer parameters and lower FLOPs than FEANet, GMNet, FTransUNet, and MFNet, while also achiev-ing faster inference speed. In particular, MFNet and FEANet exhibit substantially higher model complexity, leading to in-creased computational overhead. Although PSTNet has the lowest computational cost, its segmentation accuracy is no-tably inferior to our ARG-Mamba, as shown in Tables I and II. Therefore, the results demonstrate that our ARG-Mamba offers an efficient and lightweight design without sacrificing accuracy, making it well suited for large-scale remote sensing image segmentation tasks. 
+
+TABLE III COMPUTATIONAL COSTS OF DIFFERENT METHODS .Method Params (M) FLOPs (G) Time (s) PSTNet [12] 20.4 15.2 0.185 FEANet [13] 255.3 145.8 0.528 GMNet [14] 153.4 89.6 0.356 CMNeXt [15] 58.7 42.5 0.242 FTransUNet [4] 179.6 112.3 0.412 MFNet [16] 313.2 180.2 0.589 ARG-Mamba 77.1 56.4 0.268 TABLE IV INFLUENCE OF MS-SSM AND ARGFM ON THE SEGMENTATION RESULTS .THE BOLD DENOTE THE BEST RESULTS .MS-SSM ARGFM Vaihingen Potsdam 80.15 81.08        
+
+> ✓82.12 83.18
+> ✓82.45 83.60
+> ✓✓83.72 85.30
+
+C. Ablation Study 
+
+Table IV shows the impact of MS-SSM and ARGFM on the segmentation performance in terms of mIoU on both IEEE GEOSCIENCE AND REMOTE SENSING LETTERS 5Impervious surface  Building  Low vegetation  Tree  Car          
+
+> Optical DSM GT PSTNet FEANet GMNet CMNeXt FTransUNet MFNet ARG-Mamba
+> Clutter
+
+Fig. 4. Classification results of different methods on the ISPRS Vaihingen dataset. Optical DSM GT PSTNet FEANet GMNet CMNeXt FTransUNet MFNet ARG-Mamba      
+
+> Impervious surface Building Low vegetation Tree Car Clutter
+
+Fig. 5. Classification results of different methods on the ISPRS Potsdam dataset. 
+
+datasets. Using either MS-SSM or ARGFM alone improves the mIoU on both Vaihingen and Potsdam datasets compared with the baseline. When both modules are combined, the model achieves the best results, reaching 83.72% on Vaihingen and 85.30% on Potsdam, demonstrating their complementary effectiveness. Additionally, we investigated the sensitivity of key hyperparameters. Results indicate that varying the number of scales N from 2 to 6 yields marginal fluctuations in mIoU, and increasing the axial convolution kernel size beyond 3 × 3
+
+provides diminishing returns while increasing latency. These findings confirm that the current configuration ( N = 4 and 
+
+3 × 3 kernels) strikes an optimal balance between accuracy and efficiency. IV. C ONCLUSION 
+
+In this letter, we presented ARG-Mamba, a state space model-based framework for optical-elevation remote sensing image segmentation. To exploit the multi-scale spatial infor-mation, we proposed MS-SSM to effectively model both fine-grained local details and long-range global context across multiple spatial scales with linear computational complexity. In addition, we proposed ARGFM to explicitly model cross-modal correlations along spatial axes, facilitating efficient fusion of cross-modal features. Extensive experiments on the ISPRS Vaihingen and Potsdam datasets demonstrate that our ARG-Mamba consistently outperforms state-of-the-art meth-ods in both accuracy and efficiency. REFERENCES [1] L. Ma, Y. Liu, X. Zhang, Y. Ye, G. Yin, and B. A. Johnson, “Deep learning in remote sensing applications: A meta-analysis and review,” 
+
+ISPRS Journal of Photogrammetry and Remote Sensing , vol. 152, pp. 166–177, 2019. [2] F. Gao, M. Fu, J. Cao, J. Dong, and Q. Du, “Adaptive frequency enhancement network for remote sensing image semantic segmentation,” 
+
+IEEE Transactions on Geoscience and Remote Sensing , vol. 63, pp. 1– 15, 2025. [3] J. Fan, J. Li, Z. Hua, F. Zhang, and C. Zhang, “Elevation information-guided multimodal fusion robust framework for remote sensing image segmentation,” IEEE Geoscience and Remote Sensing Letters , vol. 21, pp. 1–5, 2024. [4] X. Ma, X. Zhang, M.-O. Pun, and M. Liu, “A multilevel multimodal fusion Transformer for remote sensing semantic segmentation,” IEEE Transactions on Geoscience and Remote Sensing , vol. 62, pp. 1–15, 2024. [5] Q. Weng, H. Chen, H. Chen, W. Guo, and Z. Mao, “A multisensor data fusion model for semantic segmentation in aerial images,” IEEE Geoscience and Remote Sensing Letters , vol. 19, pp. 1–5, 2022. [6] J. Jin, W. Zhou, R. Yang, L. Ye, and L. Yu, “Edge detection guide network for semantic segmentation of remote sensing images,” IEEE Geoscience and Remote Sensing Letters , vol. 20, pp. 1–5, 2023. [7] T. Xiao, Y. Liu, Y. Huang, M. Li, and G. Yang, “Enhancing multiscale representations with transformer for remote sensing image semantic segmentation,” IEEE Transactions on Geoscience and Remote Sensing ,vol. 61, pp. 1–16, 2023. [8] X. Li, F. Xu, A. Yu, X. Lyu, H. Gao, and J. Zhou, “A frequency de-coupling network for semantic segmentation of remote sensing images,” 
+
+IEEE Transactions on Geoscience and Remote Sensing , vol. 63, pp. 1– 21, 2025. [9] A. Gu and T. Dao, “Mamba: Linear-time sequence modeling with selective state spaces,” arXiv preprint arXiv:2312.00752 , 2024. [10] F. Gao, X. Jin, X. Zhou, J. Dong, and Q. Du, “MSFMamba: Multiscale feature fusion state space model for multisource remote sensing image classification,” IEEE Transactions on Geoscience and Remote Sensing ,vol. 63, pp. 1–16, 2025. [11] Y. Liu, Y. Tian, Y. Zhao, H. Yu, L. Xie, Y. Wang, Q. Ye, J. Jiao, and Y. Liu, “VMamba: Visual state space model,” in Proceedings of Advances in Neural Information Processing Systems (NeurIPS) , vol. 37, 2024, pp. 103 031–103 063. [12] S. S. Shivakumar, N. Rodrigues, A. Zhou, I. D. Miller, V. Kumar, and C. J. Taylor, “PST900: RGB-Thermal calibration, dataset and segmen-tation network,” in Proceedings of IEEE International Conference on Robotics and Automation (ICRA) , 2020, pp. 9441–9447. [13] F. Deng, H. Feng, M. Liang, H. Wang, Y. Yang, Y. Gao, J. Chen, J. Hu, X. Guo, and T. L. Lam, “FEANet: Feature-enhanced attention network for RGB-thermal real-time semantic segmentation,” in Proceedings of IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS) , 2021, pp. 4467–4473. [14] W. Zhou, J. Liu, J. Lei, L. Yu, and J.-N. Hwang, “GMNet: Graded-feature multilabel-learning network for RGB-thermal urban scene se-mantic segmentation,” IEEE Transactions on Image Processing , vol. 30, pp. 7790–7802, 2021. [15] J. Zhang, R. Liu, H. Shi, K. Yang, S. Reiß, K. Peng, H. Fu, K. Wang, and R. Stiefelhagen, “Delivering arbitrary-modal semantic segmentation,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 2023, pp. 1136–1147. [16] X. Ma, X. Zhang, M.-O. Pun, and B. Huang, “A unified framework with multimodal fine-tuning for remote sensing semantic segmentation,” 
+
+IEEE Transactions on Geoscience and Remote Sensing , vol. 63, pp. 1– 15, 2025.
