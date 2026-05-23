@@ -1,0 +1,658 @@
+Title: STAR-IOD: Scale-decoupled Topology Alignment with Pseudo-label Refinement for Remote Sensing Incremental Object Detection
+
+URL Source: https://arxiv.org/pdf/2605.20738v1
+
+Published Time: Thu, 21 May 2026 00:42:30 GMT
+
+Number of Pages: 17
+
+Markdown Content:
+# STAR-IOD: Scale-decoupled Topology Alignment with Pseudo-label Refinement for Remote Sensing Incremental Object Detection 
+
+## Yaoteng Zhang a, Qing Zhou b, Junyu Gao b and Qi Wang b,∗
+
+> a
+
+School of Computer Science, Northwestern Polytechnical University, Xi’an 710072, China 
+
+> b
+
+School of Artificial Intelligence, OPtics and ElectroNics (iOPEN), Northwestern Polytechnical University, Xi’an 710072, China 
+
+A R T I C L E I N F O 
+
+Keywords :Incremental Object Detection Catastrophic Forgetting Pseudo-label Generation Topology Distillation 
+
+A B S T R A C T 
+
+Remote sensing imagery typically arrives in the form of continuous data streams. Traditional detectors often forget previously learned categories when learning new ones; therefore, research on Remote Sensing Incremental Object Detection (RS-IOD) is of great significance. However, existing methods largely overlook the intra-class scale variations prevalent in remote sensing scenes, which undermines the effectiveness of knowledge transfer and old knowledge preservation. Moreover, RS-IOD also suffers from missing annotations, which cause the model to misclassify old-class instances as background. To address these challenges, we propose a novel framework, STAR-IOD. First, we introduce a Subspace-decoupled Topology Distillation (STD) module to transfer structural knowledge, explicitly aligning inter-class topological relationships and mitigating intra-class representation discrepancies induced by scale shifts. Furthermore, we introduce the Clustering-driven Pseudo-label Generator (CPG), a plug-and-play module that leverages K-Means clustering to dynamically identify class-specific thresholds, thereby guaranteeing an accurate distinction between true positive targets and background noise and alleviating the issue of missing annotations for old classes. We also constructed two Remote Sensing Incremental Object Detection datasets, DIOR-IOD and DOTA-IOD to facilitate research on RS-IOD. Extensive experiments demonstrate that our method outperforms state-of-the-art approaches by 1.7% and 2.1% mAP on DIOR-IOD and DOTA-IOD, respectively, effectively alleviating catastrophic forgetting while preserving strong detection performance on both base and novel classes. The code and dataset are released at: https://github.com/zyt95579/STAR-IOD. 
+
+## 1. Introduction 
+
+Deep learning has achieved remarkable progress in re-mote sensing object detection (Liu et al., 2025; Zou et al., 2025; Lu et al., 2025; Yuan et al., 2025), demonstrating strong potential in applications such as disaster monitoring, urban planning, and environmental protection. Conventional ob-ject detection paradigms (Han et al., 2021; Dai et al., 2022; Marques et al., 2025; Zhou et al., 2024, 2025b) are typically predicated on the idealized assumption that training data fol-lows a static distribution and is fully accessible in an offline setting. However, this premise stands in stark contrast to the open and dynamic nature of the real world, where data typically arrives sequentially in a continuous stream. When the model is updated on new tasks, conventional detection models tend to severely forget previously learned knowledge, a phenomenon known as catastrophic forgetting (Zhang et al., 2024; Luo et al., 2025a; Cermelli et al., 2022). To mitigate catastrophic forgetting, various Incremental Object Detection (IOD) methods (Shmelkov et al., 2017; Li & Hoiem, 2017; Chang et al., 2023; Kang et al., 2023) have been proposed, which can be broadly categorized into three paradigms: knowledge distillation, replay, and architecture adaptation. Knowledge distillation (Wang et al., 2025; Liu et al., 2023c) aims to preserve historical knowledge by trans-ferring responses or feature representations from a frozen  
+
+> ⋆
+
+This work is supported by the National Natural Science Foundation of China under Grant 62471394, 62306241, and 62576284. 
+
+> ∗
+
+Corresponding author  
+
+> zhang_yt@mail.nwpu.edu.cn
+
+(Y. Zhang); mrazhou@mail.nwpu.edu.cn 
+
+(Q. Zhou); gjy3035@gmail.com (J. Gao); crabwq@gmail.com (Q. Wang) 
+
+Figure 1: (a) Different scales of the ship in remote sensing images; (b) Different scales of the plane in remote sensing images; (c) t-SNE visualization of feature vectors in the feature space. 
+
+teacher model to the student. In contrast, replay-based ap-proaches (Liu et al., 2023b; Rebuffi et al., 2017; Acharya et al., 2020; Gao & Liu, 2023; Yang et al., 2023) maintain a subset of old samples or synthesized instances and alleviate 
+
+Yaoteng Zhang et al.: Preprint submitted to Elsevier Page 1 of 17 
+
+> arXiv:2605.20738v1 [cs.CV] 20 May 2026 ISPRS Journal of Photogrammetry and Remote Sensing
+
+forgetting via joint training. Architecture adaptation meth-ods (Wang et al., 2022a,b; Xu et al., 2025; Smith et al., 2023; Zhou et al., 2025a) introduce task-specific modules or param-eter isolation mechanisms to accommodate new knowledge while preserving previously learned representations. These approaches have achieved promising performance on IOD involving natural images. However, unlike natural images, objects in remote sensing imagery typically exhibit highly challenging multi-scale characteristics. Specifically, remote sensing images are acquired from high-altitude platforms, where the spatial resolution varies with sensor altitude and imaging angles. Moreover, objects of the same category can differ significantly in their intrinsic physical sizes, as illus-trated in Fig. 1(a, b). Such intra-class scale variation makes it difficult for feature representations to form compact clusters in the feature space; instead, they exhibit pronounced scale de-pendency, as shown in Fig. 1(c). This scale-dependent feature distribution reflects an inherent characteristic of remote sens-ing targets. Given this scale-dependent feature distribution, directly applying distillation or feature alignment strategies tends to indiscriminately compress scale-variant features into a unified representation. This indiscriminate feature compres-sion not only overlooks the inherent intra-class scale diversity but also risks blurring inter-class boundaries and disrupting the inter-class topological structure. Consequently, it ulti-mately hinders the model’s ability to balance old knowledge retention and new knowledge acquisition in RS-IOD. Another critical challenge in RS-IOD stems from missing annotations (Kim et al., 2024; Cermelli et al., 2022; Luo et al., 2025b; Mo et al., 2024). In IOD settings, annotations are provided exclusively for newly introduced classes, causing instances of previously learned classes within new data to be treated as background. This foreground–background ambi-guity introduces erroneous supervisory signals, suppressing old-class features and accelerating catastrophic forgetting. Pseudo-labeling methods (Liu et al., 2023c; Bhatt et al., 2024; Wang et al.) are commonly employed to recover missing annotations for old classes; however, their effectiveness in RS-IOD remains underexplored. In remote sensing scenarios, affected by complex backgrounds, dense object distributions, and frequent occlusions, pseudo-labels inevitably contain substantial noise, which significantly reduces the reliabil-ity of pseudo-supervision. These noisy pseudo-labels intro-duce erroneous supervisory signals that interfere with feature representation learning and are further amplified during the distillation process, thereby exacerbating the forgetting of previously learned classes. Furthermore, RS-IOD still suffers from the absence of standardized datasets and unified evalua-tion protocols, severely hindering fair comparisons among existing methods and restricting further investigation into this challenging problem. To address the challenges of intra-class scale variations 
+
+and noisy pseudo-labels , we propose a novel Remote Sensing Incremental Object Detection framework, named STAR-IOD. STAR-IOD introduces a Subspace-Decoupling Topological Distillation (STD) module to enforce structured knowledge alignment between the teacher and student models. Specif-ically, STD employs Scale-adaptive Instance Partitioning (SIP) to divide object instances into small-, medium-, and large-scale subspaces according to their bounding box areas. Operating on the decoder output features, STD constructs inter-class topological matrices within each scale-specific subspace and aligns the student inter-class topology with that of the teacher model. This design effectively alleviates cross-scale feature interference caused by scale variations in remote sensing imagery, enabling the student model to preserve sta-ble and discriminative old-class relational knowledge during incremental learning. Second, to mitigate the adverse impact of noisy pseudo-labels in remote sensing scenarios, STAR-IOD integrates a Clustering-driven Pseudo-label Generator (CPG) to distinguish reliable pseudo-labels from noisy ones, thereby effectively reducing the bias introduced by noisy supervision during model optimization. Specifically, CPG reformulates confidence threshold estimation as a cluster-ing problem and applies the K-Means algorithm to perform binary clustering in the confidence space, dynamically de-termining an adaptive decision boundary. Furthermore, to bridge the gap in datasets and evaluation benchmarks for RS-IOD, we construct two dedicated datasets and design stan-dardized incremental splitting strategies along with unified evaluation pipelines. These efforts establish a reproducible experimental foundation, which we hope will serve as a valu-able benchmark for future research in this field. The main contributions of this work are summarized as follows: (1) We introduce Subspace-decoupled Topology Distil-lation, which mitigates biased knowledge transfer induced by intra-class scale variations by aligning inter-class topo-logical structures within explicitly decoupled scale-adaptive subspaces. (2) We develop a Clustering-driven Pseudo-label Genera-tor that estimates adaptive confidence thresholds via cluster-ing, effectively mitigating noise interference from unreliable pseudo-labels. (3) We construct two dedicated RS-IOD benchmarks, DIOR-IOD and DOTA-IOD, and design standardized incre-mental evaluation protocols to facilitate fair comparisons and reproducible future research. (4) We propose STAR-IOD, a novel framework for RS-IOD, which consistently outperforms SOTA methods on both DIOR-IOD and DOTA-IOD, achieving improvements of 1.7% 𝑚𝐴𝑃 and 2.1% 𝑚𝐴𝑃 , respectively. 
+
+## 2. Related work 
+
+2.1. Object Detection 
+
+In recent years, object detection has achieved remarkable progress. Two-stage detectors, such as R-CNN (Girshick et al., 2015), Fast R-CNN (Girshick, 2015), and Faster R-CNN (Ren et al., 2015), adopt a region proposal paradigm followed by region-wise classification and bounding box re-gression, attaining high detection accuracy at the cost of substantial computational overhead. To improve efficiency, one-stage detectors—including YOLO (Redmon, 2016; Ge, 2021; Bochkovskiy et al., 2020; Wang et al., 2024), SSD (Liu   
+
+> Yaoteng Zhang et al.: Preprint submitted to Elsevier Page 2 of 17 ISPRS Journal of Photogrammetry and Remote Sensing
+
+et al., 2016), and RetinaNet (Lin et al., 2017)—directly pre-dict object categories and bounding boxes from dense fea-ture maps, enabling real-time inference while maintaining competitive performance. In recent years, Transformer-based detectors have reshaped object detection by introducing a new paradigm. DETR (Carion et al., 2020) reformulates detection as a set prediction problem, eliminating hand-crafted compo-nents such as anchor boxes and non-maximum suppression (NMS). Building upon this framework, subsequent meth-ods—including Deformable DETR (Zhu et al., 2020), DN-DETR (Li et al., 2022), and DINO (Zhang et al., 2022)—fur-ther enhance convergence speed and detection accuracy through deformable attention mechanisms, denoising training strate-gies, and improved matching schemes. Owing to their unified formulation and architectural flexibility, these detectors have been widely adopted in both natural image and remote sens-ing applications. Nevertheless, most existing object detection models are trained under a closed-world assumption, where all training data are available in advance and the data distribu-tion remains fixed. Therefore, when continuously optimized on new data, traditional object detectors struggle to maintain detection accuracy on previously learned categories, which has motivated research in IOD methods. 
+
+2.2. Incremental Object Detection 
+
+Owing to the absence of samples and annotations for pre-viously learned classes, object detectors are prone to catas-trophic forgetting when trained on new tasks. Early incre-mental object detection approaches, such as ILOD (Shmelkov et al., 2017), adopt the Learning without Forgetting (LwF) (Li & Hoiem, 2017) paradigm to alleviate forgetting through knowledge distillation. Subsequent methods have explored complementary strategies to enhance knowledge retention. ABR (Liu et al., 2023b) combines old-class bounding box replay with RoI-level distillation, achieving improved preser-vation of historical object representations. In contrast to replay-based approaches, ERD (Feng et al., 2022) mitigates forgetting by independently distilling classification and re-gression responses. MMA (Cermelli et al., 2022) further proposes an Unbiased Knowledge Distillation strategy that explicitly models missing annotations, balancing old knowl-edge retention with new knowledge acquisition. Another line of research focuses on pseudo-label generation to re-cover missing supervision for old classes. OW-DETR (Gupta et al., 2022) introduces an attention-based pseudo-labeling mechanism to identify unannotated old-class instances, while CL-DETR (Liu et al., 2023c) and MD-DETR (Bhatt et al., 2024) leverage threshold-based pseudo-label supervision to alleviate forgetting. However, due to substantial variations in confidence distributions across categories, fixed confidence thresholds often fail to generalize effectively across classes, limiting the reliability of pseudo-labels. Compared to natu-ral image scenarios, research on RS-IOD remains relatively limited, largely due to complex imaging conditions and di-verse background patterns. Inspired by the LwF paradigm, FPN-IL (Chen et al., 2020) introduces an extended branch architecture that alleviates catastrophic forgetting by distill-ing classification and regression knowledge from a frozen teacher model. Nevertheless, this method overlooks the label ambiguity inherent in incremental remote sensing settings, where instances of newly introduced classes may appear as background in historical data. To mitigate this issue, SD-CID (Ruan et al., 2022) proposes a selective distillation strat-egy that employs masking mechanisms to prevent the teacher network from producing misleading background supervision for novel targets. Despite these efforts, existing studies have neither established standardized dataset partitioning proto-cols for RS-IOD nor developed dedicated feature modeling strategies to explicitly address severe multi-scale variations and complex background interference. These limitations hinder further performance improvements and motivate the development of more robust RS-IOD frameworks. 
+
+## 3. Preliminaries 
+
+3.1. Incremental Object Detection 
+
+The training process of IOD is organized into 𝑛 sequential stages, where each stage introduces a disjoint set of novel categories. Let the overall class set be  = { 1, 2, … , 𝑛 }
+
+with 𝐶 𝑖 ∩ 𝐶 𝑗 = ∅ , ∀𝑖 ≠ 𝑗 . At stage 𝑡 , the detector is trained on the dataset 𝑡 = { 𝑋 𝑡 , 𝑌 𝑡 }, where 𝑋 𝑡 represents the input images and 𝑌 𝑡 the corresponding annotations of classes in 
+
+𝐶 𝑡 . Although images may contain objects from any cate-gory in , only instances of 𝐶 𝑡 are annotated. The objec-tive is to adapt the detector from 𝑡 −1 to 𝑡 using only the current dataset 𝑡 , without accessing previous datasets 
+
+{1, … , 𝑡 −1 }, while preventing catastrophic forgetting and maintaining strong performance on previously learned classes 
+
+{𝐶 1, … , 𝐶 𝑡 −1 }.
+
+3.2. Grounding DINO 
+
+Grounding DINO (Liu et al., 2023a) is a vision-language detector designed for phrase grounding, aiming to associate visual objects with textual phrases. It consists of a visual backbone 𝑓 𝑣 and a language backbone 𝑓 𝑙 , which are respon-sible for extracting modality-specific representations. Given an image-text pair (𝐼, 𝑇 ), the feature enhancer 𝑓 𝑒 performs cross-modal fusion to associate visual and textual features: 
+
+𝑉 , 𝑊 = 𝑓 𝑒 (𝑓 𝑣 (𝐼 ), 𝑓 𝑙 (𝑇 )) (1) After fusion, the aligned image and text embeddings are denoted as 𝑉 , 𝑊 respectively. The cross-modal alignment score is computed using cosine similarity: 
+
+𝑆 (𝑉 𝑖 , 𝑊 𝑗 ) = 𝑣 𝑖 ⋅ 𝑤 ⊤𝑗 
+
+‖𝑣 𝑖 ‖‖ 𝑤 𝑗 ‖ (2) The query selection module initializes reference points from the alignment scores 𝑆 (𝑉 , 𝑊 ), which serve as the posi-tional components of learnable object queries. A cross-modal decoder further refines these queries, producing a set of query embeddings 𝑄 = { 𝑞 𝑖 }𝑁 𝑖 =1 ∈ ℝ𝑁 ×𝐷 , where 𝑁 is the number of queries and 𝐷 is the query embedding dimension. The    
+
+> Yaoteng Zhang et al.: Preprint submitted to Elsevier Page 3 of 17 ISPRS Journal of Photogrammetry and Remote Sensing
+> Figure 2: Overview of the proposed STAR-IOD. STAR-IOD preserves historical knowledge by aligning the decoder outputs of the student and teacher models via Subspace-decoupled Topology Distillation. In parallel, it incorporates a Clustering-driven Pseudo-label Generator to adaptively generate pseudo-labels for previously learned classes, thereby providing consistent and reliable supervision throughout the incremental learning process.
+
+decoder output ̂𝑦 = { ̂𝑦 𝑖 }𝑁 𝑖 =1 is a sequence of object predic-tions ̂𝑦 𝑖 = ( ̂𝑠 𝑖 ,̂ 𝑏 𝑖 ) including logits and bounding boxes, where ̂𝑠 𝑖 = 𝑆 (𝑞 𝑖 , 𝑊 ) and ̂ 𝑏 𝑖 is predicted by the regression head. During training, each ground-truth instance is assigned to a query by minimizing the matching cost between predictions and annotations. The optimal assignment is the solution to: ̂𝜎 = arg min 
+
+> 𝜎 𝑁
+
+∑
+
+> 𝑖 =1
+
+𝑚𝑎𝑡𝑐ℎ (̂𝑦 𝜎 (𝑖 ), 𝑦 𝑖 ) (3) where 𝜎 denotes a permutation over 𝑁 predictions and ̂ 𝜎 
+
+represents the optimal matching. 𝑦 𝑖 = ( 𝑠 𝑖 , 𝑏 𝑖 ) is the 𝑖 -th GT. 
+
+𝑚𝑎𝑡𝑐ℎ is a pair-wise matching cost defined as: 
+
+𝑚𝑎𝑡𝑐ℎ (̂𝑦 𝜎 (𝑖 ), 𝑦 𝑖 ) = 𝑎𝑙𝑖𝑔𝑛 (̂𝑠 𝜎 (𝑖 ), 𝑠 𝑖 ) + 𝑟𝑒𝑔 (̂𝑏 𝜎 (𝑖 ), 𝑏 𝑖 ) (4) Since the number of ground-truth objects in an image is typically smaller than 𝑁 . Predictions that do not match any ground-truth instance are considered negative samples, whose corresponding alignment targets are padded to zero, denoted as 𝜙 . Accordingly, the overall DETR-style training loss is defined as: 
+
+𝑑𝑒𝑡𝑟 (̂𝑦, 𝑦 ) = 
+
+> 𝑁
+
+∑
+
+> 𝑖 =1
+
+[
+
+𝑎𝑙𝑖𝑔𝑛 (̂𝑠 𝜎 (𝑖 ), 𝑠 𝑖 ) + 𝟙 {𝑠 𝑖 ≠𝜙 }𝑟𝑒𝑔 (̂ 𝑏 ̂𝜎 (𝑖 ) , 𝑏 𝑖 )
+
+]
+
+(5) 
+
+## 4. Methodology 
+
+4.1. Overall Architecture of STAR-IOD 
+
+Architecturally grounded in Grounding DINO, the STAR-IOD framework combats catastrophic forgetting in RS-IOD via the synergy of two pivotal modules: Subspace-decoupled Topology Distillation (STD) and a Clustering-driven Pseudo-label Generator (CPG), as depicted in Fig. 2. Specifically, STD enforces strict feature-space alignment between teacher and student decoders, whereas CPG rectifies supervision signals to guarantee foreground consistency and reliability throughout the incremental learning process. During the in-cremental phase, STD exploits scale priors from the teacher’s predictions to stratify query features into decoupled sub-spaces corresponding to small, medium, and large object scales. Within each subspace, it reconstructs and aligns inter-class topological relationships, thereby facilitating the precise transfer of fine-grained structural knowledge across varying scales. To counteract the prevalence of missing annotations and label noise in remote sensing imagery, CPG discards rigid fixed-threshold heuristics in favor of an adaptive, data-driven mechanism. By maintaining a class-specific confidence mem-ory bank and performing intra-class clustering, CPG derives adaptive filtering thresholds for each category, enabling reli-able supervision even for hard-to-detect objects. This robust design empowers the model to adapt seamlessly to the com-plex backgrounds and extreme scale variations characteristic of remote sensing imagery.    
+
+> Yaoteng Zhang et al.: Preprint submitted to Elsevier Page 4 of 17 ISPRS Journal of Photogrammetry and Remote Sensing
+> Figure 3: Overview of the proposed STD. STD enforces the alignment of inter-class topological relationships within three decoupled, scale-specific subspaces. It independently constrains inter-class distances between the teacher and student models across small, medium, and large scales, thereby preserving the geometric consistency of structured knowledge during incremental learning.
+
+4.2. Subspace-decoupled Topology Distillation 
+
+Remote sensing object features exhibit pronounced scale dependency. However, existing IOD methods typically model intra-class features using a single class prototype, thereby overlooking the representation discrepancies induced by intra-class scale variations. To overcome these limitations, we propose a Subspace-decoupled Topology Distillation. As depicted in Fig. 3, STD stratifies features into distinct scale subspaces (small, medium, large) to reconstruct and align class-wise topological structures between teacher and student models. This process consists of three key phases: (1) Scale-adaptive Instance Partitioning, (2) Context-injected Prototype Aggregation, and (3) Topological Relation Alignment. 
+
+Scale-adaptive Instance Partitioning: Due to intra-class scale variations, feature representations exhibit a distinct scale-dependent distribution, making it difficult for features of the same class to form compact clusters. This consequently weakens the discriminative boundaries between categories and hinders the learning of discriminative feature structures. Therefore, we decouple features of different scales into mu-tually independent subspaces, thereby preserving the accu-racy and stability of old-class knowledge distillation. Let 
+
+ = { 𝑏 𝑖 }𝑁 𝑖 =1 denote the set of predicted bounding boxes and 
+
+ = { 𝑓 𝑖 }𝑁 𝑖 =1 be the corresponding instance query features, where 𝑓 𝑖 ∈ ℝ𝐷 .We begin by calculating the area 𝐴 (𝑏 𝑖 ) of each predicted bounding box. Based on predefined scale thresholds 𝜏 𝑠 and 
+
+𝜏 𝑚 , the instance query features are stratified into three disjoint subsets: 
+
+𝑘 = { 𝑓 𝑖 ∣ 𝑐𝑜𝑛𝑑 𝑘 (𝐴 (𝑏 𝑖 ))} , 𝑘 ∈  = { 𝑠 𝑠 , 𝑠 𝑚 , 𝑠 𝑙 } (6) where the selection conditions are defined as: 𝑐𝑜𝑛𝑑 𝑠 𝑠 for 
+
+𝐴 (𝑏 𝑖 ) < 𝜏 𝑠 , 𝑐𝑜𝑛𝑑 𝑠 𝑚 for 𝜏 𝑠 ≤ 𝐴 (𝑏 𝑖 ) < 𝜏 𝑚 , and 𝑐𝑜𝑛𝑑 𝑠 𝑙 for 
+
+𝐴 (𝑏 𝑖 ) ≥ 𝜏 𝑚 . In our implementation, we set 𝜏 𝑠 = 1024 and 
+
+𝜏 𝑚 = 9216 . This multi-scale partitioning strategy ensures that the student mimics the teacher’s relational reasoning within respective scale scopes, effectively mitigating the am-biguity arising from the extreme scale variance in remote sensing imagery. 
+
+Context-injected Prototype Aggregation: To construct the nodes of the topological graph, we construct prototypes from the pseudo-labeled old classes present in the current training batch. Instead of simple arithmetic averaging, we employ a confidence-weighted aggregation strategy. This approach effectively attenuates the influence of low-quality predictions and background noise, ensuring that the resulting old-class prototypes better capture discriminative object features. For a specific scale 𝑘 and each category present in the current batch, the class prototype 𝐩 𝑘 𝑐 is computed as: 
+
+𝐩 𝑘 𝑐 = ∑
+
+> 𝑖 ∈𝑘
+
+𝟙 (𝑦 𝑖 = 𝑐 ) ⋅ 𝑠 𝑖 
+
+∑𝑗 𝑠 𝑗 
+
+⋅ 𝑓 𝑖 , 𝑐 ∈ 1∶( 𝑡 −1) (7) where 𝟙 (⋅) is the indicator function, 𝑦 𝑖 is the pseudo-label, and 𝑠 𝑖 is the classification confidence score. 
+
+Geographical Context Injection: In remote sensing im-agery, the semantic coupling between objects and their en-vironmental context provides a critical inductive bias. To exploit this, we introduce a background anchor node to cap-ture global-scale context. Let 𝐹 𝑖𝑚𝑔 ∈ ℝ𝐻 ×𝑊 ×𝐷 be the global image feature map. The background prototype 𝐩 𝑏𝑔 is derived via global average pooling: 
+
+𝐩 𝑏𝑔 = 1
+
+𝐻 × 𝑊 
+
+> 𝐻
+
+∑
+
+> 𝑥 =1
+> 𝑊
+
+∑
+
+> 𝑦 =1
+
+𝐹 𝑖𝑚𝑔 (𝑥, 𝑦 ) (8) This prototype is integrated into the graph as a static reference anchor, facilitating the explicit modeling of object-background dependencies within the topological structure. 
+
+Topology Construction and Alignment: The inter-class topological structure at each scale 𝑘 is encapsulated by a relation matrix 𝐌 𝑘 , where each entry 𝐌 𝑘 𝑢,𝑣 = ‖𝐩 𝑘 𝑢 − 𝐩 𝑘 𝑣 ‖2  
+
+> Yaoteng Zhang et al.: Preprint submitted to Elsevier Page 5 of 17 ISPRS Journal of Photogrammetry and Remote Sensing
+
+quantifies the semantic discrepancy between class prototypes in the feature space, with 𝑢, 𝑣 ∈ 1∶( 𝑡 −1) denoting old classes. Both the class prototypes and the relation matrix are dynami-cally constructed from the subset of old classes present in the current training batch. Specifically, for each scale subspace 
+
+𝑘 , prototypes are computed only for pseudo-labeled queries, while absent classes are excluded from both prototype con-struction and relation matrix computation. If the number of valid old classes in scale subspace 𝑘 is 𝑁 𝑘 , the relation matrix is constructed as 𝐌 𝑘 ∈ ℝ𝑁 𝑘 ×𝑁 𝑘 .To rigorously enforce topological consistency, we move beyond rigid geometric alignment by modeling inter-class relationships as a probabilistic distribution. We map the Euclidean distances into a semantic affinity distribution 𝑘 .Specifically, the probability of semantic correlation between category 𝑢 and 𝑣 is formulated using a Boltzmann-like distri-bution (Hopfield & Tank, 1985): 
+
+𝑘 𝑢,𝑣 = exp(− 𝑀 𝑘 𝑢,𝑣 ∕𝜏 )
+
+∑𝐶 ′ 
+
+> 𝑗 =1
+
+exp(− 𝑀 𝑘 𝑢,𝑗 ∕𝜏 ) (9) where 𝜏 is a temperature hyperparameter that modulates the sharpness of the distribution, thereby governing the model’s sensitivity to subtle inter-class dependencies. This trans-formation ensures that smaller geometric distances in the embedding space translate into higher semantic affinities. Consequently, the STD objective is formulated as the Kullback-Leibler (KL) divergence between the teacher’s and student’s affinity distributions. To balance the gradient mag-nitude at different temperatures, the loss is scaled by 𝜏 2:
+
+𝑆𝑇 𝐷 = ∑
+
+> 𝑘 ∈
+
+𝜏 2
+
+> 𝐶 ′
+
+∑
+
+> 𝑢 =1
+
+𝐾𝐿 
+
+(
+
+𝑘 𝑇 ,𝑢 
+
+‖‖‖𝑘 𝑆,𝑢 
+
+)
+
+(10) where 𝑘 𝑇 ,𝑢 and 𝑘 𝑆,𝑢 denote the affinity distributions of the 
+
+𝑢 -th prototype for the teacher and student, respectively. By minimizing STD , the student network is compelled to recon-struct the rigorous semantic topology and relational reasoning logic established by the teacher. 
+
+4.3. Clustering-driven Pseudo-label Generator 
+
+In the IOD setting, the absence of annotations for pre-viously learned classes inevitably biases the model to treat old-class instances as background, thereby precipitating catas-trophic forgetting. This issue is further amplified in remote sensing scenarios, where complex backgrounds, dense ob-ject distributions, partial occlusion, large scale variations, and imaging noise lead to highly unstable confidence distri-butions. Conventional IOD approaches (Liu et al., 2023c; Bhatt et al., 2024) typically generate pseudo-labels using a static confidence threshold, e.g., 𝜏 = 0 .4. However, such a fixed-threshold strategy is not well suited to RS-IOD, since the confidence distributions of different categories and incre-mental stages may vary substantially, making it difficult to distinguish reliable old-class predictions from noisy pseudo-labels. To overcome this limitation, we propose a Clustering-driven Pseudo-label Generator module, as shown in Fig. 4. Eschewing manual hyperparameter tuning, we reformulate the threshold determination as a clustering task within the 1D confidence space. This mechanism dynamically derives decision boundaries from the statistical distribution of model predictions. It is worth noting that CPG estimates confi-dence thresholds based on the outputs of a Transformer-based teacher model. Benefiting from its powerful self-attention mechanism, the detector has already captured and integrated rich global contextual information before producing the final prediction scores. 
+
+Dynamic Score Maintenance: Given the sparsity of old-class instances within a single mini-batch, the statistical sta-bility required for reliable clustering is often compromised. Therefore, we maintain a class-specific score bank 𝑐 for each category 𝑐 .Let 𝑆 𝑐 = { 𝑠 𝑖 ∣ 𝑦 𝑖 = 𝑐, 𝑠 𝑖 > 𝛿 𝑚𝑖𝑛 } denote the set of incoming prediction scores for class 𝑐 in the current batch that exceed a minimal candidate filter 𝛿 𝑚𝑖𝑛 . We update the bank as follows: 
+
+𝑐 = 𝐶𝑜𝑛𝑐𝑎𝑡 (𝑐 , 𝑆 𝑐 ) (11) The bank length is bounded by 𝐿 𝑐𝑝𝑔 to ensure the statistics reflect the model’s current state while providing enough sam-ples for clustering. In our experiments, 𝛿 𝑚𝑖𝑛 is set to 0.3, and 
+
+𝐿 𝑐𝑝𝑔 is set to 20 , 000 .
+
+Clustering-guided Threshold Estimation: Interestingly, low-confidence False Positives (FPs) and high-confidence True Positives (TPs) exhibit a bimodal distribution with vary-ing inter-peak margins across classes. This phenomenon underscores the feasibility of using clustering to dynamically determine class-specific thresholds. To dynamically obtain the threshold, we employ a 1D K-Means clustering algorithm on the scalar values stored in 𝑐 . Formally, we aim to parti-tion the set 𝑐 into two clusters 𝑙 and ℎ by minimizing the within-cluster sum of squares: 
+
+min  
+
+> 𝜇 𝑙 ,𝜇 ℎ
+
+∑
+
+> 𝑠 ∈𝑙
+
+(𝑠 − 𝜇 𝑙 )2 + ∑
+
+> 𝑠 ∈ℎ
+
+(𝑠 − 𝜇 ℎ)2 (12) where 𝜇 𝑙 and 𝜇 ℎ are the centroids of the low and high-confidence clusters, respectively. The adaptive threshold 𝜏 𝑐 for category 𝑐 is defined as the lower bound of the high-confidence cluster ℎ:
+
+𝜏 𝑐 = min{ 𝑠 ∣ 𝑠 ∈ ℎ} (13) With the adaptive threshold 𝜏 𝑐 , we generate pseudo-labels from the teacher model’s outputs. Let  = {( 𝑏 𝑖 , 𝑠 𝑖 , 𝑐 𝑖 )} be the set of raw predictions, where 𝑏 𝑖 , 𝑠 𝑖 , and 𝑐 𝑖 denote the bounding box, confidence score, and category label, respectively. The initial set of pseudo-labels 𝑟 is obtained by: 
+
+𝑟 = {( 𝑏 𝑖 , 𝑐 𝑖 ) ∣ 𝑠 𝑖 ≥ 𝜏 𝑐 𝑖 } (14) 
+
+Box De-duplication: In incremental settings, the teacher model may detect objects that are already annotated in the ground truth set  of the current batch. To prevent duplicate supervision and ambiguous loss calculation, we perform a    
+
+> Yaoteng Zhang et al.: Preprint submitted to Elsevier Page 6 of 17 ISPRS Journal of Photogrammetry and Remote Sensing
+> Figure 4: Overview of the proposed CPG. CPG leverages clustering to estimate adaptive thresholds for each category from prediction scores, thereby enabling the generation of high-quality pseudo-labels for previously learned classes.
+
+spatial filtering step. We compute the Intersection over Union (IoU) between every pseudo-box 𝑏 𝑝 ∈ 𝑟 and the ground truth boxes 𝑏 𝑔𝑡 ∈ . A pseudo-label is retained only if it does not significantly overlap with known annotations: 
+
+ = {( 𝑏 𝑝 , 𝑐 𝑝 ) ∈ 𝑟 ∣ max  
+
+> 𝑏 𝑔𝑡 ∈
+
+IoU (𝑏 𝑝 , 𝑏 𝑔𝑡 ) < 𝜃 𝑛𝑚𝑠 } (15) where 𝜃 𝑛𝑚𝑠 = 0 .7 is the suppression threshold. The filtered pseudo-labels are then integrated into the training targets, enabling the student model to learn from both manually an-notated instances and reliable pseudo-labels. 
+
+4.4. Loss Function 
+
+Correspondence Response Distillation: To ensure consis-tency, we employ the Correspondence Response Distillation (CRD) (Wang et al., 2025) to transfer response-level knowl-edge from the teacher to the student. For classification align-ment, CRD uses KL divergence to distill the teacher’s predic-tion distribution. Specifically, the teacher’s logits are mapped into probabilities via 𝑃 𝑜𝑙𝑑 𝑖 = 𝑆𝑜𝑓 𝑡𝑀𝑎𝑥 (̂𝑠 𝑜𝑙𝑑 𝑖 ∕𝜏 ), where 𝜏 
+
+serves as a temperature coefficient to smooth the distribution. The student’s probabilities 𝑃 𝑖 are derived identically. The alignment distillation loss is formally defined as: 
+
+𝑎𝑙𝑖𝑔𝑛 𝐶𝑅𝐷 =
+
+> 𝑁
+
+∑
+
+> 𝑖 =1
+
+𝛼 𝑖 𝐾𝐿 (𝑃 𝑜𝑙𝑑 𝑖 ‖𝑃 𝑖 ), (16) where 𝛼 𝑖 = max 𝑐 ∈1∶ 𝑡 −1 ̂𝑠 𝑜𝑙𝑑 𝑖 (𝑐 ) denotes the teacher’s predic-tion probability over previously learned categories. This confidence-aware weighting mechanism suppresses background-dominated responses while emphasizing foreground queries that contain rich semantic information. In addition, CRD incorporates regression distillation to preserve localization knowledge by enforcing geometric con-sistency between the teacher and student bounding box pre-dictions. The regression loss follows the same formulation as the bounding box regression loss in the detection objective and is weighted by the same confidence factor 𝛼 𝑖 :
+
+𝑟𝑒𝑔 𝐶𝑅𝐷 =
+
+> 𝑁
+
+∑
+
+> 𝑖 =1
+
+𝛼 𝑖 𝑏𝑏𝑜𝑥 (𝑏 𝑜𝑙𝑑 𝑖 , 𝑏 𝑖 ). (17) The total CRD loss is derived by aggregating the align-ment and regression components across all decoder layers, formulated as: 
+
+𝐶𝑅𝐷 =
+
+> 𝐿
+
+∑
+
+> 𝑙 =1
+
+(
+
+𝑎𝑙𝑖𝑔𝑛,𝑙 𝐶𝑅𝐷 + 𝑟𝑒𝑔,𝑙 𝐶𝑅𝐷 
+
+)
+
+, (18) where 𝐿 denotes the number of decoder layers. 
+
+Overall Loss: To strike a balance between adaptability to new tasks and the preservation of old knowledge during the incremental learning process, the overall optimization ob-jective of STAR-IOD is composed of three components: the fundamental detection loss, the subspace-decoupled topology distillation loss, and the correspondence response distillation loss. The total loss  is defined as follows: 
+
+ = 𝑑𝑒𝑡𝑟 + 𝜆 1𝑆𝑇 𝐷 + 𝐶𝑅𝐷 (19) In the experiments, 𝜆 1 is set to 3. 
+
+## 5. Experiment 
+
+In this section, we conduct extensive experimental com-parisons between STAR-IOD and existing SOTA methods. It is worth noting that, due to the lack of publicly available RS-IOD methods, the selected comparison methods are general-purpose approaches. We evaluate the performance of STAR-IOD through both objective quantitative analyses and sub-jective visualization analyses, and further conduct ablation studies to verify the effectiveness of the proposed modules in the STAR-IOD. 
+
+5.1. Implementation Details 
+
+To ensure a fair comparison, we evaluate the proposed STAR-IOD method and all competing approaches on the   
+
+> Yaoteng Zhang et al.: Preprint submitted to Elsevier Page 7 of 17 ISPRS Journal of Photogrammetry and Remote Sensing
+
+same experimental platform. The platform consists of a server equipped with an NVIDIA L20 GPU. In our experi-ments, we adopt the AdamW optimizer with an initial learn-ing rate of 1 × 10 −4 and a weight decay of 1 × 10 −4 . All models are trained for 25 epochs per task with a batch size of 4. 
+
+5.2. Datasets and Evaluation Metrics 
+
+To address the lack of public datasets for RS-IOD, we construct and release two benchmarks based on the existing DIOR (Li et al., 2020) and DOTA (Xia et al., 2018) datasets: DIOR-IOD and DOTA-IOD. The specific settings are as fol-lows: 
+
+DIOR-IOD follows a two-step incremental setting, denoted as 𝐴 + 𝐵 , as shown in Table 1. 𝐴 represents the number of classes introduced in phase 𝑇 1, and 𝐵 represents the number of classes introduced in phase 𝑇 2. Each phase contains 10 classes, and there is no class overlap between the two phases. Beyond this standard two-step protocol, we further construct a more challenging multi-step setting on DIOR-IOD, denoted as 5 + 5 + 5 + 5 , to evaluate the robustness of our method under longer incremental sequences. The task sequence is defined as: Task 1 (Base): airplane, airport, bridge, service-area, toll-station; Task 2 (Inc 1): baseball field, basketball court, golf field, chimney, dam; Task 3 (Inc 2): ground track field, stadium, storage tank, tennis court, windmill; Task 4 (Inc 3): harbor, overpass, ship, train station, vehicle. 
+
+DOTA-IOD (see Table 2) utilizes a multi-step setting, di-viding the dataset into 3 sequential tasks, each containing 5 classes. Given the significant imbalance in the number of in-stances across classes (long-tailed distribution), DOTA-IOD serves as a robust benchmark to evaluate the model’s incre-mental learning performance and resistance to catastrophic forgetting in complex scenarios. Since only new categories are annotated during the in-cremental phase, objects belonging to old categories remain unlabeled in the new data. To quantitatively analyze the dis-tribution of new and old categories in the DIOR-IOD and DOTA-IOD datasets, we divide the dataset into three mutu-ally exclusive subsets: Only Old (images containing only old categories and not used in the current incremental phase), 
+
+Only New (images containing only new categories and used for training), and Co-occurrence (images containing both old and new categories, where old-category objects are unla-beled). Among the training data available in the incremental phase (i.e., Only New + Co-occurrence), the frequency of co-occurrence is substantial, as shown in fig. 5: it reaches 57.4% in DOTA-IOD and 23.5% in DIOR-IOD. This indicates that the model frequently encounters unlabeled old-category ob-jects during incremental learning. If these objects are treated as background, they may introduce misleading supervision signals, leading to feature confusion and increased forgetting. We adopt the standard COCO evaluation metrics (Lin et al., 2014) as the primary performance criteria, including 
+
+𝑚𝐴𝑃 , 𝑚𝐴𝑃 50 , 𝑚𝐴𝑃 75 , 𝑚𝐴𝑃 𝑠 , 𝑚𝐴𝑃 𝑚 , and 𝑚𝐴𝑃 𝑙 . In ad-dition, we separately report the detection performance on previous task categories ( 𝑚𝐴𝑃 𝑃 ) and current task categories                                             
+
+> Figure 5: Distribution of Old–New Category Co-occurrence in DIOR-IOD and DOTA-IOD.
+> Table 1
+> The details of the DIOR-IOD dataset. Task ID Category Train instance Test instance Task 1 Airplane 1,888 8,212 Airport 662 666 Bridge 1,367 2,589 Service-area 1,080 1,085 Toll-station 610 688 Harbor 2,364 3,105 Overpass 1330 1,782 Ship 27,351 35,186 Trainstation 501 509 Vehicle 13,725 26,640 Task 2 Baseballfield 2,384 3,434 Basketballcourt 1,077 2,146 Chimney 649 1,031 Dam 512 538 Golffield 511 575 Groundtrackfield 1,162 1,885 Stadium 595 672 Storagetank 3,042 23,361 Tenniscourt 4,898 7,343 Windmill 2,365 2,998
+
+(𝑚𝐴𝑃 𝐶 ) to comprehensively evaluate the balance between knowledge retention and new class learning in IOD (Gupta et al., 2022; Zohar et al., 2023; Sun et al., 2024; Xi et al., 2025). 
+
+5.3. Comparison with the State-of-the-art Methods 
+
+To assess the performance of STAR-IOD in remote sens-ing scenarios, we performed comparative experiments on the DIOR-IOD and DOTA-IOD datasets against the Deformable DETR-based CL-DETR (Liu et al., 2023c) and MD-DETR (Bhatt et al., 2024), as well as the Grounding DINO-based ERD (Feng et al., 2022) and GCD (Wang et al., 2025). 
+
+Comparison Experiments on the DIOR-IOD under two-step setting: As presented in Table 3, we conducted a com-prehensive comparison between the proposed method and existing SOTA approaches on the DIOR-IOD dataset under the two-step setting. The quantitative results demonstrate that our method achieves superior performance across all evalua-tion metrics. Specifically, the direct Fine-tuning baseline suf-fers from severe catastrophic forgetting in Task 2, where the retention of previously learned classes drastically collapses to 1.3% 𝑚𝐴𝑃 𝑃 . Compared to methods based on Deformable                                    
+
+> Yaoteng Zhang et al.: Preprint submitted to Elsevier Page 8 of 17 ISPRS Journal of Photogrammetry and Remote Sensing
+> Table 2
+> The details of the DOTA-IOD dataset. Task ID Category Train instance Test instance Task 1 Small-vehicle 49,864 10,833 Large-vehicle 36,243 9,257 Plane 16,426 5,298 Baseball-diamond 823 403 Ground-track-field 838 316 Task 2 Helicopter 1,193 134 Ship 61,075 19,571 Bridge 3,634 896 Soccer-ball-field 849 351 Tennis-court 4,738 1,602 Task 3 Storage-tank 9,639 5,025 Harbor 13,085 4,789 Roundabout 800 299 Basketball-court 1,119 297 Swimming-pool 3,324 763
+
+DETR (i.e., MD-DETR and CL-DETR), approaches utilizing Grounding DINO exhibit higher overall performance, benefit-ing from their robust multi-modal representations. However, despite being built upon Grounding DINO, the ERD method still struggles with retaining old knowledge, yielding a low 
+
+𝑚𝐴𝑃 𝑃 of only 8.6%. In comparison to GCD, the second-best performing method, our approach achieves consistent improvements across all metrics. Specifically, in terms of the comprehensive metric for all classes, we achieve 48.6% 
+
+𝑚𝐴𝑃 𝐴 , outperforming GCD by 1.7% percentage points. Fur-thermore, on the critical metric for preventing forgetting, our method reaches 40.7% 𝑚𝐴𝑃 𝑃 , representing a gain of 1.3 per-centage points. Additionally, with a slight decrease of only 3.3% 𝑚𝐴𝑃 compared to the joint-training baseline, STAR-IOD demonstrates superior anti-forgetting performance in RS-IOD. Furthermore, STAR-IOD consistently outperforms competing methods across all three object scales. Compared to the second-best approach, GCD, it yields notable gains of +1.4%, +2.1%, and +2.1% in 𝑚𝐴𝑃 𝐴 𝑠 , 𝑚𝐴𝑃 𝐴 𝑚 , and 𝑚𝐴𝑃 𝐴 𝑙 ,respectively. These results indicate that, facilitated by the scale subspace decoupling mechanism within the STD, STAR-IOD effectively addresses intra-class scale variations. Conse-quently, the overall performance enhancement is not skewed towards any single scale, but rather reflects a highly balanced optimization across diverse object sizes. We present qualitative comparisons of the detection re-sults produced by ERD, GCD, and the proposed STAR-IOD on the DIOR-IOD dataset, as shown in Fig. 6. It can be ob-served that ERD and GCD struggle to preserve performance on previously learned categories, exhibiting two representa-tive types of errors. First, missed detections frequently occur as a consequence of old knowledge degradation. For exam-ple, in the second row, both ERD and GCD fail to detect the ship, indicating catastrophic forgetting during the incremen-tal learning process. Second, as illustrated in rows 3–5, the competing methods also suffer from pronounced misclassifi-cation. Airplanes are incorrectly recognized as Windmills. This issue arises because the feature representations of old classes are disrupted by newly introduced classes during in-cremental updates. Such interference leads to semantic drift, which distorts the original decision boundaries and results in substantial semantic confusion between visually similar objects. 
+
+Comparison Experiments on the DIOR-IOD under multi-step setting: To further validate the generalization ability and robustness of the proposed method under longer incremen-tal sequences and more complex semantic interference, we construct a more challenging multi-step incremental learning setting on the DIOR-IOD dataset and conduct comparisons with state-of-the-art methods. The quantitative results are reported in Table 4. As the incremental tasks progress, meth-ods such as MD-DETR, CL-DETR, and ERD suffer from severe catastrophic forgetting, whereas our method demon-strates strong stability and continual learning capability. At the final stage (Task 4), after multiple rounds of learning new classes, our method achieves the best performance across all metrics. Compared with the competing method GCD, our method improves the overall accuracy, achieving gains of 2.4% in 𝑚𝐴𝑃 𝐴 and 3.1% in 𝑚𝐴𝑃 𝐴 
+
+> 50
+
+. In terms of old-class per-formance, our method achieves an 𝑚𝐴𝑃 𝑃 of 37.7% in Task 4, outperforming GCD by a substantial margin of 4.1%. This clearly demonstrates that our method can more effectively anchor and preserve previously learned knowledge under the challenges of imbalanced category distribution and complex background interference in remote sensing imagery, thereby achieving a better balance between acquiring new knowledge and retaining old knowledge. Furthermore, to address the in-herent challenge of scale variation in remote sensing imagery, our method also exhibits stronger adaptability in multi-scale object detection. On the multi-scale metrics 𝑚𝐴𝑃 𝐴 𝑠 , 𝑚𝐴𝑃 𝐴 𝑚 ,and 𝑚𝐴𝑃 𝐴 𝑙 in Task 4, our method consistently surpasses all competing baselines, achieving improvements of 0.2%, 0.7%, and 2.3% over GCD, respectively. 
+
+Comparison Experiments on the DOTA-IOD: As shown in Table 5, we compare the performance of STAR-IOD with current SOTA methods on the DOTA-IOD dataset under the multi-step setting. Compared to the two-step setting, multi-step IOD poses significantly more stringent challenges to the model’s ability to retain previously learned knowledge. Specifically, Fine-tuning and ERD suffer from severe catas-trophic forgetting in Task 3, with their performance on previ-ous classes collapsing to 1.5% and 0.7% 𝑚𝐴𝑃 𝑃 , respectively. In contrast, STAR-IOD exhibits remarkable robustness, with its performance advantage becoming more pronounced as the incremental tasks increase. Although STAR-IOD achieves only a marginal improvement of 0.3% in 𝑚𝐴𝑃 𝐴 over the second-best method (GCD) in Task 2, this performance gap widens substantially to 2.1% in Task 3. Crucially, we achieve a significant gain of 3.2% 𝑚𝐴𝑃 𝐴  
+
+> 75
+
+in the high-precision lo-calization metric. This superior performance indicates that STAR-IOD more effectively suppresses error accumulation than existing approaches, not only mitigating category forget-ting but also maintaining bounding box regression accuracy during long-term incremental learning. Beyond its robustness against catastrophic forgetting, the   
+
+> Yaoteng Zhang et al.: Preprint submitted to Elsevier Page 9 of 17
+
+ISPRS Journal of Photogrammetry and Remote Sensing 
+
+Table 3 
+
+Comparison with state-of-the-art methods on DIOR-IOD under the two-step IOD setting, the second-best results are underlined. Method Baseline Task 1 Task 2 
+
+𝑚𝐴𝑃 𝐶 𝑚𝐴𝑃 𝐶  
+
+> 50
+
+𝑚𝐴𝑃 𝐴 𝑚𝐴𝑃 𝐴  
+
+> 50
+
+𝑚𝐴𝑃 𝐴  
+
+> 75
+
+𝑚𝐴𝑃 𝑃 𝑚𝐴𝑃 𝑃  
+
+> 50
+
+𝑚𝐴𝑃 𝐴 𝑠 𝑚𝐴𝑃 𝐴 𝑚 𝑚𝐴𝑃 𝐴 𝑙 
+
+Fine-tuning Grounding DINO 45.6 72.7 22.6 34.6 24.4 1.3 3.6 4.9 17.8 32.6 MD-DETR Deformable DETR 38.8 62.6 19.9 30.9 21.1 22.7 36.9 2.6 15.7 34.8 CL-DETR Deformable DETR 34.8 54.4 31.5 43.9 34.5 17.5 28.5 5.2 23.5 46.6 ERD Grounding DINO 45.6 72.7 31.4 45.3 32.8 8.6 14.7 8.1 24.5 41.8 GCD Grounding DINO 45.6 72.7 46.9 71.2 51.4 39.4 64.4 15.1 39.3 66.9 Ours Grounding DINO 45.6 72.7 48.6 ↑1.7 72.7 ↑1.5 53.3 ↑1.9 40.7 ↑1.3 65.8 ↑1.4 16.5 ↑1.4 41.4 ↑2.1 69.0 ↑2.1
+
+Table 4 
+
+Comparison with state-of-the-art methods on DIOR-IOD under the multi-step IOD setting, the second-best results are underlined. Method Task 1 Task 2 Task 3 Task 4 
+
+𝑚𝐴𝑃 𝐴 𝑚𝐴𝑃 𝐴  
+
+> 50
+
+𝑚𝐴𝑃 𝐴 𝑚𝐴𝑃 𝐴  
+
+> 50
+
+𝑚𝐴𝑃 𝐴 𝑚𝐴𝑃 𝐴  
+
+> 50
+
+𝑚𝐴𝑃 𝐴 𝑚𝐴𝑃 𝐴  
+
+> 50
+
+𝑚𝐴𝑃 𝑃 𝑚𝐴𝑃 𝐴 𝑠 𝑚𝐴𝑃 𝐴 𝑚 𝑚𝐴𝑃 𝐴 𝑙 
+
+MD-DETR 43.0 61.5 34.4 45.8 31.1 43.0 19.1 27.4 19.0 3.3 14.9 31.3 CL-DETR 42.2 60.7 36.0 48.8 30.9 43.0 22.1 31.7 22.6 3.4 15.6 35.7 ERD 44.0 69.0 29.0 38.2 14.3 21.5 18.1 28.9 11.5 9.1 19.4 27.2 GCD 44.0 69.0 42.1 59.1 37.5 55.1 34.5 52.7 33.6 10.9 31.2 50.1 Ours 44.0 69.0 43.0 ↑0.9 60.4 ↑1.3 37.6 ↑0.1 54.9 ↓0.2 36.9 ↑2.4 55.8 ↑3.1 37.7 ↑4.1 11.1 ↑0.2 31.9 ↑0.7 52.4 ↑2.3
+
+results in Table 5 further validate the capability of STAR-IOD to handle significant scale variations. Compared with GCD, STAR-IOD achieves improvements of +0.8% on medium-sized objects and a larger gain of +3.2% on large objects. Meanwhile, a marginal decrease of 0.3% is observed on small objects. This is mainly attributed to the characteristics of the DOTA-IOD dataset, which contains a large number of densely distributed small objects; in the absence of explicit scale partitioning, conventional methods tend to bias the op-timization process toward learning representations for small objects. By contrast, STAR-IOD alleviates this bias by de-coupling scale-specific feature subspaces, thereby leading to a more balanced optimization across object scales. 
+
+5.4. Ablation Study 
+
+In this section, we perform comprehensive ablation stud-ies to isolate and evaluate the specific contribution of each component within the STAR-IOD framework. In addition, we investigate the threshold setting in the CPG module and determine its optimal value through empirical evaluation. 
+
+Ablation Study on Different Modules for STAR-IOD: As shown in Table 6, directly fine-tuning Grounding DINO leads to severe catastrophic forgetting, causing a drastic drop in detection performance on old categories. The detection ac-curacy for old classes falls to only 1.5% 𝑚𝐴𝑃 , indicating that the model almost completely loses its ability to represent previously learned knowledge during incremental learning. CRD compels the student model to simultaneously mimic the teacher’s classification score distributions and bounding box regression outputs at the level of semantically corresponding 
+
+Table 5 
+
+Comparison with state-of-the-art methods on DOTA-IOD under the multi-step IOD setting, the second-best results are underlined. Method Task 1 Task 2 Task 3 
+
+𝑚𝐴𝑃 𝐶 𝑚𝐴𝑃 𝐶  
+
+> 50
+
+𝑚𝐴𝑃 𝐴 𝑚𝐴𝑃 𝐴  
+
+> 50
+
+𝑚𝐴𝑃 𝑃 𝑚𝐴𝑃 𝑃  
+
+> 50
+
+𝑚𝐴𝑃 𝐴 𝑚𝐴𝑃 𝐴  
+
+> 50
+
+𝑚𝐴𝑃 𝐴  
+
+> 75
+
+𝑚𝐴𝑃 𝑃 𝑚𝐴𝑃 𝑃  
+
+> 50
+
+𝑚𝐴𝑃 𝐴 𝑠 𝑚𝐴𝑃 𝐴 𝑚 𝑚𝐴𝑃 𝐴 𝑙 
+
+Fine-tuning 50.9 83.2 21.7 37.2 12.5 22.5 6.9 14.9 5.5 1.5 3.3 3.1 8.8 10.1 MD-DETR 38.8 62.6 17.5 30.9 0.7 1.6 8.4 14.2 8.6 9.9 15.7 2.7 7.7 15.6 CL-DETR 36.8 61.2 27.3 43.1 23.4 39.2 17.9 29.1 18.5 16.2 24.5 4.8 15.9 29.2 ERD 50.9 83.2 26.3 27.2 4.46 8.3 13.1 23.6 13.1 0.7 1.5 5.9 15.5 18.7 GCD 50.9 83.2 42.1 67.3 47.5 75.6 37.3 64.3 40.9 41.3 62.1 20.6 41.6 45.2 Ours 50.9 83.2 42.4 ↑0.3 67.8 ↑0.5 49.1 ↑1.6 76.6 ↑1.0 39.4 ↑2.1 65.5 ↑1.2 44.1 ↑3.2 42.7 ↑1.4 63.9 ↑1.8 20.3 ↓0.3 42.8 ↑0.8 48.4 ↑3.2
+
+Yaoteng Zhang et al.: Preprint submitted to Elsevier Page 10 of 17 ISPRS Journal of Photogrammetry and Remote Sensing  
+
+> Figure 6: Qualitative comparison of detection results on the DIOR-IOD dataset across different methods.
+
+queries. By aligning both classification responses and local-ization predictions, the student is encouraged to inherit the old-class discriminative capability and spatial localization knowledge embedded in the teacher while learning new cat-egories, thereby alleviating catastrophic forgetting to some extent in the incremental learning process. Nevertheless, the preservation of old knowledge achieved by CRD remains limited, with the detection performance on old categories improving only to 8.3% 𝑚𝐴𝑃 . This indicates that relying solely on response-level distillation is insufficient to maintain the discriminative structure of old classes, and the model still suffers from evident forgetting. Incorporating CPG signifi-cantly improves the model’s performance on old categories, increasing the detection accuracy of old classes to 30.4% 
+
+𝑚𝐴𝑃 𝑃 . CPG compensates for missing annotations of old categories by generating high-quality pseudo-labels. Com-bining CRD with CPG further enhances the model’s stability, increasing 𝑚𝐴𝑃 𝑃 to 40.7%. This suggests that response-level distillation becomes more effective at preserving old knowl-edge when supported by pseudo-label supervision. However,                                                       
+
+> Yaoteng Zhang et al.: Preprint submitted to Elsevier Page 11 of 17 ISPRS Journal of Photogrammetry and Remote Sensing
+> Table 6
+> Ablation study of different modules on the DIOR-IOD dataset.
+> Module Task2 CRD CPG STD 𝑚𝐴𝑃 𝐴 𝑚𝐴𝑃 𝐴
+> 50 𝑚𝐴𝑃 𝐴
+> 75 𝑚𝐴𝑃 𝑃 𝑚𝐴𝑃 𝑃
+> 50 𝑚𝐴𝑃 𝐶 𝑚𝐴𝑃 𝐶
+> 50
+> 22.6 34.6 24.4 1.5 3.6 43.9 65.8
+> ✓31.2 44.3 33.8 8.3 13.7 54.2 74.9
+> ✓43.5 64.5 46.6 30.4 52.3 57.2 76.7
+> ✓✓46.4 69.9 49.9 40.7 65.6 52.8 74.4
+> ✓✓✓48.6 72.7 53.3 40.7 65.8 57.4 78.4
+
+despite the improvement on old categories, the detection performance on new classes declines, with 𝑚𝐴𝑃 𝐶 dropping to 52.8%, indicating an inherent trade-off between stability and plasticity. By aligning multi-scale topological structures, STD improves the detection performance on new categories to 57.4% 𝑚𝐴𝑃 𝐶 while maintaining the stability of old classes. Consequently, STAR-IOD achieves a favorable balance be-tween stability and plasticity, reaching an overall detection accuracy of 48.6% 𝑚𝐴𝑃 𝐴 .
+
+Ablation Study on CPG: To validate the effectiveness and adaptability of the CPG module in the RS-IOD, we analyze the impact of 𝛿 𝑚𝑖𝑛 , and further conduct a comprehensive com-parison with the traditional Fixed-threshold pseudo-labeling (ST) as well as two advanced adaptive pseudo-labeling meth-ods, namely Consistent Teacher (author = Xinjiang Wang and Xingyi Yang and Shilong Zhang and Yijiang Li and Litong Feng and Shijie Fang and Chengqi Lyu and Kai Chen and Wayne Zhang, 2023) and LPL (Yoon et al., 2024). As shown in Table 7, under the optimal setting, CPG outperforms all compared methods, demonstrating its clear advantage in RS-IOD. Specifically, when 𝛿 𝑚𝑖𝑛 = 0 .1, an excessive number of low-confidence noisy predictions are introduced into the can-didate pool, causing the estimated optimal threshold to be biased toward the low-confidence cluster. As a result, a non-negligible number of FP are incorporated into the pseudo-label set, which in turn limits the overall detection perfor-mance. As 𝛿 𝑚𝑖𝑛 increases to 0.2 and 0.3, CPG achieves steady improvements across both overall and old-class metrics. In particular, 𝛿 𝑚𝑖𝑛 = 0 .3 yields the best performance on most evaluation metrics, indicating that a moderately higher can-didate threshold effectively suppresses noisy pseudo-labels while retaining sufficient high-quality samples for reliable threshold estimation. In contrast, the ST baseline is highly sensitive to the choice of threshold, exhibiting noticeable performance fluc-tuations as the threshold varies. Even under its best configu-ration ( 𝛿 = 0 .4), ST remains clearly inferior to CPG in terms of both overall accuracy and old-class retention. These re-sults suggest that a fixed threshold is inadequate for handling the class- and stage-dependent confidence distribution shifts in incremental learning, whereas CPG dynamically adapts category-specific thresholds in a data-driven manner, produc-ing more reliable pseudo-labels and effectively mitigating catastrophic forgetting.                                                          
+
+> Table 7
+> Ablation study of the CPG module and performance comparison with different fixed and dynamic thresholding baselines. The best results are highlighted in bold .Module 𝑚𝐴𝑃 𝐴 𝑚𝐴𝑃 𝐴
+> 50 𝑚𝐴𝑃 𝐴
+> 75 𝑚𝐴𝑃 𝑃 𝑚𝐴𝑃 𝑃
+> 50
+> CPG ( 𝛿 𝑚𝑖𝑛 = 0 .1)44.1 67.6 47.4 40.5 65.4 CPG ( 𝛿 𝑚𝑖𝑛 = 0 .2)46.4 69.9 49.9 40.7 65.6
+> CPG ( 𝛿 𝑚𝑖𝑛 = 0 .3)46.5 69.9 50.3 41.1 65.6
+> ST ( 𝛿 = 0 .2)43.6 67.3 46.9 38.7 63.9 ST ( 𝛿 = 0 .3)44.9 68.5 48.4 40.1 65.3 ST ( 𝛿 = 0 .4)45.3 68.8 49.3 39.7 64.5 Consistent Teacher 46.1 69.6 49.6 40.2 64.8 LPL 45.5 68.9 49.1 40.0 61.9
+
+More importantly, in comparisons with advanced dy-namic thresholding methods, CPG also demonstrates superi-ority. Consistent Teacher serves as a representative adaptive-threshold baseline. It models the distribution of prediction scores using a Gaussian Mixture Model (GMM), enabling au-tomatic threshold selection for distinguishing foreground and background. This approach provides a robust alternative to manually defined thresholds. Low-confidence Pseudo Label Distillation focuses on mining hard-to-detect objects. LPL first extracts high-confidence pseudo-labels, then identifies low-confidence pseudo-labels from proposals with minimal overlap with the high-confidence set. These low-confidence proposals are further refined by removing background scores and applying L1 normalization to foreground scores, enhanc-ing category-discriminative features. Experimental results show that under the optimal setting of 𝛿 min = 0 .3, CPG achieves 46.5% 𝑚𝐴𝑃 𝐴 and 41.1% 𝑚𝐴𝑃 𝑃 . Compared to Con-sistent Teacher, which obtains 46.1% 𝑚𝐴𝑃 𝐴 and an 𝑚𝐴𝑃 𝑃 
+
+of 40.2%, CPG achieves superior performance. Consistent Teacher assumes that the confidence scores follow a Gaus-sian distribution; however, in the RS-IOD scenario, this as-sumption is often violated due to noise, occlusion, and class imbalance. In contrast, CPG does not rely on any prede-fined distribution assumption, making it more suitable for the RS-IOD scenario and leading to more accurate and ro-bust threshold estimation. Moreover, compared to LPL, CPG avoids the multi-stage pseudo-label mining process and pro-duces higher-quality pseudo-labels, achieving an 𝑚𝐴𝑃 𝑃  
+
+> 50
+
+of 65.6%, which exceeds the 61.9% obtained by LPL. 
+
+Effectiveness of Scale-adaptive Instance Partitioning: To further validate the necessity of Scale-adaptive Instance Par-titioning (SIP), we construct a variant where this component is removed. In this setting, all instances of the same class, regardless of their scale differences, are used to compute a single prototype, followed by topology alignment. Without SIP, scale-variant instances are forced to contribute to a uni-fied class prototype, which may bias the prototype toward the dominant scale group and further distort the resulting relation matrix. As shown in Table 8, removing SIP leads to a clear perfor-mance degradation across all evaluation metrics. Specifically,                         
+
+> Yaoteng Zhang et al.: Preprint submitted to Elsevier Page 12 of 17 ISPRS Journal of Photogrammetry and Remote Sensing
+> Figure 7: Impact of different 𝐿 𝑐𝑝𝑔 settings on detection performance on the DOTA-IOD dataset.
+> Table 8
+> Ablation study of Scale-adaptive Instance Partitioning.
+> 𝑚𝐴𝑃 𝐴 𝑚𝐴𝑃 𝐴
+> 50 𝑚𝐴𝑃 𝑠 𝑚𝐴𝑃 𝑚 𝑚𝐴𝑃 𝑙
+> w/o SIP 37.3 64.1 19.6 41.6 45.2 w/ SIP 39.4 ↑2.165.5 ↑1.420.3 ↑0.742.4 ↑0.848.4 ↑3.2
+
+the overall 𝑚𝐴𝑃 𝐴 drops from 39 .4% to 37 .3% , indicating a notable decline in detection performance. In contrast, the pro-posed SIP consistently improves all evaluation metrics. More importantly, it improves the overall 𝑚𝐴𝑃 𝐴 by +2 .1% , with gains of +0 .7% , +0 .8% , and +3 .2% on small, medium, and large objects, respectively. These results indicate that SIP par-titions instances into scale-consistent groups, enabling more compact and coherent feature distributions. This scale de-coupling effectively prevents the formation of biased relation matrices during incremental learning, thereby preserving the structural stability of learned representations and facilitating more precise topological knowledge transfer. 
+
+Analysis of loss weight 𝜆 1: We evaluate the hyperparameter 
+
+𝜆 1 ∈ {1 , 2, 3, 4} to determine its optimal setting. As shown in Table 9, the results indicate that 𝜆 1 = 3 achieves the best performance on 𝑚𝐴𝑃 𝐴 , 𝑚𝐴𝑃 𝐴 
+
+> 50
+
+, and 𝑚𝐴𝑃 𝐴 
+
+> 75
+
+. While 𝜆 1 = 1 
+
+better preserves the performance of old classes, this gain comes at the expense of plasticity, leading to a 2.2% decrease in 𝑚𝐴𝑃 𝐶 . Consequently, the overall performance improves by 0.5%. This demonstrates that 𝜆 1 = 3 provides a better balance between stability and plasticity, effectively mitigating catastrophic forgetting while accommodating new classes. 
+
+Analysis of scale partition thresholds (𝜏 𝑠 , 𝜏 𝑚 ): To evalu-ate the impact of scale partitioning on model performance, we conduct an ablation study on the thresholds 𝜏 𝑠 and 𝜏 𝑚 .As shown in Table 10, the setting (𝜏 𝑠 , 𝜏 𝑚 ) = (1024 , 9216) 
+
+achieves the optimal performance among the evaluated con-figurations. It obtains the highest accuracy in five out of six                                                                           
+
+> Table 9
+> Performance Evaluation under Different 𝜆 1Settings
+> 𝜆 1𝑚𝐴𝑃 𝐴 𝑚𝐴𝑃 𝐴
+> 50 𝑚𝐴𝑃 𝐴
+> 75 𝑚𝐴𝑃 𝑃 𝑚𝐴𝑃 𝐶
+> 148.9 71.2 52.7 42.1 56.4 247.9 69.8 51.8 40.9 55.7 349.4 71.6 53.4 41.2 58.6
+> 448.9 71.1 52.9 42.0 56.6
+> Table 10
+> Ablation study on the scale partition thresholds.
+> (𝜏 𝑠 , 𝜏 𝑚 )𝑚𝐴𝑃 𝐴 𝑚𝐴𝑃 𝐴
+> 50 𝑚𝐴𝑃 𝐴
+> 75 𝑚𝐴𝑃 𝑠 𝑚𝐴𝑃 𝑚 𝑚𝐴𝑃 𝑙
+> (512, 4096) 48.9 71.3 52.8 16.8 41.2 68.1 (1024, 4096) 48.8 70.7 52.7 16.3 40.9 67.8 (1024, 9216) 49.4 71.6 53.4 16.7 41.6 68.7
+> (2048, 8192) 48.4 70.6 52.1 17.2 41.1 67.4 (2048, 9216) 48.9 71.1 52.9 16.7 40.7 68.3
+
+evaluation metrics, notably achieving 49.4% on 𝑚𝐴𝑃 𝐴 . The setting (1024 , 9216) achieves a better balance across different object scales. Although it leads to a slight decrease in small-object performance, the improvements on medium and large objects result in higher overall performance. These results in-dicate that this threshold setting can alleviate intra-class scale variation in remote sensing scenarios. We observe that even the worst-performing scale partitioning threshold configura-tion (2048 , 8192) outperforms the comparative method GCD. Therefore, the scale-adaptive subspace partitioning mecha-nism effectively mitigates feature distribution shift caused by intra-class scale variations in remote sensing scenarios, thereby maintaining the stability and accuracy of prior knowl-edge distillation. Since STD performs topology alignment by modeling inter-class relations independently within each scale-specific subspace, the effectiveness of scale partitioning directly gov-erns the stability of feature distributions and the statistical ade-quacy within each subspace. The configuration (1024 , 9216) 
+
+yields a more balanced partition across scales, ensuring that each subspace maintains representative coverage without be-ing dominated by a particular scale. This leads to more stable prototype estimation and more reliable relation modeling. 
+
+Ablation Study on CPG 𝐿 𝑐𝑝𝑔 : We further analyze the effect of the score bank size 𝐿 𝑐𝑝𝑔 in the CPG module, as illustrated in Fig. 7. As 𝐿 𝑐𝑝𝑔 increases from 5000 to 20000, the detection performance shows a consistent improvement, particularly in overall accuracy and high-precision localiza-tion, indicating that a larger confidence bank enables more reliable clustering-based threshold estimation. When 𝐿 𝑐𝑝𝑔 is too small, the limited samples are insufficient to capture the confidence distribution, leading to suboptimal pseudo-label filtering. Although slightly better results can be observed when further increasing 𝐿 𝑐𝑝𝑔 to 40000, the performance gains become marginal. Therefore, we adopt 𝐿 𝑐𝑝𝑔 = 20000 in our experiments. 
+
+Old and New Class Results in Multi-Step Setting: Table 11   
+
+> Yaoteng Zhang et al.: Preprint submitted to Elsevier Page 13 of 17
+
+ISPRS Journal of Photogrammetry and Remote Sensing 
+
+Table 11 
+
+Per-class detection accuracy (%) on the DOTA-IOD dataset. Task Category 𝐴𝑃 𝐴𝑃 50 𝐴𝑃 75 𝐴𝑃 𝑠 𝐴𝑃 𝑚 𝐴𝑃 𝑙                                                                                                 
+
+> Small-vehicle 34.0 56.9 37.3 28.0 50.1 -Large-vehicle 55.2 78.9 66.6 32.2 60.3 62.1 Plane 57.3 81.3 69.5 23.3 59.9 67.0 Baseball-diamond 37.5 72.1 36.7 8.2 26.9 53.4 Task 1 Ground-track-field 47.7 71.9 56.2 8.3 40.7 54.8 Helicopter 0.9 1.6 0.9 0.4 1.0 1.1 Ship 56.9 82.7 70.0 46.8 64.5 53.2 Bridge 20.9 45.3 16.1 19.8 23.0 22.1 Soccer-ball-field 35.6 57.0 40.1 9.1 23.5 44.3 Task 2 Tennis-court 81.4 91.6 89.3 37.7 71.1 90.3 Task 3 Storage-tank 42.5 72.5 45.1 33.5 61.3 69.8 Harbor 41.0 76.9 40.2 28.9 45.1 43.7 Roundabout 32.3 62.9 30.4 14.8 43.1 14.9 Basketball-court 45.0 63.5 49.2 0.3 29.5 63.9 Swimming-pool 27.7 67.0 13.7 12.8 36.5 37.1 Average 39.4 65.5 44.1 20.3 42.4 48.4
+
+presents the detailed quantitative performance for each cate-gory on the DOTA-IOD dataset. Our method achieves a com-prehensive 𝑚𝐴𝑃 of 39.4% across all 15 categories. Specifi-cally, regarding the old categories (the first 10 classes), the model demonstrates robust retention of prior knowledge, at-taining high precision on classes such as Tennis-court (91.6% 
+
+𝐴𝑃 50 ), Plane (81.3% 𝐴𝑃 50 ), and Ship (82.7% 𝐴𝑃 50 ). This in-dicates that STAR-IOD effectively mitigates the issue of catas-trophic forgetting in remote sensing object detection. Fur-thermore, concerning the new categories (the last 5 classes), our method exhibits favorable plasticity, yielding competitive results on Basketball-court (63.5% 𝐴𝑃 50 ) and Storage-tank (72.5% 𝑚𝐴𝑃 50 ). These results confirm that our proposed framework strikes an optimal balance between stability on previous tasks and plasticity on new tasks. In addition, we visualize the qualitative detection results of both old and new categories under a multi-step incremental setting on DOTA-IOD, as presented in Fig. 8. As illustrated in the figure, categories involved in the Task 1 ( 𝑇 1), such as Plane, Small-vehicle, and Baseball-diamond, maintain pre-cise detection results. Notably, even under drastic imaging environmental changes affecting the Ground-track-field cat-egory, STAR-IOD retains excellent detection capability for old categories. This finding indicates that STAR-IOD can, to a certain extent, achieve cross-domain incremental detection tasks. Furthermore, categories from the subsequent incremental stage 𝑇 2 incremental stage, specifically Ship and Bridge, are effectively transferred to the student model, ensuring that the student model preserves complete historical knowledge. Regarding the detection results for novel categories intro-duced in the latest stage, the model exhibits strong plasticity, accurately localizing and classifying these new objects. This verifies the effectiveness of our framework in acquiring new knowledge while maintaining stability on previous tasks. 
+
+Forgetting Analysis of STAR-IOD: To quantitatively in-vestigate the impact of catastrophic forgetting during the in-cremental learning phase, we present a detailed performance comparison between the 𝑇 1 and 𝑇 2 in Table 12.As observed, 
+
+Figure 8: Detection visualization results of old and new classes on the DOTA-IOD dataset. The first two rows show old classes, while the third row shows new classes. 
+
+the model inevitably suffers from performance degradation across most base categories due to the stability-plasticity dilemma, where the optimization for new objectives leads to a drift in the feature space of previously learned classes. Specifically, categories with relatively low detection perfor-mance at the initial stage, such as Harbor and Bridge, exhibit the most severe forgetting, with 𝐴𝑃 50 drops of 19 .1% and 
+
+11 .5% , respectively. This phenomenon indicates that, dur-ing the knowledge distillation process, unreliable or weakly discriminative representations from the teacher are simul-taneously transferred to the student, introducing noisy and ambiguous supervision that further degrades the student’s discriminative capability for these categories and exacerbates performance deterioration. In contrast, categories with rigid geometric structures and distinct features demonstrated remarkable resilience. Notably, the Toll-station category maintained its performance with a negligible decline in 𝐴𝑃 50 , and Service-area experienced only a minor drop of 4.4% . The high retention rate for these classes indicates that our method effectively preserves strong discriminative features for distinct objects. 
+
+5.5. Limitations and Future Work 
+
+While STAR-IOD proves effective in mitigating catas-trophic forgetting overall, we identify a failure case for the Helicopter category on the DOTA-IOD dataset. Specifically, the 𝐴𝑃 collapses from a joint-training baseline of 36.7% to a mere 0.9% in the incremental setting. As illustrated in Fig. 9, the model struggles to discriminate between Helicopters and Planes. Furthermore, in Task 2 of DOTA-IOD, the 𝐴𝑃 50 for Helicopter reaches only 3.6%, significantly lagging behind 
+
+Yaoteng Zhang et al.: Preprint submitted to Elsevier Page 14 of 17 ISPRS Journal of Photogrammetry and Remote Sensing 
+
+Table 12 
+
+Comparison of detection performance between Task 1 and Task 2 (in %) on DIOR-IOD. The performance drops in Task 2 are marked with green arrows. Category Task 1 Task 2 
+
+𝐴𝑃 𝐴𝑃 50 𝐴𝑃 75 AP 𝐴𝑃 50 𝐴𝑃 75 
+
+Airplane 46.0 65.9 52.5 41.1 ↓4.9 52.9 ↓13 .0 46.9 ↓5.6
+
+Airport 62.6 90.3 69.7 57.3 ↓5.3 84.6 ↓5.7 62.2 ↓7.5
+
+Bridge 29.1 54.5 26.0 19.3 ↓9.8 43.0 ↓11 .5 14.8 ↓11 .2
+
+Service-area 65.1 92.6 76.5 60.0 ↓5.1 88.2 ↓4.4 69.1 ↓7.4
+
+Toll-station 58.3 82.5 61.7 56.5 ↓1.8 82.5 59.6 ↓2.1
+
+Harbor 39.1 57.1 43.6 24.7 ↓14 .438.0 ↓19 .1 26.9 ↓16 .7
+
+Overpass 42.7 67.0 45.4 36.7 ↓6.0 60.6 ↓6.4 38.2 ↓7.2
+
+Ship 54.4 89.4 61.3 51.1 ↓3.3 84.2 ↓5.2 57.3 ↓4.0
+
+Trainstation 34.7 69.6 30.3 31.2 ↓3.5 64.3 ↓5.3 28.6 ↓1.7
+
+Vehicle 31.8 58.8 30.8 28.5 ↓3.3 53.0 ↓5.8 27.3 ↓3.5
+
+Figure 9: Visualization of typical failure cases for the Helicopter category in the DOTA-IOD dataset. (Left) Misclassification: Planes are erroneously classified as Helicopters due to the similarity of text embeddings between the two categories. (Middle) Missed Detection: True Helicopter instances are missed by the detector. (Right) False Detection: The model incorrectly predicts Helicopters on ambiguous background regions or other objects. 
+
+the 64.3% achieved under joint training. We attribute this per-formance degradation to the high semantic similarity of text embeddings in the semantic space. Built upon the Grounding DINO architecture, STAR-IOD relies on text prompts for detection. However, the tokens for Plane and Helicopter ex-hibit high proximity within the text embedding space. Given the non-salient visual features of small-scale helicopters, the model struggles to orthogonalize their representations in the feature space based solely on subtle embedding differences, resulting in ambiguous decision boundaries. In future work, we plan to incorporate more powerful text encoders to enhance the discriminability and separability of text embeddings in the semantic space, thereby alleviat-ing confusion between semantically similar categories and further improving the robustness and generalization of the model in complex RS-IOD scenarios. 
+
+## 6. Conclusion 
+
+Conventional object detection paradigms are prone to catastrophic forgetting during incremental learning phases, a vulnerability significantly exacerbated by the challenges of remote sensing imagery—specifically, scale variations and background noise interference. To address these chal-lenges, this paper conducts a systematic investigation into RS-IOD. Specifically, we construct two standardized RS-IOD benchmarks, namely DIOR-IOD and DOTA-IOD, which provide a solid foundation for future research in this field. Building upon these benchmarks, we propose a novel frame-work named STAR-IOD. STAR-IOD designs a subspace-decoupled topological distillation strategy that aligns the topological structures of knowledge within scale-specific sub-spaces, alleviating feature distribution shifts caused by scale variations and enabling stable transfer of old knowledge. Fur-thermore, we design a plug-and-play pseudo-label generator that adaptively produces high-quality pseudo-labels for old classes via clustering, thereby maintaining foreground con-sistency throughout the incremental learning stages. Exten-sive experimental results on the DOTA-IOD and DIOR-IOD datasets demonstrate that STAR-IOD effectively mitigates catastrophic forgetting, outperforming current SOTA meth-ods by margins of 2.1% and 1.7% in 𝑚𝐴𝑃 , respectively. These results comprehensively validate the effectiveness and supe-riority of the proposed method in handling complex remote sensing incremental detection tasks. 
+
+## References 
+
+author = Xinjiang Wang and Xingyi Yang and Shilong Zhang and Yijiang Li and Litong Feng and Shijie Fang and Chengqi Lyu and Kai Chen and Wayne Zhang (2023). Consistent-teacher: Towards reducing inconsistent pseudo-targets in semi-supervised object detection. The IEEE / CVF Computer Vision and Pattern Recognition Conference (CVPR) , . Acharya, M., Hayes, T. L., & Kanan, C. (2020). Rodeo: Replay for online object detection. arXiv preprint arXiv:2008.06439 , . Bhatt, G., Ross, J., & Sigal, L. (2024). Preventing catastrophic forgetting through memory networks in continuous detection. In European Confer-ence on Computer Vision (pp. 442–458). Springer. Bochkovskiy, A., Wang, C.-Y., & Liao, H.-Y. M. (2020). Yolov4: Optimal speed and accuracy of object detection. arXiv preprint arXiv:2004.10934 ,.Carion, N., Massa, F., Synnaeve, G., Usunier, N., Kirillov, A., & Zagoruyko, S. (2020). End-to-end object detection with transformers. In European conference on computer vision (pp. 213–229). Springer. Cermelli, F., Geraci, A., Fontanel, D., & Caputo, B. (2022). Modeling missing annotations for incremental learning in object detection. In 
+
+Proceedings of the IEEE/CVF conference on computer vision and pattern recognition (pp. 3700–3710). Chang, J., Wang, S., Xu, H.-M., Chen, Z., Yang, C., & Zhao, F. (2023). De-trdistill: A universal knowledge distillation framework for detr-families. In Proceedings of the IEEE/CVF international conference on computer vision (pp. 6898–6908). Chen, J., Wang, S., Chen, L., Cai, H., & Qian, Y. (2020). Incremental detection of remote sensing objects with feature pyramid and knowledge distillation. IEEE Transactions on Geoscience and Remote Sensing , 60 ,1–13. Dai, L., Liu, H., Tang, H., Wu, Z., & Song, P. (2022). AO2-DETR: Arbitrary-Oriented Object Detection Transformer. IEEE Trans. Circuits Syst. Video Technol. , 33 , 2342–2356. Feng, T., Wang, M., & Yuan, H. (2022). Overcoming catastrophic forgetting in incremental object detection via elastic response distillation. In Pro-ceedings of the IEEE/CVF conference on computer vision and pattern recognition (pp. 9427–9436). Gao, R., & Liu, W. (2023). Ddgr: Continual learning with deep diffusion-based generative replay. In International Conference on Machine Learn-ing (pp. 10744–10763). PMLR. Ge, Z. (2021). Yolox: Exceeding yolo series in 2021. arXiv preprint arXiv:2107.08430 , . 
+
+Yaoteng Zhang et al.: Preprint submitted to Elsevier Page 15 of 17 ISPRS Journal of Photogrammetry and Remote Sensing 
+
+Girshick, R. (2015). Fast r-cnn. In Proceedings of the IEEE international conference on computer vision (pp. 1440–1448). Girshick, R., Donahue, J., Darrell, T., & Malik, J. (2015). Region-based convolutional networks for accurate object detection and segmentation. 
+
+IEEE transactions on pattern analysis and machine intelligence , 38 ,142–158. Gupta, A., Narayan, S., Joseph, K., Khan, S., Khan, F. S., & Shah, M. (2022). Ow-detr: Open-world detection transformer. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition 
+
+(pp. 9235–9244). Han, J., Ding, J., Li, J., & Xia, G.-S. (2021). Align deep features for oriented object detection. IEEE transactions on geoscience and remote sensing ,
+
+60 , 1–11. Hopfield, J. J., & Tank, D. W. (1985). “neural” computation of decisions in optimization problems. Biological cybernetics , 52 , 141–152. Kang, M., Zhang, J., Zhang, J., Wang, X., Chen, Y., Ma, Z., & Huang, X. (2023). Alleviating catastrophic forgetting of incremental object detection via within-class and between-class knowledge distillation. In 
+
+Proceedings of the IEEE/CVF International Conference on Computer Vision (pp. 18894–18904). Kim, J., Cho, H., Kim, J., Tiruneh, Y. Y., & Baek, S. (2024). Sddgr: Stable diffusion-based deep generative replay for class incremental object detection. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (pp. 28772–28781). Li, F., Zhang, H., Liu, S., Guo, J., Ni, L. M., & Zhang, L. (2022). Dn-detr: Accelerate detr training by introducing query denoising. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition 
+
+(pp. 13619–13627). Li, K., Wan, G., Cheng, G., Meng, L., & Han, J. (2020). Object detection in optical remote sensing images: A survey and a new benchmark. ISPRS journal of photogrammetry and remote sensing , 159 , 296–307. Li, Z., & Hoiem, D. (2017). Learning without forgetting. IEEE transactions on pattern analysis and machine intelligence , 40 , 2935–2947. Lin, T.-Y., Goyal, P., Girshick, R., He, K., & Dollár, P. (2017). Focal loss for dense object detection. In Proceedings of the IEEE international conference on computer vision (pp. 2980–2988). Lin, T.-Y., Maire, M., Belongie, S., Hays, J., Perona, P., Ramanan, D., Dollár, P., & Zitnick, C. L. (2014). Microsoft coco: Common objects in context. In European conference on computer vision (pp. 740–755). Springer. Liu, K., Zou, J., Zhang, W., Li, Q., & Wang, Q. (2025). Msdp-net: Multi-scale distribution perception network for rotating object detection in remote sensing. Pattern Recognition , (p. 112740). Liu, S., Zeng, Z., Ren, T., Li, F., Zhang, H., Yang, J., Li, C., Yang, J., Su, H., Zhu, J. et al. (2023a). Grounding dino: Marrying dino with grounded pre-training for open-set object detection. arXiv preprint arXiv:2303.05499 ,.Liu, W., Anguelov, D., Erhan, D., Szegedy, C., Reed, S., Fu, C.-Y., & Berg, A. C. (2016). Ssd: Single shot multibox detector. In European conference on computer vision (pp. 21–37). Springer. Liu, Y., Cong, Y., Goswami, D., Liu, X., & Van De Weijer, J. (2023b). Aug-mented box replay: Overcoming foreground shift for incremental object detection. In Proceedings of the IEEE/CVF international conference on computer vision (pp. 11367–11377). Liu, Y., Schiele, B., Vedaldi, A., & Rupprecht, C. (2023c). Continual detection transformer for incremental object detection. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition 
+
+(pp. 23799–23808). Lu, W., Chen, S.-B., Li, H.-D., Shu, Q.-L., Ding, C. H., Tang, J., & Luo, B. (2025). Legnet: A lightweight edge-gaussian network for low-quality remote sensing image object detection. In Proceedings of the IEEE/CVF International Conference on Computer Vision (pp. 2844–2853). Luo, W., Zhang, S., Cheng, D., Xing, Y., Liang, G., Wang, P., & Zhang, Y. (2025a). Gradient decomposition and alignment for incremental object detection. In ICCV .Luo, W., Zhang, S., Cheng, D., Xing, Y., Liang, G., Wang, P., & Zhang, Y. (2025b). Gradient decomposition and alignment for incremental object detection. In Proceedings of the IEEE/CVF International Conference on Computer Vision (pp. 4486–4495). Marques, J. H. L., Murrugarra-Llerena, J., & Jung, C. R. (2025). Gaucho: Gaussian distributions with cholesky decomposition for oriented object detection. In Proceedings of the Computer Vision and Pattern Recognition Conference (CVPR) (pp. 3593–3602). Mo, Q., Gao, Y., Fu, S., Yan, J., Wu, A., & Zheng, W.-S. (2024). Bridge past and future: Overcoming information asymmetry in incremental object detection. In European Conference on Computer Vision (pp. 463–480). Springer. Rebuffi, S.-A., Kolesnikov, A., Sperl, G., & Lampert, C. H. (2017). icarl: Incremental classifier and representation learning. In Proceedings of the IEEE conference on Computer Vision and Pattern Recognition (pp. 2001–2010). Redmon, J. (2016). You only look once: Unified, real-time object detection. In Proceedings of the IEEE conference on computer vision and pattern recognition .Ren, S., He, K., Girshick, R., & Sun, J. (2015). Faster r-cnn: Towards real-time object detection with region proposal networks. Advances in neural information processing systems , 28 .Ruan, H., Peng, J., Chen, Y., He, S., Zhang, Z., & Li, H. (2022). A class-incremental detection method of remote sensing images based on selective distillation. Symmetry , 14 , 2100. Shmelkov, K., Schmid, C., & Alahari, K. (2017). Incremental learning of object detectors without catastrophic forgetting. In Proceedings of the IEEE international conference on computer vision (pp. 3400–3409). Smith, J. S., Karlinsky, L., Gutta, V., Cascante-Bonilla, P., Kim, D., Arbelle, A., Panda, R., Feris, R., & Kira, Z. (2023). Coda-prompt: Continual decomposed attention-based prompting for rehearsal-free continual learn-ing. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition (pp. 11909–11919). Sun, Z., Li, J., & Mu, Y. (2024). Exploring orthogonality in open world object detection. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition (pp. 17302–17312). Wang, A., Chen, H., Liu, L., Chen, K., Lin, Z., Han, J., & Ding, G. (2024). Yolov10: Real-time end-to-end object detection. arXiv preprint arXiv:2405.14458 , . Wang, Q., Chen, Z., Yang, C., Liu, J., Li, Z., & Zhao, F. (). Psedet: Revis-iting the power of pseudo label in incremental object detection. In The Thirteenth International Conference on Learning Representations .Wang, X., Wang, Z., & Lin, Z. (2025). Gcd: Advancing vision-language models for incremental object detection via global alignment and cor-respondence distillation. In Proceedings of the AAAI Conference on Artificial Intelligence (pp. 8015–8023). volume 39. Wang, Z., Zhang, Z., Ebrahimi, S., Sun, R., Zhang, H., Lee, C.-Y., Ren, X., Su, G., Perot, V., Dy, J. et al. (2022a). Dualprompt: Complementary prompting for rehearsal-free continual learning. In European conference on computer vision (pp. 631–648). Springer. Wang, Z., Zhang, Z., Lee, C.-Y., Zhang, H., Sun, R., Ren, X., Su, G., Perot, V., Dy, J., & Pfister, T. (2022b). Learning to prompt for continual learning. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition (pp. 139–149). Xi, X., Huang, Y., Luo, R., & Qiu, Y. (2025). Ow-ovd: Unified open world and open vocabulary object detection. In Proceedings of the Computer Vision and Pattern Recognition Conference (pp. 25454–25464). Xia, G.-S., Bai, X., Ding, J., Zhu, Z., Belongie, S., Luo, J., Datcu, M., Pelillo, M., & Zhang, L. (2018). Dota: A large-scale dataset for object detection in aerial images. In Proceedings of the IEEE conference on computer vision and pattern recognition (pp. 3974–3983). Xu, K., Zou, X., Hua, G., & Zhou, J. (2025). Componential prompt-knowledge alignment for domain incremental learning. arXiv preprint arXiv:2505.04575 , . Yang, D., Zhou, Y., Hong, X., Zhang, A., & Wang, W. (2023). One-shot replay: Boosting incremental object detection via retrospecting one object. In Proceedings of the AAAI Conference on Artificial Intelligence (pp. 3127–3135). volume 37. Yoon, I., Kwon, H., Kim, J., Park, J., Jang, H., & Sohn, K. (2024). Enhancing source-free domain adaptive object detection with low-confidence pseudo label distillation. In European Conference on Computer Vision (pp. 337– 353). Springer. 
+
+Yaoteng Zhang et al.: Preprint submitted to Elsevier Page 16 of 17 ISPRS Journal of Photogrammetry and Remote Sensing 
+
+Yuan, X., Zheng, Z., Li, Y., Liu, X., Liu, L., Li, X., Hou, Q., & Cheng, M.-M. (2025). Strip r-cnn: Large strip convolution for remote sensing object detection. arXiv preprint arXiv:2501.03775 , . Zhang, H., Gao, B.-B., Zeng, Y., Tian, X., Tan, X., Zhang, Z., Qu, Y., Liu, J., & Xie, Y. (2024). Learning task-aware language-image representa-tion for class-incremental object detection. In Proceedings of the AAAI Conference on Artificial Intelligence (pp. 7096–7104). volume 38. Zhang, H., Li, F., Liu, S., Zhang, L., Su, H., Zhu, J., Ni, L. M., & Shum, H.-Y. (2022). Dino: Detr with improved denoising anchor boxes for end-to-end object detection. arXiv preprint arXiv:2203.03605 , . Zhou, D.-W., Zhang, Y., Wang, Y., Ning, J., Ye, H.-J., Zhan, D.-C., & Liu, Z. (2025a). Learning without forgetting for vision-language models. IEEE Transactions on Pattern Analysis and Machine Intelligence , . Zhou, Q., Gao, J., & Wang, Q. (2025b). Scale efficient training for large datasets. In 2025 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) (pp. 20458–20467). doi: 10.1109/CVPR52734.2025. 01905 .Zhou, Q., Gao, J., Yuan, Y., & Wang, Q. (2024). Single-stream extractor network with contrastive pre-training for remote-sensing change caption-ing. IEEE Transactions on Geoscience and Remote Sensing , 62 , 1–14. doi: 10.1109/TGRS.2024.3400966 .Zhu, X., Su, W., Lu, L., Li, B., Wang, X., & Dai, J. (2020). Deformable detr: Deformable transformers for end-to-end object detection. arXiv preprint arXiv:2010.04159 , . Zohar, O., Wang, K.-C., & Yeung, S. (2023). Prob: Probabilistic objectness for open world object detection. In Proceedings of the IEEE/CVF Confer-ence on Computer Vision and Pattern Recognition (pp. 11444–11453). Zou, J., Zhang, W., Li, Q., & Wang, Q. (2025). Mosaic-tracker: Mutual-enhanced occlusion-aware spatiotemporal adaptive identity consistency network for aerial multi-object tracking. ISPRS Journal of Photogram-metry and Remote Sensing , 229 , 138–154. 
+
+Yaoteng Zhang et al.: Preprint submitted to Elsevier Page 17 of 17

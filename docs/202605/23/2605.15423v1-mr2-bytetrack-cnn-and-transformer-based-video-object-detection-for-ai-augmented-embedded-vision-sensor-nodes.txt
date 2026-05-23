@@ -1,0 +1,500 @@
+Title: MR2-ByteTrack: CNN and Transformer-based Video Object Detection for AI-augmented Embedded Vision Sensor Nodes
+
+URL Source: https://arxiv.org/pdf/2605.15423v1
+
+Published Time: Mon, 18 May 2026 00:20:23 GMT
+
+Number of Pages: 15
+
+Markdown Content:
+> Date of publication xxxx 00, 0000, date of current version xxxx 00, 0000.
+> Digital Object Identifier 10.1109/XXXX
+
+# MR2-ByteTrack: CNN and Transformer-based Video Object Detection for AI-augmented Embedded Vision Sensor Nodes 
+
+Luca Bompani 1, Manuele Rusci 2, Luca Benini 13 , Daniele Palossi 34 , Francesco Conti 1    
+
+> 1Electrical, Electronic and Information Engineering (DEI), University of Bologna, Italy.
+> 2Department of Electrical Engineering (ESAT), KU Leuven, Belgium.
+> 3Integrated Systems Laboratory (IIS), ETH Zürich, Switzerland.
+> 4Dalle Molle Institute for Artificial Intelligence (IDSIA), USI–SUPSI, Switzerland.
+
+This work was supported in part by the Horizon Europe High Performance, Safe, Secure, Open-Source Leveraged RISC-V Domain-Specific Ecosystems project grant agreement 101112274 
+
+ABSTRACT Modern smart vision sensors need on-device intelligence to process video streams, as cloud computing is often impractical due to bandwidth, latency, and privacy constraints. However, these sensory systems typically rely on ultra-low-power microcontrollers (MCUs) with limited memory and compute, making conventional video object detection methods, which require feature storage or multi-frame buffering, unfeasible. To address this challenge, we introduce Multi-Resolution Rescored ByteTrack (MR2-ByteTrack), a Video Object Detection (VOD) method tailored for MCU-based embedded vision nodes. MR2-ByteTrack reduces computational cost by alternating between full- and low-resolution inference, while link-ing detections across frames via ByteTrack and correcting misclassifications through the Rescore algorithm, which applies probability union rules to aggregate detection confidence scores across frames. We apply our approach to both a CNN-based detector and a Transformer-based model, demonstrating its generality across architectures with fundamentally different spatial processing. Experiments on ImageNetVID demonstrate that MR2-ByteTrack maintains accuracy, achieving mAP scores of up to 49.0 for the CNN-based models and 48.7 for the Transformer, while reducing multiply–accumulate operations by as much as 53% for the CNNs and 32% for the Transformer. When deployed on GAP9, an ultra-low-power RISC-V multicore MCU, our method yields up to 55% energy savings compared to processing only full-resolution images, enabling the first real-time Transformer-based VOD on an MCU-class embedded vision node. Code available at https://github.com/Bomps4/Multi_Resolution_Rescored_ByteTrack/tree/IEEE_Access 
+
+INDEX TERMS Video object detection, Embedded vision, Ultra-low-power, MCUs, CNNs, Transformers 
+
+I. INTRODUCTION 
+
+Artificial intelligence–based embedded vision is rapidly re-shaping the landscape of modern sensing systems, as billions of AI-augmented sensors proliferate across civil, industrial, and consumer applications [1]. As these systems scale, it becomes increasingly necessary for sensors to process and interpret data directly at the edge [2], while relying on cloud-based computation is often impractical [3] due to bandwidth limitations, latency constraints, and the privacy risks of con-tinuous data transmission. Bringing intelligence to the edge by integrating AI-based algorithms on edge sensor platforms has, therefore, become a key enabler of next-generation autonomous and resource-efficient sensing platforms. Within this broader context, our work focuses on embedded vision sensors , which denote a sensing node that integrates an image sensor (within a cam-era module) with onboard compute and memory, enabling visual information to be partially or fully processed locally on the node. These nodes must be able to perform vari-ous vision tasks, such as object detection, localization, and tracking, which form the backbone of numerous embedded vision applications, including crop health monitoring [4], structural health monitoring [5], wearable assistance [6], and mobile robotics [7], [8]. Integrating such capabilities directly into sensor nodes, however, introduces significant challenges. Embedded sensors must typically operate within tight power  
+
+> VOLUME 14, 2026 1
+> arXiv:2605.15423v1 [cs.CV] 14 May 2026
+
+budgets (a few hundreds of mW ) and are built around Micro-controller Units (MCUs) with only a few MB of memory and sub-100 GOps /s compute capability [9]. To operate within their tight computational and memory budgets, embedded vision sensors have traditionally relied on lightweight, frame-by-frame Deep Neural Network (DNN)-based object detectors [7], [8], [10]. While computationally efficient, these approaches neglect temporal information and therefore sacrifice accuracy. Video Object Detection (VOD) pipelines address this limitation by exploiting temporal in-formation, obtained by jointly processing several consecutive frames. Analyzing short sequences enables the model to ex-ploit temporal consistency, as objects in videos tend to move smoothly and remain present over time, thereby stabilizing detections under occlusions, motion blur, or changes in ap-pearance. However, these conventional VOD methods must process large multi-frame feature maps, making their compu-tational and memory requirements prohibitive for MCU-class devices. We address this limitation by enabling efficient VOD exe-cution on MCU-equipped edge sensor nodes through a novel 
+
+Multi-Resolution Rescored ByteTrack (MR2-ByteTrack) 
+
+methodology for deep learning models deployed on sen-sory systems. MR2-ByteTrack employs a multi-resolution inference strategy to reduce computational cost by alternat-ing one full-resolution (full-res) inference with several low-resolution (low-res) inferences, thereby lowering the average computational load. To mitigate accuracy losses caused by motion blur, suboptimal lighting, occlusions, and varying input scales, a lightweight Kalman filter is used to link detections across frames and estimate object motion. Addi-tionally, MR2-ByteTrack incorporates a mechanism, called the Rescore algorithm, to correct misclassified objects by updating detector confidence scores across frames based on the agreement or disagreement between tracker and detector predictions: accumulating confidence in the former case and penalizing confidence proportionally to the conflicting evidence in the latter, effectively transforming a frame-by-frame object detector into a full-fledged VOD pipeline. In our previous work [11], we introduced the MR2-ByteTrack methodology on CNN-based detectors. Here, we extend the precedent study to include Vision Transformers (ViTs) [12], which have emerged as a powerful alternative to CNNs by capturing global, semantic information and of-ten achieving superior performance in complex visual envi-ronments [13], [14]. Their deployment on ultra-low-power MCUs, however, is more challenging, as ViT-based detectors impose substantial computational demands, with the all-to-all global attention mechanism being the most significant con-tributor. Despite the architectural differences between CNNs and Transformers, we demonstrate that MR2-ByteTrack can be applied to both architectures, yielding efficiency gains regardless of their distinct spatial computation mechanisms. In particular, our contributions in this paper are as follows:  
+
+> •
+
+We present the MR2-ByteTrack methodology, detailing its implementation and providing insight into its appli-cation to both CNNs and ViT-based architectures.  
+
+> •
+
+We apply our MR2-ByteTrack methodology to two CNN detectors and a hybrid detector, which combines a State-of-the-Art (SotA) Transformer backbone, Effi-cientViT [15], with a lightweight CNN head.  
+
+> •
+
+We deploy, to the best of our knowledge, for the first time, a Transformer-based object detector, both as a stan-dalone model and within a complete multi-resolution VOD pipeline, an ultra-low-power MCU, namely GAP9 by Greenwaves Technology (GWT). We provide a de-tailed analysis of throughput, energy consumption, and resource utilization. We validate our proposed methodology on the Ima-genetVID dataset [16], demonstrating that MR2-ByteTrack reduces computational cost by 53% for Shufflenetv2-NanoDet-Plus [17](NanoDet) and 32% for both CSPDarknet-YOLOX-Nano [18](YOLOX) and the hybrid detector EfficientViT-B0-YOLOX-Nano (EffVIT-Det) while preserv-ing their mean Average Precision (mAP). These results con-firm that our multi-resolution strategy, combined with the 
+
+Rescore algorithm, maintains accuracy while significantly reducing computational requirements. Beyond improving the efficiency of deep visual models, our work advances AI-augmented sensory systems by bringing ViT-level represen-tational capacity to VOD on resource-constrained embedded sensor nodes. This enables embedded video sensors to pro-cess continuous video streams and make reliable decisions under tight computational and energy constraints, thereby reducing or eliminating outright the need for external compu-tation and supporting real-time, adaptive, and resource-aware operation. 
+
+> II. RELATED WORKS
+
+DNN-based video object detectors extend typical object de-tection models for the processing of video sequences. Sim-ple VOD strategies, which are commonly used for resource-constrained embedded sensor systems, simply run object de-tection models frame by frame. On the other hand, more complex methods can aggregate information from multiple frames to determine the bounding boxes, class labels, and object confidence scores in a video. The design of VOD systems for MCU-class devices is driven by two hard constraints: available memory, typically a few MB, and the strict causal and real-time requirements of operations. By causal, we mean that each per-frame inference may rely only on information from the current frame and those preceding it, never on future frames. Most existing VOD approaches violate one or both constraints: they ei-ther require storing large intermediate feature tensors across frames [19], [20], [23], [27], [28], depend on multi-stage architectures with variable memory consumption [21], [22], or rely on future frames to refine past detections or improve efficiency [25], [26], [32]. The following review is organized around these two axes, highlighting at each step where prior approaches fall short for MCU-class platforms and the spe-cific gaps that MR2-ByteTrack addresses.                                                                                                             
+
+> 2VOLUME 14, 2026 TABLE 1. Comparison of SotA VOD systems. Each method’s improvements (if any, otherwise marked as –) are given w.r.t. its baseline model, keeping the same computational device, e.g., YOLOX-S vs. YOLOV-S in row six.
+> Method Improvement Detections Fine-tuning MCU Transformer mAP Frame/s aggregation free deployable backbone
+> 3D Convolutions [19] +7.5 –✗✗✗✗
+> FGFA [20] +3.4 –✗✗✗✗
+> SELSA [21] +6.6 –✗✗✗✗
+> MEGA [22] +7.5 –✗✗✗✓
+> TransVOD Lite [23] +4.5 +5 ✗✗✗✓
+> YOLOV [24] +7.8 –✗✗✗✓
+> Seq-Bbox [25] +6.9 –✓✓✗✗
+> Motion-based Seq-Bbox [26] +5.5 –✓✓✗✗
+> Objects Do Not Disappear [27] +13.6 +30 ✗✗✗✓
+> Block Copy [28] –+3 ✗✗✗✗
+> PASS [29] –+9 ✗✗✗✗
+> Looking Fast and Slow [30] +3.4 +68 ✗✗✗✗
+> Frame-by-frame [7], [31] ––✗✗✓✗
+> Our (NanoDet) +7.3 +4 ✓✓✓✗
+> Our (YOLOX) +5.3 +1.5 ✓✓✓✗
+> Our (EffVIT-Det) +3.8 +1.2 ✓✓✓✓
+
+A. LIGHTWEIGHT OBJECT DETECTION 
+
+Object detection methods can be categorized into two-stage and one-stage approaches. Two-stage models, such as Faster R-CNN [33], iterate over the region proposals produced by the first stage to identify objects in an image. Given the generally high number of proposals, i.e., regions of the image where the network predicts there can be an object, these detectors are typically computationally expensive and unsuit-able for power-constrained devices. On the other hand, one-stage detectors, including SSD [34] and its optimized version SSDLite [35], directly predict object locations and categories in a single pass, thereby reducing complexity and improving efficiency compared to two-stage methods. More specifically, SSDLite features 4.3 M parameters and achieves a mAP of 22.1 on COCO, while requiring 0.8 GMAC operations. This work focuses, therefore, on one-stage detectors due to their more compact architecture and predictable execution time. An active research line aims to reduce the computation and memory requirements of object detection models for deployment on resource-constrained devices. Among the no-table examples, NanoDet [17] features 1.17 M parameters and reaches an mAP of 27 on COCO by executing only 
+
+0.46 GMAC operations. The unprecedented detection accu-racy is achieved thanks to two novel auxiliary layers that improve the training process, namely the Assign Guidance and the Dynamic Soft Label Assigner. YOLOX [18], which is a lightweight architecture derived from YOLOv3, intro-duces depthwise convolutions and an anchor-free decoupled head. This network scores a mAP of 25.8 with 0.36 GMAC 
+
+operations and 0.9 M parameters. In contrast, more recent YOLO variants, such as YOLOv8 [36], YOLOv10 [37], and YOLOv11 [38], focus on balancing detection accuracy and computational efficiency but still require significant compute resources (more than 6.5 GMAC per inference). In this work, we leverage efficient architectures, such as NanoDet and YOLOX, within the components of our VOD pipeline. Recent works have also described object detection algo-rithms based on Transformers. DETR [39] is one of the first instances of this class of method, which made use of a new bipartite matching loss for efficient training. Unfortunately, its high memory footprint ( 159 MB ) prevents the deploy-ment on constrained platforms. In contrast, mobile-friendly Transformer architectures like MobileViT [40]–[42] achieve an mAP of 19.3 with only 1.2 M parameters for the backbone. Because this work targets ultra-efficient model deploy-ment ( <1 M parameters for our backbones), we propose a new transformer-based object detector based on EfficientViT-B0 [15]. This backbone features only 0.7 M parameters but was previously employed only for classification or segmen-tation tasks. 
+
+B. VIDEO OBJECT DETECTION 
+
+Typical VOD algorithms extend the object detectors dis-cussed in the previous section to process video streams. One of the earliest VOD strategies replaces 2D convolution layers in CNNs with 3D convolutions to concurrently process a batch of frames. This technique aims to model spatiotem-poral correlations across features extracted from successive frames [19], [43]. Despite its effectiveness, this approach requires significant memory to store high-dimensional ac-tivation tensors, making this class of methods not portable on memory-constrained platforms. Alternative methods ac-cumulate and process the visual features extracted by every frame to infer the temporal information. When two-stage detectors are used, feature aggregation is commonly performed by aggregating features relative to region proposals. The temporal information is then ex-tracted by using techniques such as optical flow [20], convolutional-based trackers [44], [45], feature similar-ity [21], or Transformer-based memory layers [22]. These  
+
+> VOLUME 14, 2026 3
+
+methods ultimately utilize the aggregated information to re-fine video detections, thereby ensuring temporal consistency. However, the use of a two-stage approach, which cannot be efficiently deployed due to its varying memory consumption and the extra memory required for storing the features, makes this method impractical for our scenario. In contrast, one-stage object detectors integrate localiza-tion and classification into a single pipeline, resulting in di-verse solutions for temporal feature aggregation. TransVOD LITE [23] aggregates full feature maps across frames. Start-ing from a Deformable DETR [46], this method inserts a Sequential Hard Query Mining layer between the feature ex-tractor and the detection head. The new layer aggregates fea-tures from multiple frames to enhance temporal consistency. As a drawback, this method requires keeping the feature maps extracted from the video frames in memory. Given that the authors considered a temporal window of 15 frames, we estimated a memory overhead of 272 MB , which exceeds the memory resource of our devices. YOLOV [24], on the other hand, directly refines the detections provided by the underly-ing object detector outputs based on the features accumulated across frames. While efficient, this method is impractical for MCU due to its non-constant memory consumption, which is dependent on the number of objects found in each frame and cannot be optimized at deployment time. These approaches are not suitable for our purpose due to the high memory requirements necessary to preserve the extracted features over time. Furthermore, the presented so-lutions utilized additional feature aggregation layers that re-quired fine-tuning over video sequences, i.e., computationally and data-expensive extra training. A more lightweight approach than temporal feature aggre-gation directly searches for temporal correlations over the frame-by-frame detections. The work [32] utilizes dynamic programming to link objects over time, employing the Inter-section over Union (IoU) as a cost function. Seq-Bbox [25] and Motion-based Seq-Bbox [26] aggregate the detection out-puts by using a similarity metric. The latter methods achieve mAP scores of 80.9 and 72.7 on the ImageNetVID dataset, showing respective gains of +6.9 and +5.5 mAP points over frame-by-frame inference. The "Objects do not disappear" method [27] utilizes the object trajectory as an additional supervision signal during training, achieving an mAP of 91.3. The proposed block, namely the trajectory prediction net-work, can also predict future bounding box locations, thereby preventing the need for a more expensive object detector. Our approach has two main differences with respect to the last set of works. First, the methods above are optimized only for detection accuracy, whereas our pipeline also im-proves throughput and energy metrics. Second, we target strictly online real-time operation, whereas several previous approaches improve accuracy by buffering multiple frames and refining detections retrospectively, i.e., using frames that are future with respect to the output being corrected. The only exception is [27], which uses a trajectory prediction network to predict the object’s motion. However, this comes at a high computational cost of ∼1.3 GMAC per predicted frame. While this overhead may be justified for large object detectors, it is impractical for our lightweight models, as it is nearly 3 × more expensive than the inference task. Our MR2-ByteTrack solution follows a similar approach to [27], but replaces the costly neural network-based mo-tion prediction with a lightweight Kalman filter. This de-sign choice is inspired by two SoA object tracking meth-ods: Simple Online Realtime Tracking (SORT) [47], which uses the Hungarian algorithm for associating detections with the tracked objects, and ByteTrack [48], which enhances SORT by integrating low-confidence detections to retain ob-ject identities even when occlusions and appearance change. MR2-ByteTrack improves ByteTrack by (i) adapting the ap-proach for a multi-class detection problem while the orig-inal work only faces class-agnostic tracking tasks and (ii) introducing Rescore, a probabilistic classification correction method that improves multi-class accuracy. 
+
+> C. EFFICIENT VIDEO PROCESSING
+
+Unlike previous methods that only target accuracy optimiza-tion, temporal information can also be leveraged to enhance computation and memory efficiency in VOD tasks. Consec-utive frames often contain redundant information, making full feature recomputation not necessary. Hence, methods can reuse features or recompute new features only from specific regions of the image. For instance, in [28], a policy network selectively recomputes only necessary regions, while [29] employs a gating mechanism in convolutional layers to decide whether to compute new features or reuse the existing ones. However, these approaches require storing large activation maps, up to ∼50 MB for NanoDet at 320 ×320 pixels, which far exceeds MCU memory constraints. Another efficiency technique is model interleaving, where high- and low-complexity models are alternatively invoked to trade off accuracy and speed. Among the others, Liu et al. [30] use an LSTM to associate detections returned by a large ( 4.4 M parameters) and a small ( 0.5 M parameters) de-tectors. Moretti et al. [49] proposed to dynamically switches models based on computational constraints. Despite their ef-fectiveness, these methods require multiple models or custom architectures, which doubles (or multiplies by a number of models) the deployment costs, e.g., memory for weights or binary code. Our approach, in contrast, utilizes a single pre-trained model and scales the computational efficiency by varying the input resolution of the data. 
+
+> D. OBJECT DETECTION AND VOD ON EMBEDDED SENSOR NODES
+
+Existing SoA VOD approaches for MCU-based devices typ-ically perform inference on a frame-by-frame basis, without exploiting temporal correlations between consecutive frames. 
+
+Lamberti et al. [7] demonstrated the deployment of a quan-tized MobileNetV2-SSD on the GAP8 MCU, achieving only 
+
+1 frame /s after 8-bit quantization. Throughput can be im-proved by leveraging on-chip accelerators: the authors of [31]  
+
+> 4VOLUME 14, 2026
+
+implemented TinyssimoYOLO on the GAP9 MCU, reaching approximately 60 frames /s by exploiting the NE16 8-bit con-volution accelerator [50]. Despite its efficiency, this model is highly specialized, detecting only a single object class (cars). A subsequent refinement [51] extended the network to multiple classes and achieved 117 frames /s at a 112 ×112 input resolution; however, in the evaluation, this network achieves only 15 mAP on the COCO dataset, 10.8 less than the YOLOX nano used in our work with a similar parameter count. More recently, StreamTinyNet [52] was introduced for video streaming analysis. Although not explicitly designed for VOD, it uses feature aggregation to reduce memory de-mands by compressing features from T frames into the size of a single frame using pointwise convolutions. However, this approach requires training a new model from scratch, whereas our method works with any pre-trained object detec-tor. Furthermore, it still requires storing the features across video frames, increasing memory consumption. Finally, our references show that the current SoA for video object de-tection and object detection on MCUs relies on CNNs, as shown in [53]. While Transformers have been deployed on MCUs for classification tasks, e.g., MCUformer and TinyViT, among other approaches [54]–[57], to the best of the authors’ knowledge, no Transformer-based methods have yet been used for object detection on MCUs. Table 1 summarizes the major OD and VOD approaches most relevant to our work and confirms that no existing method satisfies both deployment constraints simultaneously. Feature-level temporal aggregation methods (Section II-B) buffer high-dimensional tensors across frames, incurring memory overheads of tens to hundreds of MB [22]–[24]; our method operates directly on detection outputs, introducing no feature storage overhead. Detection-level and tracking-based methods (Section II-B) are lighter but achieve only limited efficiency gains and frequently exploit future frames to refine past detections [25], [26], [32]; our pipeline is strictly causal and improves both accuracy and throughput. Efficiency-oriented approaches based on multi-resolution ex-ecution or model interleaving (Section II-C) either retain large intermediate activations [28] or require multiple networks to be simultaneously present in memory [30]; our method deploys a single pre-trained detector with no additional run-time buffers or fine-tuning, making it directly applicable to any pre-trained object detector. Existing MCU deployments (Section II-D) sidestep these issues by discarding temporal information entirely [7], [10]; our approach recovers the resulting accuracy and throughput gains without violating either deployment constraint, balancing between accuracy, throughput, energy efficiency, and deployment cost, making it well-suited for low-power, real-time VOD on MCU-class platforms. 
+
+> III. MR2-BYTETRACK
+
+Figure 1 illustrates the main building blocks of MR2-ByteTrack, while Algorithm 1 details the operations per-formed at each inference step. First, the video frames are pro-cessed in real-time using a CNN- or Transformer-based object detection algorithm. We adopt a Multi-Resolution scheme where the resolution of the input images varies over time. Second, a Tracker module, derived from ByteTrack [48], filters detections based on their motion, and, lastly, a Rescore 
+
+algorithm refines the predicted object classes and confidence scores to address potential mispredictions. The following subsections provide more details on these components. 
+
+> A. MULTI-RESOLUTION OBJECT DETECTION
+
+MR2-ByteTrack works with convolution- or Transformer-based object detectors. The models are fed input images of varying resolutions. More specifically, we interleave one full-resolution (full-res) image (e.g., 320 ×320 px) with P low-resolution (low-res) images (e.g., 192 ×192 px). Compared to using only full-res frames, this multi-resolution scheme consistently reduces the computation cost of the detection algorithm, as measured by the total number of required MAC operations: MAC = ρMAC fr + (1 − ρ)MAC lr (1) where ρ = 11+ P , MAC fr and MAC lr represent the number of MAC operations required to execute the inference on one full-res and one low-res frame, respectively. The loss of detection accuracy resulting from interleaving low-res frames versus using only full-res frames is counteracted by utilizing ByteTrack and the Rescore algorithms, as described in Sections III-B and III-C. Additionally, we note that the object detectors reuse the same parameters during both full-resolution and low-resolution inferences. Hence, by design, the weight memory footprint of our multi-resolution setting matches those of baseline single-resolution detectors. In the case of CNNs, the reduction of MAC operations when computing with low-res frames is related to the spatial sliding of the convolution filters over the input image and the intermediate results. Generally, the total number of MACs scales linearly with respect to the area of the input image, e.g., for the CNN-based NanoDet object detector. On the other side, Transformers process image patches of fixed sizes (e.g., 16 ×16 px in ViT), and their attention layers compute the correlation between the features extracted by the patches [58]. Hence, by reducing the resolution of the input image, a Transformer processes a lower number of patches, scaling the total number of operations quadratically with respect to the area of the input data. In this work, we apply the multi-resolution scheme to a novel Transformer-based object detector featuring linear attention layers (Sec IV). For this attention mechanism, the computation cost of the inference task scales linearly with respect to the input area, as explained in the following section. 
+
+> B. BYTETRACK
+
+To recover from potential misdetections caused by low-resolution frames, a Kalman-filter-based tracking algorithm, ByteTrack, is applied to the detections produced at each  
+
+> VOLUME 14, 2026 5
+
+Frame-Based Object Detector FIGURE 1. Overview of the MR2-ByteTrack algorithm. 
+
+Algorithm 1: MR2-ByteTrack tracking pipeline. 
+
+Inputs : Frame Ft , active trackers {Tj}Mj=1 
+
+Ft : RGB image frame at time t
+
+{Tj}Mj=1 : set of active trackers, Tj = (bbox kf  
+
+> j
+
+, cl j, conf j)bbox kf  
+
+> j
+
+: bounding box in image coordinates, cl j: class index, 
+
+conf j: confidence score 
+
+Model Parameters : high _threshold , low _threshold , τIoU ,
+
+τinit , τdead , P 
+
+if t mod ( P + 1) ̸ = 0 then 
+
+ˆFt ← Resize( Ft ) ; // low-resolution frame 
+
+else 
+
+ˆFt ← Ft ; // full-resolution frame 
+
+{Di}Ni=1 ← ObjectDetector(ˆ Ft ), Di = (bbox i, cl i, conf i)
+
+{Dhigh  
+
+> i
+
+} ← { Di | conf i ≥ high _threshold }{Drem  
+
+> i
+
+} ← { Di | low _threshold ≤ conf i < high _threshold }
+
+// First association pass: high-confidence detections vs. all active trackers 
+
+Chigh ← IoUMatrix( {Dhigh  
+
+> i
+
+}, {Tj}Mj=1 )(Mhigh , Uhigh  
+
+> D
+
+, Uhigh  
+
+> T
+
+) ← Match( Chigh , τ IoU )
+
+foreach (i, j) ∈ M high do 
+
+Tj ← KalmanUpdate( Tj, Di)
+
+foreach i ∈ U high  
+
+> D
+
+do 
+
+initialize new tracker from Di if confirmed after τinit 
+
+consecutive matches 
+
+// Second association pass: {Drem  
+
+> i
+
+} vs. unmatched trackers only 
+
+Crem ← IoUMatrix( {Drem  
+
+> i
+
+}, {Tj | j ∈ U high  
+
+> T
+
+})(Mrem , _, _) ← Match( Crem , τ IoU )
+
+foreach (i, j) ∈ M rem do 
+
+Tj ← KalmanUpdate( Tj, Di)
+
+// unmatched Drem  
+
+> i
+
+are discarded // Propagate unmatched trackers via Kalman prediction; remove stale ones 
+
+foreach Tj with j ∈ U high  
+
+> T
+
+unmatched after both passes do 
+
+Tj ← KalmanPredict( Tj)
+
+if Tj unmatched for τdead consecutive steps then 
+
+remove Tj
+
+{Tj}Mj=1 ← Rescore 
+
+
+
+{Tj}Mj=1 
+
+
+
+return {Tj}Mj=1 
+
+frame. Formally, given a frame F at time t, the object detector outputs a set of detections {Di}Ni=1 , where N is the total num-ber of detected objects in the current frame. As can be seen from Figure 1, each detection Di is represented by a triplet (bbox i, cl i, conf i), where: bbox i is the bounding box defining the object’s position in the image, cl i is the class index of the object, and conf i is the confidence score (conf i <= 1 ) for the class cl i.At each time step t, ByteTrack keeps a list of active trackers 
+
+{Tj}Mj=1 , where each instance corresponds to a tracked object. Similarly to detections, each tracker ( Tj) is represented as a triplet (bbox kf j , cl kf j , conf kf j ). In this triplet, bbox kf j is the object’s bounding box, which is refined by a Kalman filter based on motion, cl j represents the class index assigned to the tracked object, and conf j is the confidence score of the assigned class. To find correspondences between detections DNi=1 and ex-isting trackers T Mj=1 , MR2-ByteTrack uses the Intersection over Union as a cost function. A detection is associated with an existing tracked object only if its IoU exceeds the threshold value ( τIoU ) of 0.3. Unlike the original ByteTrack work, we do not consider feature-matching cost components for associating detections across frames because of the multi-resolution scheme. Additionally, a tracker is considered active after matching with two consecutive detections ( τinit ), and is removed if it is not updated during the latest 5 time steps (τdead ). Finally, we introduce a filtering mechanism to ensure re-liable tracking. When a new detection does not match any active tracker, it initializes a new tracker only if its confidence score exceeds a predefined high_threshold . Conversely, de-tections with a confidence score below the low_threshold are discarded. Finally, a detection whose confidence is between the high_threshold and low_threshold is kept only if it can be linked to a previous These thresholds are tuned to control the precision (mainly impacted by high_threshold ) and the recall (low_threshold ) of our algorithm. Algorithm 1, summarizes  
+
+> 6VOLUME 14, 2026
+
+the pipeline described in this section. 
+
+C. RESCORE ALGORITHM 
+
+The new Rescore algorithm (Algorithm 2) revisits (rescores) the class indexes and the confidence scores assigned by ByteTrack to the tracked objects. We exploit the temporal consistency of moving objects in a video, i.e., the history of the detections, to identify and correct algorithm misclassifi-cation. For every Tj tracker, we define an additional class status variable (conf agg i ) to aggregate the confidence scores of all detections matched with Tj up until time step t − 1. When a new detection Di is assigned to Tj at time t, and they belong to the same class, we update conf agg j as: conf agg j = 1 − ((1 − conf agg j ) ∗ (1 − conf i)) (2) In this update rule, the confidence score conf i is interpreted as the probability that the class is correct. The formula is the complement of the probability that both detections are simultaneously incorrect, i.e., it captures all cases in which at least one of the two detections is correct (including the case in which both are correct). Therefore, the aggregation increases overall confidence by excluding individual error cases and retaining only the less probable joint-error case. If the class cl i of the new detection differs from the tracker’s class cl j,conf agg j is reduced as: conf agg j = 1 − ((1 − conf agg j )/(1 − conf i)) (3) the update rule in this instance represents a normalized con-fidence margin, where the residual uncertainty of the class carried over by the tracker (1 − conf agg i ) is weighted by the confidence that the competing class is wrong (1 − conf i).This reduces the confidence of discordant detections and retains only the portion of confidence that supports the pre-ferred class over its alternative. If the confidence score of the new detection (conf i) exceeds the aggregated score conf agg j ,we modify the tracker’s class to cl i. Because any rescore operation can not occur if conf agg j = 1, the value of the aggregated score is capped after the update to 1 − ϵ, where 
+
+ϵ is 10 −4. Finally, Rescore assigns a new confidence score to a tracked object as the mean confidence score of the matched detections. 
+
+IV. TRANSFORMERS-BASED MR2-BYTETRACK 
+
+Given the lack of lightweight Transformer-based object de-tectors, we propose a novel architecture named EffViT-Det. Our design utilizes the EfficientViT-B0 [15] backbone, con-sisting of 5 convolutional layers followed by three attention-based transformer layers. The latter feature two main differ-ences with respect to the layers of traditional Vision Trans-formers. First, the standard softmax-based attention mecha-nism is replaced with a ReLU-based linear attention mecha-nism. Second, the size of the output tensors of the attention layers decreases as the model progresses toward its output. 
+
+Algorithm 2: Rescore algorithm.                                                                            
+
+> Inputs :Match {Di= (cl i,conf i),Tj= (cl j,conf j,conf agg j)}
+> if cl j== cl ithen
+> conf agg j←1−((1 −conf i)∗(1 −conf agg j))
+> else if conf agg j<conf ithen
+> (cl j,conf j,conf agg j)←(cl i,conf i,conf i)
+> else
+> conf agg j←1−((1 −conf agg j)/(1 −conf i)) conf agg j←max (conf agg j,0)
+> if conf agg j<conf ithen
+> (cl j,conf j,conf agg j)←(cl i,conf i,conf i)conf j←mean
+> 
+> conf ticonf t−1
+> i,conf t−2
+> i
+> 
+> conf agg j←min (conf agg j,1−ϵ)
+> return Tj= (cl j,conf j,conf agg j)
+
+Conversely, ViT presents a fixed feature map size throughout the entire network. In our object detector, the hierarchical feature maps pro-duced by the EfficientViT-B0 [15] backbone are firstly ag-gregated and then passed to a detection head, following the design approach previously proposed by YOLOX [18]. For feature aggregation, we utilize a Path Aggregation Network (PAN) [18], which aims to fuse high-resolution features with low-resolution semantic features in a bottom-up manner. This solution leads to a higher mAP on COCO than using a top-down Feature Pyramid Network (FPN) [59] (24.6 mAP for PAN vs. 22.0 mAP for FPN), while being comparable in terms of computation cost ( 281 MMAC vs. 272 MMAC ). When integrated into MR2-ByteTrack, we feed our EffViT-Det object detector with full-resolution or low-resolution im-ages to trade off accuracy versus computation load (Equa-tion 1). The attention layers of the EfficientViT-B0 backbones process the features extracted by patches of size 8 ×8 px (first attention layer), 16 ×16 px (second), or 32 ×32 px (third). Following the discussion in [15], the attention computes the all-to-all similarity across the patches. Given a total of n
+
+patches, the attention between the i and j-th blocks, indicated as Aij is computed as: 
+
+Aij =
+
+Sim 
+
+ 1√dk
+
+Pdk 
+
+> k=1
+
+Qik Kjk 
+
+Pnj′=1 Sim 
+
+ 1√dk
+
+Pdk 
+
+> k=1
+
+Qik Kj′k
+
+ (4) where i and j range from 1 to n, dk is the feature dimension and 
+
+Qik and Kik are the element of, respectively, dk -sized query and key vectors extracted from the i-th patch. For our linear attention layers, Sim () = ReLU () , hence Equation 4 can be rewritten as: 
+
+Aij =
+
+> dk
+
+X
+
+> k=1
+
+ReLU (Qik ) ReLU (Kjk )
+
+Pnj′=1 ReLU (Qik ) ReLU (Kj′k ) (5) By simplifying ReLU (Qik ), the attention equation no longer depends on the i-th element. As a result, the number of operations in our EffViT-Det scales linearly with respect to the number of patches, i.e., the resolution of the input image.  
+
+> VOLUME 14, 2026 7
+
+In our MR2-ByteTrack solution, the total number of MAC for transformer-based inference is, therefore, 2.8 × lower when scaling the resolution of the input image from 320 ×320 px to 192 ×192 px. 
+
+> V. VOD FOR EMBEDDED SENSOR NODES
+
+We evaluate MR2-ByteTrack on the GAP9 MCU, chosen due to its widespread adoption in prior ultra-low-power vi-sion systems, including autonomous drone navigation mod-ules [60], smart-glass object detection platforms [51], and compact agricultural pest monitoring nodes [61], [62]. As illustrated in Figure 2, GAP9 is organized into two power domains: a host domain and a compute cluster (CL). The host domain features a single RISC-V fabric-controller (FC) core responsible for peripheral management, memory coordination, and task scheduling. It integrates 1.5 MB of L2 memory for intermediate activations, 2 MB of embedded non-volatile memory, and a μDMA engine that enables high-throughput transfers over an octa-SPI interface to external memory devices, which in our setup include a 32 MB RAM and a 64 MB Flash module. The cluster domain serves as the primary compute accelerator. It incorporates nine RISC-V cores that support vectorized MAC operations, comple-mented by four shared FP16-capable floating-point units that accelerate dense linear algebra kernels. A 128 kB L1 scratch-pad memory provides low-latency data access, whereas ac-cesses to the L2 memory are approximately an order of magnitude slower. To mitigate this bottleneck, a dedicated DMA engine manages asynchronous L1–L2 transfers, reduc-ing processor idle time and sustaining high computational throughput during memory-bound phases. Our method is not tied to a specific hardware platform and can be deployed on MCUs with comparable memory and compute capabilities, for example, the STM32N6x7 (4.2 MB Static Random-Access Memory (SRAM) with 
+
+128 kB Tightly Coupled Memory (TCM)) and NXP i.MX RT1170 ( 2 MB SRAM and 512 kB TCM) provides more on-chip memory than GAP9 and supports external mem-ory, making it suitable for running the full MR2-ByteTrack pipeline. To validate portability, we also tested the most com-putationally demanding component, NanoDet, with full-res input ( 320 × 320 px), on the STM32N6x7. More specifically, we deployed our models using the ST Edge AI Core 4.0.0 toolchain via the ST Edge AI Developer Cloud, which takes the graph-level description of the network, e.g., an Open Neural Network Exchange (ONNX) graph as input, applies calibration-based int8 post-training quantization via a per-tensor affine mapping scheme, and generates optimized C code for the target platform. The quantized model is then executed on Neural-ART, the on-chip hardware accelerator of the STM32N6x7 microcontroller. The NanoDet model with a 320 × 320 input resolution runs in 98 .24 ms ms on the STM32N6570-DK evaluation board, confirming the feasibil-ity of extending our approach beyond GAP9 to other MCU-class systems. To deploy CNN- or Transformer-based object detection  
+
+> FIGURE 2. Overview of the GAP9 MCU and the memory hierarchy. We explicitly indicate where to store the activation and weight tensors of the object detection models, as well as the binary code.
+
+models on the target platform, we utilize a deployment tool that transforms the ONNX graph, into low-level code. For the GAP9 MCU, we utilize GWT’s GAP flow toolset, which generates optimized C code for the detection task, also known as the DNN inference task. The tool generates header files containing model parameters and source files that define graph and layer-level routines for each trained model. Model weights are stored in external OctaSPI Flash memory. At the same time, intermediate values of the inference task, i.e., activation tensors, are allocated in the on-chip L2 memory and offloaded to external RAM when needed (see Figure 2). The datatype of weights and activations is cast to half-precision 
+
+FP16 for a lossless deployment. Because the code generation process is optimized for a given input resolution, we generate two C source codes to realize our multi-resolution scheme. Each full-resolution or low-resolution model has its own implementation, i.e., a dif-ferent binary code, while both share the same weight param-eters stored in Flash memory. A high-level scheduler selects which binary code to load at each frame to execute full-res or low-res inference. For CNN-based detectors, the binary codes of the two models can fit the on-chip memory. Conversely, the EffViT-Det model has a total code size of approximately 808 kB , which poses a challenge for deploy-ment on our platform. Under normal operation, all executable code is permanently loaded and run from GAP9’s L2 memory. However, in this case, the model’s code leaves insufficient space for intermediate activations, which must also reside in L2 during inference. To address this constraint, we store the detector’s code in                   
+
+> 8VOLUME 14, 2026 TABLE 2. Baseline object detection models.
+> Model Type Parameters [M] MAC [M] full-res low-res
+> YOLOX CNN 0.9 316 114 NanoDet CNN 1.2 463 167 EffViT-Det Transformer 0.9 281 101
+
+GAP9’s embedded non-volatile memory and rely on a code overlay mechanism to bring only the necessary portions into L2 at runtime. Specifically, we define two overlay sections in the linker script: one for the full-resolution model and one for the low-resolution model. We assign functions to these sections using custom compiler attributes. At inference time, the runtime scheduler preloads the re-quired overlay into L2 before executing the selected model. In this way, mutually exclusive code segments share the same physical L2 region, and only the code needed for the current inference occupies L2. This mechanism enables us to deploy the Transformer detector without increasing the code’s L2 memory footprint, meeting the platform’s tight memory constraints. 
+
+VI. EXPERIMENTAL RESULTS 
+
+A. SETUP 
+
+We evaluate the effectiveness of MR2-ByteTrack in combi-nation with two SoA convolution-based detectors, namely YOLOX and NanoDet, and our transformer-based detector EffVIT-Det. Table 2 shows the parameter counts and com-putational complexity (measured in MMAC ) for process-ing full-res (320 ×320 px) and low-res (192 ×192 px) input frames. All the detectors are trained on the COCO dataset. For NanoDet 1 and YOLOX 2, we use the checkpoints available from their official repositories [17], [18]. Instead, EffVIT-Det is trained following the training recipe proposed in [18]. Specifically, the model is optimized using stochastic gradi-ent descent with a cosine learning rate schedule and a 15-epoch warm-up phase. The initial learning rate is 0.01. Data augmentation techniques, like mosaic augmentation [63], are applied during the training process and disabled for the final 15 epochs. For our VOD experiments, we test the MR2-ByteTrack algorithms on the ImageNetVID dataset. We consider only video sequences containing objects from one of the 16 classes shared with the COCO dataset. After this filtering operation, we obtain a test subset of 392 video samples that we denote as ImageNetVID C to distinguish it from the original dataset. Beyond ImageNetVID C , MR2-ByteTrack can be directly applied to any domain where a pretrained detector is avail-able, since both the tracking and rescoring components are training-free and introduce no dataset-specific parameters. ByteTrack requires that object motion remains sufficiently 
+
+> 1Shufflenetv2-NanoDet-Plus:https://github.com/RangiLyu/nanodet
+> 2CSPDarknet-YOLOX-Nano:https://github.com/Megvii-BaseDetection/ YOLOX
+
+smooth across consecutive frames for IoU-based association to be reliable. At the same time, Rescore relies on the tem-poral stability of the detector’s class predictions, which holds for trained models capable of generalization. Datasets such as VisDrone [64], CityFlow [65], and UA-DETRAC [66] represent similar evaluation settings over which we expect a behavior similar to ImageNetVID C .To assess the detection performance, we report the mAP50 metric, which we refer to as mAP throughout the rest of the paper. In our evaluation scheme, a detection is considered correct with respect to the ground truth if its IoU is greater than 0.5. Additionally, we measure per-class precision, recall, and F1 scores and report the average values. Compared to the mAP score, these metrics are more relevant for practi-cal deployment because they provide direct insights into the balance between true detections, false positives, and missed detections. More specifically, for computing the metrics, we consider detections with a confidence score exceeding a threshold that maximizes the F1 score at full resolution. The same logic is adopted for MR2-ByteTrack experiments to define the 
+
+high_threshold and low_threshold parameters. This differs from our previous work [11] where the high_threshold is set to the threshold measured for the baseline models. This latter choice does not account for the correlation between 
+
+high_threshold and low_threshold , resulting in a lower F1 score. We optimized the tracking thresholds for each network on the ImageNetVID C validation set. This choice is consistent with prior VOD works evaluating on the same dataset [22]– [25], [32]. This resulted in high_threshold values of 0.45, 0.4, and 0.55, and low_threshold values of 0.3, 0.15, and 0.1, for NanoDet, YOLOX, and EffViT-Det, respectively. The IoU threshold is fixed at 0.3 for all models. Finally, tracks are kept active for up to 5 frames even if they are not updated. These parameters are also reported in Table 3. All networks were deployed using the GAP flow toolset, version 5.19.5, and compiled with GCC for RISC-V, version 9.4.0. Power measurements were collected using Nordic’s Power Profiler Kit, while latency was measured through GAP9’s internal performance counters.The processor’s clock frequency is set to 370 MHz .                            
+
+> TABLE 3. Tracking hyperparameters for each detection model.
+> Model High Low IoU Max Inactive Min Consecutive Thr. Thr. Thr. (τIoU )Frames (τdead )Matches (τinit )
+> NanoDet 0.45 0.30 0.30 52YOLOX 0.40 0.15 0.30 52EffViT-Det 0.55 0.10 0.30 52
+
+B. VIDEO OBJECT DETECTION 
+
+Table 4 compares the performance of our MR2-ByteTrack against a baseline VOD pipeline that runs object detection on a frame-by-frame basis. We initially consider only detections over full-res frames, i.e., P = 0 low-res interleaved images. To ablate the effectiveness of our Rescore algorithm, the                                            
+
+> VOLUME 14, 2026 9TABLE 4. Comparison between baseline, Naïve-ByteTrack and MR2-ByteTrack VOD methods operating only with full resolution frames. Results obtained on ImageNetVID C
+> Model Method mAP Precision Recall F1 score
+> NanoDet Frame-by-frame 48.4 74.6 52.4 61.6 Naïve-ByteTrack 52.7 69.9 58.4 63.6 MR2-ByteTrack 55.7 72.9 60.6 66.2
+> YOLOX Frame-by-frame 48.5 69.9 52.4 59.9 Naïve-ByteTrack 51.9 66.4 57.1 61.4 MR2-ByteTrack 53.8 66.9 58.3 62.3
+> EffViT-Det Frame-by-frame 48.6 68.8 53.1 59.9 Naïve-ByteTrack 50.4 70.4 55.6 62.1 MR2-ByteTrack 52.4 73.2 56.8 63.9
+
+table includes Naïve-ByteTrack, a variant of MR2-ByteTrack where the Rescore algorithm is omitted. Overall, our results show that Naïve-ByteTrack improves the F1 score of the baseline detectors by an average of 2.09%. The improvement comes from the higher number of correct detections (higher recall) obtained by using the tracking al-gorithm. By leveraging Rescore to correct the misclassified detections, MR2-ByteTrack further increases the F1 score by 1.83%. The frame-by-frame NanoDet baseline yields 16.8% detec-tions with an incorrectly predicted class, i.e., false positives. With Naïve-ByteTrack, the number of correct detections in-creases by 20%, but we also observe +19.3% of false posi-tives. This effect arises from the tracking algorithm, which equally affects correctly and incorrectly classified objects. However, due to the higher number of accurate detections, the recall and F1 score of Naïve-ByteTrack are higher than those of the baseline. By incorporating the Rescore algorithm, MR2-ByteTrack reduces the number of false positives by 16.6%, demonstrating that the proposed probabilistic logic can effectively correct misclassified detections. Next, we compare YOLOX with the Transformer-based EffViT-Det, which features the same detection head but dif-fers in its backbones. We first observe that for YOLOX, Naïve-ByteTrack introduces a 3% drop in precision compared to the baseline. This effect arises because ByteTrack propa-gates false positives into subsequent frames. Then, in MR2-ByteTrack, the Rescore algorithm reduces the false-positive rate, leading to a final F1-score 0.9% higher than the naïve version. Conversely, by applying Naïve-ByteTrack to EffViT-Det, the precision and recall are increased by 1.6% and 2.5%, respectively. Thanks to time-consistent outputs provided by Rescore (+2.8% precision vs. Naïve-ByteTrack), MR2-ByteTrack achieves an F1 score of 63.9%, which is 1.8% higher than the naive version and also 1.6% higher compared to the final score of the CNN-based counterpart. 
+
+C. MULTI-RESOLUTION VOD 
+
+Figure 3 plots the mAP score of the MR2-ByteTrack models when varying the number of interleaved low-res images ( P
+
+from 0 to 6) in a multi-resolution setup. For comparison pur-poses, we perform the same multi-resolution experiment on the frame-by-frame baseline models. The bars on the bottom show the MMAC operations required by each configuration (Equation 1). On average, the upper plot shows an improvement of ∼10 mAP of MR2-ByteTrack vs. the baseline for an equal ratio of low-res and full-res images. For the baseline models, we can observe an abrupt drop in the mAP metric already at 
+
+P = 1 . Compared to this, MR2-ByteTrack shows a more gradual mAP decrease with respect to the number of P frames, thanks to the tracking algorithm. A steep mAP drop is only observed for MR2-ByteTrack at P = 6 . This effect is related to the inertia of the trackers, which remain active for five timestamps when no new detections occur. In the upper plot of Figure 3, the most computationally efficient configurations of MR2-ByteTrack are highlighted in red. These configurations are lossless when compared to their baseline counterparts that utilize full-resolution images. In the case of NanoDet, at P = 5, we observe a 0.6% improvement in mAP and a 53.4% reduction in computa-tional cost compared to the baseline. In contrast, YOLOX and EffViT-Det show a 32% reduction in computational costs at 
+
+P = 1 , achieving nearly comparable mAP scores compared to the multi-resolution frame-by-frame settings (-0.4 mAP for YOLOX and +0.1 mAP for EffViT-Det). To provide further insights into the obtained results, Fig-ure 4 illustrates the precision and recall scores as the number of interleaved low-resolution frames varies. For CNN-based object detectors (YOLOX and NanoDet), precision and recall metrics show a similar reduction when using a single low-resolution image, suggesting that the low-resolution input reduces the number of detected objects. This behavior is arguably due to the fixed receptive fields of the convolutional layers, which limit the contextual information the model cap-tures. On the other side, the Transformer-based mode exhibits a different trend: while the recall remains relatively stable, precision drops significantly (Figure 4). We argue that this effect is due to the Transformers’ ability to learn spatial rela-tionships within an image directly. Hence, these models can handle objects of varying sizes and scales more effectively than CNNs, albeit with the drawback of also incurring a higher number of false positives that can lead to errors during tracking. To further support our analysis, we examine the number of detected objects in YOLOX and EffViT-Det after integrating MR2-ByteTrack. With P = 0 , the YOLOX network returns 20% of false positive detections. The total number of detec-tions decreases slightly at P = 1 by 1.4%, while the false positive ratio remains nearly unchanged. In contrast, EffViT-Det shows 16% of false positives with P = 0 , while for P = 1 ,the number of detections increases by 2.9% and the false detection rate reaches 18.4%. Hence, our analysis reveals that CNNs exhibit a reduction in precision and recall when using low-resolution images. In contrast, Transformers tend to produce more false detections, thereby reducing precision    
+
+> 10 VOLUME 14, 2026 FIGURE 3. mAP (top) and MMAC (bottom) of MR2-ByteTrack and baseline VOD solutions when varying the number of low-res frames (P) in a multi-resolution setting. In red, we highlight the MR2-ByteTrack configs with the lowest MMAC and accuracy higher or close to the baseline.
+> FIGURE 4. Precision (top) and Recall (bottom) of MR2-ByteTrack and baseline VOD solutions when varying the number of low-res frames (P) in a multi-resolution setting.
+
+while maintaining a higher recall. In summary, three main trends emerge from Section VI-B and VI-C. First, ByteTrack improves recall for all three detectors. However, for CNN-based models, this comes at the cost of a precision reduction of comparable magnitude (+6.0% recall with -4.7% in precision for NanoDet, +4.7% in recall and -3.5% in precision for YOLOX), consistent with the tracker propagating true and false positives indiscriminately. EffViT-Det benefits from tracking across both metrics (+2.5% recall, +1.6% precision), suggesting that its globally-aware representations produce detections that are less sensitive to local image variations and therefore more suitable for prop-agation. Second, Rescore partially mitigates this trade-off by correcting temporally inconsistent class assignments, recov-ering up to 3% of the precision lost under Naïve-ByteTrack,                                                                           
+
+> TABLE 5. Comparison between MR2-ByteTrack and frame-by-frame baselines running on the GAP9 MCU.
+> Model Method RAM Flash Code Frame-rate Energy [MB] [MB] [kB] [frame /s] [mJ]
+> NanoDet frame-by-frame 1.6 2.3 186 3.3 21 .8±3.3
+> full-res
+> frame-by-frame 0.6 2.3 186 9.8 7.5±1.1
+> low-res
+> MR2-ByteTrack 1.6 2.3 372 7.4 9.9±1.5
+> P=5
+> YOLOX frame-by-frame 1.4 1.8 103 3.3 19 .2±2.9
+> full-res
+> frame-by-frame 0.5 1.8 103 8.6 7.0±1.1
+> low-res
+> MR2-ByteTrack 1.4 1.8 206 4.8 13 .1±2.0
+> P=1
+> EffViT-Det frame-by-frame 1.6 1.8 426 2.0 25 .6±3.8
+> full-res
+> frame-by-frame 0.0 1.8 382 7.0 8.1±1.2
+> low-res
+> MR2-ByteTrack 1.6 1.8 808 3.2 17 .1±2.6
+> P=1
+
+and contributing an additional 1.83% F1 improvement on top of the 2.09% already provided by tracking alone. Third, MR2-ByteTrack exhibits a slower mAP decline as the proportion of low-resolution frames increases: while the baseline suffers an abrupt drop already at P = 1, losing 8 mAP with respect to P =0, MR2-ByteTrack maintains an average ∼10 mAP above the baseline at equal low-resolution ratios, with lossless operating points at P = 5 for NanoDet (+0.6 mAP, -53.4% compute) and P = 1 for both YOLOX and EffViT-Det (-32% compute). The degradation observed is architecture-dependent. CNN-based detectors experience similar reductions in precision and recall, with losses of 1.7% in precision and 1.3% in recall for NanoDet, and losses of 4% in precision and 4.2% in recall for YOLOX, both evaluated at P = 1. We argue that the reduction in precision and recall comes from the fixed receptive fields constraining multi-scale contextual capture, where EffViT-Det retains recall more effectively but incurs a higher precision reduction (6.9% reduction in precision and 2.5% reduction in recall), evidenced by a false positive rate rising from 16% to 18.4% at P = 1, as the tracker propagates false positive detections. 
+
+D. VOD ON MCUS 
+
+Table 5 compares our MR2-ByteTrack solution vs. frame-by-frame single-resolution baselines (e.g., used by [7], [10]) with full-res and low-res inputs when running on an MCU system. We deploy the different approaches on the GAP9 SoC, cou-pled with two external memories: a 64 MB Flash and a 32 MB 
+
+RAM. The table reports the activation and weight memory occupation in MB , denoted as RAM and Flash memory in the Table, the code size, the processing throughput in frame /s,and the energy cost, measured when the MCU is clocked at 
+
+370 MHz .The object detection inference tasks generally dominate the latency and memory cost of the entire MR2-ByteTrack                                                                            
+
+> VOLUME 14, 2026 11 TABLE 6. Comparison between VOD methods not tailored for resource-constrained MCU-based embedded systems. Results are reported on the ImagenetNetVID dataset.
+> Method Object detector Backbone Prec. Recall F1 score mAP Params [M] GMAC vs. full-res object detector
+> ∆mAP ∆params ∆MAC YOLOV-S [24] YOLOXS 79.9 66.4 72.5 62.5 10.3 12.9 2.7 +14% +21% MR2-ByteTrack 80.0 65.9 72.5 62.4 9.0 10.9 2.6 00MR2-ByteTrack ( P= 2 )77.9 63.2 69.9 57.9 9.0 6.2 -1.1 0-43%
+> Liu et. al [30] SSDLite-Mobilenetv2 [35] n/a n/a n/a 61.4 4.9 0.2 0.9 1+11% 1-84% MR2-ByteTrack ( P= 5 )NanoDet 3[17] 71.2 54.1 61.5 49.0 21.2 0.2 0.6 20-53%
+> 1w.r.t. large f 0non-interleaved model [30]. 2measured on ImageNetVID C.3trained on the COCO dataset. 0100 200 300 400 500 600
+> Time [ms]
+> 20
+> 40
+> 60
+> 80
+> 100
+> 120
+> Power [mW]
+> Power Profile EffViT-Det
+> EffViT-Det full-res
+> EffViT-Det low-res
+> image resize
+> FIGURE 5. Power profile of the EffViT-Det neural network in full-res and low-res configuration, Code loading and MR2-ByteTrack are not visible due to the limited required time.
+
+solutions. Conversely, the ByteTrack module and the Rescore algorithm incur at most 0.2 ms of execution time and 11 kB of memory overhead in the worst case observed during evalua-tion, corresponding to 21 active trackers. Both quantities scale linearly with the number of active trackers. Nevertheless, this overhead is negligible relative to the detector cost, remaining below <0.2% of NanoDet’s inference time and below <1% of its memory requirements, and is thus marginal for both CNN-and Transformer-based models. Regarding the object detection tasks running on the refer-ence platform, the full-resolution model’s activation memory dominates the total cost of the multi-resolution deployment. The inference tasks with low-res frames can reuse the same RAM space to store the intermediate results. Conversely, the weight storage is constant among different resolutions. While the weights and activation are retained in the external memories, the code needs to be stored in the L2 memory for fast execution. In the case of CNN-detectors, the memory required to store the two binary code amounts up to 372 kB ,leaving >1 MB of free space in the L2 memory to load weight and activation data from the external memories. Conversely, for EffViT-Det, the total code size of 808 kB implies only 
+
+692 kB of free L2 space for the intermediate results, which prevents a successful deployment. To solve this issue, we store the double binary code in the large embedded non-volatile memory and dynamically load a resolution-specific binary into the L2 memory at runtime. While this copy op-eration introduces an overhead of 0.8 ms at an energy cost of 0.023 mJ , a total of approx 1 MB of L2 memory is now available for storing network activations, which enables the deployment of EffViT-Det. The corresponding runtime power profile of the algorithm is shown in Figure 5. From the profile, we can see that the execution of the detector dominates both power and energy consumption. In contrast, auxiliary opera-tions, namely, image resizing for the low-resolution branch (∼3 ms) and the loading of the appropriate model binary, contribute only marginally. Given the network model deployments, our MR2-ByteTrack solutions can run at 7.4 frame /s with NanoDet, 
+
+4.8 frame /s with YOLOX, and 3.2 frame /s with EffViT-Det. The measured throughputs are, respectively, 2.2 ×, 1.5 ×, and 1.6 × faster than the baseline full-res deployments. The la-tency gains are then reflected directly in the energy costs: the multi-resolution models consume 2.2 ×, 1.46 ×, and 1.5 × less than the full-resolution versions for NanoDet, YOLOX, and EffViT-Det. Based on the reported performance scores and the accuracy results in Section VI-C, our MR2-ByteTraker exhibits the best energy-accuracy trade-off among existing VOD approaches for MCU-based embedded systems. 
+
+E. VOD BEYOND ULTRA-LOW-POWER 
+
+To showcase the generality of our approach, we apply MR2-ByteTrack to other recent real-time DNN-based methods that are not tailored for MCU deployment because of the high number of parameters. More in detail, we consider YOLOX-S, a CNN-based object detector featuring 9 M parameters used by the YOLOV VOD system [24], and an SSDLite-MobileNetV2 ( 4.9 M parameters), which is the backbone adopted by the VOD multi-resolution strategy proposed by 
+
+Liu et al. [30]. The results of the comparison are reported in Table 6. To fairly compare our work with YOLOXV, we apply our MR2-ByteTrack to the same YOLOX-S backbone that was pre-trained on ImageNetVid. We consider a high-res or a multi-resolution configuration with P=2. Our solution is compared to the real-time version of YOLOV, where only the detections from past frames are sent to the transformer-based aggregator module. Our MR2-ByteTrack achieves a +0.1% higher precision  
+
+> 12 VOLUME 14, 2026
+
+than YOLOV, primarily due to its lower number of false positives. At the same time, the lower recall (-0.1%) acknowl-edges the recognition ability of the final transformer layer in YOLOV, which increases the memory and computational costs by, respectively, 14% and 21% compared to the baseline backbones. MR2-ByteTrack reaches the same F1 score as YOLOV but saves the transformer overhead costs. Addition-ally, in the case P=2, the F1 score is reduced by only 2.6%, but we show a computational cost reduction of up to 43%. On the other hand, because the pre-trained SSDLite-Mobilenetv2 model adopted by Liu et al. [30] is not openly available, we use the NanoDet model, which is pre-trained on COCO, for comparison (NanoDet features 3.7 M param-eters less than SSDLite-Mobilenetv2). Our MR2-ByteTrack method achieves a substantial latency improvement (-53% vs. -84% of [30], which uses P=10), while slightly increasing the mAP score compared to the baseline. However, our solution does not increase the memory footprint (+11% in [30]) and does not require training the tracker on the video sequence, highlighting the higher flexibility of our approach. 
+
+VII. CONCLUSIONS 
+
+This work investigated how on-node video processing for embedded sensory systems can be advanced under the tight compute, memory, and energy constraints of MCU-based platforms. The proposed MR2-ByteTrack method enhances the efficiency of deployed video object detection pipelines by integrating multi-resolution inference with a lightweight mechanism that connects detections across time. Augment-ing pre-trained detectors with the ByteTrack tracker and the Rescore algorithm exploits temporal consistency, mitigat-ing the accuracy losses introduced by low-resolution inputs. Experiments with memory-efficient DNNs demonstrate that MR2-ByteTrack preserves mAP while increasing through-put on the GAP9 MCU by up to 2.2 ×. We demonstrate the first deployment of a Transformer-based object detector on an ultra-low-power MCU, both as a standalone model and, enabled by MR2-ByteTrack, within a complete VOD pipeline, highlighting MR2-ByteTrack’s capability to work with both CNN- and Transformer-based detectors. Looking forward, the tracker’s bounding box predictions represent an unexploited source of spatial information that could guide a finer-grained resolution policy: rather than downsampling the entire frame uniformly, future work could selectively preserve full resolution only within tracker-predicted regions of interest, reducing compute further while concentrating representational capacity where objects are most likely to appear. A further direction concerns the Rescore update rules, which currently treat all classes symmetrically: incorporat-ing class-occurrence priors estimated from the detector’s output statistics on unlabeled deployment data would make Rescore aware of the detector’s systematic biases, for in-stance, down-weighting overpredicted classes, while preserv-ing the training-free nature of the pipeline and introducing a form of lightweight unsupervised adaptation to the deploy-ment domain. Finally, the constant-velocity motion model underlying the current tracker represents the primary bot-tleneck for deployment in scenarios with irregular or ego-induced camera motion; replacing it with more complex mo-tion priors, e.g., neural network-based trackers or extended Kalman filtering, would extend the pipeline’s applicability to a broader class of platforms and use cases. More generally, this work may pave the way for the execution of dynamic AI kernels on MCUs, enabling runtime adaptation of the compute-accuracy trade-off according to deployment-time conditions. 
+
+DATA AVAILABILITY STATEMENT 
+
+Data used in this manuscript are available at the follow-ing links: https://cocodataset.org/#home for the COCO [67] dataset used to train our network, ImagenetVID [16] https:// image-net.org/challenges/LSVRC/2017/#vid used for all the evaluations performed in this work. 
+
+ACKNOWLEDGEMENTS 
+
+Generative AI was used throughout the manuscript for gram-mar and spelling checks. 
+
+REFERENCES                          
+
+> [1] S. C. Mukhopadhyay, S. K. S. Tyagi, N. K. Suryadevara, V. Piuri, F. Scotti, and S. Zeadally, ‘‘Artificial intelligence-based sensors for next generation iot applications: A review,’’ IEEE Sensors Journal , vol. 21, no. 22, pp. 24 920–24 932, 2021. [2] W. Su, L. Li, F. Liu, M. He, and X. Liang, ‘‘Ai on the edge: a comprehensive review,’’ Artif. Intell. Rev. , vol. 55, no. 8, p. 6125–6183, Dec. 2022. [Online]. Available: https://doi.org/10.1007/s10462-022-10141-4 [3] W. Yu, F. Liang, X. He, W. G. Hatcher, C. Lu, J. Lin, and X. Yang, ‘‘A survey on the edge computing for the internet of things,’’ IEEE Access ,vol. 6, pp. 6900–6919, 2018. [4] K. S. Patle, R. Saini, A. Kumar, and V. S. Palaparthy, ‘‘Field evaluation of smart sensor system for plant disease prediction using lstm network,’’
+> IEEE Sensors Journal , vol. 22, no. 4, pp. 3715–3725, 2022. [5] A. Sabato, S. Dabetwar, N. N. Kulkarni, and G. Fortino, ‘‘Noncontact sensing techniques for ai-aided structural health monitoring: A systematic review,’’ IEEE Sensors Journal , vol. 23, no. 5, pp. 4672–4684, 2023. [6] S. Sameer, P. Madan, S. Kannan, V. J. Upadhye, H. Patil, and S. Rajkumar, ‘‘AI-based Object Detection for Assisting the Visually Impaired People,’’ in 2024 5th International Conference on Mobile Computing and Sustain-able Informatics (ICMCSI) .IEEE, 2024, pp. 512–518. [7] L. Lamberti, L. Bompani, V. J. Kartsch, M. Rusci, D. Palossi, and L. Benini, ‘‘Bio-inspired autonomous exploration policies with cnn-based object de-tection on nano-drones,’’ in 2023 Design, Automation & Testin Europe Conference & Exhibition (DATE) .IEEE, 2023, pp. 1–6. [8] E. AlNuaimi, E. Cereda, R. Psiakis, S. Sugumar, A. Giusti, and D. Palossi, ‘‘A Deep Learning-Based Face Mask Detector for Autonomous Nano-Drones (Student Abstract),’’ in Proceedings of the AAAI Conference on Artificial Intelligence , vol. 36, no. 11, 2022, pp. 12 903–12 904. [9] D. Rossi, F. Conti, M. Eggiman, A. D. Mauro, G. Tagliavini, S. Mach, M. Guermandi, A. Pullini, I. Loi, J. Chen, E. Flamand, and L. Benini, ‘‘Vega: A Ten-Core SoC for IoT Endnodes With DNN Acceleration and Cognitive Wake-Up From MRAM-Based State-Retentive Sleep Mode,’’
+> IEEE Journal of Solid-State Circuits , vol. 57, no. 1, pp. 127–139, 2022. [10] L. Lamberti, M. Rusci, M. Fariselli, F. Paci, and L. Benini, ‘‘Low-power license plate detection and recognition on a risc-v multi-core mcu-based vision system,’’ in 2021 IEEE International Symposium on Circuits and Systems (ISCAS) .IEEE, 2021, pp. 1–5. [11] L. Bompani, M. Rusci, D. Palossi, F. Conti, and L. Benini, ‘‘ Multi-resolution Rescored ByteTrack for Video Object Detection on Ultra-low-power Embedded Systems ,’’ in 2024 IEEE/CVF Conference on Computer Vision and Pattern Recognition Workshops (CVPRW) .Los Alamitos, CA, USA: IEEE Computer Society, Jun. 2024, pp. 2182–2190.
+> VOLUME 14, 2026 13
+
+[12] A. Dosovitskiy, L. Beyer, A. Kolesnikov, D. Weissenborn, X. Zhai, T. Unterthiner, M. Dehghani, M. Minderer, G. Heigold, S. Gelly, J. Uszkoreit, and N. Houlsby, ‘‘An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale,’’ in International Conference on Learning Representations , 2021. [Online]. Available: https://openreview.net/forum?id=YicbFdNTTy [13] Y. Wang, Y. Deng, Y. Zheng, P. Chattopadhyay, and L. Wang, ‘‘Vision transformers for image classification: A comparative survey,’’ 
+
+Technologies , vol. 13, no. 1, 2025. [Online]. Available: https://www.mdpi. com/2227-7080/13/1/32 [14] A. Khan, Z. Rauf, A. Sohail, A. R. Khan, H. Asif, A. Asif, and U. Farooq, ‘‘A survey of the vision transformers and their cnn-transformer based variants,’’ Artificial Intelligence Review , vol. 56, no. 3, pp. 2917–2970, Dec 2023. [Online]. Available: https://doi.org/10.1007/s10462-023-10595-0 [15] H. Cai, J. Li, M. Hu, C. Gan, and S. Han, ‘‘EfficientViT: Lightweight Multi-Scale Attention for High-Resolution Dense Prediction,’’ in 2023 IEEE/CVF International Conference on Computer Vision (ICCV) , 2023, pp. 17 256–17 267. [16] O. Russakovsky, J. Deng, H. Su, J. Krause, S. Satheesh, S. Ma, Z. Huang, A. Karpathy, A. Khosla, M. Bernstein, A. C. Berg, and L. Fei-Fei, ‘‘Ima-geNet Large Scale Visual Recognition Challenge,’’ International Journal of Computer Vision (IJCV) , vol. 115, no. 3, pp. 211–252, 2015. [17] RangiLyu, ‘‘Nanodet-plus Superfast and high accuracy lightweight anchor-free object detection model,’’ 2021. [Online]. Available: https: //github.com/RangiLyu/nanodet [18] Z. Ge, S. Liu, F. Wang, Z. Li, and J. Sun, ‘‘Yolox: Exceeding yolo series in 2021,’’ arXivpreprintarXiv:2107.08430 , 2021. [19] B. Liu, M. Cai, and J. Li, ‘‘Video Object Detection Based on 3D Con-volution,’’ in 2022 IEEE International Conference on Unmanned Systems (ICUS) , 2022, pp. 177–183. [20] X. Zhu, Y. Wang, J. Dai, L. Yuan, and Y. Wei, ‘‘Flow-Guided Feature Aggregation for Video Object Detection,’’ in 2017 IEEE International Conference on Computer Vision (ICCV) , 2017, pp. 408–417. [21] H. Wu, Y. Chen, N. Wang, and Z.-X. Zhang, ‘‘Sequence Level Semantics Aggregation for Video Object Detection,’’ in 2019 IEEE/CVF Interna-tional Conference on Computer Vision (ICCV) , 2019, pp. 9216–9224. [22] Y. Chen, Y. Cao, H. Hu, and L. Wang, ‘‘Memory Enhanced Global-Local Aggregation for Video Object Detection,’’ in 2020 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 06 2020, pp. 10 334– 10 343. [23] Q. Zhou, X. Li, L. He, Y. Yang, G. Cheng, Y. Tong, L. Ma, and D. Tao, ‘‘TransVOD: End-to-End Video Object Detection With Spatial-Temporal Transformers,’’ IEEE Transactions on Pattern Analysis and Machine Intel-ligence , vol. 45, no. 6, pp. 7853–7869, 2023. [24] Y. Shi, N. Wang, and X. Guo, ‘‘YOLOV: Making Still Image Object Detectors Great at Video Object Detection,’’ Proceedings of the AAAI Conference on Artificial Intelligence , vol. 37, no. 2, pp. 2254–2262, Jun. 2023. [25] H. Belhassen, H. Zhang, V. Fresse, and E.-B. Bourennane, ‘‘Im-proving Video Object Detection by Seq-BboxMatching.’’ in VISI-GRAPP(5:VISAPP) , 2019, pp. 226–233. [26] M. Li, L. Li, R. Bai, J. Ren, B. Meng, and Y. Yang, ‘‘A Motion-based Seq-bbox Matching Method for Video Object Detection,’’ in 2021 IEEE Symposium on Computers and Communications (ISCC) , 2021, pp. 1–7. [27] X. Liu, F. K. Nejadasl, J. C. van Gemert, O. Booij, and S. L. Pintea, ‘‘ Objects do not disappear: Video object detection by single-frame object location anticipation ,’’ in 2023 IEEE/CVF International Conference on Computer Vision (ICCV) . Los Alamitos, CA, USA: IEEE Computer Society, Oct. 2023, pp. 6927–6938. [28] T. Verelst and T. Tuytelaars, ‘‘BlockCopy: High-Resolution Video Process-ing with Block-Sparse Feature Propagation and Online Policies,’’ in 2021 IEEE/CVF International Conference on Computer Vision (ICCV) , 2021, pp. 5138–5147. [29] Q. Zhou, S. Guo, J. Pan, J. Liang, J. Guo, Z. Xu, and J. Zhou, ‘‘Pass: Patch automatic skip scheme for efficient on-device video perception,’’ IEEE Transactions on Pattern Analysis and Machine Intelligence , vol. 46, no. 5, pp. 3938–3954, 2024. [30] M. Liu, M. Zhu, M. White, Y. Li, and D. Kalenichenko, ‘‘Looking fast and slow: Memory-guided mobile video object detection,’’ arXiv preprint arXiv:1903.10172 , 2019. [31] L. Boyle, J. Moosmann, N. Baumann, S. Heo, and M. Magno, ‘‘DSORT-MCU: Detecting Small Objects in Real Time on Microcontroller Units,’’ 
+
+IEEE Sensors Journal , vol. 24, no. 24, pp. 40 231–40 239, 2024. [32] W. Han, P. Khorrami, T. L. Paine, P. Ramachandran, M. Babaeizadeh, H. Shi, J. Li, S. Yan, and T. S. Huang, ‘‘Seq-NMS for Video Object Detection.’’ CoRR , vol. abs/1602.08465, 2016. [Online]. Available: http: //dblp.uni-trier.de/db/journals/corr/corr1602.html#HanKPRBSLYH16 [33] S. Ren, K. He, R. Girshick, and J. Sun, ‘‘Faster r-cnn: towards real-time object detection with region proposal networks,’’ in Proceedings of the 29th International Conference on Neural Information Processing Systems - Volume 1 , ser. NIPS’15. Cambridge, MA, USA: MIT Press, 2015, p. 91–99. [34] W. Liu, D. Anguelov, D. Erhan, C. Szegedy, S. Reed, C.-Y. Fu, and A. C. Berg, ‘‘SSD: Single Shot MultiBox Detector,’’ in Computer Vision – ECCV 2016 , B. Leibe, J. Matas, N. Sebe, and M. Welling, Eds. Cham: Springer International Publishing, 2016, pp. 21–37. [35] M. Sandler, A. G. Howard, M. Zhu, A. Zhmoginov, and L.-C. Chen, ‘‘Mobilenetv2: Inverted residuals and linear bottlenecks,’’ 2018 IEEE/CVF Conference on Computer Vision and Pattern Recognition , pp. 4510–4520, 2018. [36] M. Yaseen, ‘‘What is YOLOv8: An In-Depth Exploration of the Internal Features of the Next-Generation Object Detector,’’ 08 2024. [37] A. Wang, H. Chen, L. Liu, K. CHEN, Z. Lin, J. Han, and G. Ding, ‘‘YOLOv10: Real-Time End-to-End Object Detection,’’ in The Thirty-eighth Annual Conference on Neural Information Processing Systems ,2024. [Online]. Available: https://openreview.net/forum?id=tz83Nyb71l [38] R. Khanam and M. Hussain, ‘‘YOLOv11: An Overview of the Key Architectural Enhancements,’’ 2024. [Online]. Available: https://arxiv.org/ abs/2410.17725 [39] N. Carion, F. Massa, G. Synnaeve, N. Usunier, A. Kirillov, and S. Zagoruyko, ‘‘End-to-end object detection with transformers,’’ in Com-puter Vision – ECCV 2020 , A. Vedaldi, H. Bischof, T. Brox, and J.-M. Frahm, Eds. Cham: Springer International Publishing, 2020, pp. 213– 229. [40] S. Mehta and M. Rastegari, ‘‘MobileViT: Light-weight, General-purpose, and Mobile-friendly Vision Transformer,’’ in International Conference on Learning Representations , 2022. [Online]. Available: https://openreview. net/forum?id=vh-0sUt8HlG [41] S. N. Wadekar and A. Chaurasia, ‘‘MobileViTv3: Mobile-Friendly Vision Transformer with Simple and Effective Fusion of Local, Global and Input Features,’’ 2022. [Online]. Available: https://arxiv.org/abs/2209.15159 [42] S. Mehta and M. Rastegari, ‘‘Separable Self-attention for Mobile Vision Transformers,’’ 2022. [Online]. Available: https://arxiv.org/abs/ 2206.02680 [43] D. Tran, L. Bourdev, R. Fergus, L. Torresani, and M. Paluri, ‘‘Learning Spatiotemporal Features with 3D Convolutional Networks,’’ in 2015 IEEE International Conference on Computer Vision (ICCV) . Los Alamitos, CA, USA: IEEE Computer Society, dec 2015, pp. 4489–4497. [44] Y. Lyu, M. Y. Yang, G. Vosselman, and G.-S. Xia, ‘‘Video object detection with a convolutional regression tracker,’’ ISPRS Journal of Photogramme-try and Remote Sensing , vol. 176, pp. 139–150, 2021. [45] Z. Zhang, D. Cheng, X. Z. S. Lin, and J. Dai, ‘‘Integrated Object De-tection and Tracking with Tracklet-Conditioned Detection,’’ ArXiv , vol. abs/1811.11167, 2018. [46] X. Zhu, W. Su, L. Lu, B. Li, X. Wang, and J. Dai, ‘‘Deformable DETR: Deformable Transformers for End-to-End Object Detection,’’ ArXiv , vol. abs/2010.04159, 2020. [Online]. Available: https://api.semanticscholar. org/CorpusID:222208633 [47] A. Bewley, Z. Ge, L. Ott, F. Ramos, and B. Upcroft, ‘‘Simple online and realtime tracking,’’ in 2016 IEEE International Conference on Image Processing (ICIP) , 2016, pp. 3464–3468. [48] Y. Zhang, P. Sun, Y. Jiang, D. Yu, Z. Yuan, P. Luo, W. Liu, and X. Wang, ‘‘ByteTrack: Multi-Object Tracking by Associating Every Detection Box,’’ in European Conference on Computer Vision , 2021. [49] B. A. Motetti, L. Crupi, M. O. M. E. Elshaigi, M. Risso, D. J. Pagliari, D. Palossi, and A. Burrello, ‘‘Adaptive Deep Learning for Efficient Visual Pose Estimation aboard Ultra-low-power Nano-drones,’’ ArXiv , vol. abs/2401.15236, 2024. [Online]. Available: https://api.semanticscholar. org/CorpusID:267312457 [50] J. Moosmann, H. Müller, N. Zimmerman, G. Rutishauser, L. Benini, and M. Magno, ‘‘Flexible and Fully Quantized Lightweight TinyissimoYOLO for Ultra-Low-Power Edge Systems,’’ IEEE Access , vol. 12, pp. 75 093– 75 107, 2024. [51] J. Moosmann, P. Bonazzi, Y. Li, S. Bian, P. Mayer, L. Benini, and M. Magno, ‘‘Ultra-efficient on-device object detection on ai-integrated smart glasses with tinyissimoyolo,’’ in Computer Vision – ECCV 2024  
+
+> 14 VOLUME 14, 2026
+
+Workshops , A. Del Bue, C. Canton, J. Pont-Tuset, and T. Tommasi, Eds. Cham: Springer Nature Switzerland, 2025, pp. 262–280. [52] H. H. Y. Shalby, M. Pavan, and M. Roveri, ‘‘StreamTinyNet: video stream-ing analysis with spatial-temporal TinyML,’’ in 2024 International Joint Conference on Neural Networks (IJCNN) , 2024, pp. 1–8. [53] C. El Zeinaty, W. Hamidouche, G. Herrou, and D. Menard, ‘‘Designing object detection models for tinyml: Foundations, comparative analysis, challenges, and emerging solutions,’’ ACM Comput. Surv. , vol. 58, no. 2, Sep. 2025. [Online]. Available: https://doi.org/10.1145/3744339 [54] A. Burrello, M. Scherer, M. Zanghieri, F. Conti, and L. Benini, ‘‘A Mi-crocontroller is All You Need: Enabling Transformer Execution on Low-Power IoT Endnodes,’’ in 2021 IEEE International Conference on Omni-Layer Intelligent Systems (COINS) , 2021, pp. 1–6. [55] V. J.-B. Jung, A. Burrello, M. Scherer, F. Conti, and L. Benini, ‘‘Optimiz-ing the Deployment of Tiny Transformers on Low-Power MCUs,’’ IEEE Transactions on Computers , vol. 74, no. 2, pp. 526–541, 2025. [56] A. Dequino, L. Bompani, L. Benini, and F. Conti, ‘‘Optimizing BFloat16 Deployment of Tiny Transformers on Ultra-Low Power Extreme Edge SoCs,’’ Journal of Low Power Electronics and Applications , vol. 15, no. 1, 2025. [Online]. Available: https://www.mdpi.com/2079-9268/15/1/8 [57] X. Lu, C. Bai, A. Zhu, Y. Zhu, and K. Wang, ‘‘Mcformer: A transformer-based detector for molecular communication with accelerated particle-based solution,’’ IEEE Communications Letters , vol. 27, no. 10, pp. 2837– 2841, 2023. [58] A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez, L. Kaiser, and I. Polosukhin, ‘‘Attention is all you need,’’ in Proceedings of the 31st International Conference on Neural Information Processing Systems , ser. NIPS’17. Red Hook, NY, USA: Curran Associates Inc., 2017, p. 6000–6010. [59] T.-Y. Lin, P. Goyal, R. Girshick, K. He, and P. Dollár, ‘‘Focal Loss for Dense Object Detection,’’ IEEE Transactions on Pattern Analysis and Machine Intelligence , vol. 42, no. 2, pp. 318–327, 2020. [60] L. Scarciglia, A. Paolillo, and D. Palossi, ‘‘A map-free deep learning-based framework for gate-to-gate monocular visual navigation aboard miniaturized aerial vehicles,’’ 2025. [Online]. Available: https://arxiv.org/ abs/2503.05251 [61] L. Bompani, L. Crupi, D. Palossi, O. Baldoni, D. Brunelli, F. Conti, M. Rusci, and L. Benini, ‘‘Accelerating image-based pest detection on a heterogeneous multicore microcontroller,’’ IEEE Transactions on Agri-Food Electronics , vol. 2, no. 2, pp. 170–180, 2024. [62] L. Crupi, L. Butera, A. Ferrante, A. Giusti, and D. Palossi, ‘‘An efficient ground-aerial transportation system for pest control enabled by ai-based autonomous nano-uavs,’’ ACM J. Auton. Transport. Syst. , vol. 2, no. 4, Jun. 2025. [Online]. Available: https://doi.org/10.1145/3719210 [63] A. Bochkovskiy, C.-Y. Wang, and H.-Y. M. Liao, ‘‘Yolov4: Optimal speed and accuracy of object detection,’’ ArXiv , vol. abs/2004.10934, 2020. [Online]. Available: https://api.semanticscholar.org/CorpusID:216080778 [64] P. Zhu, L. Wen, D. Du, X. Bian, H. Fan, Q. Hu, and H. Ling, ‘‘Detection and tracking meet drones challenge,’’ IEEE Transactions on Pattern Analysis and Machine Intelligence , vol. 44, no. 11, pp. 7380–7399, 2021. [65] Z. Tang, M. Naphade, M.-Y. Liu, X. Yang, S. Birchfield, S. Wang, R. Ku-mar, D. Anastasiu, and J.-N. Hwang, ‘‘CityFlow: A city-scale benchmark for multi-target multi-camera vehicle tracking and re-identification,’’ in 
+
+Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , 2019. [66] L. Wen, D. Du, Z. Cai, Z. Lei, M.-C. Chang, H. Qi, J. Lim, M.-H. Yang, and S. Lyu, ‘‘UA-DETRAC: A new benchmark and protocol for multi-object detection and tracking,’’ Computer Vision and Image Understanding , vol. 193, p. 102907, 2020. [67] T.-Y. Lin, M. Maire, S. Belongie, J. Hays, P. Perona, D. Ramanan, P. Dol-lár, and C. L. Zitnick, ‘‘Microsoft coco: Common objects in context,’’ in Computer Vision – ECCV 2014 , D. Fleet, T. Pajdla, B. Schiele, and T. Tuytelaars, Eds. Cham: Springer International Publishing, 2014, pp. 740–755. 
+
+LUCA BOMPANI Ph.D. graduate in Electronic Engineering at the University of Bologna, cur-rently a Postdoc researcher at the same institute. He received his MSc in theoretical physics and artificial intelligence at the University of Bologna. His research focuses on deploying and optimizing the inference of Deep Neural Networks for energy-constrained ultra-low-power embedded systems. He received the Best Paper Award at the CVPR’24 Embedded Vision workshop. 
+
+MANUELE RUSCI is currently a tenure-track As-sistant Professor at KU Leuven. He received his Ph.D. degree in electronic engineering from the University of Bologna, Italy, in 2018. He has been a postdoctoral fellow at the same university and a Marie Skłodowska-Curie Actions Postdoctoral grantee at KU Leuven. His main research interests include low-power, AI-powered smart sensors and on-device continual learning. 
+
+LUCA BENINI holds the chair of digital Circuits and systems at ETHZ and is a Full Professor at the Università di Bologna. He received a PhD from Stanford University. His research interests are in energy-efficient parallel computing systems, smart sensing micro-systems, and machine learn-ing hardware. He is a Fellow of the ACM, a mem-ber of the Academia Europaea, and of the Italian Academy of Engineering and Technology. 
+
+DANIELE PALOSSI (Senior Member, IEEE) re-ceived his Ph.D. in Information Technology and Electrical Engineering from ETH Zürich. He is currently a Senior Researcher and Lecturer at the Dalle Molle Institute for Artificial Intelligence (IDSIA), USI-SUPSI, Lugano, Switzerland, where he leads the nano-robotics research group, and a Scientific Assistant at the Integrated Systems Lab-oratory (IIS), ETH Zürich, Zürich, Switzerland. His research stands at the intersection of artificial intelligence, ultra-low-power embedded systems, and miniaturized robotics. His work has resulted in 50+ peer-reviewed publications in international conferences and journals. Dr. Palossi was a recipient of multiple grants from the Swiss National Science Foundation (SNSF); he received the 2nd prize at the Design Contest held at the ACM/IEEE ISLPED’19, several Best Paper Awards, and led the winning team of the first "Nanocopter AI Challenge" hosted at the IMAV’22 International Conference. 
+
+FRANCESCO CONTI (Senior Member, IEEE) re-ceived his Ph.D. degree in electronic engineering from the University of Bologna, Italy, in 2016. He is currently an Associate Professor with the DEI Department at the University of Bologna. From 2016 to 2020, he held a research grant with the University of Bologna and a position as a Post-Doctoral Researcher with ETH Zürich. His research is centered on hardware acceleration in ultra-low-power and highly energy-efficient plat-forms, with a particular focus on System-on-Chips for Artificial Intelligence applications. His research work has resulted in more than 120 publications in international conferences and journals and was awarded several times, including the 2020 IEEE Transactions on Circuits and Systems I: Regular Papers Darlington Best Paper Award.

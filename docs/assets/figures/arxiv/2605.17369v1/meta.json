@@ -1,0 +1,174 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.17369v1/fig-001.webp",
+      "caption": "Table 4. List of stratified group five-fold cross-validation datasets.",
+      "page": 6,
+      "index": 1,
+      "width": 600,
+      "height": 365
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17369v1/fig-002.webp",
+      "caption": "Figure 4. Cross-attention information fusion between different branches.",
+      "page": 11,
+      "index": 2,
+      "width": 644,
+      "height": 387
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17369v1/fig-003.webp",
+      "caption": "Figure 7. The radar charts illustrate the evolution of TSS, HSS, and F1 scores for C, M, and X-class flares across training epochs under datasets F1–F5. The results are arranged vertically in the figure, with C-class at the top, M-class in the middle, and X-class at the bottom.",
+      "page": 15,
+      "index": 3,
+      "width": 1083,
+      "height": 1268
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17369v1/fig-004.webp",
+      "caption": "Figure 9. Statistical comparison of feature channel responses across flare classes. The upper and lower panels display the median gradient and total intensity of the feature extraction layer across channels, respectively. Curves of different colors correspond to different flare classes.",
+      "page": 21,
+      "index": 4,
+      "width": 835,
+      "height": 658
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17369v1/fig-005.webp",
+      "caption": "Figure 10. Scatter plots illustrate the relationships between the global network median gradient and MEANPOT, TOTPOT, and R VALUE. Black dashed lines indicate linear regression trends with confidence intervals denoted by gray shading. Pearson correlation coefficients are annotated at the top of each panel.",
+      "page": 21,
+      "index": 5,
+      "width": 1068,
+      "height": 271
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17369v1/fig-006.webp",
+      "caption": "Figure 1. The proposed network architecture consists of three main components: the Magnetogram and Magnetic Parameter Tokenizer (MMP-tokenizer), the Multi-Head Cross Attention module (MMP-MHCA), and the Multimodal Cross-Scale Interaction Network (MCSI-network). It incorporates M = 3 multimodal transformer encoders, each containing two branches processing magnetogram patches at different scales. Multimodal fusion with the corresponding magnetic parameter tokens is performed via an attention mechanism in each branch. Cross-scale information fusion is achieved by using the CLS tokens from each branch. The extracted feature vectors from magnetogram patches and magnetic parameters are denoted as eimg and epara, respectively. Their fused multimodal representation is denoted as emmp. Here, e represents a feature vector, and the subscript indicates its corresponding modality.",
+      "page": 7,
+      "index": 6,
+      "width": 1068,
+      "height": 602
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17369v1/fig-007.webp",
+      "caption": "Figure 11. Spatiotemporal evolution of model attention. Rows illustrate the evolution of model attention within the prediction window for an X-class flare event. Columns from left to right display: (a) the original line-of-sight magnetogram; (b) the model attention heatmap where warm colors indicate high activation; (c) the overlay of the magnetogram and heatmap; and (d) the magnetogram superimposed with features where red shading marks strong magnetic gradient regions and green contours delineate the strong-gradient polarity inversion line. Each block is 240 × 240 pixels in size.",
+      "page": 22,
+      "index": 7,
+      "width": 962,
+      "height": 660
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17369v1/fig-008.webp",
+      "caption": "Figure 6. The radar charts illustrate the evolution of recall, TSS, HSS,and F1 scores across training epochs on datasets D1 and D2.",
+      "page": 14,
+      "index": 8,
+      "width": 1029,
+      "height": 446
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17369v1/fig-009.webp",
+      "caption": "Table 1. List of SHARP parameters used in this study and a brief description of the parameters.",
+      "page": 3,
+      "index": 9,
+      "width": 618,
+      "height": 352
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17369v1/fig-010.webp",
+      "caption": "Table 8. Performance comparison among the multimodal fusion model, magnetogram-only baseline, and physical parameter-only baseline.",
+      "page": 18,
+      "index": 10,
+      "width": 1068,
+      "height": 192
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17369v1/fig-011.webp",
+      "caption": "Table 9. Performance comparison of different feature fusion strategies.",
+      "page": 18,
+      "index": 11,
+      "width": 1068,
+      "height": 341
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17369v1/fig-012.webp",
+      "caption": "Figure 12. Same as Figure 11, but for an M-class flare event.",
+      "page": 23,
+      "index": 12,
+      "width": 962,
+      "height": 660
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17369v1/fig-013.webp",
+      "caption": "Figure 5. The curves show the loss dynamics of our proposed model during training and testing. Curves of different colors represent the loss trajectories across epochs for different datasets. Subfigure (a) and (c) depicts the training loss variations for each dataset, while subfigure (b) and (d) shows the corresponding testing loss variations.",
+      "page": 13,
+      "index": 13,
+      "width": 1029,
+      "height": 734
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17369v1/fig-014.webp",
+      "caption": "Figure 2. The CNN module for extracting features from magnetograms and the structure for converting magnetic parameters into token representations.",
+      "page": 8,
+      "index": 14,
+      "width": 1068,
+      "height": 572
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17369v1/fig-015.webp",
+      "caption": "Figure 8. Comparison of multimodal interaction strategies between magnetograms and physical parameters.",
+      "page": 19,
+      "index": 15,
+      "width": 750,
+      "height": 408
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17369v1/fig-016.webp",
+      "caption": "Table 7. The Multiclass flare prediction results of our model and a comparison with previous studies (within 24 hours).",
+      "page": 17,
+      "index": 16,
+      "width": 892,
+      "height": 913
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17369v1/fig-017.webp",
+      "caption": "Table 5. Evaluation metrics of the model.",
+      "page": 12,
+      "index": 17,
+      "width": 570,
+      "height": 483
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17369v1/fig-018.webp",
+      "caption": "Figure 13. Same as Figure 11, but for a C-class flare event.",
+      "page": 24,
+      "index": 18,
+      "width": 962,
+      "height": 660
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17369v1/fig-019.webp",
+      "caption": "Figure 3. Architecture of the multi-branch transformer encoder module.",
+      "page": 9,
+      "index": 19,
+      "width": 856,
+      "height": 600
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17369v1/fig-020.webp",
+      "caption": "Table 10. Performance comparison of the model with and without positional encoding on magnetogram and parameter branches.",
+      "page": 20,
+      "index": 20,
+      "width": 1068,
+      "height": 193
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17369v1/fig-021.webp",
+      "caption": "Table 6. The flare prediction results of our model for ⩾C-class and a comparison with previous studies (within 24 hours).",
+      "page": 16,
+      "index": 21,
+      "width": 609,
+      "height": 804
+    }
+  ]
+}

@@ -1,0 +1,393 @@
+Title: Decoupling Ego-Motion from Target Dynamics via Dual-Interval Motion Cues for UAV Detection
+
+URL Source: https://arxiv.org/pdf/2605.22605v1
+
+Published Time: Fri, 22 May 2026 01:33:16 GMT
+
+Number of Pages: 8
+
+Markdown Content:
+# Decoupling Ego-Motion from Target Dynamics via Dual-Interval Motion Cues for UAV Detection 
+
+Liuyang Wang and Feitian Zhang* 
+
+Abstract — Object detection from Unmanned Aerial Vehicles (UAVs) is challenged by severe ego-motion, camera jitter, and large scale variations. While modern detectors perform well on static images, their direct application to UAV video often fails, particularly for small objects in dynamic scenes. Existing motion-based methods either rely on computationally expensive optical flow or use single-interval differencing, which is sensitive to jitter and limited in capturing diverse motion patterns. We propose a vision-only motion-guided detection framework that decouples target motion from camera-induced disturbances. A homography-based Global Motion Compensation (GMC) first aligns adjacent frames. We then introduce a Dual-Interval Motion Extraction strategy that captures both short-term and long-term motion cues. To integrate these cues, a lightweight Motion-Guided Attention (MGA) module enhances feature representations within a Feature Pyramid Network. Experi-ments on the VisDrone-VID dataset demonstrate consistent improvements over a strong YOLOv8 baseline under severe ego-motion. Ablation studies further confirm the effectiveness of the dual-interval design and the proposed motion-guided attention mechanism. 
+
+I. I NTRODUCTION 
+
+Unmanned Aerial Vehicles (UAVs) have become important platforms for infrastructure inspection, autonomous logistics, and environmental surveillance [1], [2], [3], [4]. Robust and real-time object detection is central for UAV operation. Modern single-stage detectors, particularly the YOLO se-ries, achieve a favorable balance between inference speed and detection accuracy on static images [5], [6]. However, directly applying these detectors to UAV video streams remains challenging due to severe ego-motion, camera jit-ter, and rapidly changing viewpoints [7], [8]. Since frame-wise detectors process each image independently, valuable temporal information is discarded, often leading to degraded performance for small or dynamic objects in cluttered aerial scenes [9], [10]. Existing motion-guided approaches typically rely on opti-cal flow or frame differencing to extract motion cues [11]. Optical flow provides dense motion fields but introduces substantial computational overhead and sensitivity to illumi-nation changes, limiting deployment on resource-constrained UAV platforms [12], [13]. Conversely, frame differencing is lightweight but highly susceptible to motion and camera jitter [14]. Without proper alignment, ego-motion induces 
+
+All the authors are with the Robotics and Control Laboratory, De-partment of Robotics, School of Advanced Manufacturing and Robotics, and the State Key Laboratory of Turbulence and Complex Systems, Peking University, Beijing, 100871, China (liuyang.wang@stu.pku.edu.cn; feitian@pku.edu.cn). L. Wang is also with Great Bay University, Guangdong 523808, China. Car 
+
+Limitations of Static Detection Models  
+
+> Fast Car Short-Term ( Δt=1) LongTerm ( Δt=5) Motion Prior Frame Sequence Slow Pedestrian Missed Targets (Missed Pedestrian)
+> Standard Static YOLO Jittery UAV
+
+Dual-Interval Motion Extraction 1. Global Motion Compensation (GMC)  
+
+> Homography Alignment
+> 3. Motion-Guided Attention (MGA) Result: Targets Detected
+> 2. Dual-Interval Difference Generation & Spatiotemporal Fusion
+
+MGA Attention & Detection 
+
+> YOLO detector
+> Car Pedestrian
+> Current Frame
+
+Fig. 1. Illustration of the challenges in UAV object detection and the proposed solution. Top: Static frame-wise detectors often miss small or dynamic targets in UAV videos due to ego-motion and camera jitter. Middle: Global Motion Compensation (GMC) aligns frame sequences, while dual-interval temporal differencing extracts short- and long-term motion cues. Bottom: Motion-Guided Attention (MGA) module utilizes the extracted motion cues to enhance target-aware feature representations and recover missed detections. 
+
+strong spurious responses that corrupt feature representa-tions. Moreover, motion extraction based on a single time interval is fundamentally limited: short intervals capture fast transients but often miss slow-moving targets, whereas long intervals enhance slow-motion saliency but tend to lose fast dynamics. To address these challenges, we propose a vision-only, motion-guided object detection framework built upon YOLO, as illustrated in Fig. 1. A homography-based Global Motion Compensation (GMC) module first aligns adjacent frames to suppress background disturbances caused by UAV ego-motion. Building upon this stabilized frame space, we de-velop a Dual-Interval Motion Extraction strategy that si-multaneously exploits short-term ( ∆t = 1 ) and long-term (∆t = 5 ) temporal differences to capture complementary motion cues. We further design a lightweight Motion-Guided Attention (MGA) module that embeds the extracted motion 
+
+> arXiv:2605.22605v1 [cs.RO] 21 May 2026
+
+masks into the Feature Pyramid Network (FPN) as soft spatial attention, thereby enhancing target-related features across multiple scales. The main contributions of this paper are threefold: 
+
+• We propose a unified vision-only motion-guided detec-tion framework for UAV videos that integrates global motion compensation with dual-interval temporal dif-ferencing to robustly extract motion cues under severe ego-motion and camera jitter. 
+
+• We design a lightweight MGA module that incorporates motion masks into the FPN as soft spatial attention, improving the representation of small and dynamic objects with minimal computational overhead. 
+
+• We propose an asymmetric training-inference strategy that employs high-precision SIFT matching during of-fline training and lightweight ORB-based homography cascading during online inference, enabling real-time deployment on resource-constrained UAV platforms. Extensive experiments on the VisDrone-VID benchmark demonstrate consistent performance improvements over strong YOLO baselines, while maintaining real-time infer-ence efficiency. II. R ELATED WORK 
+
+A. Object Detection in UAV and Dynamic Environments 
+
+Object detection methods are generally categorized into two-stage and single-stage paradigms. While two-stage de-tectors emphasize localization accuracy, single-stage archi-tectures such as SSD [15], RetinaNet [16], and the YOLO series [6] provide an effective balance between accuracy and real-time efficiency. More recently, transformer-based detec-tors such as DETR [17] introduced global feature reasoning for end-to-end detection. These detectors have been widely evaluated on UAV benchmarks (e.g., VisDrone) [18], [19], [20] and applied to aerial perception tasks including dense scene analysis, object tracking, and active perception [21], [22], [23], [24]. Despite these advances, directly applying static image detectors to UAV video remains challenging due to severe ego-motion, camera jitter, and rapidly changing viewpoints. Since frame-wise detectors discard valuable temporal in-formation, their performance often degrades for small or dynamic objects in cluttered aerial scenes. 
+
+B. Motion-Guided Detection Under Dynamic Backgrounds 
+
+To enhance robustness in dynamic environments, re-cent studies incorporate motion cues into object detec-tion pipelines. Optical-flow-based methods explicitly model dense motion fields but are computationally expensive for edge deployment [11], [12], [13]. Alternatively, motion-guided detectors based on temporal differencing and motion fusion have demonstrated improved efficiency [25]. Sev-eral UAV-oriented approaches further integrate background alignment or compressed-domain motion vectors to enhance detection robustness under ego-motion [26], [27]. However, existing vision-based methods commonly rely on single-interval motion extraction, making them sensitive to camera jitter and varying target velocities. Consequently, spurious motion responses often corrupt feature representa-tions. In contrast, the proposed Dual-Interval Motion Ex-traction strategy captures complementary motion cues across multiple temporal scales while suppressing background dis-turbances through global motion compensation. 
+
+C. Attention Mechanisms in Object Detection 
+
+Attention mechanisms are widely adopted to improve feature representation and suppress background interference in object detection. Prior works incorporate spatial and channel attention to improve robustness against occlusion, illumination variation, and small-object ambiguity in UAV and underwater scenarios [28], [29], [30], [31]. Despite these advances, most existing attention mecha-nisms focus on single-frame spatial refinement and neglect temporal dynamics. To address this limitation, we propose the Motion-Guided Attention (MGA) module, which lever-ages dual-interval motion cues as dynamic attention cues. By integrating these cues into the FPN, the proposed module enhances motion-consistent regions across multiple scales while preserving the original RGB feature distribution. III. M ETHOD 
+
+A. Problem Formulation 
+
+Given a UAV video stream V = {It}Tt=1 , where It ∈
+
+RH×W ×3 denotes the RGB frame at time step t, the objective of UAV-based object detection is to predict a set of bounding boxes and corresponding class labels Bt = {(bi, c i)}Ni=1 for each frame. Conventional static detectors formulate this task as an isolated spatial mapping Fstatic : It → Bt, inherently discarding the motion cues present in V. In dynamic UAV scenarios, the observed motion between consecutive frames is a superimposition of two components, i.e. 
+
+Vobs = Vtgt + ∆ ego (1) where Vtgt represents the target motion and ∆ego denotes the ego-motion caused by UAV movement and camera jitter. To disentangle these components, we formulate a motion-guided detection paradigm Fmotion : ( It, Mt) → B t, where 
+
+Mt ∈ { 0, 1}H×W denotes a sparse motion mask that high-lights target dynamics ( Vtgt ) while suppressing ego-motion disturbances ( ∆ego ). 
+
+B. Framework Overview 
+
+To solve the motion disentanglement problem formulated above, we propose a novel motion-guided object detection framework. As illustrated in Fig. 2, rather than a strictly sequential pipeline, the proposed framework adopts a two-stream architecture to independently extract spatial semantics and motion cues before fusing them. Specifically, the frame-work consists of three core components:  
+
+> •
+
+Standard Backbone: The base network processes the current RGB frame to extract multi-scale dense features.  
+
+> •
+
+Dual-Interval Motion Extraction (Sec. III-C): Op-erating in parallel with the backbone, this module ∆t,k      
+
+> SIFT / ORB RANSAC Perspective Warping
+> GMC
+> εopen Tτl(τl>τs)
+> Tτs
+> G5x5
+> Motion Prior M
+> MGA
+> P5P4P3
+> Short-term
+> k = 1
+> long-term
+> k = 5 DsDl
+> εclose
+> Detect Head M
+> Conv 3x3 δ(ReLu) Conv 1×1 σ(Sigmoid)
+> M↓
+> Fout = F ⊙(1+A)
+> MGA MGA
+> P3P4P5P2P1
+> ∆t,k
+> ∆t,k
+> Ĩt-k Vt-k
+> (a) Dual-Interval Motion Extraction (b) Motion-Guided Attention (MGA) Backbone
+> F∈ℝC×H′×W′
+> Frame Sequences
+> Temporal Flow
+> ItIt-1 It-k
+
+Fig. 2. Overall architecture of the proposed motion-guided object detection framework. A YOLO backbone extracts multi-scale spatial features ( P3, P 4, P 5)from the current frame It. In parallel, the Dual-Interval Motion Extraction module aligns historical frames ( It−1, I t−5) using Global Motion Compensation (GMC) and fuses short- and long-term temporal differences to generate a sparse motion mask M . The Motion-Guided Attention (MGA) module then injects motion mask M into the Feature Pyramid Network (FPN) via a lightweight attention mechanism to enhance target-aware feature representations before the final detection head. 
+
+processes consecutive frame sequences. It intrinsically utilizes Global Motion Compensation (GMC) to align the background, followed by a dual-interval differencing strategy to generate a robust, sparse motion mask M . 
+
+> •
+
+Motion-Guided Attention (MGA) (Sec. III-D): The motion mask M is injected into the spatial feature pyra-mid via the lightweight MGA module. This enhances the representation of dynamic targets before feeding the modulated features into the detection head. Finally, we detail the overall network architecture and the training strategy (Sec. III-E) designed to handle this multi-modal spatiotemporal data. 
+
+C. Dual-Interval Motion Extraction 
+
+Extracting robust motion masks from UAV videos requires explicitly decoupling target dynamics from camera ego-motion. To achieve this, we propose a Dual-Interval Motion Extraction module that incorporates Global Motion Compen-sation (GMC) and a two-timescale differencing mechanism. 
+
+Global Motion Compensation (GMC). Let It ∈ RH×W
+
+denote the grayscale representation at time t, and It−k
+
+denote a historical frame with temporal interval k. To align the background, we extract robust scale-invariant keypoints (e.g., SIFT [32]) and estimate the geometric transformation matrices Ht,t −k independently via RANSAC [33] to reject dynamic outliers. The reference frames are then warped into the coordinate system of It, formulated as 
+
+˜It−k = W(It−k, H t,t −k) (2) where W denotes the perspective warping operation. To prevent false motion responses at the image boundaries introduced by the geometric transformation, a valid region mask Rt−k ∈ { 0, 1}H×W is constructed by applying the identical warping W to an all-one matrix. The compensated difference map is subsequently computed as: 
+
+∆t,k = |It − ˜It−k| ⊙ Rt−k (3) where ⊙ denotes the Hadamard element-wise product. 
+
+Dual-Interval Difference Generation. A single temporal interval is insufficient to capture diverse motion patterns. Therefore, we extract motion masks at two complementary scales. The short-term mask Ds (with k = 1) captures instantaneous displacements of fast-moving objects but is susceptible to residual alignment noise. To mitigate high-frequency noises while preserving fine structures, we apply Gaussian smoothing G5×5 followed by a low-threshold bina-rization τs, given by 
+
+Ds = Tτs (G5×5(∆ t, 1)) (4) In contrast, the long-term mask Dl (with k = 5 ) emphasizes the accumulated displacement of slow-moving targets. A stricter threshold τl (τl > τs) is applied, followed by a morphological opening operation Eopen to eliminate isolated noise, calculated as 
+
+Dl = Eopen (Tτl (∆ t, 5)) (5) 
+
+Spatiotemporal Fusion. The final motion mask M ∈{0, 1}H×W is obtained by intersecting the two masks and refining the result via a morphological closing operation 
+
+Eclose , given by 
+
+M = Eclose (Ds ⊙ Dl) (6) This design retains motion patterns that are temporally con-sistent across timescales while effectively suppressing high-Algorithm 1 Dual-Interval Motion Extraction  
+
+> 1:
+
+Input:  
+
+> 2:
+
+It: Current grayscale frame  
+
+> 3:
+
+It−1, I t−5: Short-term and long-term reference frames  
+
+> 4:
+
+Output:  
+
+> 5:
+
+M : Robust spatiotemporal motion mask  
+
+> 6:
+
+Parameters:  
+
+> 7:
+
+τs, τ l: Binary thresholds for short and long intervals  
+
+> 8:
+
+Kopen , Kclose : Morphological kernels  
+
+> 9:
+
+▷ Step 1: Global Motion Compensation  
+
+> 10:
+
+Ht,t −1 := RANSAC SIFT (It, I t−1) ▷ Estimate short-term H 
+
+> 11:
+
+Ht,t −5 := RANSAC SIFT (It, I t−5) ▷ Estimate long-term H 
+
+> 12:
+
+˜It−1 := WarpPerspective (It−1, H t,t −1) 
+
+> 13:
+
+˜It−5 := WarpPerspective (It−5, H t,t −5) 
+
+> 14:
+
+Rt−1 := WarpPerspective (1H×W , H t,t −1) 
+
+> 15:
+
+Rt−5 := WarpPerspective (1H×W , H t,t −5) 
+
+> 16:
+
+∆t, 1 := |It − ˜It−1| ⊙ Rt−1 ▷ Compute absolute differences  
+
+> 17:
+
+∆t, 5 := |It − ˜It−5| ⊙ Rt−5 
+
+> 18:
+
+▷ Step 2: Asymmetric Morphological Filtering  
+
+> 19:
+
+∆blur  
+
+> s
+
+:= GaussianBlur (∆ t, 1, 5 × 5) ▷ Preserve fine structures  
+
+> 20:
+
+Ds := Threshold (∆ blur  
+
+> s
+
+, τ s) 
+
+> 21:
+
+Draw  
+
+> l
+
+:= Threshold (∆ t, 5, τ l) 
+
+> 22:
+
+Dl := MorphologyEx (Draw  
+
+> l
+
+, OPEN , Kopen ) ▷ Suppress isolated noise  
+
+> 23:
+
+▷ Step 3: Spatiotemporal Fusion  
+
+> 24:
+
+Mintersect := Ds AND Dl ▷ Bitwise intersection  
+
+> 25:
+
+M := MorphologyEx (Mintersect , CLOSE , Kclose ) 
+
+> 26:
+
+return M
+
+frequency jitter and random noise. The complete theoretical pipeline of this spatiotemporal fusion process is summarized in Algorithm 1. This step-by-step feature evolution is intuitively visualized in Fig. 3. As demonstrated, relying solely on short-term or long-term differencing fails to balance the extraction of multi-scale ve-locities and the suppression of ego-motion noise. In contrast, the proposed fusion strategy successfully preserves dynamic targets across varying velocities and suppresses static back-ground interference, yielding a refined, high-quality motion map. While Algorithm 1 establishes a mathematically robust foundation for offline representation learning, executing inde-pendent feature matching twice per frame introduces redun-dant computational overhead. An operationally lightweight alternative specifically designed for real-time edge deploy-ment is introduced in Sec. III-E. 
+
+D. Motion-Guided Attention (MGA) 
+
+Although the extracted motion mask M provides reliable localization of moving regions, it is inherently sparse and binary. The direct early fusion of such binary masks with dense RGB features is suboptimal, as the sparse validity information tends to disappear after a few convolutional layers and suffers from saturation in deep networks [34], [35]. To address this issue, we propose a lightweight Motion-Guided Attention (MGA) module that utilizes the motion prior as soft spatial attention to amplify target features. Given an intermediate feature map F ∈ RC×H′×W ′
+
+, the motion mask M is first resized to H′ × W ′ via bilinear in-terpolation, yielding M↓. The attention map A ∈ R1×H′×W ′
+
+is then generated through a lightweight convolution block, calculated as 
+
+A = σ(Conv 1×1(δ(Conv 3×3(M↓)))) (7) where δ and σ denote ReLU and Sigmoid activations, respec-tively. The refined feature is obtained by residual modulation, given by 
+
+Fout = F ⊙ (1 + A) (8) This formulation ensures that the motion cues act strictly as feature amplifiers. In static regions where A ≈ 0, the original features are preserved or Fout ≈ F , whereas in dynamic regions where A > 0, the features are selectively enhanced. 
+
+E. Network Architecture and Training Strategy 
+
+Integration With YOLOv8. The proposed framework is built upon the YOLOv8n architecture. To address the large scale variation of UAV targets, the MGA module is embedded into three levels of the Feature Pyramid Network prior to the detection head. Specifically, the integration occurs at the P3 level with a stride of 8 for small objects, the P4 level with a stride of 16 for medium objects, and the P5 level with a stride of 32 for large objects. This multi-scale integration guarantees that motion guidance is consistently applied across different object sizes. 
+
+Channel-Aware Padding Strategy. The incorporation of motion mask introduces a four-channel input (RGB plus motion), which is incompatible with standard data aug-mentation strategies. Conventional padding uses a uniform gray value across all channels, which introduces spurious motion responses into the motion channel. To address this issue, we propose a channel-aware padding strategy. RGB channels are padded with the standard value of 114 , while the motion channel is strictly padded with 0. This preserves the physical consistency of the spatiotemporal representations and prevents the introduction of spurious motion responses during training. 
+
+Asymmetric Training-Inference Paradigm. Bridging the gap between theoretical representation learning and edge deployment constraints is a critical challenge. In our frame-work, we formulate an asymmetric paradigm, as illustrated in Fig. 4. During the offline training phase, guaranteeing strict spa-tial alignment between the motion mask and RGB features is mathematically paramount for gradient convergence. Thus, we implement the motion extraction using high-precision SIFT descriptors with independent interval matching (as (a) Original RGB Frame (b) Short-term Diff (c) Long-term Diff (d) Refined Motion Map       
+
+> Fig. 3. Visualization of the proposed dual-interval motion extraction process. The short-term difference captures fast target motion but is sensitive to ego-motion noise, whereas the long-term difference enhances slow-moving targets while introducing motion ghosting. The proposed fusion strategy suppresses background disturbances and produces a refined motion mask for subsequent detection. SIFT RANSAC Perspective Warping
+> ItKtHt, t-1
+> Buffer: Kt-i
+> RANSAC Ht, t-5
+> i=1 i=5
+
+(a) Offline Training Phase: Independent Matching ORB RANSAC Perspective Warping      
+
+> ItKtHt, t-1 Ht, t-5 Kt-1 Buffer: Ht-i, t-i+1
+> Cascaded Product
+
+(b) Online Inference Phase: Homography Cascading         
+
+> Fig. 4. Illustration of the proposed asymmetric training-inference paradigm for homography acquisition. During offline training, high-precision SIFT matching is independently performed for each interval to ensure accurate spatial alignment. During online inference, lightweight ORB matching and homography cascading are adopted to improve real-time deployment efficiency.
+
+formulated in Sec. III-C) to generate spatial masks. How-ever, the substantial computational overhead of independent feature matching across multiple intervals compromises the real-time capabilities of resource-constrained UAV platforms. Therefore, we deploy a lightweight alternative using ORB [36], [37] features coupled with a homography cascading strategy. Based on the assumption of background rigid-ity between adjacent frames, the long-term transformation matrix Ht,t −k (where k = 5 in our implementation) is directly derived from a sliding window of historical short-term matrices via cascaded multiplication: 
+
+Ht,t −k =
+
+> k
+
+Y
+
+> i=1
+
+Ht−i+1 ,t −i (9) This strategy reduces the long-term alignment from an 
+
+O(N log N ) feature matching process to an O(1) matrix multiplication. The robustness of the trained MGA module inherently tolerates the minor spatial drift introduced by this cascading process, ensuring real-time throughput without structural modification. IV. E XPERIMENTS 
+
+A. Experimental Setup 
+
+We evaluate the proposed method on the challenging VisDrone-VID dataset [18], which contains dense small objects and camera ego-motion typical of UAV operations. The dataset comprises diverse video sequences that cover various altitudes, viewpoints, and complex urban environ-ments. Following standard object detection protocols, we report the mean Average Precision at an IoU threshold of 0.5 (mAP@0.5) and the average mAP over IoU thresholds from 0.5 to 0.95 (mAP@0.5:0.95) to comprehensively assess detection performance. Additionally, to evaluate computa-tional efficiency and edge deployment feasibility, we report the number of model parameters, floating-point operations (GFLOPs), and inference speed (FPS). The proposed framework is implemented based on the YOLOv8n architecture. Consistent with the asymmetric paradigm proposed in Sec. III-E, offline motion masks for training are generated using SIFT-based independent match-ing. The resulting motion masks are temporally synchronized with RGB frames to form four-channel inputs. During train-ing, all inputs are resized to 640 × 640 . The network is trained from scratch for 300 epochs with a batch size of 8. To maintain the physical consistency of motion masks during geometric augmentations (e.g., affine transformations and LetterBox resizing), we employ a channel-aware padding strategy: RGB channels are padded with a standard value of 114, while the motion channel is strictly padded with 0 to prevent spurious motion responses at image boundaries. 
+
+Hardware and Edge Deployment. To rigorously evalu-ate edge deployment feasibility, experiments are conducted across two distinct hardware platforms. Model training is ex-ecuted on a desktop workstation equipped with an NVIDIA RTX 4090 GPU. Conversely, all online inference evaluations, including temporal profiling and end-to-end throughput mea-surements, are strictly benchmarked on an NVIDIA Jetson Orin Nano edge device. For edge deployment, the spatial network is optimized using TensorRT with FP16 precision, and the frontend motion extraction utilizes the lightweight ORB cascaded pipeline. All experiments are conducted with a fixed random seed and deterministic settings to ensure full reproducibility. 
+
+B. Comparison with State-of-the-Art Methods 
+
+To evaluate the effectiveness and efficiency of the pro-posed framework, we compare it against existing state-of-the-art object detectors on the VisDrone-VID validation set. The evaluated models include the baseline YOLOv8n, the scaled-up YOLOv8s, the YOLO11n, and the Transformer-based RT-DETR-L. Fig. 5. Deployment platform used for real-time edge inference experiments based on the NVIDIA Jetson Orin Nano. TABLE I QUANTITATIVE COMPARISON WITH REPRESENTATIVE OBJECT DETECTORS ON THE VIS DRONE -VID VALIDATION SET . A LL MODELS ARE EVALUATED WITH AN INPUT RESOLUTION OF 640 × 640 . FPS IS MEASURED ON A JETSON ORIN NANO USING TENSOR RT FP16                               
+
+> INFERENCE .
+> Model Params GFLOPs mAP@0.5 mAP@0.5:0.95 FPS
+> RT-DETR-L 32.0 M 103.5 30.3 15.5 33.5 YOLOv8s 11.1 M 28.5 28.5 13.6 43.7 YOLO11n 2.58 M 6.3 26.0 12.2 68.5 YOLOv8n (Baseline) 3.01 M 8.1 23.3 10.4 79.6
+> Ours 3.01 M 8.1 27.4 12.1 72.1
+
+Table I presents the quantitative results. All speed metrics (FPS) are evaluated on the NVIDIA Jetson Orin Nano using TensorRT with FP16 precision. As shown in Table I, the proposed framework achieves an mAP@0.5 of 27.4% and an mAP@0.5:0.95 of 12.1%, improving upon the baseline YOLOv8n by significant mar-gins of 4.1% and 1.7%, respectively. Notably, the core neural network architecture introduces negligible additional param-eters while maintaining the same theoretical complexity of 8.1 GFLOPs as the baseline. Compared to larger architectures, the proposed method provides a balance between accuracy and computational cost. While RT-DETR-L and YOLOv8s achieve mAP@0.5 scores of 30.3% and 28.5% respectively, these accuracy gains require substantially higher computational demands. For instance, the heaviest RT-DETR-L model requires 32.0 M parameters and 103.5 GFLOPs, resulting in a significantly lower frame rate of 33.5 FPS. By integrating spatiotemporal motion cues rather than relying solely on scaling spatial features, the proposed framework achieves competitive de-tection performance while remaining efficient for resource-constrained UAV applications. 
+
+C. Ablation Study 
+
+To evaluate the contribution of each component, we conduct a comprehensive ablation study. The results are summarized in Table II. The baseline YOLOv8n model, relying exclusively on spatial RGB features, achieves an mAP@0.5 of 23.3%.                             
+
+> TABLE II ABLATION STUDY OF THE PROPOSED COMPONENTS ON THE
+> VIS DRONE -VID VALIDATION SET . T HE FIRST ROW REPRESENTS THE SPATIAL -ONLY YOLO V8N BASELINE ,WHILE THE LAST ROW DENOTES OUR COMPLETE MOTION -GUIDED FRAMEWORK .
+> Dual-Interval Motion Extraction MGA Module mAP@0.5 mAP@0.5:0.95
+> Short-term (∆t= 1 )Long-term (∆t= 5 )
+> ✗✗✗23.3 10.4
+> ✓✗✓24.4 11.3
+> ✗✓✓22.4 9.5
+> ✓✓Concat 22.7 9.8
+> ✓✓✓27.4 12.1
+
+Integrating only the short-term motion cue with the MGA module improves the performance to 24.4%, indicating that short-term differencing effectively captures fast target dy-namics, significantly suppressing false positives and boosts precision. However, it provides limited recall improvement because a single frame interval fails to accumulate suffi-cient temporal saliency for slow-moving targets. In contrast, utilizing only the long-term motion cues suppresses high-frequency jitter but fails to capture fast-moving targets, yielding a degraded mAP@0.5 of 22.4%. This confirms that a single temporal scale is insufficient to handle diverse motion patterns. Finally, combining the Dual-Interval Motion Extraction, MGA module, and channel-aware padding achieves the best performance with a mAP@0.5 of 27.4%. This result demon-strates that the proposed spatiotemporal fusion framework effectively eliminates background noise while enhancing motion-consistent target features. As further demonstrated in Fig. 7, the proposed model maintains the outermost envelope across the entire recall range, confirming the capability to achieve an optimal precision-recall trade-off in complex dynamic scenarios. To further evaluate the effectiveness of the proposed motion-guided framework, we conduct a qualitative compar-ison against the baseline on the VisDrone-VID validation set, as illustrated in Fig. 6. As highlighted by the magnified inset patches, the baseline model, which relies solely on spatial RGB features, exhibits limitations in certain challenging environments. For instance, in low-illumination nighttime scenarios, it struggles to detect distant targets. Similarly, in dense traffic scenes, complex backgrounds and occlusions occasionally result in false pos-itives or missed detections. By incorporating the dual-interval motion cues via the MGA module, our method demonstrates improved robust-ness in these scenarios. The unique yellow boxes show that the proposed framework can capture obscured targets and small moving objects that the baseline misses. Mean-while, the consensus detections (white boxes) verify that our method maintains reliable performance on normal targets while effectively mitigating background noise. Fig. 6. Qualitative comparison between the spatial-only baseline and the proposed framework on the VisDrone-VID validation set. Yellow boxes denote detections unique to the proposed method, green boxes indicate detections unique to the baseline, and white boxes represent detections shared by both models. The proposed motion-guided framework improves robustness against occlusion, cluttered backgrounds, and small-object ambiguity. 0.0 0.2 0.4 0.6 0.8 1.0 
+
+> Recall
+> 0.0
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> 1.0
+> Precision
+> Precision-Recall Curve Comparison
+> Baseline mAP@0.5=0.233
+> Ours w/o Mixed Pad mAP@0.5=0.246
+> Ours mAP@0.5=0.274
+
+Fig. 7. Comparison of Precision-Recall curves on the VisDrone-VID validation set at IoU=0.5. The spatial-only baseline, the variant without the mixed padding strategy (Ours w/o Mixed Pad), and the complete motion-guided framework are represented by the yellow dashed, gray dash-dotted, and solid red curves, respectively. The proposed framework consistently achieves higher precision across the entire recall range. 
+
+D. Padding Ablation and Runtime Analysis 
+
+Channel-Aware Padding Effects. Table III shows the impact of the channel-aware padding strategy. Removing this design introduces spurious motion responses at image boundaries, which adversely affects the attention mechanism. Consequently, the model exhibits overly conservative behav-ior, maintaining inflated precision (36.2%) but suffering a severe degradation in recall (28.6%), resulting in a subop-timal mAP@0.5 of 24.6%. This performance bottleneck is intuitively corroborated by the Precision-Recall (P-R) curves in Fig. 7, where the curve for the variant w/o mixed padding drops precipitously at low recall levels and fails to extend effectively towards the high-recall regime. 
+
+Edge Latency Analysis. Our framework achieves an average end-to-end latency of 26.15 ms on the NVIDIA Jetson Orin Nano, which corresponds to 38.2 FPS. The TensorRT-optimized MGA-enhanced detector requires 13.87 ms, while the frontend motion extraction consumes 12.28 
+
+TABLE III EVALUATION OF THE PROPOSED CHANNEL -AWARE PADDING STRATEGY ON THE VIS DRONE -VID VALIDATION SET . P RECISION AND RECALL ARE REPORTED AT THE OPTIMAL CONFIDENCE THRESHOLD THAT MAXIMIZES THE F1-SCORE FOR EACH MODEL .            
+
+> Model Precision Recall mAP@0.5 mAP@0.5:0.95
+> Ours w/o Mixed Pad 36.2 28.6 24.6 11.0 Ours 36.6 33.2 27.4 12.1
+
+ms on the ARM CPU. Among the frontend stages, ORB feature extraction and perspective warping dominate the computational cost. Compared with the offline SIFT-based implementation (135.27 ms), the proposed ORB-based homography cascad-ing strategy significantly improves deployment efficiency while preserving robust alignment performance. These re-sults demonstrate the feasibility of the proposed framework for real-time UAV perception on resource-constrained edge platforms. V. C ONCLUSIONS 
+
+In this paper, we proposed a Dual-Interval Motion-Guided Object Detection framework to tackle the challenges of se-vere camera ego-motion and complex dynamic backgrounds in UAV-based perception. By leveraging homography-based Global Motion Compensation (GMC), the proposed method effectively decoupled target kinematics from background motion. Building upon this, a dual-interval spatiotemporal fusion strategy was introduced to jointly capture short-term 
+
+(t − 1) transient motion and long-term (t − 5) accumulated saliency. The extracted motion cues were seamlessly inte-grated into the detection pipeline via the proposed Motion-Guided Attention (MGA) module, enabling consistent fea-ture enhancement without disrupting the underlying RGB representations. Extensive experiments demonstrated that the proposed framework effectively mitigated parallax noise and high-frequency jitter, achieving a favorable balance between precision and recall and consistently outperforming spatial-only baselines in highly dynamic UAV scenarios. In future work, we plan to develop lightweight, depth-aware ego-motion estimation methods to improve robustness in non-planar environments. Additionally, we will extend the proposed motion-guided framework to downstream tasks, such as real-time multi-object tracking (MOT), to further enhance its applicability in practical UAV systems. REFERENCES [1] A. Ollero, M. Tognon, A. Suarez, D. Lee, and A. Franchi, “Past, present, and future of aerial robotic manipulators,” IEEE Transactions on Robotics , vol. 38, no. 1, pp. 626–645, 2022. [2] D. Mourtzis, J. Angelopoulos, and N. Panopoulos, “Uavs for industrial applications: Identifying challenges and opportunities from the implementation point of view,” Procedia Manufacturing ,vol. 55, pp. 183–190, 2021, fAIM 2021. [Online]. Available: https://www.sciencedirect.com/science/article/pii/S2351978921002237 [3] S. Sanyal and K. Roy, “Asma: An adaptive safety margin algorithm for vision-language drone navigation via scene-aware control barrier functions,” IEEE Robotics and Automation Letters , vol. 10, no. 9, pp. 9232–9239, 2025. [4] Z. Yan, R. Huang, L. He, S. Guo, and L. Zhao, “Sign: Safety-aware image-goal navigation for autonomous drones via reinforcement learning,” IEEE Robotics and Automation Letters , vol. 11, no. 2, pp. 1962–1969, 2026. [5] J. Redmon, S. Divvala, R. Girshick, and A. Farhadi, “You only look once: Unified, real-time object detection,” in 2016 IEEE Conference on Computer Vision and Pattern Recognition (CVPR) , 2016, pp. 779– 788. [6] G. Jocher, A. Chaurasia, and J. Qiu, “Ultralytics yolov8,” 2023. [Online]. Available: https://github.com/ultralytics/ultralytics [7] I. Bozcan and E. Kayacan, “Au-air: A multi-modal unmanned aerial vehicle dataset for low altitude traffic surveillance,” 
+
+2020 IEEE International Conference on Robotics and Automation (ICRA) , pp. 8504–8510, 2020. [Online]. Available: https://api.semanticscholar.org/CorpusID:211004016 [8] C. Kyrkou and T. Theocharides, “Emergencynet: Efficient aerial image classification for drone-based emergency monitoring using atrous convolutional feature fusion,” IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing , vol. 13, pp. 1687– 1699, 2020. [9] Y. Cao et al. , “Visdrone-det2021: The vision meets drone object detec-tion challenge results,” in 2021 IEEE/CVF International Conference on Computer Vision Workshops (ICCVW) , 2021, pp. 2847–2854. [10] M. Lu, H. Chen, and P. Lu, “Perception and avoidance of multiple small fast moving objects for quadrotors with only low-cost rgbd camera,” IEEE Robotics and Automation Letters , vol. 7, no. 4, pp. 11 657–11 664, 2022. [11] X. Zhu, Y. Wang, J. Dai, L. Yuan, and Y. Wei, “Flow-guided feature aggregation for video object detection,” in 2017 IEEE International Conference on Computer Vision (ICCV) , 2017, pp. 408–417. [12] A. Dosovitskiy et al. , “Flownet: Learning optical flow with convolu-tional networks,” in 2015 IEEE International Conference on Computer Vision (ICCV) , 2015, pp. 2758–2766. [13] R. R, I. Fatima, and L. A. Prasad, “A survey on real-time object detection algorithms,” in 2023 International Conference on Advances in Electronics, Communication, Computing and Intelligent Information Systems (ICAECIS) , 2023, pp. 548–553. [14] A. Yilmaz, O. Javed, and M. Shah, “Object tracking: A survey,” 
+
+ACM Comput. Surv. , vol. 38, no. 4, p. 13–es, Dec. 2006. [Online]. Available: https://doi.org/10.1145/1177352.1177355 [15] L. Wei et al. , “Ssd: Single shot multibox detector,” Springer, Cham ,2016. [16] T. Y. Lin, P. Goyal, R. Girshick, K. He, and P. Dollar, “Focal loss for dense object detection,” IEEE Transactions on Pattern Analysis and Machine Intelligence , vol. 42, no. 2, pp. 318–327, 2020. [17] N. Carion et al. , “End-to-end object detection with transformers,” 
+
+Computer Vision – ECCV 2020 , 2020. [18] H. Yu et al. , “The unmanned aerial vehicle benchmark: Object detection, tracking and baseline,” International Journal of Computer Vision , vol. 128, no. 5, pp. 1141–1159, 2020. [19] Y. Zheng et al. , “Air-to-air visual detection of micro-uavs: An exper-imental evaluation of deep learning,” IEEE Robotics and Automation Letters , vol. 6, no. 2, pp. 1020–1027, 2021. [20] A. Arsenos et al. , “Common corruptions for evaluating and enhancing robustness in air-to-air visual object detection,” IEEE Robotics and Automation Letters , vol. 9, no. 7, pp. 6688–6695, 2024. [21] W. Zhou, C. Cai, C. Li, H. Xu, and H. Shi, “Ad-yolo: A real-time yolo network with swin transformer and attention mechanism for airport scene detection,” IEEE Transactions on Instrumentation and Measurement , vol. 73, pp. 1–12, 2024. [22] ´A. Serra-G´ omez, E. Montijano, W. B¨ ohmer, and J. Alonso-Mora, “Active classification of moving targets with learned control policies,” 
+
+IEEE Robotics and Automation Letters , vol. 8, no. 6, pp. 3717–3724, 2023. [23] J. Li, D. H. Ye, M. Kolsch, J. P. Wachs, and C. A. Bouman, “Fast and robust uav to uav detection and tracking from video,” IEEE Transactions on Emerging Topics in Computing , vol. 10, no. 3, pp. 1519–1531, 2022. [24] X. Jiang, T. Liu, L. Liu, Z. Liu, and Y. Liu, “Uevavd: A dataset for developing uav’s eye view active object detection,” IEEE Robotics and Automation Letters , vol. 10, no. 6, pp. 6272–6279, 2025. [25] X. Yang et al. , “Video tiny-object detection guided by the spatial-temporal motion information,” in Proceedings of the IEEE/CVF con-ference on computer vision and pattern recognition , 2023, pp. 3054– 3063. [26] J. Liu, L. Plotegher, E. Roura, C. de Souza Junior, and S. He, “Real-time detection for small uavs: Combining yolo and multi-frame motion analysis,” IEEE Transactions on Aerospace and Electronic Systems ,2025. [27] X. Wang, H.-S. Chen, Z. Zhou, J.-E. Yao, and C.-C. J. Kuo, “Ma-yolo: Video object detection via motion-assisted yolo,” in 2025 IEEE International Conference on Image Processing Workshops (ICIPW) .IEEE, 2025, pp. 440–445. [28] Y. Zheng, Y. Jing, J. Zhao, and G. Cui, “Lam-yolo: Drones-based small object detection on lighting-occlusion attention mechanism yolo,” Computer Vision and Image Understanding , vol. 261, p. 104489, 2025. [Online]. Available: https://www.sciencedirect.com/science/article/pii/S1077314225002127 [29] Y. Guo, Y. He, H. Zhang, and J. Ma, “Yolo-cam: A lightweight uav object detector with combined attention mechanism for small targets,” 
+
+Remote Sensing , vol. 17, no. 21, p. 3575, 2025. [30] Z. Zhou, Y. Hu, X. Yang, and J. Yang, “Yolo-based marine organism detection using two-terminal attention mechanism and difficult-sample resampling,” Appl. Soft Comput. , vol. 153, no. C, Mar. 2024. [Online]. Available: https://doi.org/10.1016/j.asoc.2024.111291 [31] K. Liu, L. Peng, and S. Tang, “Underwater object detection using tc-yolo with attention mechanisms,” Sensors , vol. 23, no. 5, 2023. [Online]. Available: https://www.mdpi.com/1424-8220/23/5/2567 [32] D. G. Lowe, “Distinctive image features from scale-invariant key-points,” International Journal of Computer Vision , vol. 60, no. 2, pp. 91–110, 2004. [33] M. A. Fischler and R. C. Bolles, “Random sample consensus: A paradigm for model fitting with applications to image analysis and automated cartography,” Communications of the ACM , vol. 24, no. 6, pp. 381–395, 1981. [34] A. Eldesokey, M. Felsberg, and F. S. Khan, “Confidence propagation through cnns for guided sparse depth regression,” IEEE Transactions on Pattern Analysis and Machine Intelligence , vol. 42, no. 10, pp. 2423–2436, 2020. [35] J. Hu et al. , “Deep depth completion from extremely sparse data: A survey,” IEEE Transactions on Pattern Analysis and Machine Intelligence , vol. PP, pp. 1–20, 12 2022. [36] E. Rublee, V. Rabaud, K. Konolige, and G. R. Bradski, “Orb: an efficient alternative to sift or surf,” IEEE , 2011. [37] J. Tang, L. Ericson, J. Folkesson, and P. Jensfelt, “Gcnv2: Efficient correspondence prediction for real-time slam,” IEEE Robotics and Automation Letters , vol. 4, no. 4, pp. 3505–3512, 2019.

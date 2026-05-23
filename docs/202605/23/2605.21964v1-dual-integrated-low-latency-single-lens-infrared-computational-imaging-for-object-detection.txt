@@ -1,0 +1,606 @@
+Title: Dual-Integrated Low-Latency Single-Lens Infrared Computational Imaging for Object Detection
+
+URL Source: https://arxiv.org/pdf/2605.21964v1
+
+Published Time: Fri, 22 May 2026 00:32:29 GMT
+
+Number of Pages: 15
+
+Markdown Content:
+> JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 1
+
+# Dual-Integrated Low-Latency Single-Lens Infrared Computational Imaging for Object Detection 
+
+Xuquan Wang, Guishuo Yang, Dapeng Yan, Yujie Xing, Xuanyu Qian, Kai Zhang, Xiong Dun, Jiande Sun, Zhanshan Wang, and Xinbin Cheng 
+
+Abstract —Computational imaging enables high-quality in-frared imaging with compact optical architectures by reducing the complexity of optical path design through deep learning. This deep-learning-based process typically involves both reconstruc-tion and detection. Although the use of deep learning improves detection performance, it also increases the computational cost and inference latency of the imaging system. Most existing methods focus on reducing the complexity of the deep-learning pipeline, while ignoring the guidance provided by the physical priors of the optical path, and therefore remain constrained by the trade-off between accuracy and latency. To address this limitation, we present a Physics-aware Dual-Integrated Network (PDI-Net), which integrates physical priors from the optical path with deep learning while further integrating infrared image reconstruction and object detection, thereby enabling accurate object detection with low latency. Specifically, a U-Net is su-pervised by ground truth, and the semi-U-Net is designed as a feature-sharing layer that is directly connected to the YOLO backbone, enabling accurate object detection with low latency. A physics-aware large-small bridge (PALS-Bridge) is introduced to bridge the gap between fidelity-oriented features in the semi-U-Net and detection-oriented semantic representations in YOLO. Motivated by the observation that field-dependent point spread functions (PSFs) determine the spatially varying degradation intensity in single-lens imaging, the bridge uses PSF priors to adaptively modulate multiscale convolutional branches for targets of different sizes. Furthermore, a physics-informed optical degradation simulation pipeline is developed to support training and validation. Finally, PDI-Net is deployed on a single-lens infrared camera, achieving an approximately 50% reduction in system weight compared with traditional multi-lens designs. Compared with the Rec+Det with pruning strategy in the low-SNR setting, the proposed method reduces inference time by 84.06% while improving mAP@0.5:0.95 by 5.07%. This work paves the way for compact, high-performance computational infrared imaging and real-time video-level target detection in resource-constrained environments. 
+
+Index Terms —computational imaging, object detection, image reconstruction, joint optimization, edge AI, single-lens infrared imaging 
+
+Xuquan Wang and Guishuo Yang contributed equally to this work. Corre-sponding authors: Xiong Dun and Jiande Sun. Xuquan Wang, Guishuo Yang, Dapeng Yan, Yujie Xing, Xuanyu Qian, Xiong Dun, Zhanshan Wang, and Xinbin Cheng are with the MOE Key Laboratory of Advanced Micro-Structured Materials, the Institute of Precision Optical Engineering, School of Physics Science and Engineering, Tongji University, and the Shanghai Frontiers Science Center of Digital Optics, Shanghai 200092, China. Zhanshan Wang and Xinbin Cheng are also with the Shanghai Institute of Intelligent Science and Technology, Tongji University, Shanghai 200092, China. Kai Zhang and Jiande Sun are with the School of Computer Science and Artificial Intelligence, Shandong Normal University, Jinan 250358, China, and the Shandong Engineering Research Center for Multimodal Computing and Intelligent Decision Making, Shandong Normal University, Jinan 250358, China. E-mail: dunx@tongji.edu.cn; jiandesun@hotmail.com. 
+
+I. I NTRODUCTION 
+
+Infrared imaging plays a vital role in industrial applications and the Internet of Things (IoT), including smart cities, precision agriculture, autonomous driving, and security mon-itoring, owing to its ability to operate in low-light and harsh environments without active illumination [1]–[3]. The minia-turization and integration of infrared cameras are becoming increasingly crucial to meet the requirements of perception-layer platforms such as lightweight unmanned aerial vehicles (UAVs) and wearable devices [3], [4]. However, traditional optical systems struggle to balance high performance and lightweight design, as they require multiple lenses for geomet-ric aberration correction [5]. Directly reducing the number of lenses can significantly degrade image quality. Computational imaging is an innovative optical paradigm that integrates op-tical acquisition with computational algorithms through joint design [6]–[8]. By embedding computation into the imaging process, it significantly relaxes the constraints of traditional optical systems [9], [10]. As a result, high-quality imaging, comparable to that of complex optical setups, can be achieved using simpler and more compact configurations. With phase differences corrected by backend algorithms, a variety of single-lens imaging strategies have emerged, including deep Fresnel lenses, diffractive optical elements, and metasurfaces [11]–[15]. In addition, lensless systems have also emerged as a new paradigm [16]–[18]. Although these approaches simplify system architecture, single-lens computational imag-ing inevitably introduces additional costs. Specifically, the use of specialized optical designs for information encoding necessitates corresponding image reconstruction algorithms to restore high-quality images [19], [20]. This leads to increased latency, as well as higher computational and power demands, which limit the applicability of such systems in high-speed UAV scenarios under resource-constrained conditions. Model compression for the image reconstruction process is a conventional approach to accelerating computational imaging at the edge [21]. Lightweight compression techniques, such as pruning [22], quantization [23], [24], distillation [25], and neural architecture search [26], have demonstrated promis-ing results in simplified and compact computational imaging applications. In our early research, we achieved significant optimization of reconstruction time through model pruning, enabling video-level imaging at 25 frames per second (FPS) [27]–[29]. Considering that implementing image reconstruc-tion algorithms on edge AI chips is a complex, multi-faceted issue involving factors such as operator configuration, chip   
+
+> arXiv:2605.21964v1 [cs.CV] 21 May 2026 JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 2T0 T1
+
+Capturing  Detecting 
+
+Traditional Imaging 
+
+Computational Imaging 
+
+Our Work 
+
+> “Bunny ”
+> “Bunny ”
+> “Bunny ”
+> “Bunny ”
+
+Time 
+
+Optimized 
+
+Computational Imaging 
+
+Reconstruction  Detection  Integrated Rec and Det 
+
+# ★
+
+# ★★★ 
+
+# ★★★ 
+
+# ★
+
+# ★★★ 
+
+# ★★ 
+
+# ★★★ 
+
+# ★★★ 
+
+Hardware ★ Latency ★
+
+> Compression
+> “Bunny ”
+
+Raw 
+
+Imaging 
+
+# ★★★ 
+
+# ★★★ 
+
+> mAP: 0.802
+> mAP: 0.794
+> mAP: 0.784
+> mAP: 0.499
+> mAP: 0.813
+> Hardware
+> Impossible Triangle
+
+PSF-aware Priors  
+
+> Fig. 1. A comparative illustration of infrared object detection methodologies employing distinct imaging strategies.
+
+architecture, hardware design, and memory access bottlenecks, we further proposed an edge-accelerated reconstruction strat-egy based on end-to-end sensitivity analysis for single-lens computational imaging [30]. Compared with uniform pruning on the GPU, edge sensitivity-guided reconstruction algorithms achieve simultaneous improvements in both reconstruction quality and inference speed. Nevertheless, these efforts mainly focus on backend optimization of the reconstruction pipeline. For resource-constrained conditions, such optimization can alleviate the computational burden, but it does not explicitly exploit the physical priors embedded in the imaging process, such as field-dependent degradation properties introduced by single-lens design. As a result, further improvements in latency and downstream detection accuracy remain fundamentally limited. In recent years, researchers in machine vision have realized that object detection does not necessarily require reconstruct-ing the entire image [31]–[35]. Instead, extracting essential features, such as edges, textures and shapes, is often sufficient for subsequent processing [36]–[38]. From an information-theoretic perspective, information acquisition in imaging is completed once the detector finishes exposure and photoelec-tric conversion. The reconstruction process does not generate new informative content; rather, it reorganizes the encoded measurements into formats that are more interpretable to humans or compatible with conventional downstream algo-rithms. This understanding has been preliminarily validated in traditional image restoration tasks, such as denoising [39]– [41], dehazing [42], [43] and rain removal [44], and has further inspired the development of limited information distribution theory in compressive spectral imaging [45]. Inspired by the analysis above, we assume that the raw encoded output of a lightweight computational imaging camera can be directly exploited for object detection through integrated reconstruction and detection. Consequently, the additional latency introduced by full image reconstruction could, in principle, be avoided. However, directly applying conventional integrated recon-struction and detection algorithms often yields unsatisfactory results. Unlike traditional image restoration, where degra-dations mainly arise from natural phenomena such as fog, rain, or motion blur [46]–[48], and are commonly addressed using statistical priors or data-driven techniques [49]–[53], computational imaging is fundamentally enabled by the cou-pling between frontend optical design and backend reconstruc-tion algorithms [54]. The degradation mechanisms are more complex, encompassing optical aberrations, sensor noise, and artifacts introduced by compressive sampling. As a result, the reconstruction process in computational imaging is inherently dependent on the physical priors of the imaging system. Therefore, simply integrating reconstruction and detection is insufficient for lightweight single-lens infrared imaging; phys-ical priors must also be explicitly incorporated into the learn-ing pipeline. Meanwhile, a substantial feature-level gap re-mains between reconstruction tasks, which emphasize fidelity-oriented features, and detection tasks, which rely on discrimi-native semantic representations. This discrepancy complicates JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 3
+
+direct feature sharing and undermines model robustness [55]. To further illustrate the evolution and trade-offs of these strategies, Fig. 1 provides a multi-dimensional comparison, including traditional multi-lens imaging for object detection [5], single-lens computational imaging with separate recon-struction and detection [11], single-lens computational imag-ing with compressed reconstruction and subsequent detection [30], single-lens imaging with direct detection on raw de-graded inputs, and the proposed Physics-aware Dual-Integrated Network (PDI-Net). The horizontal axis depicts the total inference timeline, encompassing both capturing and detection phases. Specifically, each strategy is evaluated across three key metrics: hardware complexity, inference latency, and detection accuracy. These three metrics constitute a practical Impossible Triangle, as illustrated in Fig. 1, meaning that none of them can be simultaneously optimized to their fullest extent. Notably, the first four strategies do not explicitly incorporate physical priors and therefore mainly seek a balance between latency and accuracy within a conventional trade-off boundary. By contrast, the proposed PDI-Net integrates physical priors into the learning-based algorithm, which helps break the conven-tional boundary and achieve a more favorable balance under resource-constrained conditions. To address the above challenges, we develop a Physics-aware Dual-Integrated Network, named PDI-Net, for low-latency single-lens infrared computational imaging. The pro-posed framework achieves dual integration from both the task and physical perspectives: it not only integrates infrared image reconstruction with object detection, but also integrates physi-cal priors of the imaging process into the learning-based algo-rithm. Specifically, a U-Net is introduced to learn the mapping from degraded measurements to ground truth images, while a partial encoder, referred to as the semi-U-Net, serves as a shared feature extractor and is directly connected to the YOLO backbone. To bridge the representational gap between fidelity-oriented features in the semi-U-Net and detection-oriented semantic representations in YOLO, we further introduce a physics-aware large-small bridge (PALS-Bridge) together with a joint optimization strategy. Motivated by the observation that field-dependent point spread functions (PSFs) determine the spatially varying degradation in single-lens imaging, PALS-Bridge integrates PSF priors to adaptively modulate multiscale convolutional branches for targets of different sizes. Further-more, a physics-informed simulation pipeline is developed to synthesize optical degradation datasets, thereby embedding physically meaningful priors into the training process. The proposed PDI-Net is deployed on an RK3588 edge AI chip integrated with a single-lens infrared computational imaging camera, resulting in an approximately 50% reduction in system weight compared with traditional multi-lens designs, and is further validated through flight experiments on a small UAV. Compared with the Rec+Det with pruning strategy in the low-SNR setting, PDI-Net reduces inference time by 84.06% while improving mAP@0.5:0.95 by 5.07%. These results demon-strate that the proposed approach enables compact, high-performance infrared computational imaging and real-time video-level target detection on resource-constrained platforms. II. P ROPOSED METHOD 
+
+In this section, we provide a detailed introduction to the PDI-Net for low-latency single-lens infrared computational imaging, along with its joint optimization strategy and dataset generation paradigm. 
+
+A. Overall framework 
+
+Fig. 2 illustrates the overall architecture of the proposed PDI-Net for low-latency single-lens infrared computational imaging, which integrates reconstruction and detection while further integrating physical priors with the learning-based algorithm. The framework comprises a U-Net-based recon-struction module, a YOLO-based detection module, and a det 
+
+> NMS
+
+# ⊕
+
+> raw
+
+# I rec I
+
+> rec
+
+#   
+
+> Refined Backbone Neck Head
+> total
+
+# 
+
+> Class
+> BBox
+> Confidence
+> Single-lens
+> Camera
+> PSF Inference Active
+> Inference Disabled
+> PALS-Bridge
+
+## Training 
+
+## Inference   
+
+> Fig. 2. Overview of the proposed PDI-Net for low-latency single-lens infrared computational imaging. JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 4
+
+physics-aware connector termed PALS-Bridge. During train-ing, as indicated by the yellow background in Fig. 2, the input is a degraded infrared image Iraw from the synthetic dataset. The U-Net is used to reconstruct a clear image Irec 
+
+under the supervision of the reconstruction loss Lrec against the ground truth. Considering the high computational cost of full reconstruction, the early encoder layers, referred to as the semi-U-Net, are redirected to the fine-grained detection backbone. However, the substantial gap between low-level, pixel-aligned textures and high-level semantic features makes direct feature sharing unstable [55]. To address this, the proposed PALS-Bridge is introduced to align these heteroge-neous feature representations. The detection head outputs class predictions, bounding boxes, and confidence scores to compute the detection loss Ldet . The total loss Ltotal is formulated as a weighted sum of Lrec and Ldet . During inference, as highlighted in blue in Fig. 2, the input can be either a degraded image from the dataset or a raw measurement captured by the single-lens camera. Only the semi-U-Net, PALS-Bridge, and detection components are executed, thereby bypassing full reconstruction and significantly reducing inference latency. 
+
+B. Reconstruction module 
+
+Infrared images typically suffer from low signal-to-noise ratio (SNR), especially in single-lens computational imaging systems. Compared with traditional computational imaging reconstruction networks, the primary role of our reconstruction module has shifted from producing clear images to efficiently extracting shared features for joint tasks. Owing to its sym-metric encoder-decoder architecture and favorable trade-off among reconstruction quality, inference speed, and suitability for edge deployment [14], [27]–[30], we adopt an enhanced U-Net as the reconstruction module. Its multiscale encoder-decoder structure facilitates feature extraction, while the skip connections help preserve fine-grained spatial information, such as edges, textures, and object contours, that are critical for accurate downstream detection. The detailed U-Net archi-tecture is provided in Supplementary Fig. S1. During the training phase, the reconstruction module is jointly optimized as an integral component of the overall framework. Its optimization is primarily guided by a loss function constructed from pairs of degraded infrared images 
+
+Iraw and their corresponding clear ground truth Igt . The specific formulation of the loss function Lrec is defined as 
+
+Lrec = 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+I(i) 
+
+> rec
+
+− I(i)
+
+> gt
+> 22
+
+, (1) where I(i) 
+
+> rec
+
+and I(i) 
+
+> gt
+
+are the reconstructed image and ground truth image for the i-th sample, respectively, ∥·∥ 22 denotes the 
+
+L2 norm, and N is the total number of images in a batch. 
+
+C. Detection module 
+
+The design of the object detection module follows principles similar to those of the reconstruction module, requiring a balance between detection accuracy, computational efficiency, and edge deployment compatibility. As a representative archi-tecture for real-time object recognition, the YOLO series has demonstrated remarkable effectiveness across various applica-tions and has undergone extensive structural optimization for edge efficiency [56]–[58]. In this work, we adopt a streamlined and optimized version of the classical YOLOv5 architecture as the core detection module. Furthermore, to validate the generality of the proposed integration framework across dif-ferent YOLO variants, we also evaluate the performance of an extended YOLOv8-based implementation. In the proposed PDI-Net, the shared features extracted from the reconstruction module are directly transmitted to the refined detection backbone. To facilitate the transfer and fusion of heterogeneous features, the backbone structure is optimized to maintain consistency in channel dimensions and spatial resolutions. The detailed connection strategies are discussed in the ablation study in Section 3.4. The detection module is supervised by a compound loss function Ldet , defined as 
+
+Ldet = hyp box Lbox + hyp obj Lobj + hyp cls Lcls , (2) where the hyperparameters hyp box , hyp obj , and hyp cls serve as weighting coefficients for the bounding box regression, objectness confidence, and classification loss terms, respec-tively. Lbox , Lobj , and Lcls denote the corresponding detection losses used in the YOLO-based detector. This integrated detection pipeline leverages shared feature representations and task-specific loss optimization, ensuring efficient and accurate target detection even under the highly challenging conditions inherent to single-lens infrared computational imaging. 
+
+D. Physics-Aware Large-Small Bridge 
+
+Establishing an efficient connection between the reconstruc-tion and detection modules is critical to the proposed PDI-Net. However, these two tasks exhibit fundamentally different feature extraction characteristics. Specifically, the U-Net-based reconstruction task is fidelity-driven, treating all regions and pixels uniformly to restore fine-grained texture details across the entire image, including redundant background information. In contrast, the YOLO-based detection backbone is semantics-driven, where feature responses are sparse and concentrated on target regions while actively suppressing most background details. As shown in Fig. 3(a), the reconstruction and detection tasks present distinct feature distribution patterns, highlighting a clear representational gap between them. This discrepancy confirms that direct feature transfer is inefficient and necessi-tates a dedicated alignment mechanism. The proposed PALS-Bridge is designed to mitigate the representational gap between dense, low-level image features and high-level semantic features. The core design principle incorporates PSF characteristics from different field-of-view (FOV) positions as physical priors, adaptively adjusting the weights of multiscale feature extraction branches according to the degree of spot dispersion on the focal plane. Intuitively, in regions with pronounced blur, where optical diffusion is more severe, features are extracted using a larger receptive field to preserve global structural information, whereas in regions with mild blur, smaller receptive fields are emphasized to JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 5(b)  unet F
+
+> yolo
+
+## F
+
+## ⊗ lg g
+
+> λs
+
+## g
+
+## ⊕
+
+> SE
+
+x
+
+> l
+> λ
+> y
+
+## η
+
+sSmall 
+
+> 3×3 GN
+
+(a) 
+
+> k(0,0)=0.80
+> k(3,2)=0.29
+> k(2,4)=0.52 k(1,6)=0.20
+> k(5,5)=0.64 k(3,7)=0.52
+
+(c) 
+
+> Large
+> PWConv
+> BN
+> DWConv
+
+x
+
+> l
+> Laplacian
+> Laplacian
+> BN
+
+x
+
+> λ
+> SE
+> Avg_pool
+> Conv
+> SiLU
+> Conv
+> Sigmoid
+> y
+> Small
+> Conv
+> BN
+> SiLU
+
+x
+
+s 
+
+> Laplacian
+> 3×3
+> Large
+> DW(k) →PW
+> Fig. 3. (a) Feature discrepancy between reconstruction and detection modules. (b) Detailed architecture of the PALS-Bridge. (c) The partitioned PSF pattern of the single-lens infrared camera, divided into 48 regions according to the FOV.
+
+enhance fine-grained textures and edge sharpness. The detailed architecture of the proposed PALS-Bridge is illustrated in Fig. 3(b), with a squeeze-and-excitation (SE) submodule for lightweight channel reweighting. Given an input feature map 
+
+x ∈ RB×C×H×W , where x corresponds to the encoder feature Funet , PALS-Bridge processes x through three parallel convolutional branches with different kernel sizes, enabling a balanced extraction of fine-grained local details and coarse global contextual features. The three branches, illustrated in Fig. 3(b) and defined by Eq. (3), take the feature map x
+
+from the U-Net as their shared input and produce the outputs 
+
+s, l, and λ, respectively. After appropriate scaling, the three outputs are merged with x and forwarded to the SE submodule to generate the final output y. The weighting coefficients of the three branches, denoted as gs, gl, and gλ, are adaptively adjusted according to the PSF characteristics across the FOV. 
+
+s = fsmall (x) (grouped 3×3 conv + norm + SiLU) 
+
+l = BN l
+
+ PW(DW k(x))  (depthwise 15 ×15 → pointwise) 
+
+λ = BN λ
+
+ x ∗ Kλ
+
+ (fixed 3×3 Laplacian) (3) As shown in Fig. 3(c), the 640 × 480 pixel array, obtained from the single-lens infrared system, is divided into 48 regions of 6 × 8 according to the FOV. For each region, the energy centroid and the root-mean-square (RMS) radius of energy around the centroid are calculated based on the experimentally calibrated PSFs, yielding a scalar blur factor. These blur factors are normalized to the range [0 , 1] , arranged on a 6 × 8
+
+grid, and bilinearly upsampled to H × W to form the PSF-aware blur index map k(h, w ). The base gating coefficients 
+
+¯gs, ¯gl, and ¯gλ are then spatially modulated according to the PSF-aware blur index map, yielding the spatially varying gates defined as follows: 
+
+gs(h, w ) = clip [0 ,1] 
+
+ ¯gs + αs(1 − k(h, w )) ,gl(h, w ) = clip [0 ,1] 
+
+ ¯gl + αl k(h, w ),gλ(h, w ) = clip [0 ,1] 
+
+ ¯gλ + αλ(1 − k(h, w )) ,
+
+(4) where αs, αl, and αλ are learnable modulation strengths. Intuitively, the module relies more on the large-kernel path in regions with pronounced blur ( k ↑), and favors the small-kernel and Laplacian-enhanced paths in sharper regions ( k ↓). For stable training, the gates are parameterized as ¯gs =sigmoid( θs), ¯gl = sigmoid( θl), and ¯gλ = sigmoid( θλ), with the biases empirically initialized to encode a conservative prior over branch importance, while remaining fully learnable. The gated outputs are fused with a scaled residual connec-tion and lightweight channel reweighting. The overall output of PALS-Bridge is formulated as 
+
+y = BN out 
+
+
+
+SE  x + η[gs ⊙ s + gl ⊙ l + gλ ⊙ λ]
+
+, (5) where η ∈ (0 , 1) is a learnable scaling factor that stabilizes early training, ⊙ is the broadcasted element-wise product, and 
+
+BN out is the final normalization. The PSF prior thus embeds field-dependent physical knowledge with negligible additional inference overhead. PALS-Bridge adaptively modulates spatial frequency responses across the FOV, preserving localization cues in well-focused regions while aggregating robust contex-tual information in optically blurred areas. JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 6Ground -Truth  Patches  Calibrated PSF  Noise  Single -Lens 
+
+# ∗ +
+
+> ,h w
+
+# I ,h w PSF 
+
+# ε
+
+Weighted merge  
+
+> Fig. 4. Simulation-based dataset generation process for single-lens infrared computational imaging cameras.
+
+E. Integrated optimization 
+
+To maximize the optimization efficiency of the integrated framework for image reconstruction and object detection, a joint optimization strategy across multiple modules is em-ployed. This collaborative training enables efficient feature interaction between the two tasks, allowing the reconstruction module to generate feature representations that directly benefit the detector and achieve an optimal balance between conver-gence speed and detection performance. To realize this joint optimization, we define a total loss function Ltotal , as shown in Eq. (6), which harmonizes the objectives of both tasks. 
+
+Ltotal = hyp rec Lrec + hyp det Ldet , (6) where hyp rec and hyp det are weighting factors that regulate the relative contributions of the reconstruction loss Lrec and the detection loss Ldet . It is worth noting that although the network performs full image reconstruction during training, only the feature-sharing layers of the reconstruction module are utilized during inference. Since the reconstruction process is computationally intensive, this design substantially reduces inference time and significantly enhances the feasibility of real-time deployment on edge devices. 
+
+F. Dataset generation 
+
+The generation of paired blurred and clear infrared images that incorporate both target annotations and single-lens char-acteristics is essential for training. However, existing infrared datasets lack the specific optical characteristics of single-lens computational imaging systems and therefore cannot be directly utilized for this purpose. To embed physics-informed priors into the training data, we simulate single-lens degrada-tions using calibrated PSFs and detector noise models. The degradation process accounts for residual aberrations, optical blur, and spatial distortions that are intrinsic to single-lens designs. To obtain physically realistic degradation kernels, the PSFs used in this work are derived from an optical simulation model of the single-lens infrared imaging system. Specifically, the optical system is constructed in Zemax OpticStudio and the residual wavefront aberrations are exported through the ZOSAPI interface. For a given field position and wavelength, the complex pupil function can be expressed as 
+
+U (x, y ) = A(x, y )ei2πW (x,y ). (7) where A(x, y ) represents the pupil aperture function, W (x, y )
+
+denotes the wavefront aberration obtained from optical simula-tion, and i = √−1 is the imaginary unit, with the exponential term describing the phase modulation of the complex optical field. Based on scalar diffraction theory, the corresponding PSF is computed as the squared magnitude of the Fourier transform of the complex pupil function: 
+
+PSF( u, v ) = |F{ U (x, y )}| 2 . (8) To account for the broadband infrared imaging characteris-tics of the system, PSFs are generated at multiple wavelengths within the spectral range of 8–12 μm and then spectrally averaged to obtain a broadband kernel. In addition, since the imaging performance varies with the field position due to off-axis aberrations, PSFs are sampled on a grid of field points across the sensor plane. Finally, the simulated PSFs are resampled according to the detector pixel size to ensure consistency with the physical imaging process. This procedure produces a spatially varying PSF set {Km,n } that accurately reflects the optical response of the single-lens imaging system. As illustrated in Fig. 4, the degradation simulation consists of three primary operations: cropping, convolution, and noise addition. First, the ground truth image Igt ∈ RM ×N is divided into patches eI ∈ Rp×p, where M and N are integer multiples of p. Each patch eI is then convolved with the calibrated PSF 
+
+K ∈ Rdpsf ×dpsf , and the resulting outputs are recombined using a weighting function. Finally, Gaussian noise ε is added, with its intensity controlled by a scaling parameter q. To prevent numerical instability, the resulting data are clamped to the range (10 −20 , 1.0) .Mathematically, the calibrated PSF degradation process can be expressed as follows. Let Mp = M/p and Np = N/p de-note the numbers of patches along the two spatial dimensions: 
+
+bI =
+
+> Mp−1
+
+X
+
+> m=0
+> Np−1
+
+X
+
+> n=0
+
+Wm,n ⊙
+
+eIm,n ∗ Km,n 
+
+
+
+, (9) where eIm,n represents the m-th and n-th patch, Km,n means the corresponding PSF, ∗ refers to the 2D convolution opera-tion, which models the spatially varying degradation across the image by applying field-dependent PSFs. Wm,n denotes the weighting matrix of the corresponding patch, and ⊙ denotes element-wise multiplication. At this stage, the PSF-degraded image bI is obtained. In fact, the degradation of single-lens is JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 7                  
+
+> TABLE I DATASET OVERVIEW OF THE M3FD AND FLIR ADAS V2Name Train Test Size Class M3FD 3144 782 640 ×480 6FLIR ADAS v2 10742 1144 640 ×512 16
+
+not limited to calibrated PSF, but also includes sensor noise. Therefore, we use Gaussian noise to simulate this process: 
+
+Iraw = min max 
+
+$ bIq
+
+%
+
++ ε
+
+!
+
+× q, 10 −20 
+
+!
+
+, 1.0
+
+!
+
+,
+
+(10) where bI is the PSF-degraded and recombined image. To control the noise level, a scaling factor q is introduced, and 
+
+ε ∼ N (0 , σ 2) models additive Gaussian noise. In Eq. (10), the clamp operation is represented by the combination of min and max functions. III. E XPERIMENTS 
+
+A. Experimental settings 
+
+1) Camera: The compact single-lens infrared camera used in this study is a self-developed system featuring a hybrid refractive–diffractive optical structure with an end-to-end co-design of the optical system and neural network [27]. The camera operates within the 8–12 μm spectral range, offering a focal length of 70 mm and an F-number of 1.0. It employs an uncooled infrared detector with a spatial resolution of 
+
+640 × 480 pixels. The system also integrates an RK3588 NPU chip, which in our previous design and preliminary studies [30] was mainly dedicated to running optimized image reconstruction algorithms. In this work, the same camera and its calibrated PSF are employed to experimentally validate the proposed integrated reconstruction–detection framework. 2) Dataset: The dataset used in this study is derived from the M 3FD benchmark [59] through the degradation process described in Section II-F. The original dataset contains 4,200 pairs of infrared and visible images. Since the single-lens infrared camera used in this work operates at a resolution of 
+
+640 × 480 pixels, whereas most images in the M 3FD dataset have a resolution of 1024 × 768 , we select the annotated infrared frames at 1024 × 768 and uniformly rescale both the images and bounding boxes to 640 × 480 . This pro-cedure preserves annotation fidelity and ensures consistency with the target deployment resolution. To further enhance the robustness of experimental evaluation, the FLIR ADAS v2 dataset is also incorporated. A detailed dataset comparison is summarized in Table I. 3) Evaluation Metrics: To comprehensively evaluate the inference time and object detection performance, Speed and several reference-based metrics are adopted, including Preci-sion , Recall , mean Average Precision (mAP) at Intersection over Union (IoU) = 0.5 ( mAP@0.5 ), and mAP averaged over IoU thresholds from 0.5 to 0.95 ( mAP@0.5:0.95 ). Speed 
+
+denotes inference time per image in milliseconds, where smaller values indicate faster inference. Higher values of these accuracy metrics approaching 1 indicate superior detection quality and robustness. 4) Implementation Details: The proposed integrated network for reconstruction and detection is implemented using the PyTorch framework and trained on an NVIDIA GeForce RTX 4060 GPU. The scale variable q and standard deviation σ
+
+are set to 90 and 0.0003, respectively. The training process employs the SGD optimizer with a learning rate of 0.01, a batch size of 16, and a total of 300 training epochs. The hyperparameters are configured as follows: the reconstruction loss weight hyp rec is set to 0.01, the detection loss weight 
+
+hyp det to 1.0, the bounding box localization loss weight 
+
+hyp box to 0.05, the objectness loss weight hyp obj to 1.0, and the classification loss weight hyp cls to 0.5. The residual-scaling factor is set to η = 0.2. The global gate biases are empirically initialized as θs = −3.0, θl = −2.0, and 
+
+θλ = −4.0.
+
+B. Quantitative comparison 
+
+To directly evaluate the performance of the proposed method, we compared the five infrared imaging strategies il-lustrated in Fig. 1. Table II summarizes the quantitative results on the M 3FD dataset, including inference speed on GPU and detection metrics such as Precision, Recall, mAP@0.5, and mAP@0.5:0.95. For fairness, both the traditional multi-lens and single-lens systems were modeled using their respective PSF characteristics, and degraded datasets were generated using identical procedures. Among the evaluated imaging strategies, traditional multi-lens imaging achieves the shortest inference time owing to the absence of a reconstruction stage. In contrast, the Rec+Det pipeline introduces substantial computational overhead; even after applying 50% channel pruning, its inference time re-mains 34.64 ms, significantly slower than traditional imaging. Similarly, direct detection on raw degraded inputs achieves an inference latency comparable to that of traditional multi-lens imaging. In comparison, the proposed PDI-Net achieves an in-ference speed of 5.52 ms, approximately matching traditional imaging, and reduces inference time by 84.06% compared with the Rec+Det with pruning strategy, because it leverages shared encoder features rather than fully reconstructed images. To assess robustness under varying noise levels, experiments were conducted at two SNR conditions: high SNR (noise scale 
+
+q = 10 ) and low SNR ( q = 90 ). Under high SNR, traditional imaging surpasses only the pruned Rec+Det pipeline, which is unsurprising given its lack of a learnable recovery stage, while the proposed PDI-Net achieves the highest detection accuracy among all computational imaging strategies. Unsurprisingly, raw imaging performs the worst and degrades markedly, as it lacks both ground truth supervision and physical aberration JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 8                                                             
+
+> TABLE II QUANTITATIVE COMPARISON OF DIFFERENT INFRARED IMAGING STRATEGIES
+> Strategy SNR Speed (ms) Precision Recall mAP@0.5 mAP@0.5:0.95 Traditional imaging High 4.53 0.861 0.734 0.808 0.513 Low 0.826 0.742 0.802 0.506 Rec+Det High 58.41 0.881 0.730 0.814 0.517 Low 0.852 0.716 0.794 0.495 Rec+Det with pruning High 34.64 0.843 0.728 0.795 0.494 Low 0.855 0.698 0.784 0.493 Raw imaging High 4.60 0.725 0.505 0.575 0.340 Low 0.786 0.400 0.499 0.286 Our work High 5.52 0.882 0.757 0.825 0.521 Low 0.871 0.752 0.813 0.518
+
+correction. For the detection task, our strategy follows the same configuration as raw imaging, differing only in the detection model; nevertheless, PDI-Net improves mAP@0.5 by 43.48% at the cost of only about 1 ms additional inference time. As the SNR decreases, all methods experience perfor-mance degradation; however, the Rec+Det pipeline suffers the most pronounced drop. Traditional multi-lens imaging demonstrates the highest stability, followed closely by the proposed PDI-Net. Under the low-SNR setting, PDI-Net fur-ther improves mAP@0.5:0.95 by 5.07% compared with the 
+
+Rec+Det with pruning strategy. This can be attributed to the differing optimization objectives: reconstruction-first pipelines are typically trained for human-perceptual fidelity and tend to oversmooth images under low SNR, thereby suppressing edges and textures critical for detection. In contrast, our integrated approach jointly aligns shared features with the detection objective, enhancing task-relevant spatial frequencies while de-emphasizing visually redundant information. Overall, these results confirm that the proposed PDI-Net achieves an effective balance among real-time efficiency, de-tection accuracy and lightweight system design, maintaining strong robustness under noise variations. Given that most practical infrared imaging scenarios operate in low-SNR con-ditions, subsequent experiments are conducted under the low-SNR setting to better reflect real-world application environ-ments. 
+
+C. Qualitative comparison 
+
+From a visual perspective, Fig. 5 presents the detection outcomes of different imaging strategies. In terms of perceptual image quality, computational imaging pipelines exhibit performance comparable to traditional multi-lens imaging. Without any learnable recovery module, the traditional approach relies solely on optical correction, which limits noise suppression and mid-to-high frequency restora-tion. Among the computational imaging strategies in Fig. 5(b), (c) and (e), the full reconstruction network in Fig. 5(b) provides the finest structural detail. Applying 50% channel pruning introduces minor texture loss, as shown in Fig. 5(c), consistent with reduced model capacity. The integrated frame-work in Fig. 5(e) achieves comparable structural fidelity to Fig. 5(b) while significantly lowering latency, as it directly consumes shared encoder features rather than performing full image reconstruction. Expectedly, raw imaging exhibits the poorest visual quality due to the absence of both reconstruction algorithms and optical aberration correction. From the detection perspective, the proposed PDI-Net yields consistently higher confidence scores across all targets. For (a)  (c)  (d) (b)  (e)   
+
+> Fig. 5. Qualitative comparison of infrared object detection with different imaging strategies. (a) Traditional imaging. (b) Rec+Det. (c) Rec+Det with pruning. (d) Raw imaging. (e) The proposed PDI-Net. JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 9
+
+GT 
+
+## (b)  (e) (c) (a)  (d)  (f)  
+
+> Fig. 6. Heatmap comparison of different infrared imaging strategies. (a) Ground truth. (b) Traditional imaging. (c) Rec+Det. (d) Rec+Det with pruning. (e) Raw imaging. (f) The proposed PDI-Net.
+
+instance, the orange Bus label reaches a confidence of 0.93, compared with 0.87, 0.81, and 0.82 in Fig. 5(a)–(c), respec-tively. This improvement arises from the joint optimization of reconstruction and detection, which aligns feature extraction with detection objectives rather than human-perceptual quality. Consequently, features enhanced by the reconstruction module are more discriminative and task-oriented, leading to superior detection accuracy even under degraded imaging conditions. In contrast, the Rec+Det pipelines in Fig. 5(b)–(c) prioritize per-ceptual quality during reconstruction, which may conflict with machine perception and ultimately limit detection robustness compared with the integrated network. Unsurprisingly, the raw imaging strategy yields the worst detection performance, with some targets missed and generally lower confidence scores, due to the absence of both reconstruction algorithms and optical aberration correction. We further provide Grad-CAM [60] visualizations to high-light where each detector concentrates during inference. Fig. 6 shows heatmaps extracted from the activation of the third convolutional block in the detection head, with warmer colors indicating stronger attention. In Fig. 6(a), the ground truth layout indicates the ideal regions of interest that the model should attend to. In Fig. 6(b), attention largely overlaps the targets but remains relatively diffuse, which is consistent with residual noise and limited learnable restoration. In Fig. 6(c), attention over the People 
+
+target is concentrated, suggesting that reconstruction improves signal quality, yet part of the Car attention drifts to a back-ground area below the object, revealing a mismatch between features emphasized during reconstruction and those required for detection. A similar mismatch appears in Fig. 6(d), which depicts the pruned variant and is likely exacerbated by reduced model capacity. Fig. 6(e) reveals that raw imaging struggles to concentrate attention on the targets, stemming from the absence of ground truth supervision and task-relevant guid-ance. By contrast, Fig. 6(f) exhibits the most compact and target-aligned attention, avoiding off-target responses seen in (c)–(d). This behavior aligns with the design of the dual-integrated framework, where the detector directly consumes shared encoder features that are optimized jointly with detec-tion, favoring task-relevant structures over purely perceptual fidelity. 
+
+D. Ablation study 
+
+In this section, we conduct ablation studies on the feature-sharing configuration and the design of the PALS-Bridge module to assess their impact on detection performance in the proposed dual-integrated framework. Experiments are per-formed on the M 3FD dataset. Fig. 7 illustrates the three sharing strategies and their sub-connections, while Tables III and IV summarize the quantitative results. 
+
+1) Ablation of U-Net Feature-Sharing: Fig. 7(a) presents the improved U-Net architecture, consistent with the detailed U-Net architecture shown in Supplementary Fig. S1. To clarify the connection strategies between the reconstruction and de-tection modules, the U-Net is shown as a horizontal mirror in                                                               
+
+> TABLE III ABLATION EXPERIMENTS ON DIFFERENT CONNECTIONS BETWEEN RECONSTRUCTION AND DETECTION
+> Strategy Speed (ms) Precision Recall mAP@0.5 mAP@0.5:0.95 Strategy.1 red 5.52 0.867 0.694 0.787 0.484 Strategy.1 yellow 5.68 0.852 0.725 0.794 0.487 Strategy.1 black 5.54 0.859 0.741 0.807 0.515 Strategy.2 green 5.66 0.833 0.722 0.786 0.483 Strategy.2 red 5.84 0.88 0.742 0.811 0.516 Strategy.2 yellow 5.44 0.859 0.734 0.807 0.52
+> Strategy.2 black 5.2 0.845 0.705 0.78 0.479 Strategy.3 yellow 5.52 0.871 0.752 0.813 0.518 Strategy.3 red 5.42 0.867 0.706 0.78 0.477 Strategy.3 black 5.2 0.871 0.691 0.774 0.473 JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 10
+
+⊕
+
+> simu
+
+## Irec I 
+
+> Center
+> Up2
+> Up3
+> Up4
+> Up1 Conv
+> Conv
+> Conv
+> Conv
+> Conv
+> Conv
+> Conv
+> Conv
+> Conv
+> Conv
+> CSP3
+> CSP3
+> CSP3
+> Conv
+> Conv
+> Conv
+> Conv
+> Conv
+> CSP3
+> Conv
+> SPPF
+
+U-Net  Refined Backbone 
+
+> simu
+
+## I
+
+> Conv
+> Conv
+> Conv
+> Conv
+> Conv
+> Conv
+> Conv
+> Conv
+> Conv
+> Conv
+> CSP3
+> CSP3
+> Conv
+> Conv
+> Conv
+> Conv
+
+Refined Backbone 
+
+> simu
+
+## I
+
+> Conv
+> Conv
+> Conv
+> Conv
+> Conv
+> Conv
+> Conv
+> Conv
+> Conv
+> Conv
+> CSP3
+> CSP3
+> Conv
+> Conv
+> Conv
+> Conv
+
+Refined Backbone 
+
+# (a)  (b)  (c)  
+
+> Fig. 7. Ablation study and sub-connection methods of the feature-sharing layer. (a) Strategy.1: the first ConvBlock is used as the feature-sharing layer. (b) Strategy.2: the first two ConvBlocks are used as feature-sharing layers. (c) Strategy.3: the first three ConvBlocks are used as feature-sharing layers.
+
+Fig. 7(a); (b) and (c) provide simplified schematics of the U-Net and the refined backbone, thereby highlighting the detailed structure of the sub-connections. To ensure a fair comparison across connection strategies, the original YOLO backbone is lightly modified by expanding the initial three convolution layers to six, which provides more flexible attachment points for external features while keeping resolution and channel alignment consistent with the encoder. As illustrated in Fig. 7, Strategy 1, Strategy 2 and Strategy 3 tap features after ConvBlock 1, ConvBlock 2and ConvBlock 3. Each strategy uses four color-coded sub-connections, namely red, yellow, green, and black, to probe depth and path sensitivity. The results in Table III show that sub-connections that bypass CSP3 modules, for example the black sub-connection in Strategy 2 and the black sub-connection in Strategy 3, lead to noticeable accuracy drops, which indicates that preserving the internal transformation within the backbone is critical. Among all configurations, the yellow sub-connection in Strategy 3 delivers the best trade-off by producing the highest mAP@0.5 and Recall while maintaining competitive mAP@0.5:0.95 and Precision at similar latency, therefore adopted in the final model. Deeper sharing beyond ConvBlock 3, referred to as ConvBlock 4, is not considered since matching those deeper features requires bypassing CSP3 modules, which led to pronounced perfor-mance degradation. 
+
+2) Ablation of PALS-Bridge Structure: Table IV evaluates the proposed bridging block. Adding either the small S or the large L branch individually improves the baseline because the small branch enhances fine-grained detail while the large branch captures long-range context. The Laplacian branch uses the same 3 × 3 kernel as the small branch and is therefore merged into the small branch. Combining small and large branches LS further increases accuracy, confirming the benefit of multiscale receptive fields. Introducing the physics-aware PSF-gated path PA adaptively reweights the spatial frequency content according to field-dependent blur, emphasizing the large-kernel path in blur-dominant regions while favoring the small-kernel and Laplacian paths in sharper areas; this variant corresponds to PALS-Bridge (no SE) and delivers the strongest improvement in localization. Adding SE reweighting achieves the best overall balance; the full variant is reported as PALS-Bridge and adopted as the default configuration. Removing the reconstruction loss (w.o. Rec) significantly degrades mAP, underscoring the critical role of our joint optimization strategy in guiding feature extraction. 
+
+E. Comparison with traditional imaging frameworks 
+
+To demonstrate the necessity of a dedicated architecture for single-lens computational imaging, we compare the proposed PDI-Net with several representative joint reconstruction– detection frameworks originally developed for traditional                                                                              
+
+> TABLE IV ABLATION STUDY OF PALS-B RIDGE AND VARIANTS
+> Method Precision Recall mAP@0.5 mAP@0.5:0.95 Baseline (w.o. bridge) 0.871 0.752 0.813 0.518 L-Bridge 0.844 0.733 0.818 0.559 S-Bridge 0.855 0.724 0.816 0.552 LS-Bridge 0.853 0.749 0.827 0.568 PALS-Bridge (w.o. SE) 0.876 0.738 0.831 0.570
+> PALS-Bridge (w.o. Rec) 0.838 0.695 0.765 0.469 PALS-Bridge 0.879 0.746 0.833 0.570 JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 11
+> TABLE V QUANTITATIVE COMPARISON WITH TRADITIONAL IMAGING FRAMEWORKS ON THE M3FD D ATASET
+> Method Precision Recall mAP@0.5 mAP@0.5:0.95 Params (M) FLOPs (G) Speed (ms) IA-YOLO 0.776 0.585 0.697 0.399 61.8 117.4 28.1 DeepDenoising 0.828 0.578 0.723 0.478 7.5 92.1 10.1 ESOD 0.833 0.630 0.756 0.485 13.6 21.4 10.6 Ours 0.879 0.746 0.833 0.570 9.2 47.8 5.8
+
+# (b)  (c) (a)  (d)  (e)  
+
+> Fig. 8. Qualitative comparison with traditional imaging frameworks on the M 3FD dataset: (a) Ground truth; (b) DeepDenoising; (c) IA-YOLO; (d) ESOD; (e) Ours.
+
+imaging systems. These networks include: Image-Adaptive YOLO [61], designed for detection in adverse weather and low-light conditions; DeepDenoising [55], which examines the relationship between denoising and high-level vision tasks; and ESOD [62], which focuses on small-object detection in high-resolution imagery. We include FLIR ADAS v2 in addition to the M 3FD dataset to evaluate generalization, and we report not only detection accuracy, but also parameter counts, FLOPs, and inference speed on the 640 ×480 version of M 3FD. Table V reports the quantitative results on the M 3FD dataset. The proposed PDI-Net achieves the best overall performance, surpassing the next-best ESOD by a clear margin, while using substantially fewer parameters than IA-YOLO and delivering the fastest inference among all methods. We attribute this gain to PALS-Bridge, which narrows the gap between pixel-aligned low-level textures and detector-oriented semantics, thereby stabilizing the interface between reconstruction features and the detection head. The comparison also reflects a distribution mismatch: competing detectors are not tailored to single-lens, PSF-degraded infrared imagery and lack physics-aware priors, which likely contributes to their lower scores on our benchmark. Fig. 8 further illustrates these trends: in the first row, only the proposed PDI-Net correctly detects the Lamp ;in the second row, which contains a small, low-contrast Mo-(b)  (c) (a)  (d)  (e)                                            
+
+> Fig. 9. Qualitative comparison with traditional imaging frameworks on the FLIR ADAS v2 dataset: (a) Ground truth; (b) DeepDenoising; (c) IA-YOLO; (d) ESOD; (e) Ours. JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 12
+> TABLE VI QUANTITATIVE COMPARISON WITH TRADITIONAL IMAGING FRAMEWORKS ON THE FLIR ADAS V2 D ATASET
+> Method Precision Recall mAP@0.5 mAP@0.5:0.95 IA-YOLO 0.557 0.298 0.432 0.212 DeepDenoising 0.571 0.394 0.479 0.304 ESOD 0.588 0.412 0.496 0.315 Ours 0.599 0.412 0.506 0.322
+> TABLE VII SCALABILITY OF THE PROPOSED FRAMEWORK ON YOLO F AMILY
+> Method Precision Recall mAP@0.5 mAP@0.5:0.95 YOLOv5s-based 0.879 0.746 0.833 0.570 YOLOv8s-based 0.878 0.754 0.853 0.626
+
+torcycle , PDI-Net is the only method that produces a correct detection and also yields higher confidence on other targets. These observations indicate that the three-branch PALS-Bridge effectively handles small and low-contrast objects. Addition-ally, the zoomed insets demonstrate that the proposed PDI-Net most closely approximates the ground truth, whereas DeepDenoising and IA-YOLO are inferior, and ESOD lacks a reconstruction process. Table VI and Fig. 9 show results on the additional FLIR ADAS v2 dataset. The ranking is broadly consistent with M3FD, although absolute metrics are lower, likely due to reduced image quality and annotation noise in FLIR ADAS v2. In the two rows, many targets are small, such as light and sign . ESOD, with its emphasis on small-object detection, produces more accurate boxes and higher confidence than IA-YOLO and DeepDenoising. The proposed PDI-Net slightly outperforms ESOD in the quantitative metrics and shows a clear advantage on light and hydrant . The same trend holds in cluttered or low-contrast scenes, indicating that physics-aware feature sharing preserves task-relevant structure even when global visual quality is weak. Performance dif-ferences between M 3FD and FLIR ADAS v2 likely reflect domain shift and class-label granularity mismatches; never-theless, the stable ranking on both benchmarks supports the generalizability of the proposed PDI-Net. The zoomed insets exhibit trends highly consistent with those observed in the M3FD dataset. 
+
+F. Scalability and compatibility 
+
+To verify the generality and scalability of the proposed PDI-Net, a YOLOv8s-based instantiation is evaluated under the same experimental settings. As shown in Table VII, the proposed PDI-Net achieves a competitive overall accuracy and markedly stronger performance at high IoU thresholds, confirming the compatibility and practicality of the frame-work beyond the YOLOv5s configuration. This is because the proposed PDI-Net is inherently detector-agnostic: the recon-struction encoder provides a multiscale feature pyramid, while the PALS-Bridge projects these physics-aware features into canonical tensor forms compatible with mainstream detectors. Consequently, replacing the detection head requires no modi-fication to the joint objective Ltotal = hyp rec Lrec + hyp det Ldet ,and only minor interface adjustments, such as channel align-ment or anchor/free-anchor configurations. Conceptually, the PALS-Bridge enforces optical invariances associated with the PSF and sensor noise while preserving task-discriminative se-(c) (b) (a) 
+
+Reconstructed 
+
+Raw 
+
+(d)  (e)                           
+
+> Fig. 10. Detection results of the proposed PDI-Net with 50% uniform structured pruning and INT8 precision quantization, visualized on the raw and reconstructed outputs: (a)–(c) captured by the deployed camera; (d) M 3FD dataset; (e) FLIR ADAS v2 benchmark. JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 13
+> TABLE VIII DETECTION RESULTS OF THE PROPOSED PDI-N ET WITH 50% U NIFORM STRUCTURED PRUNING UNDER DIFFERENT PRECISION QUANTIZATION
+> SETTINGS
+> Quantization Speed (ms) Precision Recall mAP@0.5 mAP@0.5:0.95 FP16 51.53 0.883 0.741 0.812 0.515
+> INT8 33.56 0.866 0.74 0.803 0.501
+
+mantics. Therefore, any architecture that ingests a feature pyra-mid, including one-stage detectors (e.g., the YOLO family) and two-stage heads built on feature-pyramid networks, can be seamlessly integrated without altering the reconstruction pathway. IV. O UTDOOR EXPERIMENTS AFTER EDGE DEPLOYMENT 
+
+To evaluate the on-device inference performance under real-world conditions, outdoor field experiments are conducted us-ing a small UAV platform. The proposed PDI-Net is deployed on an RK3588 AI chip (Rockchip Electronics Co., Ltd.) inte-grated into a Matrice 350 RTK UAV (DJI-Innovations, China). To meet real-time constraints on resource-limited hardware, structured pruning with an average sparsity of 50% is applied to eliminate redundancy and reduce computational overhead. The optimized model is then embedded into the single-lens infrared computational imaging system and mounted on the UAV for comprehensive validation. A supplementary video showcasing the online exhibition of the raw image output and real-time detection performance of the single-lens infrared computational imaging camera is provided via the online supplementary link. Table VIII summarizes the performance of the proposed strategies deployed on the RK3588 platform. Both FP16 and INT8 quantization schemes were evaluated, where INT8 no-tably reduces memory consumption and accelerates inference while maintaining stable detection accuracy. Consequently, subsequent analyses are conducted using the INT8 on-chip quantization results. Fig. 10 presents imaging and detection outcomes, including cases with and without reconstructed im-ages. Figs. 10(a)–10(c) depict representative scenes captured by the single-lens infrared camera, and the proposed method maintains stable detection performance across these examples. Figs. 10(d) and 10(e) further demonstrate robust detection performance on benchmark datasets. Additionally, magnified insets reveal significant enhancements in image fidelity and structural clarity compared to the raw inputs. It should be noted that, in scenarios demanding high real-time performance and minimize latency, the proposed network omits the output of clear reconstructed images to minimize latency. Balancing human-perceptual image quality with low detection delay, such as through region-of-interest (ROI) reconstruction focused on target areas, represents a promising direction for future research and system optimization. V. S INGLE -LENS INFRARED CAMERA DESIGN AND UAV 
+
+> INTEGRATION
+
+The key specifications of the proposed single-lens infrared computational imaging camera are summarized in Table IX. Compared with conventional multi-lens infrared imaging sys-tems, the proposed system significantly reduces overall weight. As shown in Fig. 11(a) and 11(b), the system weight is reduced                 
+
+> TABLE IX SPECIFICATIONS OF THE SINGLE -L ENS INFRARED COMPUTATIONAL IMAGING CAMERA
+> Parameter Value System weight 372 g Operating wavelength 8–12 μmFocal length 70 mm F-number 1.0 Detector type VO xuncooled detector Array format 640 ×480 pixels Pixel size 12 μm
+
+(a)  (b)  (c)  (d)   
+
+> Fig. 11. Imaging system comparison and UAV integration. (a) Traditional multi-lens infrared camera (700 g). (b) Proposed single-lens camera (372 g). (c), (d) UAV-mounted implementation of the proposed system. JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 14
+
+from approximately 700 g to 372 g. This substantial reduction in payload is critical for UAV platforms, as it improves flight endurance and energy efficiency. This improvement is primarily attributed to the simplified optical architecture. Traditional infrared imaging systems typi-cally rely on multi-lens elements to correct aberrations, result-ing in increased system complexity and weight. In contrast, the proposed system adopts a single-lens design, where residual aberrations are compensated computationally by PDI-Net. This optical–computational co-design effectively reduces hardware complexity while maintaining imaging performance. The single-lens infrared computational imaging camera has been successfully integrated onto a UAV platform, as shown in Fig. 11(c) and 11(d). The integration covers hardware interfacing, mechanical mounting, on-board computing, and communication. This system-level integration demonstrates the feasibility of the proposed PDI-Net for practical airborne infrared sensing applications. VI. C ONCLUSIONS 
+
+This study presents a Physics-aware Dual-Integrated Net-work, named PDI-Net, which integrates infrared image re-construction and object detection, while further integrating physical priors into the learning-based algorithm, thereby addressing the degradation introduced by lens simplification while satisfying low-latency requirements. The network con-sists of a U-Net-based reconstruction module and a YOLO-based detection module, with part of the encoder designated as a feature-sharing branch. In this way, full image reconstruction can be bypassed during inference, enabling efficient low-latency detection. These shared features are further routed through the proposed PALS-Bridge, which leverages physical priors from the imaging process to effectively bridge the gap between fidelity-oriented features and detection-oriented semantic representations. To support physics-informed training and evaluation, we develop a physics-informed simulation pipeline to synthesize optical degradation datasets based on M3FD and FLIR ADAS v2. Experimental results demonstrate that, compared with the Rec+Det with pruning strategy in the low-SNR setting, the proposed PDI-Net reduces inference latency by 84.06% while improving mAP@0.5:0.95 by 5.07%. Ablation studies further identify PALS-Bridge as the primary contributor to high-IoU gains while maintaining recall, and confirm that replacing the detection head requires only channel alignment and anchor reconfiguration. Finally, the proposed PDI-Net is deployed on an edge AI chip integrated with the proposed single-lens infrared camera, achieving an ap-proximately 50% reduction in system weight (from 700 g to 372 g) compared with traditional multi-lens configurations. In addition, the camera is integrated with a UAV platform for outdoor experiments, demonstrating the practicality of compact, real-time infrared computational imaging and target detection under resource-constrained conditions. ACKNOWLEDGMENT 
+
+This work was supported by the National Natural Sci-ence Foundation of China (Grant Nos. 62305250, 61925504, 62105243, and 62205248). Supplementary material associated with this article is avail-able online. REFERENCES [1] L. Cai, X. Dong, K. Zhou, and X. Cao, “Exploring video denoising in thermal infrared imaging: Physics-inspired noise generator, dataset, and model,” IEEE Trans. Image Process. , vol. 33, pp. 3839–3854, 2024. [2] Z. Zhou, Y. Majeed, G. D. Naranjo, and E. M. Gambacorta, “Assessment for crop water stress with infrared thermal imagery in precision agri-culture: A review and future prospects for deep learning applications,” 
+
+Computers and Electronics in Agriculture , vol. 182, p. 106019, 2021. [3] C. Jiang, H. Ren, X. Ye, J. Zhu, H. Zeng, Y. Nan, M. Sun, X. Ren, and H. Huo, “Object detection from uav thermal infrared images and videos using yolo models,” International Journal of Applied Earth Observation and Geoinformation , vol. 112, p. 102912, 2022. [4] Z. Yang, T. Albrow-Owen, W. Cai, and T. Hasan, “Miniaturization of optical spectrometers,” Science , vol. 371, no. 6528, p. eabe0722, 2021. [5] A. Laskin, Basics of Optics on Imaging Quality and Aberrations .Springer International Publishing, 2021, pp. 545–598. [6] F. Heide, M. Rouf, M. B. Hullin, B. Labitzke, W. Heidrich, and A. Kolb, “High-quality computational imaging through simple lenses,” 
+
+ACM Trans. Graph. , vol. 32, no. 5, p. 149, 2013. [7] A. Bhandari, A. Kadambi, and R. Raskar, Computational Imaging . MIT Press, 2022. [8] Y.-H. Liu, T.-X. Qin, Y.-C. Wang, X.-W. Kang, J. Liu, J.-C. Wu, and L.-C. Cao, “Research advances in simple and compact,” Acta Phys. Sin. ,vol. 72, no. 8, 2023. [9] A. Sinha, J. Lee, S. Li, and G. Barbastathis, “Lensless computational imaging through deep learning,” Optica , vol. 4, no. 9, pp. 1117–1125, 2017. [10] J. Suo, W. Zhang, J. Gong, X. Yuan, D. J. Brady, and Q. Dai, “Computational imaging and artificial intelligence: The next revolution of mobile vision,” Proc. IEEE , vol. 111, no. 12, pp. 1607–1639, 2023. [11] R. Zhang, F. Tan, Q. Hou, Z. Li, Z. Sun, C. Yang, and X. Gao, “End-to-end learned single lens design using improved wiener deconvolution,” 
+
+Opt. Lett. , vol. 48, no. 3, pp. 522–525, 2023. [12] L. Bian and Q. Dai, Computational Imaging and Sensing . Beijing: Post & Telecom Press, 2022. [13] C. Zuo and Q. Chen, “Computational optical imaging: An overview,” 
+
+Infrared Laser Eng. , vol. 51, no. 2, p. 20220110, 2022. [14] X. Dun, H. Ikoma, G. Wetzstein, Z. Wang, X. Cheng, and Y. Peng, “Learned rotationally symmetric diffractive achromat for full-spectrum computational imaging,” Optica , vol. 7, no. 8, pp. 913–922, 2020. [15] Y. Li, R. Chen, M. Lou, B. Sensale-Rodriguez, W. Gao, and C. Yu, “Lightridge: an end-to-end agile design framework for diffractive optical neural networks,” in Proc. ACM Int. Conf. Architectural Support for Programming Languages and Operating Systems (ASPLOS) , vol. 4, 2023, pp. 202–218. [16] S. S. Khan, X. Yu, K. Mitra, M. Chandraker, and F. Pittaluga, “OpEnCam: Lensless optical encryption camera,” IEEE Trans. Comput. Imaging , vol. 10, pp. 1306–1316, 2024. [17] M. S. Asif, A. Ayremlou, A. Sankaranarayanan, A. Veeraraghavan, and R. G. Baraniuk, “Flatcam: Thin, lensless cameras using coded aperture and computation,” IEEE Trans. Comput. Imaging , vol. 3, no. 3, pp. 384– 397, 2016. [18] N. Antipa, G. Kuo, R. Heckel, B. Mildenhall, E. Bostan, R. Ng, and L. Waller, “Diffusercam: lensless single-exposure 3d imaging,” Optica ,vol. 5, no. 1, pp. 1–9, 2017. [19] K. He, J. Sun, and X. Tang, “Single image haze removal using dark channel prior,” IEEE Trans. Pattern Anal. Mach. Intell. , vol. 33, no. 12, pp. 2341–2353, 2010. [20] L. Wang, Z. Wu, Y. Zhong, and X. Yuan, “Snapshot spectral compressive imaging reconstruction using convolution and contextual transformer,” 
+
+Photon. Res. , vol. 10, no. 8, pp. 1848–1858, Aug 2022. [Online]. Available: https://opg.optica.org/prj/abstract.cfm?URI=prj-10-8-1848 [21] L. Deng, G. Li, S. Han, L. Shi, and Y. Xie, “Model compression and hardware acceleration for neural networks: A comprehensive survey,” 
+
+Proc. IEEE , vol. 108, no. 4, pp. 485–532, 2020. [22] S. Han, H. Mao, and W. J. Dally, “Deep compression: Compressing deep neural networks with pruning, trained quantization and huffman coding,” arXiv preprint arXiv:1510.00149 , 2015. [23] J. Lee, D. Kim, and B. Ham, “Network quantization with element-wise gradient scaling,” in Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , 2021, pp. 6448–6457. JOURNAL OF L ATEX CLASS FILES, VOL. 14, NO. 8, AUGUST 2021 15 
+
+[24] B. Jacob, S. Kligys, B. Chen, M. Zhu, M. Tang, A. Howard, H. Adam, and D. Kalenichenko, “Quantization and training of neural networks for efficient integer-arithmetic-only inference,” in Proceedings of the IEEE conference on computer vision and pattern recognition , 2018, pp. 2704– 2713. [25] G. Hinton, O. Vinyals, and J. Dean, “Distilling the knowledge in a neural network,” arXiv preprint arXiv:1503.02531 , 2015. [26] H. Pham, M. Guan, B. Zoph, Q. Le, and J. Dean, “Efficient neural architecture search via parameters sharing,” in International conference on machine learning . PMLR, 2018, pp. 4095–4104. [27] Y. Xing, X. Wang, X. Dun, J. Zhang, J. Yu, W. Huang, Z. Wang, and X. Cheng, “Real-time high-quality single-lens computational imaging via enhancing lens modulation transfer function consistency,” Opt. Express , vol. 33, no. 3, pp. 5179–5190, 2025. [28] Y. Xing, X. Wang, J. Zhang, X. Qian, D. Yang, X. Dun, Z. Wang, and X. Cheng, “Physics-informed neural network enables high-frame-rate single-lens computational imaging,” Chinese Optics Letters , vol. 23, no. 11, p. 121101, 12 2025. [Online]. Available: https://m.researching.cn/articles/OJcd8c96e5ba2a08d7 [29] X. Qian, X. Wang, Y. Xing, G. Yang, X. Dun, Z. Wang, and X. Cheng, “Mwr-net: An edge-oriented lightweight framework for image restoration in single-lens infrared computational imaging,” 
+
+Remote Sensing , vol. 17, no. 17, 2025. [Online]. Available: https: //www.mdpi.com/2072-4292/17/17/3005 [30] X. Wang, T. Feng, Y. Xing, Z. Zhao, X. Dun, Z. Wang, and X. Cheng, “Edge accelerated reconstruction using sensitivity analysis for single-lens computational imaging,” Adv. Imaging , vol. 2, no. 3, 2025. [31] S. Sun, W. Ren, T. Wang, and X. Cao, “Rethinking image restoration for object detection,” Adv. Neural Inf. Process. Syst. , vol. 35, pp. 4461– 4474, 2022. [32] D. G. Low, “Distinctive image features from scale-invariant keypoints,” 
+
+Int. J. Comput. Vis. , vol. 60, no. 2, pp. 91–110, 2004. [33] N. Dalal and B. Triggs, “Histograms of oriented gradients for human detection,” in Proc. IEEE Conf. Comput. Vis. Pattern Recognit. (CVPR) ,vol. 1, 2005, pp. 886–893. [34] R. Girshick, J. Donahue, T. Darrell, and J. Malik, “Rich feature hierarchies for accurate object detection and semantic segmentation,” in Proc. IEEE Conf. Comput. Vis. Pattern Recognit. (CVPR) , 2014, pp. 580–587. [35] R. Girshick, “Fast R-CNN,” in Proc. IEEE Int. Conf. Comput. Vis. (ICCV) , 2015, pp. 1440–1448. [36] D. Liu, B. Wen, X. Liu, Z. Wang, and T. S. Huang, “When image denoising meets high-level vision tasks: A deep learning approach,” 
+
+arXiv preprint arXiv:1706.04284 , 2017. [37] I. Goodfellow et al. , “Generative adversarial nets,” Proc. NIPS , pp. 2672–2680, 2014. [38] G. Yang, K. Zhang, F. Zhang, J. Wang, and J. Sun, “Cross-resolution semi-supervised adversarial learning for pansharpening,” IEEE Trans. Geosci. Remote Sens. , vol. 61, pp. 1–17, 2023. [39] W. Dong, P. Wang, W. Yin, G. Shi, F. Wu, and X. Lu, “Denoising prior driven deep neural network for image restoration,” IEEE Trans. Pattern Anal. Mach. Intell. , vol. 41, no. 10, pp. 2305–2318, 2018. [40] Y. Jo, S. Y. Chun, and J. Choi, “Rethinking deep image prior for denoising,” in Proc. IEEE/CVF Int. Conf. Comput. Vis. (ICCV) , 2021, pp. 5087–5096. [41] P. Liang, J. Jiang, X. Liu, and J. Ma, “Image deblurring by exploring in-depth properties of transformer,” IEEE Trans. Neural Netw. Learn. Syst. , 2024. [42] B. Cai, X. Xu, K. Jia, C. Qing, and D. Tao, “Dehazenet: An end-to-end system for single image haze removal,” IEEE Trans. Image Process. ,vol. 25, no. 11, pp. 5187–5198, 2016. [43] Q. Hu, Y. Zhang, R. Zhang, F. Xu, and W. Yang, “Beyond dehazing: Learning intrinsic hazy robustness for aerial object detection,” IEEE Trans. Geosci. Remote Sens. , 2024. [44] H. Wang, Z. Yue, Q. Xie, Q. Zhao, Y. Zheng, and D. Meng, “From rain generation to rain removal,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 2021, pp. 14 791–14 801. [45] Q. Yang, X. Wang, D. Wang, B. Yu, Y. Zhou, and S. Qiao, “Compressive hyperspectral target detection with restricted distribution property,” IEEE Trans. Geosci. Remote Sens. , 2024. [46] J. Yuan, X. Zou, H. Xia, T. Liu, and F. Wu, “Bi-branch multiscale feature joint network for orsi salient object detection in adverse weather conditions,” IEEE Trans. Geosci. Remote Sens. , 2024. [47] B. Li, X. Peng, Z. Wang, J. Xu, and D. Feng, “Aod-net: All-in-one dehazing network,” in Proc. IEEE Int. Conf. Comput. Vis. (ICCV) , 2017, pp. 4770–4778. [48] C. Li, H. Zhou, Y. Liu, C. Yang, Y. Xie, Z. Li, and L. Zhu, “Detection-friendly dehazing: Object detection in real-world hazy scenes,” IEEE Trans. Pattern Anal. Mach. Intell. , vol. 45, no. 7, pp. 8284–8295, 2023. [49] S. Jin, B. Yu, M. Jing, Y. Zhou, J. Liang, and R. Ji, “Darkvisionnet: Low-light imaging via rgb-nir fusion with deep inconsistency prior,” in 
+
+Proc. AAAI Conf. Artif. Intell. , vol. 36, no. 1, 2022, pp. 1104–1112. [50] K. Zhang, G. Yang, F. Zhang, W. Wan, M. Zhou, J. Sun, and H. Zhang, “Learning deep multiscale local dissimilarity prior for pansharpening,” 
+
+IEEE Trans. Geosci. Remote Sens. , vol. 61, pp. 1–15, 2023. [51] Z. Cui, G.-J. Qi, L. Gu, S. You, Z. Zhang, and T. Harada, “Multitask aet with orthogonal tangent regularity for dark object detection,” in Proc. IEEE/CVF Int. Conf. Comput. Vis. (ICCV) , 2021, pp. 2553–2562. [52] M. Hnewa and H. Radha, “Multiscale domain adaptive yolo for cross-domain object detection,” in Proc. IEEE Int. Conf. Image Process. (ICIP) . IEEE, 2021, pp. 3323–3327. [53] A. Marathe, P. Jain, R. Walambe, and K. Kotecha, “Restorex-ai: A contrastive approach towards guiding image restoration via explainable ai systems,” in Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. (CVPR) , 2022, pp. 3030–3039. [54] H. Fu, Y. Wang, F. Dai, and L. Hong, “Blind focusing for computational microwave imaging with metasurface aperture based on sparse bayesian learning,” IEEE Trans. Geosci. Remote Sens. , 2024. [55] D. Liu, B. Wen, J. Jiao, X. Liu, Z. Wang, and T. S. Huang, “Connecting image denoising and high-level vision tasks via deep learning,” IEEE Trans. Image Process. , vol. 29, pp. 3695–3706, 2020. [56] J. Redmon, S. Divvala, R. Girshick, and A. Farhadi, “You only look once: Unified, real-time object detection,” in Proc. IEEE Conf. Comput. Vis. Pattern Recognit. (CVPR) , 2016, pp. 779–788. [57] Z. Ge, S. Liu, F. Wang, Z. Li, and J. Sun, “Yolox: Exceeding yolo series in 2021,” arXiv preprint arXiv:2107.08430 , 2021. [58] A. Wang, H. Chen, L. Liu, K. Chen, Z. Lin, J. Han et al. , “Yolov10: Real-time end-to-end object detection,” Adv. Neural Inf. Process. Syst. ,vol. 37, pp. 107 984–108 011, 2024. [59] J. Liu, X. Fan, Z. Huang, G. Wu, R. Liu, W. Zhong, and Z. Luo, “Target-aware dual adversarial learning and a multi-scenario multi-modality benchmark to fuse infrared and visible for object detection,” in Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. (CVPR) , 2022, pp. 5802–5811. [60] R. R. Selvaraju, M. Cogswell, A. Das, R. Vedantam, D. Parikh, and D. Batra, “Grad-cam: Visual explanations from deep networks via gradient-based localization,” in Proc. IEEE Int. Conf. Comput. Vis. (ICCV) , 2017, pp. 618–626. [61] W. Liu, G. Ren, R. Yu, S. Guo, J. Zhu, and L. Zhang, “Image-adaptive yolo for object detection in adverse weather conditions,” in Proceedings of the AAAI conference on artificial intelligence , vol. 36, no. 2, 2022, pp. 1792–1800. [62] K. Liu, Z. Fu, S. Jin, Z. Chen, F. Zhou, R. Jiang, Y. Chen, and J. Ye, “Esod: Efficient small object detection on high-resolution images,” IEEE Transactions on Image Processing , vol. 34, pp. 183–195, 2025.

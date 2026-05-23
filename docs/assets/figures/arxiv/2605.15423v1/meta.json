@@ -1,0 +1,78 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.15423v1/fig-001.webp",
+      "caption": "FIGURE 1. Overview of the MR2-ByteTrack algorithm.",
+      "page": 6,
+      "index": 1,
+      "width": 1019,
+      "height": 353
+    },
+    {
+      "url": "assets/figures/arxiv/2605.15423v1/fig-002.webp",
+      "caption": "FIGURE 4. Precision (top) and Recall (bottom) of MR2-ByteTrack and baseline VOD solutions when varying the number of low-res frames (P) in a multi-resolution setting.",
+      "page": 11,
+      "index": 2,
+      "width": 489,
+      "height": 401
+    },
+    {
+      "url": "assets/figures/arxiv/2605.15423v1/fig-003.webp",
+      "caption": "TABLE 5. Comparison between MR2-ByteTrack and frame-by-frame baselines running on the GAP9 MCU.",
+      "page": 11,
+      "index": 3,
+      "width": 504,
+      "height": 412
+    },
+    {
+      "url": "assets/figures/arxiv/2605.15423v1/fig-004.webp",
+      "caption": "FIGURE 3. mAP (top) and MMAC (bottom) of MR2-ByteTrack and baseline VOD solutions when varying the number of low-res frames (P) in a multi-resolution setting. In red, we highlight the MR2-ByteTrack configs with the lowest MMAC and accuracy higher or close to the baseline.",
+      "page": 11,
+      "index": 4,
+      "width": 504,
+      "height": 375
+    },
+    {
+      "url": "assets/figures/arxiv/2605.15423v1/fig-005.webp",
+      "caption": "TABLE 4. Comparison between baseline, Naïve-ByteTrack and MR2-ByteTrack VOD methods operating only with full resolution frames. Results obtained on ImageNetVIDC",
+      "page": 10,
+      "index": 5,
+      "width": 504,
+      "height": 247
+    },
+    {
+      "url": "assets/figures/arxiv/2605.15423v1/fig-006.webp",
+      "caption": "TABLE 1. Comparison of SotA VOD systems. Each method’s improvements (if any, otherwise marked as –) are given w.r.t. its baseline model, keeping the same computational device, e.g., YOLOX-S vs. YOLOV-S in row six.",
+      "page": 3,
+      "index": 6,
+      "width": 1051,
+      "height": 410
+    },
+    {
+      "url": "assets/figures/arxiv/2605.15423v1/fig-007.webp",
+      "caption": "FIGURE 2. Overview of the GAP9 MCU and the memory hierarchy. We explicitly indicate where to store the activation and weight tensors of the object detection models, as well as the binary code.",
+      "page": 8,
+      "index": 7,
+      "width": 502,
+      "height": 516
+    },
+    {
+      "url": "assets/figures/arxiv/2605.15423v1/fig-008.webp",
+      "caption": "FIGURE 5. Power profile of the EffViT-Det neural network in full-res and low-res configuration, Code loading and MR2-ByteTrack are not visible due to the limited required time.",
+      "page": 12,
+      "index": 8,
+      "width": 477,
+      "height": 275
+    },
+    {
+      "url": "assets/figures/arxiv/2605.15423v1/fig-009.webp",
+      "caption": "TABLE 6. Comparison between VOD methods not tailored for resource-constrained MCU-based embedded systems. Results are reported on the ImagenetNetVID dataset.",
+      "page": 12,
+      "index": 9,
+      "width": 1051,
+      "height": 211
+    }
+  ]
+}

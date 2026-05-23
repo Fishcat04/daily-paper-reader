@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.22290v1/fig-001.webp",
+      "caption": "Figure 3: Overall architecture of the proposed model for small patch detection.",
+      "page": 6,
+      "index": 1,
+      "width": 814,
+      "height": 279
+    },
+    {
+      "url": "assets/figures/arxiv/2605.22290v1/fig-002.webp",
+      "caption": "Table 1: Comparison of detection performance for FFU virus patches and small cell patches.",
+      "page": 7,
+      "index": 2,
+      "width": 814,
+      "height": 337
+    },
+    {
+      "url": "assets/figures/arxiv/2605.22290v1/fig-003.webp",
+      "caption": "Figure 4: Precision–recall behavior of YOLOv2_FPN_SAC for virus patch detection.",
+      "page": 8,
+      "index": 3,
+      "width": 410,
+      "height": 304
+    },
+    {
+      "url": "assets/figures/arxiv/2605.22290v1/fig-004.webp",
+      "caption": "Figure 5: Qualitative virus patch detection results obtained using the proposed YOLOv2_FPN_SAC model.",
+      "page": 9,
+      "index": 4,
+      "width": 814,
+      "height": 814
+    },
+    {
+      "url": "assets/figures/arxiv/2605.22290v1/fig-005.webp",
+      "caption": "Figure 1: Modified YOLOv2 architecture. One max-pooling layer is removed from Module 6, following [17].",
+      "page": 5,
+      "index": 5,
+      "width": 814,
+      "height": 391
+    },
+    {
+      "url": "assets/figures/arxiv/2605.22290v1/fig-006.webp",
+      "caption": "Figure 2: The Switchable Atrous Convolution (SAC) block used in the proposed model.",
+      "page": 5,
+      "index": 6,
+      "width": 814,
+      "height": 384
+    }
+  ]
+}

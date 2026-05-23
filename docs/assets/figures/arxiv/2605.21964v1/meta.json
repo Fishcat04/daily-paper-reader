@@ -1,0 +1,86 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.21964v1/fig-001.webp",
+      "caption": "Fig. 9. Qualitative comparison with traditional imaging frameworks on the FLIR ADAS v2 dataset: (a) Ground truth; (b) DeepDenoising; (c) IA-YOLO; (d) ESOD; (e) Ours.",
+      "page": 11,
+      "index": 1,
+      "width": 1072,
+      "height": 368
+    },
+    {
+      "url": "assets/figures/arxiv/2605.21964v1/fig-002.webp",
+      "caption": "Fig. 1. A comparative illustration of infrared object detection methodologies employing distinct imaging strategies.",
+      "page": 2,
+      "index": 2,
+      "width": 1019,
+      "height": 635
+    },
+    {
+      "url": "assets/figures/arxiv/2605.21964v1/fig-003.webp",
+      "caption": "Fig. 2. Overview of the proposed PDI-Net for low-latency single-lens infrared computational imaging.",
+      "page": 3,
+      "index": 3,
+      "width": 1072,
+      "height": 451
+    },
+    {
+      "url": "assets/figures/arxiv/2605.21964v1/fig-004.webp",
+      "caption": "Fig. 11. Imaging system comparison and UAV integration. (a) Traditional multi-lens infrared camera (700 g). (b) Proposed single-lens camera (372 g). (c), (d) UAV-mounted implementation of the proposed system.",
+      "page": 13,
+      "index": 4,
+      "width": 1066,
+      "height": 223
+    },
+    {
+      "url": "assets/figures/arxiv/2605.21964v1/fig-005.webp",
+      "caption": "Fig. 5. Qualitative comparison of infrared object detection with different imaging strategies. (a) Traditional imaging. (b) Rec+Det. (c) Rec+Det with pruning. (d) Raw imaging. (e) The proposed PDI-Net.",
+      "page": 8,
+      "index": 5,
+      "width": 1064,
+      "height": 347
+    },
+    {
+      "url": "assets/figures/arxiv/2605.21964v1/fig-006.webp",
+      "caption": "TABLE II QUANTITATIVE COMPARISON OF DIFFERENT INFRARED IMAGING STRATEGIES",
+      "page": 8,
+      "index": 6,
+      "width": 1076,
+      "height": 275
+    },
+    {
+      "url": "assets/figures/arxiv/2605.21964v1/fig-007.webp",
+      "caption": "Fig. 10. Detection results of the proposed PDI-Net with 50% uniform structured pruning and INT8 precision quantization, visualized on the raw and reconstructed outputs: (a)–(c) captured by the deployed camera; (d) M3FD dataset; (e) FLIR ADAS v2 benchmark.",
+      "page": 12,
+      "index": 7,
+      "width": 1068,
+      "height": 354
+    },
+    {
+      "url": "assets/figures/arxiv/2605.21964v1/fig-008.webp",
+      "caption": "TABLE III ABLATION EXPERIMENTS ON DIFFERENT CONNECTIONS BETWEEN RECONSTRUCTION AND DETECTION",
+      "page": 9,
+      "index": 8,
+      "width": 1076,
+      "height": 232
+    },
+    {
+      "url": "assets/figures/arxiv/2605.21964v1/fig-009.webp",
+      "caption": "Fig. 6. Heatmap comparison of different infrared imaging strategies. (a) Ground truth. (b) Traditional imaging. (c) Rec+Det. (d) Rec+Det with pruning. (e) Raw imaging. (f) The proposed PDI-Net.",
+      "page": 9,
+      "index": 9,
+      "width": 1068,
+      "height": 296
+    },
+    {
+      "url": "assets/figures/arxiv/2605.21964v1/fig-010.webp",
+      "caption": "Fig. 3. (a) Feature discrepancy between reconstruction and detection modules. (b) Detailed architecture of the PALS-Bridge. (c) The partitioned PSF pattern of the single-lens infrared camera, divided into 48 regions according to the FOV.",
+      "page": 5,
+      "index": 10,
+      "width": 1072,
+      "height": 579
+    }
+  ]
+}

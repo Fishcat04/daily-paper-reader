@@ -1,0 +1,70 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.20963v1/fig-001.webp",
+      "caption": "Fig. 7. Qualitative comparison under key challenges: extremely tiny objects, dynamic clutter, low contrast, and fine-grained category confusion. From left to right, columns show RGB with ground-truth annotations, CenterNet* (RGB-only), MidConcat (RGB+MSI), and MFDNet (ours).",
+      "page": 6,
+      "index": 1,
+      "width": 529,
+      "height": 375
+    },
+    {
+      "url": "assets/figures/arxiv/2605.20963v1/fig-002.webp",
+      "caption": "Fig. 2. AMIS imaging system and spectral separability. (a) Example of a 7-band MSI cube and an RGB image captured by AMIS with UAV annotations. (b) Spectral response curves (mean ± 1 standard deviation) of three material-diverse UAV types (solid lines) and three background/clutter classes (dashed lines).",
+      "page": 2,
+      "index": 2,
+      "width": 517,
+      "height": 373
+    },
+    {
+      "url": "assets/figures/arxiv/2605.20963v1/fig-003.webp",
+      "caption": "Fig. 8. Ablation study on alignment strategies.",
+      "page": 7,
+      "index": 3,
+      "width": 560,
+      "height": 237
+    },
+    {
+      "url": "assets/figures/arxiv/2605.20963v1/fig-004.webp",
+      "caption": "TABLE 2 Performance comparison on UAVNet-MS. All AP/AR values are reported in percentage (%). ET/T/S denote object size tiers. ∗ denotes models initialized from publicly available pretrained weights. OR/SH indicate ordered/shuffled spectral bands. † indicates baselines adapted from standard architectures [31] as detailed in the Appendix Sec. S3.2. #Param. (M), FPS, and FLOPs (G) denote the number of parameters (↓), frames per second (↑), and GigaFLOPs per image (↓), respectively. Bold indicates best, Underline indicates second best.",
+      "page": 7,
+      "index": 4,
+      "width": 936,
+      "height": 479
+    },
+    {
+      "url": "assets/figures/arxiv/2605.20963v1/fig-005.webp",
+      "caption": "Fig. 3. Environmental diversity in UAVNet-MS dataset. Two circular markers encode illumination (i.e., Day: daylight, Dim: dim natural light, and Art: artificial lighting) and weather (i.e., S: sunny, R: rainy, C: cloudy, and F: foggy). UAV types are color-coded: Mavic, Tello, Mini, and Air.",
+      "page": 3,
+      "index": 5,
+      "width": 517,
+      "height": 392
+    },
+    {
+      "url": "assets/figures/arxiv/2605.20963v1/fig-006.webp",
+      "caption": "TABLE 1 Comparison of representative related datasets. \"Modality\" and \"Task\" represent the dataset sensor and the task type (D: detection, T: tracking). \"#UAV Type\", \"Avg. Size\" and \"Size. R.\" denote the number of annotated UAV types, the average target size in pixels, and the target area ratio, respectively. \"#Samples (K)\" reports the sample count in thousands: RGB/IR (images), RGB-IR (pairs), and MSI (cubes). \"Resolution\" and \"Max FPS\" denote the maximum spatial resolution and maximum frame rate, respectively. For MSI, \"Spec. R.\" indicates the spectral range (nm). \"Scenario\" denotes the primary scenario, and \"Scn. D.\" indicates the scene diversity. \"MR Con.\", \"Align\", and \"LL\" represent multi-modal resolution consistency, cross-modal alignment,",
+      "page": 4,
+      "index": 6,
+      "width": 1102,
+      "height": 189
+    },
+    {
+      "url": "assets/figures/arxiv/2605.20963v1/fig-007.webp",
+      "caption": "Fig. 4. Statistics of the UAVNet-MS dataset. (a) Local peak-contrast SNR (LPC-SNR) distribution across different scene attributes. Black boxes mark the dominant LPC-SNR range of targets for each scene condition. (b) Scene distribution across illumination conditions, weather patterns, and background types.",
+      "page": 4,
+      "index": 7,
+      "width": 1102,
+      "height": 501
+    },
+    {
+      "url": "assets/figures/arxiv/2605.20963v1/fig-008.webp",
+      "caption": "Fig. 6. Overview of MFDNet. ArrayCode, dual-stream feature extraction, and fine-scale fusion with semantic decoupling are the three key components. First, the ArrayCode module injects geometric priors into the RGB and MSI inputs to resolve array-induced parallax. Then, dual-stream backbones are utilized to independently extract spatial textures and volumetric spectral correlations, preventing feature suppression. Finally, the decoupled features are integrated via fine-scale fusion to predict classification heatmaps, center offsets, and object sizes for robust small object detection.",
+      "page": 5,
+      "index": 8,
+      "width": 1029,
+      "height": 292
+    }
+  ]
+}

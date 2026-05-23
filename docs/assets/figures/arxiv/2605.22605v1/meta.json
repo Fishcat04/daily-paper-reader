@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.22605v1/fig-001.webp",
+      "caption": "Fig. 1. Illustration of the challenges in UAV object detection and the proposed solution. Top: Static frame-wise detectors often miss small or dynamic targets in UAV videos due to ego-motion and camera jitter. Middle: Global Motion Compensation (GMC) aligns frame sequences, while dualinterval temporal differencing extracts short- and long-term motion cues. Bottom: Motion-Guided Attention (MGA) module utilizes the extracted motion cues to enhance target-aware feature representations and recover missed detections.",
+      "page": 1,
+      "index": 1,
+      "width": 506,
+      "height": 558
+    },
+    {
+      "url": "assets/figures/arxiv/2605.22605v1/fig-002.webp",
+      "caption": "Fig. 5. Deployment platform used for real-time edge inference experiments based on the NVIDIA Jetson Orin Nano.",
+      "page": 6,
+      "index": 2,
+      "width": 508,
+      "height": 268
+    },
+    {
+      "url": "assets/figures/arxiv/2605.22605v1/fig-003.webp",
+      "caption": "Fig. 6. Qualitative comparison between the spatial-only baseline and the proposed framework on the VisDrone-VID validation set. Yellow boxes denote detections unique to the proposed method, green boxes indicate detections unique to the baseline, and white boxes represent detections shared by both models. The proposed motion-guided framework improves robustness against occlusion, cluttered backgrounds, and small-object ambiguity.",
+      "page": 7,
+      "index": 3,
+      "width": 1050,
+      "height": 395
+    },
+    {
+      "url": "assets/figures/arxiv/2605.22605v1/fig-004.webp",
+      "caption": "Fig. 2. Overall architecture of the proposed motion-guided object detection framework. A YOLO backbone extracts multi-scale spatial features (P3, P4, P5) from the current frame It. In parallel, the Dual-Interval Motion Extraction module aligns historical frames (It−1, It−5) using Global Motion Compensation (GMC) and fuses short- and long-term temporal differences to generate a sparse motion mask M . The Motion-Guided Attention (MGA) module then injects motion mask M into the Feature Pyramid Network (FPN) via a lightweight attention mechanism to enhance target-aware feature representations before the final detection head.",
+      "page": 3,
+      "index": 4,
+      "width": 948,
+      "height": 454
+    },
+    {
+      "url": "assets/figures/arxiv/2605.22605v1/fig-005.webp",
+      "caption": "Fig. 4. Illustration of the proposed asymmetric training-inference paradigm for homography acquisition. During offline training, high-precision SIFT matching is independently performed for each interval to ensure accurate spatial alignment. During online inference, lightweight ORB matching and homography cascading are adopted to improve real-time deployment efficiency.",
+      "page": 5,
+      "index": 5,
+      "width": 508,
+      "height": 243
+    },
+    {
+      "url": "assets/figures/arxiv/2605.22605v1/fig-006.webp",
+      "caption": "Fig. 3. Visualization of the proposed dual-interval motion extraction process. The short-term difference captures fast target motion but is sensitive to egomotion noise, whereas the long-term difference enhances slow-moving targets while introducing motion ghosting. The proposed fusion strategy suppresses background disturbances and produces a refined motion mask for subsequent detection.",
+      "page": 5,
+      "index": 6,
+      "width": 1052,
+      "height": 197
+    }
+  ]
+}
