@@ -1,0 +1,97 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-05-24T20:25:40.179187+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 2,
+    "quick_skim_target": 11,
+    "quick_selected": 2
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2605.22455v1",
+      "source": "arxiv",
+      "title": "Making the Discrete Continuous: Synthetic RAW Augmentations for Fine-Grained Evaluation of Person Detection Performance in Low Light",
+      "abstract": "Real-world deployment of AI vision models is both fueled and limited by the data available for training and testing. Real datasets are sparse and uneven: long-tailed or unbalanced distributions hinder generalization, and the low number of samples in low density regions makes it hard to run evaluations. Synthetic data can fill these gaps, providing us with a way to sample the input space more continuously and improve data coverage for benchmarks. Focusing on the autonomous driving safety-critical case of pedestrian detection in the dark, we show how synthetic low-light samples can be used to better characterize the performance of a state-of-the-art object detection model as a function of the scene illumination. We use a synthetic RAW image augmentation technique to generate low-light samples that match the noise model of the camera sensor. Performance metrics on real and synthetic low-light data are similar, indicating that the AI model finds it hard to distinguish between them.",
+      "authors": [
+        "Valeria Pais",
+        "Malena Mendilaharzu",
+        "Daniele Faccio",
+        "Luis Oala",
+        "Christoph Clausen",
+        "Bruno Sanguinetti"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG",
+        "physics.optics"
+      ],
+      "published": "2026-05-21T13:20:11+00:00",
+      "link": "https://arxiv.org/pdf/2605.22455v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "synthetic augmentations for fine-grained evaluation of person detection",
+      "llm_evidence_cn": "用于行人检测细粒度评估的合成增强",
+      "llm_evidence": "用于行人检测细粒度评估的合成增强",
+      "canonical_evidence": "用于行人检测细粒度评估的合成增强",
+      "llm_tldr_en": "Uses synthetic RAW augmentations to benchmark object detection performance in low-light conditions.",
+      "llm_tldr_cn": "利用合成RAW增强技术，评估低光照条件下的目标检测性能。",
+      "llm_tldr": "利用合成RAW增强技术，评估低光照条件下的目标检测性能。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "oversampling and augmentation strategies for small objects",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "biorxiv-10-64898-2026-05-16-725614-v1",
+      "source": "biorxiv",
+      "title": "CRADLE: A Clinically Robust, Anatomy-Aware Post-Processing Framework for Infant GMA Landmark Tracking in 2D Videos",
+      "abstract": "Accurate pose estimation is central to automated infant General Movements Assessment during the fidgety period, when subtle limb movements, particularly at distal joints inform neurodevelopmental risks. Robust 2D pose tracking from handheld videos remains challenging in real-world settings, where occlusion, rapid motions, and visually ambiguous smaller joints frequently compromise anatomical accuracy.\n\nWe present CRADLE, a clinically motivated, anatomy-aware post-processing pipeline designed to refine infant 2D movement trajectories across 24-anatomocal landmarks detected by our DeepLabCut-trained model. CRADLE integrates segment-length constraints, velocity-based anomaly detection, anatomically constrained interpolation, and Kalman filtering to correct both large localization failures and subtle persistent joint misplacements without relying primarily on confidence scores.\n\nEvaluations against conventional Confidence-Thresholding using Mean Absolute Error (MAE), {Delta}MAE, average Percentage of Correct Keypoints, and net keypoint correction rate showed consistently reduced or preserved error while maintaining accurate trajectories, with the strongest gains achieved at clinically important distal joints. Mean improvements reached up to 5 pixels for some smaller distal landmarks, large-magnitude corrections occurred more often than with Confidence-Thresholding, and well-localised joints remained largely unaffected. Positive net correction rates across metacarpophalangeal and metatarsophalangeal distal-landmarks further confirmed a favourable correction-degradation balance.\n\nBy improving pose trajectory quality, CRADLE enhances the reliability of downstream movement analysis.",
+      "authors": [
+        "Kaur, M.",
+        "Abbasi, H.",
+        "McMorland, A. J."
+      ],
+      "primary_category": "bioengineering",
+      "categories": [
+        "bioengineering"
+      ],
+      "published": "2026-05-19T00:00:00+00:00",
+      "link": "https://www.biorxiv.org/content/10.64898/2026.05.16.725614v1.full.pdf",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "tracking visually ambiguous smaller joints using deep learning",
+      "llm_evidence_cn": "使用深度学习追踪视觉模糊的小关节",
+      "llm_evidence": "使用深度学习追踪视觉模糊的小关节",
+      "canonical_evidence": "使用深度学习追踪视觉模糊的小关节",
+      "llm_tldr_en": "CRADLE refines 2D landmark tracking for infant movements, addressing visually ambiguous small joints.",
+      "llm_tldr_cn": "CRADLE优化了婴儿运动的2D关键点追踪，解决了视觉模糊的小关节检测问题。",
+      "llm_tldr": "CRADLE优化了婴儿运动的2D关键点追踪，解决了视觉模糊的小关节检测问题。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "label": "2026-05-24",
+  "date": "2026-05-24",
+  "generated_at": "2026-05-24T20:26:28",
+  "count": 2,
+  "papers": [
+    {
+      "paper_id": "202605/24/2605.22455v1-making-the-discrete-continuous-synthetic-raw-augmentations-for-fine-grained-evaluation-of-person-detection-performance-in-low-light",
+      "section": "quick",
+      "title_en": "Making the Discrete Continuous: Synthetic RAW Augmentations for Fine-Grained Evaluation of Person Detection Performance in Low Light",
+      "authors": "Valeria Pais, Malena Mendilaharzu, Daniele Faccio, Luis Oala, Christoph Clausen, Bruno Sanguinetti",
+      "date": "2026-05-21",
+      "pdf": "https://arxiv.org/pdf/2605.22455v1",
+      "score": "6.0",
+      "evidence": "用于行人检测细粒度评估的合成增强",
+      "tldr": "针对自动驾驶中行人检测在低光照环境下数据稀缺且分布不均的问题，本文提出一种基于合成RAW图像增强的方法。通过模拟相机传感器的噪声模型生成连续的低光照样本，该方法能更精细地评估目标检测模型在不同光照条件下的性能。实验表明，模型在合成数据与真实数据上的表现高度一致，证明了合成数据在填补基准测试空白方面的有效性。",
+      "tags": "query:sod",
+      "abstract_en": "Real-world deployment of AI vision models is both fueled and limited by the data available for training and testing. Real datasets are sparse and uneven: long-tailed or unbalanced distributions hinder generalization, and the low number of samples in low density regions makes it hard to run evaluations. Synthetic data can fill these gaps, providing us with a way to sample the input space more continuously and improve data coverage for benchmarks. Focusing on the autonomous driving safety-critical case of pedestrian detection in the dark, we show how synthetic low-light samples can be used to better characterize the performance of a state-of-the-art object detection model as a function of the scene illumination. We use a synthetic RAW image augmentation technique to generate low-light samples that match the noise model of the camera sensor. Performance metrics on real and synthetic low-light data are similar, indicating that the AI model finds it hard to distinguish between them.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "paper_id": "202605/24/biorxiv-10-64898-2026-05-16-725614-v1-cradle-a-clinically-robust-anatomy-aware-post-processing-framework-for-infant-gma-landmark-tracking-in-2d-videos",
+      "section": "quick",
+      "title_en": "CRADLE: A Clinically Robust, Anatomy-Aware Post-Processing Framework for Infant GMA Landmark Tracking in 2D Videos",
+      "authors": "Kaur, M., Abbasi, H., McMorland, A. J.",
+      "date": "2026-05-19",
+      "pdf": "https://www.biorxiv.org/content/10.64898/2026.05.16.725614v1.full.pdf",
+      "score": "6.0",
+      "evidence": "使用深度学习追踪视觉模糊的小关节",
+      "tldr": "本研究针对婴儿全身运动评估（GMA）中手持视频导致的遮挡、快速运动及关节模糊等姿态估计难题，提出了CRADLE后处理框架。该框架通过整合肢体长度约束、速度异常检测、解剖约束插值和卡尔曼滤波，对DeepLabCut检测的24个解剖关键点进行修正。实验证明，CRADLE在保持轨迹准确性的同时，显著降低了定位误差，尤其在临床意义重大的远端关节上表现优异，为下游神经发育风险分析提供了更可靠的数据支持。",
+      "tags": "query:sod",
+      "abstract_en": "Accurate pose estimation is central to automated infant General Movements Assessment during the fidgety period, when subtle limb movements, particularly at distal joints inform neurodevelopmental risks. Robust 2D pose tracking from handheld videos remains challenging in real-world settings, where occlusion, rapid motions, and visually ambiguous smaller joints frequently compromise anatomical accuracy.\n\nWe present CRADLE, a clinically motivated, anatomy-aware post-processing pipeline designed to refine infant 2D movement trajectories across 24-anatomocal landmarks detected by our DeepLabCut-trained model. CRADLE integrates segment-length constraints, velocity-based anomaly detection, anatomically constrained interpolation, and Kalman filtering to correct both large localization failures and subtle persistent joint misplacements without relying primarily on confidence scores.\n\nEvaluations against conventional Confidence-Thresholding using Mean Absolute Error (MAE), {Delta}MAE, average Percentage of Correct Keypoints, and net keypoint correction rate showed consistently reduced or preserved error while maintaining accurate trajectories, with the strongest gains achieved at clinically important distal joints. Mean improvements reached up to 5 pixels for some smaller distal landmarks, large-magnitude corrections occurred more often than with Confidence-Thresholding, and well-localised joints remained largely unaffected. Positive net correction rates across metacarpophalangeal and metatarsophalangeal distal-landmarks further confirmed a favourable correction-degradation balance.\n\nBy improving pose trajectory quality, CRADLE enhances the reliability of downstream movement analysis.",
+      "source": "biorxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,102 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.22455v1/fig-001.webp",
+      "caption": "Figure 1. (a) AODRaw sliced test dataset distribution of person instances as a function of bounding box mean electrons and area. (b) Real normal-light sample from AODRaw and a synthetic example generated from it with a lower light level, but same area and noise model. (c) Guided by a complementary number of counts, we could sample target light levels from the resulting intensity PDF, synthesizing the data-points needed to create a more uniform overall distribution in the low light range, enabling a fairer evaluation.",
+      "page": 2,
+      "index": 1,
+      "width": 1036,
+      "height": 482
+    },
+    {
+      "url": "assets/figures/arxiv/2605.22455v1/fig-002.webp",
+      "caption": "Figure 5. Person detection performance on real data as a function of instance bounding box area using approximately 400 TPs per interval. Numeric results can be found in Table 4.",
+      "page": 7,
+      "index": 2,
+      "width": 479,
+      "height": 262
+    },
+    {
+      "url": "assets/figures/arxiv/2605.22455v1/fig-003.webp",
+      "caption": "Figure 6. Person detection performance on synthetic data with gain adjustment as a function of instance illumination using 500 GT samples per point. Numeric results can be found in Table 5.",
+      "page": 7,
+      "index": 3,
+      "width": 477,
+      "height": 265
+    },
+    {
+      "url": "assets/figures/arxiv/2605.22455v1/fig-004.webp",
+      "caption": "Table 4. Person detection performance on real data as a function of instance area using approximately 400 TPs per interval.",
+      "page": 10,
+      "index": 4,
+      "width": 627,
+      "height": 273
+    },
+    {
+      "url": "assets/figures/arxiv/2605.22455v1/fig-005.webp",
+      "caption": "Table 5. Person detection metrics on synthetic data with gain adjustment as a function of illumination using 500 GT samples per light level.",
+      "page": 10,
+      "index": 5,
+      "width": 522,
+      "height": 645
+    },
+    {
+      "url": "assets/figures/arxiv/2605.22455v1/fig-006.webp",
+      "caption": "Table 6. Person detection metrics on real and synthetic data, comparing our noise-aware method and three other synthetic data pipelines.",
+      "page": 10,
+      "index": 6,
+      "width": 648,
+      "height": 203
+    },
+    {
+      "url": "assets/figures/arxiv/2605.22455v1/fig-007.webp",
+      "caption": "Figure 2. Person detection performance on real data as a function of instance illumination using approximately 500 TPs per interval. Numeric results can be found in the appendix in Table 1.",
+      "page": 3,
+      "index": 7,
+      "width": 477,
+      "height": 264
+    },
+    {
+      "url": "assets/figures/arxiv/2605.22455v1/fig-008.webp",
+      "caption": "Figure 4. Experiment to determine whether the detector can distinguish real and synthetic data. (a) Selected real person instances for high and low-light levels with arrows pointing from source to target. (b) Person detection performance on real and synthetic lowlight data, comparing our noise-aware RAW augmentation with a simpler naive approach. Numeric results can be found in Table 3",
+      "page": 4,
+      "index": 8,
+      "width": 489,
+      "height": 620
+    },
+    {
+      "url": "assets/figures/arxiv/2605.22455v1/fig-009.webp",
+      "caption": "Figure 3. Person detection performance on synthetic data as a function of instance illumination using 500 GT samples per point. Numeric results can be found in the appendix in Table 2.",
+      "page": 4,
+      "index": 9,
+      "width": 479,
+      "height": 264
+    },
+    {
+      "url": "assets/figures/arxiv/2605.22455v1/fig-010.webp",
+      "caption": "Table 3. Person detection metrics on real and synthetic data, comparing our noise-aware method and a naive synthesis to real data.",
+      "page": 9,
+      "index": 10,
+      "width": 494,
+      "height": 263
+    },
+    {
+      "url": "assets/figures/arxiv/2605.22455v1/fig-011.webp",
+      "caption": "Table 1. Person detection performance on real data as a function of instance illumination using approximately 500 TPs per interval.",
+      "page": 9,
+      "index": 11,
+      "width": 590,
+      "height": 272
+    },
+    {
+      "url": "assets/figures/arxiv/2605.22455v1/fig-012.webp",
+      "caption": "Table 2. Person detection metrics on synthetic data as a function of instance illumination using 500 GT samples per light level.",
+      "page": 9,
+      "index": 12,
+      "width": 522,
+      "height": 609
+    }
+  ]
+}
