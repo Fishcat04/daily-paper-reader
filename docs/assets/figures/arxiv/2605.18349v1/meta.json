@@ -1,0 +1,30 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.18349v1/fig-001.webp",
+      "caption": "Fig. 4: Model performance in terms of accuracy for crowd densities relevant for public transport (0 - 100 people per image) are visualized here. Only the best performing models were selected for visualization.",
+      "page": 6,
+      "index": 1,
+      "width": 420,
+      "height": 358
+    },
+    {
+      "url": "assets/figures/arxiv/2605.18349v1/fig-002.webp",
+      "caption": "Fig. 3: Figures (a) and (b) show the accuracy comparison at different crowd densities between different configurations tested for Part A and Part B of the Shanghai Tech dataset respectively. Additionally, the background histogram indicates the number of test images in each density bin, giving context for how the results aggregate into the overall accuracy and MAE.",
+      "page": 6,
+      "index": 2,
+      "width": 420,
+      "height": 841
+    },
+    {
+      "url": "assets/figures/arxiv/2605.18349v1/fig-003.webp",
+      "caption": "TABLE I: Results of integrating attention mechanisms into the CSRNet baseline on ShanghaiTech test sets.",
+      "page": 5,
+      "index": 3,
+      "width": 527,
+      "height": 272
+    }
+  ]
+}

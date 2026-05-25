@@ -6,29 +6,49 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-05-24
-- 运行时间：2026-05-24 20:26:09 UTC
+- 最新运行日期：2026-05-25
+- 运行时间：2026-05-25 20:59:23 UTC
 - 运行状态：成功
-- 本次总论文数：2
-- 精读区：0
-- 速读区：2
+- 本次总论文数：9
+- 精读区：1
+- 速读区：8
 
 ### 今日简报（AI）
-今日探索视觉感知边界，涵盖低光照人体检测增强与婴儿临床关键点追踪两大前沿应用。
-重点关注通过合成 RAW 数据提升暗光检测鲁棒性，以及利用 CRADLE 框架实现解剖学感知的婴儿运动评估。
-推荐关注计算机视觉在极端环境与精准医疗垂直领域的落地技术。
-- 详情：[/202605/24/README](/202605/24/README)
+今日精选 9 篇前沿论文，重点聚焦 LLM Agent 赋能 YOLO-MoE 模型在无人机电力巡检中的突破性应用。
+核心结论展示了智能体优化能显著提升绝缘子故障检测精度，同时涵盖了免矫正文本识别与轻量化超分等实用技术。
+建议关注“大模型+工业视觉”的跨界融合方案，这是提升复杂场景检测效能的新路径。
+- 详情：[/202605/25/README](/202605/25/README)
 
 ### 精读区论文标签
-- 本次无精读推荐。
+1. [A novel YOLO26-MoE optimized by an LLM agent for insulator fault detection considering UAV images](/202605/25/2605.19595v1-a-novel-yolo26-moe-optimized-by-an-llm-agent-for-insulator-fault-detection-considering-uav-images)  
+   标签：评分：10.0/10、query:sod
+   evidence：由于微小缺陷区域和高分辨率分支集成，绝缘子故障检测具有挑战性
 
 ### 速读区论文标签
-1. [Making the Discrete Continuous: Synthetic RAW Augmentations for Fine-Grained Evaluation of Person Detection Performance in Low Light](/202605/24/2605.22455v1-making-the-discrete-continuous-synthetic-raw-augmentations-for-fine-grained-evaluation-of-person-detection-performance-in-low-light)  
+1. [Do You Need Text Rectification? Soft Attention Mask Embedding for Rectification-Free Scene Text Spotting](/202605/25/2605.18173v1-do-you-need-text-rectification-soft-attention-mask-embedding-for-rectification-free-scene-text-spotting)  
+   标签：评分：7.0/10、query:sod
+   evidence：针对多尺度变化和背景干扰的软注意力权重
+2. [Deep-Pose-Tracker: a unified model for behavioural analysis of Caenorhabditis elegans](/202605/25/biorxiv-10-1101-2025-11-23-689997-v2-deep-pose-tracker-a-unified-model-for-behavioural-analysis-of-caenorhabditis-elegans)  
+   标签：评分：7.0/10、query:sod
+   evidence：用于小型生物自动检测与分析的深度学习模型
+3. [EchoSR: Efficient Context Harnessing for Lightweight Image Super-Resolution](/202605/25/2605.17470v1-echosr-efficient-context-harnessing-for-lightweight-image-super-resolution)  
    标签：评分：6.0/10、query:sod
-   evidence：用于行人检测细粒度评估的合成增强
-2. [CRADLE: A Clinically Robust, Anatomy-Aware Post-Processing Framework for Infant GMA Landmark Tracking in 2D Videos](/202605/24/biorxiv-10-64898-2026-05-16-725614-v1-cradle-a-clinically-robust-anatomy-aware-post-processing-framework-for-infant-gma-landmark-tracking-in-2d-videos)  
+   evidence：图像重建中相干多尺度集成的机制
+4. [Error-Decomposed Class-Conditional Fusion for Statistically Guaranteed Hard-Category Robust Perception](/202605/25/2605.17591v1-error-decomposed-class-conditional-fusion-for-statistically-guaranteed-hard-category-robust-perception)  
    标签：评分：6.0/10、query:sod
-   evidence：使用深度学习追踪视觉模糊的小关节
+   evidence：纠正目标检测中脆弱的长尾类别
+5. [Optimising CSRNet with parameter-free attention mechanisms for crowd counting in public transport](/202605/25/2605.18349v1-optimising-csrnet-with-parameter-free-attention-mechanisms-for-crowd-counting-in-public-transport)  
+   标签：评分：6.0/10、query:sod
+   evidence：无参数注意力机制用于增强拥挤场景中的特征表达能力
+6. [RAVE: Re-Allocating Visual Attention in Large Multimodal Models](/202605/25/2605.18359v1-rave-re-allocating-visual-attention-in-large-multimodal-models)  
+   标签：评分：6.0/10、query:sod
+   evidence：针对感知密集型任务的视觉注意力重新分配机制
+7. [A Large-Scale Study on the Accuracy vs Cost Trade-offs of Training and Evaluation Settings in Fine-Grained Image Recognition](/202605/25/2605.18700v1-a-large-scale-study-on-the-accuracy-vs-cost-trade-offs-of-training-and-evaluation-settings-in-fine-grained-image-recognition)  
+   标签：评分：6.0/10、query:sod
+   evidence：用于细粒度识别的数据感知裁剪和掩码增强
+8. [PixIE: Prompted Pixel-Space Low-Light Image Enhancement](/202605/25/2605.23531v1-pixie-prompted-pixel-space-low-light-image-enhancement)  
+   标签：评分：6.0/10、query:sod
+   evidence：用于跨尺度高效像素注意力的空间通道压缩
 
 
 <div class="dpr-home-promo-card">

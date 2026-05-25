@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.18359v1/fig-001.webp",
+      "caption": "Table 1: Positioning of RAVE against representative methods for improving visual attention allocation in LMMs.",
+      "page": 2,
+      "index": 1,
+      "width": 825,
+      "height": 321
+    },
+    {
+      "url": "assets/figures/arxiv/2605.18359v1/fig-002.webp",
+      "caption": "Table 3: Ablation study of RAVE design choices across all benchmarks. Each variant modifies one component of the main configuration while keeping the remaining components unchanged. The modified component in each variant is highlighted in bold.",
+      "page": 9,
+      "index": 2,
+      "width": 827,
+      "height": 335
+    }
+  ]
+}

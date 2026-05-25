@@ -1,0 +1,370 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-05-25T20:57:09.399531+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 1,
+    "deep_cap": 6,
+    "deep_selected": 1,
+    "quick_candidates": 8,
+    "quick_skim_target": 11,
+    "quick_selected": 8
+  },
+  "deep_dive": [
+    {
+      "id": "2605.19595v1",
+      "source": "arxiv",
+      "title": "A novel YOLO26-MoE optimized by an LLM agent for insulator fault detection considering UAV images",
+      "abstract": "The inspection of electrical power line insulators is essential for ensuring grid reliability and preventing failures caused by damaged or degraded insulation components. In recent years, Unmanned Aerial Vehicles (UAVs) combined with deep learning-based vision systems have emerged as an effective solution for automating this process. However, insulator fault detection remains challenging due to small defect regions, heterogeneous fault patterns, complex backgrounds, and varying imaging conditions. To address these challenges, this paper proposes an optimized YOLO26-MoE, a novel object detection architecture that integrates a sparse Mixture-of-Experts (MoE) module into the high-resolution branch of the YOLO26 detector. The proposed modification enables adaptive feature refinement for subtle and diverse fault patterns while preserving the efficiency of a one-stage detection framework. Hyperparameter optimization, final training, and evaluation were coordinated through a tool-augmented Large Language Model (LLM) agent. The proposed model achieved 0.9900 mAP@0.5 and 0.9515 mAP@0.5:0.95, outperforming the latest YOLO versions. These results demonstrate that the proposed model provides an effective and reliable solution for UAV-based insulator fault detection.",
+      "authors": [
+        "João Pedro Matos-Carvalho",
+        "Laio Oriel Seman",
+        "Stefano Frizzo Stefenon",
+        "Mohammad Khalaf Mohammad Khreasat",
+        "Gabriel Villarrubia González"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-05-19T09:40:05+00:00",
+      "link": "https://arxiv.org/pdf/2605.19595v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "insulator fault detection challenging due to small defect regions and high-resolution branch integration",
+      "llm_evidence_cn": "由于微小缺陷区域和高分辨率分支集成，绝缘子故障检测具有挑战性",
+      "llm_evidence": "由于微小缺陷区域和高分辨率分支集成，绝缘子故障检测具有挑战性",
+      "canonical_evidence": "由于微小缺陷区域和高分辨率分支集成，绝缘子故障检测具有挑战性",
+      "llm_tldr_en": "Optimizes YOLO26 with Mixture-of-Experts for detecting small insulator defects in UAV images.",
+      "llm_tldr_cn": "通过混合专家模型优化YOLO26，用于无人机图像中绝缘子微小缺陷的检测。",
+      "llm_tldr": "通过混合专家模型优化YOLO26，用于无人机图像中绝缘子微小缺陷的检测。",
+      "llm_tags": [
+        "query:sod:composite"
+      ],
+      "matched_query_tag": "query:sod:composite",
+      "matched_query_text": "Papers central to 小目标检测相关论文检索, especially work that connects or combines: deep learning methods for small object detection; FPN and its variants for multi-scale object detection; oversampling and augmentation strategies for small objects; spatial and channel attention for small object feature enhancement; multi-scale feature fusion techniques in computer vision; specialized loss functions for small object localization; state of the art deep learning methods for small object detection; benchmarking small object detection on public datasets.",
+      "matched_requirement_id": "req-composite-sod",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2605.18173v1",
+      "source": "arxiv",
+      "title": "Do You Need Text Rectification? Soft Attention Mask Embedding for Rectification-Free Scene Text Spotting",
+      "abstract": "End-to-end scene text spotting, which unifies text detection and recognition within a single framework, has witnessed remarkable progress driven by deep learning advances. However, most existing approaches still suffer from incomplete mask proposals caused by multi-scale variation, arbitrary text shapes, and complex background interference, thereby degrading recognition accuracy. In this paper, we propose a novel Soft Attention Mask Embedding module (SAME) that leverages the global receptive field of Transformer encoders to encode high-level features and compute soft attention weights, which are then hierarchically embedded with predicted masks to generate refined text-boundary-aware masks that effectively suppress background noise. Building upon this module, we present SAME-Net, a robust end-to-end text spotting framework that requires neither character-level annotations nor auxiliary text rectification modules. Since the soft attention mechanism is fully differentiable, recognition loss gradients can be back-propagated through the SAME module to the detection branch, enabling joint optimization of detection and recognition objectives. Extensive experiments on challenging benchmarks demonstrate the effectiveness of our approach: SAME-Net achieves 84.02\\% end-to-end H-mean on the arbitrarily-shaped Total-Text dataset, surpassing the previous state-of-the-art GLASS by 1.02\\% in full-lexicon accuracy without additional training data, and obtains competitive 83.4\\% strong-lexicon results on the multi-oriented ICDAR 2015 dataset.",
+      "authors": [
+        "Antonio Colombo",
+        "Giovanni Bianchi"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-18T10:15:57+00:00",
+      "link": "https://arxiv.org/pdf/2605.18173v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "soft attention weights for multi-scale variation and background interference",
+      "llm_evidence_cn": "针对多尺度变化和背景干扰的软注意力权重",
+      "llm_evidence": "针对多尺度变化和背景干扰的软注意力权重",
+      "canonical_evidence": "针对多尺度变化和背景干扰的软注意力权重",
+      "llm_tldr_en": "Proposes a Soft Attention Mask Embedding to handle multi-scale variation and background in text spotting.",
+      "llm_tldr_cn": "提出软注意力掩码嵌入模块，以处理文本检测中的多尺度变化和背景干扰。",
+      "llm_tldr": "提出软注意力掩码嵌入模块，以处理文本检测中的多尺度变化和背景干扰。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "spatial and channel attention for small object feature enhancement",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.17470v1",
+      "source": "arxiv",
+      "title": "EchoSR: Efficient Context Harnessing for Lightweight Image Super-Resolution",
+      "abstract": "Image super-resolution (SR) aims to reconstruct high-quality, high-resolution (HR) images from low-resolution (LR) inputs and plays a critical role in various downstream applications. Despite recent advancements, balancing reconstruction fidelity and computational efficiency remains a fundamental challenge, particularly in resource-constrained scenarios. While existing lightweight methods attempt to expand receptive fields, many of them either incur substantial computational overhead, naively scale up kernel sizes, or lack mechanisms for coherent multi-scale integration, limiting their overall effectiveness and scalability. To address these limitations, we propose EchoSR, an efficient context-harnessing framework for lightweight image super-resolution, which unifies multi-scale receptive field modeling and hierarchical context fusion. EchoSR decouples feature learning into disentangled local, multi-scale, and global modeling stages through an efficient context-harnessing strategy, and further promotes seamless cross-scale integration via a cross-scale overlapping fusion mechanism. Extensive experiments have shown that EchoSR consistently outperforms state-of-the-art lightweight super-resolution methods across multiple benchmarks, while also achieving a faster speed $(\\sim 2\\times)$. The source code is available at \\url{https://github.com/funnyWang-Echoes/EchoSR}.",
+      "authors": [
+        "Hanli Zhao",
+        "Binhao Wang",
+        "Shihao Zhao",
+        "Tao Wang",
+        "Kaihao Zhang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.MM",
+        "eess.IV"
+      ],
+      "published": "2026-05-17T14:20:27+00:00",
+      "link": "https://arxiv.org/pdf/2605.17470v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "mechanisms for coherent multi-scale integration in image reconstruction",
+      "llm_evidence_cn": "图像重建中相干多尺度集成的机制",
+      "llm_evidence": "图像重建中相干多尺度集成的机制",
+      "canonical_evidence": "图像重建中相干多尺度集成的机制",
+      "llm_tldr_en": "Proposes EchoSR for efficient multi-scale feature integration in lightweight image super-resolution.",
+      "llm_tldr_cn": "提出EchoSR框架，用于轻量级图像超分辨率中的高效多尺度特征集成。",
+      "llm_tldr": "提出EchoSR框架，用于轻量级图像超分辨率中的高效多尺度特征集成。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "biorxiv-10-1101-2025-11-23-689997-v2",
+      "source": "biorxiv",
+      "title": "Deep-Pose-Tracker: a unified model for behavioural analysis of Caenorhabditis elegans",
+      "abstract": "Tracking and analyzing animal behaviour is a crucial step in fields such as neuroscience and developmental biology. Behavioural studies in the nematode C. elegans, for example, help in understanding how organisms respond to external cues and how the specific physiological responses link to either instantaneous or learned behaviour. Although tracking behaviour through locomotion patterns and posture dynamics are routine, they become laborious and time-consuming tasks when performed manually. Automation of this process is therefore crucial for accurate and fast detection and analysis. To this end, in this work, we report the development of Deep-Pose-Tracker (DPT), an end-to-end deep learning model designed to automate the analysis of posture dynamics and locomotion behaviour of C. elegans. This YOLO (You Only Look Once)-based model enables automatic detection and tracking of worms while measuring essential behavioural features like motion speed, orientation, forward or reverse locomotion and complex body bends such as omega turns. In addition, it includes eigenworms decomposition to represent complex posture dynamics in a low-dimensional space. The model shows reliable performance on the evaluation and test dataset, with high inference speed, while being user-friendly. DPT, therefore, can be a valuable toolkit for researchers studying behaviours under different environmental stimuli.",
+      "authors": [
+        "Saha, D.",
+        "Chaudhary, S.",
+        "Vyas, D.",
+        "Ghosh-Roy, A.",
+        "Sharma, R."
+      ],
+      "primary_category": "animal behavior and cognition",
+      "categories": [
+        "animal behavior and cognition"
+      ],
+      "published": "2026-05-24T00:00:00+00:00",
+      "link": "https://www.biorxiv.org/content/10.1101/2025.11.23.689997v2.full.pdf",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "deep learning model for automated detection and analysis of small organisms",
+      "llm_evidence_cn": "用于小型生物自动检测与分析的深度学习模型",
+      "llm_evidence": "用于小型生物自动检测与分析的深度学习模型",
+      "canonical_evidence": "用于小型生物自动检测与分析的深度学习模型",
+      "llm_tldr_en": "Deep-Pose-Tracker automates the tracking and behavioral analysis of C. elegans using deep learning.",
+      "llm_tldr_cn": "Deep-Pose-Tracker利用深度学习实现了秀丽隐杆线虫的自动追踪和行为分析。",
+      "llm_tldr": "Deep-Pose-Tracker利用深度学习实现了秀丽隐杆线虫的自动追踪和行为分析。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.17591v1",
+      "source": "arxiv",
+      "title": "Error-Decomposed Class-Conditional Fusion for Statistically Guaranteed Hard-Category Robust Perception",
+      "abstract": "Aggregate object detection metrics inherently mask catastrophic and repeatable failures in operationally critical, long-tail minority classes. This paper formally defines this pervasive vulnerability as the Hard-Category Reliability Problem (HCRP): the fundamental architectural challenge of strictly rectifying vulnerable categories without compromising the performance boundaries of stable classes under stringent protocols. To systematically dismantle this limitation, we propose Error-Decomposed Class-Conditional Fusion (ED-CCF), an elegant decision-layer inference framework. Diverging from heuristic global post-processing, ED-CCF projects predictions into a sophisticated quad-state error taxonomy, dynamically activating calibration pathways exclusively upon rigorous empirical justification. On a highly constrained 600-image validation benchmark, isolating cz as the critical vulnerability (HCEC=0.86, BSR=0.14), our framework achieves a targeted breakthrough: it elevates cz mAP50 from 0.089343 to 0.109353 (a massive +22.4% relative surge) while flawlessly preserving the Pareto optimality of global stability (raising all mAP50 from 0.581925 to 0.584864). Backed by exhaustive validation across 50 paired subset trials demonstrating an overwhelming 96% win rate and strict Bonferroni-corrected Wilcoxon significance (p<0.05), this work fundamentally redefines output-level fusion as an auditable, statistically guaranteed paradigm for safety-critical visual perception.",
+      "authors": [
+        "Guowei Luo",
+        "Ziqi Shi",
+        "Zhao Xie"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-17T18:39:05+00:00",
+      "link": "https://arxiv.org/pdf/2605.17591v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "rectifying vulnerable long-tail categories in object detection",
+      "llm_evidence_cn": "纠正目标检测中脆弱的长尾类别",
+      "llm_evidence": "纠正目标检测中脆弱的长尾类别",
+      "canonical_evidence": "纠正目标检测中脆弱的长尾类别",
+      "llm_tldr_en": "A fusion framework to improve reliability for hard-category minority classes in object detection.",
+      "llm_tldr_cn": "一种旨在提高目标检测中困难类别和少数类可靠性的融合框架。",
+      "llm_tldr": "一种旨在提高目标检测中困难类别和少数类可靠性的融合框架。",
+      "llm_tags": [
+        "query:sod:composite"
+      ],
+      "matched_query_tag": "query:sod:composite",
+      "matched_query_text": "Papers central to 小目标检测相关论文检索, especially work that connects or combines: deep learning methods for small object detection; FPN and its variants for multi-scale object detection; oversampling and augmentation strategies for small objects; spatial and channel attention for small object feature enhancement; multi-scale feature fusion techniques in computer vision; specialized loss functions for small object localization; state of the art deep learning methods for small object detection; benchmarking small object detection on public datasets.",
+      "matched_requirement_id": "req-composite-sod",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.18349v1",
+      "source": "arxiv",
+      "title": "Optimising CSRNet with parameter-free attention mechanisms for crowd counting in public transport",
+      "abstract": "Occupancy estimation and crowd counting are critical tasks in designing smart and efficient public transport vehicles. Given that public transport loading can vary from sparse to crowded, classical models for occupancy estimation must be adapted to suit this purpose. Attention mechanisms have shown remarkable capability in enhancing the representational power of deep neural networks for crowd counting in congested scenes with occlusion, complex backgrounds, and perspective distortion. However, conventional approaches, often implemented as parameterized sub-networks within convolutional layers, inevitably increase model size and computational cost, limiting deployment on resource-constrained edge devices. This paper investigates the effectiveness of state-of-the-art parameter-free attention mechanisms for crowd counting and density map estimation in highly congested scenes. We evaluate channel-wise (PFCA), spatial-wise (SA), and 3-D (SimAM) modules and compare their performance with parameterized attention modules constrained to introduce no more than 1% additional parameters. Furthermore, we present a novel combination of attention mechanisms that combines the strengths of PFCA and SA (PFCASA) customized for analyzing video streams onboard public transport systems. Using CSRNet as the backbone, experiments on the ShanghaiTech dataset demonstrate that parameter-free attention mechanisms achieve comparable or superior accuracy without introducing additional model parameters. A detailed performance analysis further reveals that PFCASA outperforms other attention modules in scenes with fewer than 40 individuals, while PFCA shows greater effectiveness as crowd density increases, underscoring their potential applicability for integration into smart public transport modalities.",
+      "authors": [
+        "Aida Rostamza",
+        "Enrico Del Re",
+        "Joshua Cherian Varughese",
+        "Cristina Olaverri-Monreal"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-05-18T13:07:29+00:00",
+      "link": "https://arxiv.org/pdf/2605.18349v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "parameter-free attention mechanisms for enhancing representational power in congested scenes",
+      "llm_evidence_cn": "无参数注意力机制用于增强拥挤场景中的特征表达能力",
+      "llm_evidence": "无参数注意力机制用于增强拥挤场景中的特征表达能力",
+      "canonical_evidence": "无参数注意力机制用于增强拥挤场景中的特征表达能力",
+      "llm_tldr_en": "Optimizes CSRNet with parameter-free attention for efficient crowd counting in public transport.",
+      "llm_tldr_cn": "通过无参数注意力机制优化CSRNet，实现公共交通中高效的人群计数。",
+      "llm_tldr": "通过无参数注意力机制优化CSRNet，实现公共交通中高效的人群计数。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "spatial and channel attention for small object feature enhancement",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.18359v1",
+      "source": "arxiv",
+      "title": "RAVE: Re-Allocating Visual Attention in Large Multimodal Models",
+      "abstract": "Large multimodal models (LMMs) inherit the self-attention mechanism of pretrained language backbones, yet standard attention can exhibit suboptimal allocation, including cross-modal misallocation between textual and visual evidence and intra-visual imbalance among visual tokens. We propose RAVE (Re-Allocating Visual Attention), a lightweight pair-gating mechanism that adds a learned query--key bias to pre-softmax attention scores over visual keys, derived from pre-RoPE query and key features. RAVE requires no architectural modification to the backbone and can be trained end-to-end with the rest of the model. Across a suite of multimodal benchmarks, RAVE improves over standard attention by an average of 3 points, with the largest gains on perception-intensive tasks -- including multilingual OCR, chart understanding, document VQA, and scene text VQA -- where accurate visual grounding is critical.",
+      "authors": [
+        "Xi Leng",
+        "Xinhong Ma",
+        "Ziqiang Dong",
+        "Feng Zhang",
+        "Xiaoying Tang",
+        "Yang Yang",
+        "Guanjun Jiang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-18T13:12:50+00:00",
+      "link": "https://arxiv.org/pdf/2605.18359v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "re-allocating visual attention mechanism for perception-intensive tasks",
+      "llm_evidence_cn": "针对感知密集型任务的视觉注意力重新分配机制",
+      "llm_evidence": "针对感知密集型任务的视觉注意力重新分配机制",
+      "canonical_evidence": "针对感知密集型任务的视觉注意力重新分配机制",
+      "llm_tldr_en": "RAVE improves multimodal models by re-allocating visual attention to fix cross-modal and intra-visual imbalances.",
+      "llm_tldr_cn": "RAVE通过重新分配视觉注意力来解决跨模态和视觉内部的不平衡，提升多模态模型性能。",
+      "llm_tldr": "RAVE通过重新分配视觉注意力来解决跨模态和视觉内部的不平衡，提升多模态模型性能。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "spatial and channel attention for small object feature enhancement",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.18700v1",
+      "source": "arxiv",
+      "title": "A Large-Scale Study on the Accuracy vs Cost Trade-offs of Training and Evaluation Settings in Fine-Grained Image Recognition",
+      "abstract": "Prior work on fine-grained image recognition (FGIR) has established the importance of the backbone selection, but has neglected the accuracy-vs-cost trade-offs under different training and evaluation settings. In this work we conduct a large-scale study with over 2000 experiments across 6 training and evaluation settings, 9 pretrained backbones, and 17 datasets. Preliminary observations on the effectiveness of data augmentation for fine-grained training motivate us to extend Counterfactual Attention Learning (CAL), a state-of-the-art method based on data-aware cropping and masking augmentations, with cross-image discriminative region mixing augmentation. We also propose an efficient evaluation-only variant that maintains competitive accuracy while reducing inference costs by forfeiting the forward pass on discriminative crops that is normally used by CAL and similar FGIR methods. Our results show that data-aware augmentations during training only can enable a model to achieve excellent accuracy even without crops, significantly reducing inference costs. To support future research we share our code and checkpoints at: \\url{https://github.com/arkel23/FGIR-Backbones}",
+      "authors": [
+        "Edwin Arkel Rios",
+        "Augusto Christian Surya",
+        "Oswin Gosal",
+        "Fernando Mikael",
+        "Mary Madeline Nicole",
+        "Kisoon Jang",
+        "Bo-Cheng Lai",
+        "Min-Chun Hu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-18T17:36:30+00:00",
+      "link": "https://arxiv.org/pdf/2605.18700v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "data-aware cropping and masking augmentations for fine-grained recognition",
+      "llm_evidence_cn": "用于细粒度识别的数据感知裁剪和掩码增强",
+      "llm_evidence": "用于细粒度识别的数据感知裁剪和掩码增强",
+      "canonical_evidence": "用于细粒度识别的数据感知裁剪和掩码增强",
+      "llm_tldr_en": "A study on accuracy-cost trade-offs in fine-grained recognition using advanced data augmentation strategies.",
+      "llm_tldr_cn": "一项关于细粒度识别中准确度与成本权衡的研究，采用了先进的数据增强策略。",
+      "llm_tldr": "一项关于细粒度识别中准确度与成本权衡的研究，采用了先进的数据增强策略。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "oversampling and augmentation strategies for small objects",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.23531v1",
+      "source": "arxiv",
+      "title": "PixIE: Prompted Pixel-Space Low-Light Image Enhancement",
+      "abstract": "Low-light images exhibit severe noise, contrast loss, and semantic ambiguity, making enhancement a joint problem of denoising and detail recovery. We propose PixIE, a feed-forward pixel-space LLIE framework semantically-prompted by a vision foundation model. PixIE first performs a cross-scale denoising to suppress noise and preserve structure, then refines details with DINO-Prompted Pixel Blocks (DPPB) that inject intermediate DINOv3 features via patch-conditioned, spatially continuous per-pixel modulation. We introduce a Spatial-Channel Compaction (SCC), which folds features into a compact spatial grid and compresses in the channel dimension, so pixel-attention is computed efficiently with bounded cost across scales. We further propose Multi-Receptive-Field Pixel Embedding (MRPE) to provide neighborhood-aware pixel representations before semantic prompting, improving robustness to signal-dependent noise beyond point-wise embeddings. Experiments on LLIE benchmarks show that PixIE improves the average PSNR by 1.9-15.0% over recent state-of-the-art methods and reduces LPIPS by 8.5-44.4%. Qualitative comparisons further demonstrate that PixIE recovers sharper details and more stable textures, resulting in improved reconstruction fidelity and perceptual quality.",
+      "authors": [
+        "Ruirui Lin",
+        "Guoxi Huang",
+        "David Bull",
+        "Nantheera Anantrasirichai"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-22T11:50:40+00:00",
+      "link": "https://arxiv.org/pdf/2605.23531v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "spatial-channel compaction for efficient pixel-attention across scales",
+      "llm_evidence_cn": "用于跨尺度高效像素注意力的空间通道压缩",
+      "llm_evidence": "用于跨尺度高效像素注意力的空间通道压缩",
+      "canonical_evidence": "用于跨尺度高效像素注意力的空间通道压缩",
+      "llm_tldr_en": "Develops PixIE with spatial-channel compaction for efficient feature modulation and enhancement.",
+      "llm_tldr_cn": "开发了具有空间通道压缩功能的PixIE，用于高效的特征调制和增强。",
+      "llm_tldr": "开发了具有空间通道压缩功能的PixIE，用于高效的特征调制和增强。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "spatial and channel attention for small object feature enhancement",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

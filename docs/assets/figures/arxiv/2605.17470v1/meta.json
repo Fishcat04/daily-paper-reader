@@ -1,0 +1,206 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.17470v1/fig-001.webp",
+      "caption": "Fig. 1. Visualization of the effective receptive field (ERF) (top) and the feature maps of different kernel sizes (bottom). The colors represent the receptive field distribution and activation intensity, respectively.",
+      "page": 1,
+      "index": 1,
+      "width": 524,
+      "height": 285
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17470v1/fig-002.webp",
+      "caption": "TABLE II DETAILED IMPLEMENTATION AND TRAINING CONFIGURATIONS FOR ECHOSR AND ECHOSR-LITE.",
+      "page": 6,
+      "index": 2,
+      "width": 516,
+      "height": 377
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17470v1/fig-003.webp",
+      "caption": "TABLE IX ABLATION EXPERIMENTS ON GCP AND VARIANTS OF MRFE: (#1) REMOVES THE GCP MODULE; (#2) REPLACES THE MRFE WITH A 3× 3 CONV; (#3) REPLACES THE MRFE WITH A 11× 11 DWCONV; (#4) REMOVES THE IDENTITY MAPPING BRANCH IN MRFE MODULE; (#5) IS OUR FULL MODEL. THE k MEANS KERNEL SIZE. THE BEST RESULTS ARE HIGHLIGHTED IN RED.",
+      "page": 15,
+      "index": 3,
+      "width": 1076,
+      "height": 191
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17470v1/fig-004.webp",
+      "caption": "Fig. 13. Visualization of feature maps in our MRFE module. We showcase outputs from different branches within MRFE. The identity mapping branch retains original features; the 5× 5 kernel branch emphasizes local texture details, while the 11× 11 and 17× 17 kernel branches focus more on capturing global contextual structures. This demonstrates the effectiveness of MRFE in modeling both fine-grained and large-scale spatial information.",
+      "page": 15,
+      "index": 4,
+      "width": 1072,
+      "height": 335
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17470v1/fig-005.webp",
+      "caption": "Fig. 2. Comparisons on the Urban100 test set at ×2 scale with input resolution of 1024 × 1024. The area of each circle indicates peak memory usage during inference. EchoSR demonstrates the best balance among performance, memory consumption, and inference latency.",
+      "page": 2,
+      "index": 5,
+      "width": 511,
+      "height": 282
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17470v1/fig-006.webp",
+      "caption": "TABLE III QUANTITATIVE COMPARISONS OF LIGHTWEIGHT SR METHODS TRAINED ON DIV2K. THE BEST AND SECOND-BEST RESULTS ARE HIGHLIGHTED IN RED AND BLUE, RESPECTIVELY.",
+      "page": 7,
+      "index": 6,
+      "width": 1076,
+      "height": 902
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17470v1/fig-007.webp",
+      "caption": "Fig. 5. Visual comparisons of EchoSR (ours) and SOTA methods on the Urban100 benchmark for ×4 SR. Our method can more effectively restore the structural and texture information. Please zoom in for a better experience.",
+      "page": 10,
+      "index": 7,
+      "width": 1072,
+      "height": 544
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17470v1/fig-008.webp",
+      "caption": "Fig. 6. Visual comparison of pixel-wise error maps on the Urban100 (×4) dataset. The GT is provided to illustrate the complex high-frequency structures; the consistently minimal residuals (darker regions) produced by EchoSR demonstrate its superior structural fidelity and absence of texture hallucinations.",
+      "page": 10,
+      "index": 8,
+      "width": 1072,
+      "height": 319
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17470v1/fig-009.webp",
+      "caption": "Fig. 7. Visual comparisons of EchoSR (ours) and SOTA methods on the Manga109 benchmark for ×4 SR. All methods were trained on DF2K. EchoSR reconstructs the textures and structures (e.g., collar and text information) more accurately.",
+      "page": 10,
+      "index": 9,
+      "width": 1072,
+      "height": 244
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17470v1/fig-010.webp",
+      "caption": "TABLE VIII ABLATION EXPERIMENTS ON DIFFERENT VARIANTS OF LA: (#1) REMOVES THE LA MODULE; (#2) USES 6 CHBS, BASED ON (#1) CONFIGURATION; (#3) REMOVES GROUP CONVOLUTIONS; (#4) REPLACES GROUP CONVOLUTIONS WITH DEPTHWISE CONVOLUTIONS; (#5) REMOVES CHANNEL EXPANSION; (#6) IS OUR FULL MODEL; THE BEST RESULTS ARE HIGHLIGHTED IN RED.",
+      "page": 14,
+      "index": 10,
+      "width": 1076,
+      "height": 215
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17470v1/fig-011.webp",
+      "caption": "Fig. 12. Visual comparisons of EchoSR (ours) and SOTA methods on the RealSR dataset for ×2 SR. All methods were retrained on DF2K. Most competing methods tend to generate overly smooth results with texture loss, whereas our method preserves faithful details.",
+      "page": 14,
+      "index": 11,
+      "width": 1074,
+      "height": 689
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17470v1/fig-012.webp",
+      "caption": "TABLE I COMPARISON OF ECHOSR WITH OTHER CNN-BASED METHODS. WE PARTITION METHODS INTO GENERAL-PURPOSE BACKBONES AND SR-SPECIFIC NETWORKS. GIVEN THAT AN INITIAL 3× 3 CONVOLUTION IS UNIVERSALLY EMPLOYED FOR PRELIMINARY LOCAL FEATURE EXTRACTION ACROSS ALL ARCHITECTURES, OUR COMPARISON CENTERS SPECIFICALLY ON THE DISTINCTIVE DESIGN OF THE BACKBONE BLOCK. WE EVALUATE THE RECEPTIVE FIELD SCOPE (LOCAL, MULTI-SCALE, GLOBAL) AND FEATURE FUSION STRATEGIES EMPLOYED WITHIN THESE BLOCKS. LOCAL DENOTES AN EXPLICIT LOCAL MODELING MECHANISM.",
+      "page": 3,
+      "index": 12,
+      "width": 529,
+      "height": 352
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17470v1/fig-013.webp",
+      "caption": "TABLE XIII QUANTITATIVE ANALYSIS ON THE ERF WITH THE HIGH-CONTRIBUTION AREA RATIO FOR VARIOUS KERNEL CONFIGURATIONS OF THE COFB MODULE. THE AREA IS MEASURED AS THE PERCENTAGE OF SPATIAL REGIONS REQUIRED TO COVER SPECIFIC CUMULATIVE CONTRIBUTION SCORE THRESHOLDS, FOR INSTANCE, A VALUE OF 20.7305% AT THE 70% THRESHOLD INDICATES THAT 20.7305% OF PIXELS ACCOUNT FOR 70% OF THE TOTAL CONTRIBUTION SCORES.",
+      "page": 18,
+      "index": 13,
+      "width": 1076,
+      "height": 227
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17470v1/fig-014.webp",
+      "caption": "Fig. 17. Quantitative analysis of ERF area ratio relative change across various cumulative contribution score thresholds (10%–95%). The curves depict the percentage change between “before” and “after” COFB states. The proposed 7 → 15 cascaded sequence in COFB achieves a stable and constructive expansion of the receptive field. In contrast, the reversed 15 → 7 sequence and single-kernel baselines exhibit significant contraction and structural dissipation in critical core regions.",
+      "page": 18,
+      "index": 14,
+      "width": 844,
+      "height": 492
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17470v1/fig-015.webp",
+      "caption": "TABLE VII QUANTITATIVE COMPARISONS OF SOTA METHODS ON REALSR (REAL-WORLD) AND SET14, URBAN100 (SYNTHETIC) DATASETS. ALL MODELS WERE RETRAINED ON DF2K USING THE REAL-ESRGAN [48] DEGRADATION PIPELINE TO SIMULATE REAL-WORLD DISTORTIONS. THE BEST AND SECOND-BEST RESULTS ARE COLORED IN RED AND BLUE.",
+      "page": 13,
+      "index": 15,
+      "width": 1076,
+      "height": 372
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17470v1/fig-016.webp",
+      "caption": "Fig. 11. Visual comparisons of EchoSR-lite (ours) and SOTA tiny methods on the Urban100 benchmark for ×4 SR. All methods were trained on DF2K. Although ×4 SR is a huge challenge for tiny SR methods, our method can still restore faithful details.",
+      "page": 13,
+      "index": 16,
+      "width": 1072,
+      "height": 240
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17470v1/fig-017.webp",
+      "caption": "TABLE IV QUANTITATIVE COMPARISONS OF LIGHTWEIGHT SR METHODS TRAINED ON DF2K. THE BEST AND SECOND-BEST RESULTS ARE HIGHLIGHTED IN RED AND BLUE, RESPECTIVELY.",
+      "page": 8,
+      "index": 17,
+      "width": 1076,
+      "height": 441
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17470v1/fig-018.webp",
+      "caption": "TABLE XI ABLATION STUDY OF THE COFB MODULE. (#1) REPLACES THE COFB WITH A STANDARD 3× 3 CONVOLUTION. (#2, #3) USES A SINGLE DEPTHWISE CONVOLUTION WITH KERNEL SIZE OF 7× 7 AND 15× 15, RESPECTIVELY. (#4),(#5) AND (#6) APPLY ALTERNATIVE KERNEL CONFIGURATIONS TO REPLACE COFB. (#7) ADOPTS A DEPTHWISE DILATED CONVOLUTION WITH A DILATION RATE OF 3. (#8) CORRESPONDS TO OUR FULL MODEL USING THE PROPOSED COFB. HERE, k DENOTES THE KERNEL SIZE. THE BEST RESULTS ARE HIGHLIGHTED IN RED.",
+      "page": 17,
+      "index": 18,
+      "width": 1076,
+      "height": 250
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17470v1/fig-019.webp",
+      "caption": "Fig. 8. Peak GPU memory usage (left) and average inference latency (right) of SR methods at different input resolutions under the ×2 SR setting. EchoSR achieves top performance while maintaining competitive memory efficiency and inference speed.",
+      "page": 12,
+      "index": 19,
+      "width": 1063,
+      "height": 258
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17470v1/fig-020.webp",
+      "caption": "TABLE VI COMPARISONS OF TINY SR METHODS TRAINED ON DF2K. THE BEST AND SECOND-BEST RESULTS ARE COLORED IN RED AND BLUE.",
+      "page": 12,
+      "index": 20,
+      "width": 1076,
+      "height": 496
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17470v1/fig-021.webp",
+      "caption": "Fig. 9. Comparisons on the Urban100 test set at ×2 scale with input resolution of 256× 256. The area of each circle indicates the computational complexity (MACs). EchoSR (ours) demonstrates a superior trade-off among reconstruction performance, computational efficiency, and inference speed.",
+      "page": 12,
+      "index": 21,
+      "width": 519,
+      "height": 292
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17470v1/fig-022.webp",
+      "caption": "Fig. 4. Visual comparison of EchoSR (ours) and SOTA methods on the Urban100 benchmark for ×2 SR. EchoSR shows significant advantages in restoring structures and textures, with sharper and clearer results. Please zoom in for a better review.",
+      "page": 9,
+      "index": 22,
+      "width": 1076,
+      "height": 957
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17470v1/fig-023.webp",
+      "caption": "Fig. 3. Overview of our EchoSR architecture for lightweight image super-resolution. CHB extracts local, multi-scale, and global features in parallel, while COFB facilitates effective cross-scale feature fusion. The kernel size k is specified for convolutions.",
+      "page": 5,
+      "index": 23,
+      "width": 1066,
+      "height": 537
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17470v1/fig-024.webp",
+      "caption": "Fig. 15. Visualization of COFB. After processing by the COFB module, the activation maps respond more strongly to structural information in the image (such as the grid structure of the building and the squares on the ground), achieving a balance of local and global contextual features.",
+      "page": 16,
+      "index": 24,
+      "width": 524,
+      "height": 262
+    },
+    {
+      "url": "assets/figures/arxiv/2605.17470v1/fig-025.webp",
+      "caption": "Fig. 14. Ablation study of kernel configurations and multi-scale design in MRFE. We show training evaluation curves on the Manga109 dataset with different kernel configurations. Our design strategy remains optimal during training.",
+      "page": 16,
+      "index": 25,
+      "width": 515,
+      "height": 308
+    }
+  ]
+}

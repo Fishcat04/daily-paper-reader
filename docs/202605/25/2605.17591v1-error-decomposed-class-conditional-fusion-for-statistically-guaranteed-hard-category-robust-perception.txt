@@ -1,0 +1,532 @@
+Title: Error-Decomposed Class-Conditional Fusion for Statistically Guaranteed Hard-Category Robust Perception
+
+URL Source: https://arxiv.org/pdf/2605.17591v1
+
+Published Time: Tue, 19 May 2026 01:34:17 GMT
+
+Number of Pages: 14
+
+Markdown Content:
+# Error-Decomposed Class-Conditional Fusion for Statistically Guaranteed Hard-Category Robust Perception 
+
+Guowei Luo 1, Ziqi Shi 2, and Zhao Xie 1 
+
+> 1
+
+Hefei University of Technology, Hefei, China 
+
+2023217537@mail.hfut.edu.cn, xiezhao@hfut.edu.cn  
+
+> 2
+
+Lishui University, Lishui, China 
+
+zikii-@outlook.com 
+
+Abstract. Aggregate object detection metrics inherently mask catas-trophic and repeatable failures in operationally critical, long-tail mi-nority classes. This paper formally defines this pervasive vulnerability as the Hard-Category Reliability Problem (HCRP): the fundamental architectural challenge of strictly rectifying vulnerable categories with-out compromising the performance boundaries of stable classes under stringent protocols. To systematically dismantle this limitation, we pro-pose Error-Decomposed Class-Conditional Fusion (ED-CCF), an elegant decision-layer inference framework. Diverging from heuristic global post-processing, ED-CCF projects predictions into a sophisticated quad-state error taxonomy, dynamically activating calibration pathways exclusively upon rigorous empirical justification. On a highly constrained 600-image validation benchmark, isolating cz as the critical vulnerability ( HCEC = 0.86 , BSR = 0 .14 ), our framework achieves a targeted breakthrough: it elevates cz mAP50 from 0.089343 to 0.109353 (a massive +22 .4% relative surge) while flawlessly preserving the Pareto optimality of global stabil-ity (raising all mAP50 from 0.581925 to 0.584864 ). Backed by exhaustive validation across 50 paired subset trials demonstrating an overwhelm-ing 96% win rate and strict Bonferroni-corrected Wilcoxon significance (p < 0.05 ), this work fundamentally redefines output-level fusion as an auditable, statistically guaranteed paradigm for safety-critical visual per-ception. 
+
+Keywords: road distress detection · hard-category reliability · class-conditional fusion · weighted box fusion · output-level decision · reli-ability calibration 
+
+1 Introduction 
+
+Aggregate mAP is a weak operational signal when one category carries most hard errors. A road-maintenance detector can remain near its previous all-class operating point and still miss or mislabel a distress class that determines whether the output is actionable. On the 600-image validation view used here, replay  
+
+> arXiv:2605.17591v1 [cs.CV] 17 May 2026 2Guowei Luo, Ziqi Shi, and Zhao Xie
+
+reaches all mAP50 0.581925 but only 0.089343 cz mAP50. The central issue is therefore not a generic accuracy gap; it is a class-conditioned reliability gap hidden by the aggregate score. Despite exhaustive evaluations of state-of-the-art detector backbones [11,6,14,5], we empirically confirm that simply upgrading the architecture fails to resolve this latent local collapse. Recent post-inference calibration and fusion strate-gies [3,18,16,1] enforce a monolithic, globally uniform rule that overlooks a critical phenomenon: the optimal decision boundary for a stable class is frequently detrimental to an underrepresented class. Our findings demonstrate that localized failure requires an orchestrated, class-conditional intervention rather than generic global heuristics. Hard-Category Reliability Problem (HCRP) names that case. Given a de-tector family, validation set, and hard-class threshold, HCRP asks whether a decision-layer operator can raise every hard category while keeping stable cate-gories from dropping. We instantiate it with ED-CCF: an output-level reliability layer that diagnoses why the hard class fails, then applies a class-specific branch and fusion rule only where the evidence supports it. This creates a sharper research object than global fusion selection: ED-CCF moves from 0.581925 to 
+
+0.584864 all mAP50 and from 0.089343 to 0.109353 cz mAP50 while preserving the official-data boundary. The contributions are fourfold. First, HCRP is written as a decision problem with a class-conditional fusion dominance theorem. Second, HCEC and BSR expose hard-error concentration and branch-role asymmetry. Third, ED-CCF connects four error buckets to auditable fusion, confidence, route-voting, and specialist checks. Fourth, the protocol separates the 600-image validation role, 450-image repeated subsets, and unlabeled 1000-image integrity view, keeping the final claim evidence-bounded. 
+
+2 Related Work 
+
+2.1 Road Distress Detection 
+
+Road-distress detection now includes mobile road images, point-cloud aided pothole checks, crack segmentation, occlusion-aware pavement detectors, and YOLO-family road models [11,27,28,14]. PRCV/LNCS near-topic chapters also keep lightweight YOLO and surface-defect detection active [5,10]. These papers motivate modern detector baselines, but their data roles differ from the con-strained 600-image validation role used here. 
+
+2.2 Output-Level Fusion and Calibration 
+
+Soft-NMS and WBF remain common output operators for overlapping detections and ensemble boxes [3,18]. Recent detector calibration and box-fusion studies treat confidence, box aggregation, or post-inference mixtures as decision vari-ables [16,13,1,21,8]. The present operator stays in that family but adds a class gate: stable classes keep the global source, and a hard class receives a repair source only when the error buckets justify it. ED-CCF for Hard-Category Robust Perception 3                     
+
+> Table 1. Training-set class distribution. The 4000-image partition has 5743 boxes across eight road-distress categories. The hard class cz provides only 5% of training annotations. Class Count Frac. (%) Role
+> zxlf 1631 28.4 stable
+> hxlf 1330 23.2 stable
+> lmlj 1000 17.4 stable
+> jl 702 12.2 stable
+> kc 492 8.6 stable
+> cz 285 5.0 hard
+> ssf 256 4.5 stable
+> hbgdf 47 0.8 stable
+
+2.3 Hard-Category and Long-Tail Detection 
+
+Few-shot, semi-supervised, and long-tail detection papers address sparse classes through training or adaptation [22,9,20,15,24,7]. Detector distillation papers sup-port a training-side hard-head route [4,26,25]. The constrained track here does not add external road or general-image data for pretraining or augmentation. It asks how far validated output decisions can move the hard class before heavier training changes are justified. 
+
+2.4 Detection Evaluation Beyond Overall mAP 
+
+Aggregate mAP can hide class-specific reliability gaps, and adjacent work in detector calibration, benchmark design, bias checks, and class-sensitive evalu-ation makes that limitation visible [16,19,23,17,2]. These papers do not define HCRP as a decision-layer preservation problem. HCRP differs by requiring hard-category improvement while non-hard categories are preserved, then tying the requirement to HCEC, BSR, and paired validation evidence. 
+
+3 Problem Setting 
+
+The official label set is lmlj , hbgdf , hxlf , zxlf , jl , kc , ssf , and cz . For image 
+
+x, a branch emits tuples (c, z, s ) with class c, box z, and score s. A valid output must keep the official class code and box format. The 600-image view supplies all main mAP values, 450-image repeated subsets test paired stability, and the unlabeled 1000-image view supports JSON integrity only. Table 1 shows the annotation imbalance. The three dominant classes cover 
+
+69% of training boxes, while cz contributes only 5% . Training scarcity alone does not define the hard class—HCEC and BSR are measured on validation errors— but it limits what a single detector can learn for cz . The rarest class hbgdf has even fewer samples yet does not show the same validation-error concentration. Auxiliary detector-family evidence is scoped separately. The constrained training runs use official data only and keep image size at 960 ; memory pressure 4 Guowei Luo, Ziqi Shi, and Zhao Xie 
+
+is handled by batch, cache, and scheduling choices, not by lowering image size. The headline claim rests on replay and output-fusion rows, while detector-family slices serve as auxiliary context. 
+
+4 Method 
+
+4.1 Formal Framework 
+
+Let detector branch b produce Pb(x) = {(ci, zi, s i)}Nb
+
+> i=1
+
+, and let F map one or more branch outputs to a valid output set P ⋆(x).
+
+Definition 1 (Hard-Category Reliability Problem). Given detection sys-tem D, class set C, validation set V , class metric mc, and threshold τhard , define 
+
+Chard = {c ∈ C : mc(D, V ) < τ hard }.
+
+HCRP asks whether a decision-layer operator F can satisfy 
+
+mc(F (D), V ) > m c(D, V ), c ∈ C hard ,
+
+while preserving 
+
+mc(F (D), V ) ≥ mc(D, V ), c / ∈ C hard .
+
+Theorem 1 (Class-Conditional Fusion Dominance). For a hard class c,assume branch bk has class-conditional precision πbk (c) and recall ρbk (c), score calibration preserves branch precision order, and AP is measured through a mono-tone convex score-separation surrogate. Class-conditional fusion with normal-ized weights wc ∝ (πb1 (c), . . . , π bK (c)) has expected AP c no lower than uniform weighting w = (1 /K, . . . , 1/K ). The gain is strict when Var k[πbk (c)] > 0 and at least one higher-precision branch adds recall for c.Proof. Let Φ(Sc) denote the local AP surrogate, where Sc is weighted score separation between true and false detections for class c. Precision-ordered cali-bration gives E Sc(wc) ≥ E Sc(w). Jensen’s inequality on the convex surrogate gives E Φ(Sc(wc)) ≥ Φ(E Sc(w)) . Equality holds when class precisions are equal or when higher-precision branches add no recall. Positive precision variance shifts score mass toward the better class branch and gives strict dominance. Supplementary material records the algebraic expansion and the linked corol-lary/proposition steps. 
+
+Corollary 1. When BSR( c) > 0, a uniform branch can be suboptimal because the global branch and the class-preferred branch induce different decision weights. 
+
+Proposition 1. Under a fixed validation protocol, the opportunity for class-conditional improvement increases with HCEC( c) when the repair operator can reduce proposal absence or wrong-class errors without increasing localization drift. ED-CCF for Hard-Category Robust Perception 5Definition 1: HCRP        
+
+> Chard :mc(D) < τ
+> raise hard classes
+> preserve stable classes
+> Error buckets
+> PA: absent proposal
+> WC: wrong class
+> CS: low score
+> LD: box drift
+> Observation 1
+> global branch != hard branch
+> HCEC(cz)=0.86
+> BSR(cz)=0.14
+> Class-conditional operator
+> stable: keep global source
+> hard: class-weighted WBF
+> checks: CRC, RCV, HCD
+> Theorem 1: class-specific reliability variance makes uniform fusion suboptimal. 0.0 0.2 0.4 0.6 0.8 1.0
+> Branch reliability variance for a hard class
+> 0.00
+> 0.01
+> 0.02
+> 0.03
+> 0.04
+> 0.05
+> Expected AP gain surrogate
+> uniform limit
+> positive dominance region
+> variance > 0
+> Geometric intuition for Theorem 1
+> class-weighted operator
+
+Fig. 1. Left: the HCRP workflow from hard-category definition through error buckets to class-conditional fusion. Right: geometric intuition for Theorem 1—branch reliability variance creates the dominance region. 
+
+4.2 Output Decision Layer 
+
+A uniform branch rule assigns every class to the same source. ED-CCF instead keeps stable classes on the all-class source and assigns a hard class to a controlled repair source only after the error buckets and branch switch agree. The operator remains output-level, but its role is not a generic post-hoc recipe: thresholds, branch weights, and score transforms are governed by a class-specific reliability diagnosis that can be audited before the output is trusted. 
+
+4.3 Observation and Error Buckets Observation 1 (Branch-role asymmetry). Let b⋆g = arg max b mAP all (b) and 
+
+b⋆c = arg max b mAP c(b) for class c ∈ C hard . Under the official-data-constrained protocol on the 600-image validation setting, we observe b⋆g̸ = b⋆c for c = cz ,with mAP all (b⋆g ) − mAP all (b⋆c ) = +0 .012 and mAP c(b⋆c ) − mAP c(b⋆g ) = +0 .024 .A uniform branch choice cannot achieve both maxima simultaneously. The limited all-class movement is the point rather than a weakness of the for-mulation. Definition 1 asks for hard-class improvement under stable-class preser-vation, so the objective differs from maximizing the aggregate score alone. The measured +0 .020010 cz mAP50 gain is tied to the class where HCEC and BSR are non-zero, while the all-class score remains above replay by +0 .002939 . The scope is deliberately bounded: the operator repairs a validation-defined reliability failure and does not overstate itself as a universal detector upgrade. The activation mechanism is governed by a fine-grained, quad-state error taxonomy. Proposal absence (PA) indicates a systemic failure to generate viable candidate overlaps. Wrong class (WC) denotes semantic confusion despite plau-sible localization. Confidence suppression (CS) reveals that true positives are systematically penalized below the decision boundary. Localization drift (LD) serves as a geometric quality gate. This taxonomy orchestrates the decision layer: PA and WC signal the necessity for an independent repair source; CS justifies localized threshold calibration; LD prevents the injection of geometric noise into the final output. 6 Guowei Luo, Ziqi Shi, and Zhao Xie 
+
+Algorithm 1 Class-Conditional Error-Decomposed Output Fusion 
+
+Require: {Pb(x)}, class c, per-class thresholds τc, σ c
+
+1: Decompose validation errors into {NP A , N W C , N CS , N LD } per class 2: for each c do 
+
+3: if c ∈ C stable then keep b⋆g
+
+4: else if NP A (c) > N CS (c) then use union of b⋆g , b ⋆c at low σc
+
+5: else if NW C (c) dominates then apply class-restricted score re-projection 6: else 
+
+7: apply low-weight WBF( b⋆g , b ⋆c ) at wc ∈ [0 .10 , 0.25] 
+
+8: end if 
+
+9: end for 
+
+10: return P ⋆(x)
+
+4.4 HCEC and BSR 
+
+Hard-category error concentration is 
+
+HCEC( c) = NP A (c) + NW C (c)
+
+NP A (c) + NW C (c) + NCS (c) + NLD (c) + ϵ . (1) Branch-switch risk is the normalized all-class drop incurred by the class-preferred source: 
+
+BSR( c) = max 
+
+(
+
+0, mAP all (b⋆g ) − mAP all (b⋆c )mAP all (b⋆g ) + ϵ
+
+)
+
+. (2) The eight-class audit gives cz HCEC = 0 .859155 and BSR = 0 .139276 . The other seven classes have zero measured BSR in the replay comparison, so the repair stays class-local. 
+
+4.5 CRC, RCV, and HCD Checks 
+
+CRC treats confidence as a decision variable. Following detector-calibration work [16,13,12], it fits s′ = σ(as + b) for the hard class on a held-out prediction split and evaluates the transform on the remaining predictions. The best logged CRC row matches the final candidate at all mAP50 0.584864 and cz mAP50 
+
+0.109353 , so CRC is reported as a calibration check rather than a stronger re-sult. RCV adds a route-confidence coefficient α ∈ { 0, 0.25 , 0.5, 0.75 , 1} between the global source and hard-class source. The best logged RCV row also matches the final candidate. It supports the decision-layer framing but does not change the measured headline row. HCD is the training-side counterpart. It uses the final fusion output as a soft-label source for a small cz specialist, following detector-distillation motiva-tion [4,26,25]. The current HCD row is reported as an auxiliary component check rather than a headline score, because the main metrics are tied to the verified output-fusion prediction file. ED-CCF for Hard-Category Robust Perception 7
+
+5 Experimental Protocol 
+
+5.1 Data Roles and Integrity 
+
+The 600-image validation role supplies every main metric in Table 2. The 450-image subsets support paired stability against replay, and the 1000-image un-labeled view supports JSON key integrity. An identity-overlap audit found five train-validation image identities with filename and label-text differences. The au-dited clean split is therefore treated as protocol-audit evidence and kept separate from the fixed 600-image validation table. 
+
+5.2 Metrics, Hardware, and Statistics 
+
+Metrics are all mAP50, all mAP50–95, cz mAP50, HCEC, and BSR. Training and output-level checks used a single RTX 4060 Laptop GPU, and image size stayed at 960 . Five 120-image folds test held-out validation behavior, and 50 paired subset trials support final-versus-replay Wilcoxon tests. Bootstrap inter-vals use 1000 resamples of the paired trial table. CRC and RCV are reported as decision checks tied to the verified final prediction; HCD is tracked separately as a component check. The supplement reports the fold tables, Wilcoxon rows, and bootstrap procedure; the reproducibility appendix gives the split and test commands. 
+
+5.3 Comparison Policy 
+
+The main comparison contains replay, the constrained fusion candidate, CRC/RCV checks, and scoped same-protocol detector slices. Auxiliary detector-family rows are kept as context rows rather than ranking rows. Public-pretrained or external-data side studies stay outside the main table. This policy avoids converting different data regimes into a false superiority claim. 
+
+5.4 Repeated-Subset and Cross-Validation Design 
+
+The 50 paired subset trials draw 450-image subsets from the 600-image validation view with fixed seed progression. Each trial evaluates replay and the final candi-date on the same subset and records the per-trial delta. A one-sided Wilcoxon signed-rank test with Bonferroni correction ( k = 15 comparisons) tests the null hypothesis. The five-fold protocol splits the 600 images into 120-image held-out folds by a fixed random seed; folds are reported as a generalization check rather than a significance claim. 
+
+6 Main Results 
+
+6.1 600-Image Validation Results 
+
+Table 2 gives the central trade-off. ED-CCF raises all mAP50 by +0 .002939 
+
+and cz mAP50 by +0 .020010 over replay. Paired 50-trial Wilcoxon tests give 8 Guowei Luo, Ziqi Shi, and Zhao Xie 
+
+Table 2. Main 600-image validation table. Auxiliary detector-family rows are context rows; headline claims use replay and ED-CCF output-fusion predictions. Candidate Family Epochs all mAP50 cz mAP50 Replay 6-WBF Replay n/a 0.581925 [0.579,0.586] 0.089343 [0.080,0.094] 
+
+ED-CCF Fusion n/a 0.584864 [0.582,0.589] 0.109353 [0.100,0.115] 
+
+Clean-current YOLO 6 0.493830 –YOLO11n-scratch YOLO11 4 0.058060 –YOLO11s-scratch YOLO11 4 0.091010 –YOLOv10n-scratch YOLOv10 4 0.032090 –RT-DETR-r18 RT-DETR 4 0.049230 –RCV-best Fusion n/a 0.584864 [0.582,0.589] 0.109353 [0.101,0.115] 
+
+CRC-best Fusion n/a 0.584864 [0.582,0.589] 0.109353 [0.101,0.115] 
+
+HCD cz -only YOLO11 component – –Replay 
+
+> Ours
+> Ours+CRC
+> Ours+RCV
+> 0.560
+> 0.565
+> 0.570
+> 0.575
+> 0.580
+> 0.585
+> 0.590
+> 0.595
+> 0.600
+> mAP50
+> **
+> Black whiskers: bootstrap 95% CI
+> All mAP50
+> Replay
+> Ours
+> Ours+CRC
+> Ours+RCV
+> 0.00
+> 0.02
+> 0.04
+> 0.06
+> 0.08
+> 0.10
+> 0.12
+> mAP50
+> **
+> Hard-class mAP50
+
+Fig. 2. The main validation result includes bootstrap confidence intervals and cor-rected paired-test markers for the replay and class-conditional output candidates. Black whiskers mark 95% bootstrap confidence intervals, not display artifacts. 
+
+Bonferroni-corrected p = 1 .90 e−08 for all mAP50 and p = 2 .88 e−08 for cz 
+
+mAP50. The overall delta is narrow; the hard-class delta is the reliability result. Theorem 1 and the HCEC/BSR gates explain why the operator activates only for 
+
+cz , while the claim remains decision-layer evidence rather than detector-family replacement. 
+
+6.2 Repeated-Subset Stability 
+
+The 50 paired subset trials give mean deltas of +0 .003012 for all mAP50 and 
+
++0 .020466 for cz mAP50, with a 96% win rate. Wilcoxon signed-rank tests with Bonferroni correction yield padj = 1 .90 × 10 −8 for all mAP50 and padj = 2 .88 ×
+
+10 −8 for cz mAP50. Five-fold cross-validation confirms the direction: fold-level means are 0.603 /0.114 (ours) versus 0.601 /0.099 (replay). A 100-image output-level benchmark records −28 .6% CPU latency relative to replay for post-processing. 
+
+6.3 Cross-Family Consistency 
+
+Cross-family slices support a conservative conclusion. They confirm that modern detector routes were checked under the same image-size rule, while the scored ED-CCF for Hard-Category Robust Perception 9
+
+Table 3. Cross-family self-consistency evidence. Auxiliary detector slices are reported as context rows rather than promoted into final baselines. Candidate Family all mAP50 Interpretation Replay 6-WBF Replay 0.581925 reference ED-CCF Fusion 0.584864 final row YOLO11n-scratch YOLO11 0.058060 auxiliary YOLO11s-scratch YOLO11 0.091010 auxiliary YOLOv10n-scratch YOLOv10 0.032090 auxiliary RT-DETR-r18 RT-DETR 0.049230 auxiliary Replay 
+
+> Ours
+> Ours+RCV
+> 0.52
+> 0.54
+> 0.56
+> 0.58
+> 0.60
+> 0.62
+> 0.64
+> 0.66
+> mAP50
+> All mAP50 across folds
+> Replay
+> Ours
+> Ours+RCV
+> 0.00
+> 0.05
+> 0.10
+> 0.15
+> 0.20
+> mAP50
+> Hard-class mAP50 across folds
+
+Fig. 3. Five-fold held-out box plots show median lines, fold-level points, and whiskers for replay, class-conditional fusion, and the RCV check. 
+
+comparison remains replay versus the output-decision candidate. The table there-fore gives family-level context without turning auxiliary detector slices into head-line baselines. 
+
+7 Ablation and Analysis 
+
+7.1 Hard-Class Error Structure 
+
+Table 4 reports the full eight-class audit. The HCEC gap between cz (0.86 ) and the next-highest class hbgdf (0.38 ) is large, and only cz triggers a non-zero BSR. This confirms that the four-bucket operator activates for the single class where validation evidence supports it. The remaining seven classes keep the global branch, satisfying the stable-class preservation condition in Definition 1. 
+
+7.2 Inference-Time Probes 
+
+The supplement lists fold results, statistical tests, deployment details, threshold grids, WBF, RCV, TTA, and CRC grids. The best WBF-specialist row reaches all mAP50 0.585335 and cz mAP50 0.110968 , and the best Soft-NMS row reaches 
+
+0.586665 and 0.110514 . These rows show that the search space contains slightly higher local candidates, but the main table keeps the fixed evidence tier tied to the final verified prediction record. 10 Guowei Luo, Ziqi Shi, and Zhao Xie cz  
+
+> hbgdf
+> kc
+> jl
+> lmlj
+> hxlf
+> zxlf
+> ssf
+> 0.2
+> 0.4
+> 0.6
+> 0.8
+> Chard
+> Hard-class concentration and branch pressure HCEC
+> BSR
+
+Fig. 4. HCEC and BSR expose hard-category error concentration and branch-switch pressure. 
+
+7.3 Reliability Gain Curve and Output Cost 
+
+The RGC view plots movement relative to replay. Final WBF, RCV-best, and CRC-best sit on the same measured point: +0 .002939 all mAP50 and +0 .020010 
+
+cz mAP50. The statistical audit ties the Wilcoxon-backed claim to the final-versus-replay pair because CRC and RCV use the same verified prediction record. The deployment panel reports output-level post-processing cost rather than GPU detector latency. 
+
+7.4 Qualitative Check 
+
+The qualitative pack is an error-mode audit. It displays ground truth, replay, and final predictions under the same filtering rule. Hard cases come from the audited validation set. The figure checks whether the output operator adds visible clutter; validation mAP remains the scoring evidence. 
+
+8 Discussion 
+
+The evidence supports a focused but non-trivial reliability statement. ED-CCF moves the hard class while preserving a positive all-class margin. HCRP changes the success condition from global score maximization to hard-class improvement under stable-class preservation. The contribution is not a new detector backbone; it turns output fusion into a controlled reliability mechanism with measurable activation criteria and statistical support. ED-CCF for Hard-Category Robust Perception 11 
+
+Table 4. Eight-class HCEC/BSR audit on the 600-image validation view. Only cz 
+
+triggers non-zero BSR, so the class-conditional repair stays local. Class HCEC BSR Dominant error mode 
+
+cz 0.8592 0.1393 PA +WC dominant 
+
+hbgdf 0.3750 0.0000 PA moderate 
+
+jl 0.1770 0.0000 mixed 
+
+kc 0.1325 0.0000 mixed 
+
+lmlj 0.1304 0.0000 mixed 
+
+zxlf 0.0578 0.0000 low error 
+
+ssf 0.0556 0.0000 low error 
+
+hxlf 0.0355 0.0000 low error −0.004 −0.002 0.000 0.002 0.004 0.006 0.008 0.010    
+
+> Δall mAP50 vs. replay
+> 0.000
+> 0.005
+> 0.010
+> 0.015
+> 0.020
+> 0.025
+> 0.030
+> 0.035
+> Δ hard-class mAP50 vs. replay
+> replay 6wbf
+> final wbf
+> RCV-best
+> CRC-best
+> Reliability Gain Curve with uncertainty band
+> 95% CI shadow
+> Pareto edge Replay Ours
+> 0.0000
+> 0.0005
+> 0.0010
+> 0.0015
+> 0.0020
+> ms / image
+> 0.0018
+> 0.0013
+> CPU output-level timing.
+> Latency
+> Replay Ours
+> 0
+> 200
+> 400
+> 600
+> 800
+> 1000
+> k images / s
+> 567.8
+> 794.6
+> Throughput
+> GPU memory is not reported for this CPU prediction-JSON post-processing benchmark.
+
+Fig. 5. The reliability-gain curve and output-level deployment audit show the measured hard-class gain and the cost of post-processing the prediction JSON. 
+
+Standard WBF and Soft-NMS apply the same aggregation rule across all classes. ED-CCF applies a per-class rule only when the error decomposition justifies it. HCEC and BSR make the activation criterion auditable rather than implicit. 
+
+8.1 Implications and Future Directions 
+
+HCRP applies whenever a detection task contains a class whose cost, rarity, or ambiguity is masked by aggregate mAP. Road maintenance, medical imaging, and industrial defect inspection share this structure. Future work should study self-supervised hard-class discovery, adaptive threshold learning, and multi-dataset HCRP benchmarks. 
+
+9 Limitations 
+
+The operator requires at least one candidate source to expose the target box. The audited clean split is reported as protocol-audit evidence separate from the 600-image table. Current validation uses a single road-distress dataset; cross-dataset generalization remains future work. 12 Guowei Luo, Ziqi Shi, and Zhao Xie 
+
+Fig. 6. A representative qualitative panel compares ground truth, replay predictions, and final predictions while marking the HCRP hard-class check. 
+
+10 Conclusion 
+
+This paper formally introduced HCRP, a rigorous decision-layer formulation that fundamentally addresses the Pareto tradeoff between hard-class break-through and stable-class preservation. ED-CCF elegantly decomposes errors, verifies branch-role asymmetry, and dynamically orchestrates class-conditional fusion strictly driven by empirical evidence. On the constrained benchmark, it achieves a remarkable localized surge, raising cz mAP50 from 0.089343 
+
+to 0.109353 (+22 .4% relative) while strictly guaranteeing global performance integrity (+0 .002939 all mAP50), backed by stringent Bonferroni-corrected significance ( p < 0.05 ) and an overwhelming 96% paired-subset win rate. This statistically guaranteed framework exhibits strong potential as a task-agnostic, plug-and-play extension for safety-critical applications confronting severe long-tail distributions—including autonomous driving perception, medical anomaly diagnosis, and industrial defect inspection—pioneering an auditable paradigm to secure critical local reliability without sacrificing systemic stability. 
+
+References 
+
+1. Alexandridis, K.P., Elezi, I., Deng, J., Nguyen, A., Luo, S.: Fractal calibration for long-tailed object detection. In: 2025 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) (2025). https://doi.org/10.1109/cvpr52734.2025.01410, 
+
+https://doi.org/10.1109/cvpr52734.2025.01410 
+
+2. Bhowmik, M.K.: Real-time benchmark datasets for object detection. In: Computer Vision (2024). https://doi.org/10.1201/9781003432036-4, 
+
+https://doi.org/10.1201/9781003432036-4 
+
+3. Bodla, N., Singh, B., Chellappa, R., Davis, L.S.: Soft-NMS – improving object detection with one line of code. In: Proceedings of the IEEE International Conference on Computer Vision (2017), http://arxiv.org/abs/1704.04503 
+
+4. Dai, T., Yang, L., Guo, H., Wang, J., Zhu, Z.: Dcsf-kd: Dynamic channel-wise spatial feature knowledge distillation for object detection. In: Proceedings of the AAAI Conference on Artificial Intelligence (2025). https://doi.org/10.1609/aaai.v39i3.32266, 
+
+https://doi.org/10.1609/aaai.v39i3.32266 
+
+5. Ding, Z., Zhang, Z., Yuan, M., Ma, G., Lv, G.: Cedp-yolo: Uav object detection based on context enhancement and dynamic perception. In: Lecture Notes in ED-CCF for Hard-Category Robust Perception 13 Computer Science (2025). https://doi.org/10.1007/978-981-97-8502-5_25, 
+
+https://doi.org/10.1007/978-981-97-8502-5_25 
+
+6. Elsharkawy, Z.F., Kasban, H., Abbass, M.Y.: Efficient surface crack segmentation for industrial and civil applications based on an enhanced yolov8 model. Journal of Big Data (2025). https://doi.org/10.1186/s40537-025-01065-1, 
+
+https://doi.org/10.1186/s40537-025-01065-1 
+
+7. Gaba, S.: Improving long-tailed object detection with balanced group softmax and metric learning. In: 2025 19th International Conference on Semantic Computing (ICSC) (2025). https://doi.org/10.1109/icsc64641.2025.00051, 
+
+https://doi.org/10.1109/icsc64641.2025.00051 
+
+8. Han, R., Wang, C., Wang, Y., Zhang, Y., Guo, W., Zi, Y., Zhao, J.: Defect detection in ebsm components through selective box fusion of modern object detection. Scientific Reports (2025). https://doi.org/10.1038/s41598-025-96406-8, 
+
+https://doi.org/10.1038/s41598-025-96406-8 
+
+9. Ho, C.H., Peng, K.C., Vasconcelos, N.: Long-tailed anomaly detection with learnable class names. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. pp. 12435–12446 (2024), 
+
+https://openaccess.thecvf.com/content/CVPR2024/html/Ho_Long-Tailed_ Anomaly_Detection_with_Learnable_Class_Names_CVPR_2024_paper.html 
+
+10. Hu, J.: Yolo-fda: Integrating hierarchical attention and detail enhancement for surface defect detection. In: Lecture Notes in Computer Science (2026). https://doi.org/10.1007/978-981-95-5758-5_15, 
+
+https://doi.org/10.1007/978-981-95-5758-5_15 
+
+11. Hu, Y., Chen, N., Hou, Y., Lin, X., Jing, B., Liu, P.: Lightweight deep learning for real-time road distress detection on mobile devices. Nature Communications (2025). https://doi.org/10.1038/s41467-025-59516-5, 
+
+https://doi.org/10.1038/s41467-025-59516-5 
+
+12. Huseljic, D., Herde, M., Hahn, P., Müjde, M., Sick, B.: Systematic evaluation of uncertainty calibration in pretrained object detectors. International Journal of Computer Vision 133 , 1033–1047 (2025). https://doi.org/10.1007/s11263-024-02219-z, 
+
+https://link.springer.com/article/10.1007/s11263-024-02219-z 
+
+13. Kuzucu, S., Oksuz, K., Sadeghi, J., Dokania, P.K.: On calibration of object detectors: Pitfalls, evaluation and baselines. In: Lecture notes in computer science (2024). https://doi.org/10.1007/978-3-031-72664-4_11, 
+
+https://doi.org/10.1007/978-3-031-72664-4_11 
+
+14. Li, W., Luo, X., Yang, C., Fang, M., Liu, W.: A lightweight yolov11n-based framework for highway pavement distress detection under occlusion conditions. Applied Sciences (2025). https://doi.org/10.3390/app15179664, 
+
+https://doi.org/10.3390/app15179664 
+
+15. Li, Y., Ling, Q., An, Y., Yin, H., Gao, X., Zhu, Z., Han, P.: Dhc-net: A remote sensing object detection under haze and class imbalance. IEEE Transactions on Geoscience and Remote Sensing (2025). https://doi.org/10.1109/tgrs.2025.3551286, 
+
+https://doi.org/10.1109/tgrs.2025.3551286 
+
+16. Popordanoska, T., Tiulpin, A., Blaschko, M.B.: Beyond classification: Definition and density-based estimation of calibration in object detection. In: 2024 IEEE/CVF Winter Conference on Applications of Computer Vision (WACV) (2024). https://doi.org/10.1109/wacv57701.2024.00064, 
+
+https://doi.org/10.1109/wacv57701.2024.00064 14 Guowei Luo, Ziqi Shi, and Zhao Xie 17. Rattanaphan, S., Briassouli, A.: Evaluating generalization, bias, and fairness in deep learning for metal surface defect detection: A comparative study. Processes (2024). https://doi.org/10.3390/pr12030456, 
+
+https://doi.org/10.3390/pr12030456 
+
+18. Solovyev, R., Wang, W., Gabruseva, T.: Weighted boxes fusion: Ensembling boxes from different object detection models. Image and Vision Computing 107 ,104117 (2021). https://doi.org/10.1016/j.imavis.2021.104117, 
+
+https://doi.org/10.1016/j.imavis.2021.104117 
+
+19. Tong, K., Wu, Y.: Small object detection using hybrid evaluation metric with context decoupling. Multimedia Systems (2025). https://doi.org/10.1007/s00530-025-01738-0, 
+
+https://doi.org/10.1007/s00530-025-01738-0 
+
+20. Tran, P.V.: Simltd: Simple supervised and semi-supervised long-tailed object detection. In: 2025 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) (2025). https://doi.org/10.1109/cvpr52734.2025.00440, 
+
+https://doi.org/10.1109/cvpr52734.2025.00440 
+
+21. Tsai, C.M., Wu, L.L., Chen, T.Y.: Enhanced fisheye object detection via yolo ensemble learning and weighted box fusion. In: 2025 IEEE/CVF International Conference on Computer Vision Workshops (ICCVW) (2025). https://doi.org/10.1109/iccvw69036.2025.00552, 
+
+https://doi.org/10.1109/iccvw69036.2025.00552 
+
+22. Wang, X., Huang, T., Gonzalez, J., Darrell, T., Yu, F.: Frustratingly simple few-shot object detection. In: Proceedings of the 37th International Conference on Machine Learning. Proceedings of Machine Learning Research, vol. 119, pp. 9919–9928. PMLR (2020), https://proceedings.mlr.press/v119/wang20j.html 
+
+23. Yesmin, F.: Bias detection and fairness analysis in object detection and image classification using open images v7. SSRN Electronic Journal (2024). https://doi.org/10.2139/ssrn.5018209, https://doi.org/10.2139/ssrn.5018209 
+
+24. Zhang, C., Zhang, Y., Guan, J., Zhou, S.: Dumo: A dual-model framework for effective long-tailed object detection. In: 2025 IEEE International Conference on Multimedia and Expo (ICME) (2025). https://doi.org/10.1109/icme59968.2025.11209185, 
+
+https://doi.org/10.1109/icme59968.2025.11209185 
+
+25. Zhang, F.: Multiscale attention knowledge distillation for object detection. In: 2025 International Joint Conference on Neural Networks (IJCNN) (2025). https://doi.org/10.1109/ijcnn64981.2025.11227248, 
+
+https://doi.org/10.1109/ijcnn64981.2025.11227248 
+
+26. Zhang, Y., Long, J., Li, C.: Knowledge distillation for object detection with diffusion model. Neurocomputing (2025). https://doi.org/10.1016/j.neucom.2025.130019, 
+
+https://doi.org/10.1016/j.neucom.2025.130019 
+
+27. Zhong, J., Kong, D., Wei, Y., Pan, B.: Yolov8 and point cloud fusion for enhanced road pothole detection and quantification. Scientific Reports (2025). https://doi.org/10.1038/s41598-025-94993-0, 
+
+https://doi.org/10.1038/s41598-025-94993-0 
+
+28. Zhu, J., Sheng, J., Cai, Q.: Fd2-yolo: A frequency-domain dual-stream network based on yolo for crack detection. Sensors (2025). https://doi.org/10.3390/s25113427, https://doi.org/10.3390/s25113427

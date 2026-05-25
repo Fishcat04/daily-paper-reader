@@ -1,0 +1,566 @@
+Title: A novel YOLO26-MoE optimized by an LLM agent for insulator fault detection considering UAV images
+
+URL Source: https://arxiv.org/pdf/2605.19595v1
+
+Published Time: Wed, 20 May 2026 00:58:20 GMT
+
+Number of Pages: 37
+
+Markdown Content:
+# A novel YOLO26-MoE optimized by an LLM agent for insulator fault detection considering UAV images 
+
+Jo˜ ao Pedro Matos-Carvalho a, Laio Oriel Seman b, Stefano Frizzo Stefenon c, Mohammad Khalaf Mohammad Khreasat d, Gabriel Villarrubia Gonz´ alez d
+
+> a
+
+LASIGE, Faculdade de Ciˆ encias, Universidade de Lisboa, 1749-016 Lisboa, Portugal 
+
+> b
+
+Department of Automation and Systems Engineering, Federal University of Santa Catarina, Florian´ opolis, Brazil 
+
+> c
+
+Instituto Superior de Engenharia de Lisboa, Instituto Polit´ ecnico de Lisboa, Rua Conselheiro Em´ ıdio Navarro 1, 1959-007 Lisboa, Portugal 
+
+> d
+
+Expert Systems and Applications Lab, Faculty of Science, University of Salamanca, Plaza de los Ca´ ıdos s/n, 37008 Salamanca, Spain 
+
+Abstract 
+
+The inspection of electrical power line insulators is essential for ensuring grid reliability and preventing failures caused by damaged or degraded insulation components. In recent years, Unmanned Aerial Vehicles (UAVs) combined with deep learning-based vision systems have emerged as an effective solution for automating this process. However, insulator fault detec-tion remains challenging due to small defect regions, heterogeneous fault patterns, complex backgrounds, and varying imaging conditions. To address these challenges, this paper pro-poses an optimized YOLO26-MoE, a novel object detection architecture that integrates a sparse Mixture-of-Experts (MoE) module into the high-resolution branch of the YOLO26 detector. The proposed modification enables adaptive feature refinement for subtle and diverse fault patterns while preserving the efficiency of a one-stage detection framework. Hyperparameter optimization, final training, and evaluation were coordinated through a tool-augmented Large Language Model (LLM) agent. The proposed model achieved 0.9900 mAP@0.5 and 0.9515 mAP@0.5:0.95, outperforming the latest YOLO versions. These re-sults demonstrate that the proposed model provides an effective and reliable solution for UAV-based insulator fault detection. 
+
+Keywords: Insulator fault detection, UAV inspection, YOLO26, Mixture-of-Experts, Large language model. 
+
+Email addresses: jpecarvalho@ciencias.ulisboa.pt (Jo˜ ao Pedro Matos-Carvalho), 
+
+laio@gos.ufsc.br (Laio Oriel Seman), stefano.stefenon@isel.pt (Stefano Frizzo Stefenon), 
+
+idu078144@usal.es (Mohammad Khalaf Mohammad Khreasat), gvg@usal.es (Gabriel Villarrubia Gonz´ alez) 
+
+Preprint submitted to Elsevier May 20, 2026 
+
+> arXiv:2605.19595v1 [cs.CV] 19 May 2026
+
+1. Introduction 
+
+The reliable operation of electrical power systems depends on the condition of their insulation components. Insulators are responsible for maintaining electrical isolation between conductors and grounded structures, preventing current leakage and ensuring the safety and efficiency of power transmission [1]. However, insulators are continuously exposed to environmental stressors such as pollution, ultraviolet radiation, humidity, and mechanical load, which can lead to surface degradation, cracking, or flashover [2]. These faults may result in partial discharges, power outages, and even large-scale blackouts if not detected in time [3]. Consequently, accurate and timely detection of faulty insulators is a vital task for maintaining grid stability and minimizing maintenance costs. Traditional inspection, including visual assessment and manual thermographic or ultra-violet imaging, is often labor-intensive, subjective, and limited in scalability. In recent years, deep learning has emerged as a powerful approach to automate and enhance fault detection in insulators [4]. Through convolutional and transformer-based neural networks, deep learning models can extract complex spatial and spectral features from infrared, ultraviolet, and vis-ible imagery, enabling high-precision classification and localization of defects. These models reduce human intervention, facilitating the development of intelligent condition-monitoring systems for power grids [5]. The deployment of Unmanned Aerial Vehicles (UAVs) has further revolutionized power line inspection by enabling rapid data acquisition over vast and often inaccessible terrain [6]. UAV-mounted cameras can capture high-resolution images of insulators from multiple angles and distances, providing rich visual information for automated analysis. However, UAV-acquired imagery presents unique challenges, including varying illumination conditions, complex backgrounds, motion blur, and diverse insulator orientations, which demand robust and adaptive detection algorithms [7]. Among deep learning architectures, the You Only Look Once (YOLO) family of detec-tors has gained widespread adoption for real-time object detection tasks due to its favor-able trade-off between accuracy and computational efficiency [8]. Successive iterations of YOLO have introduced architectural innovations such as feature pyramid networks, atten-tion mechanisms, and anchor-free detection heads, progressively improving detection per-formance across diverse domains. Recent versions, including YOLOv8 and beyond, have demonstrated state-of-the-art results on general object detection benchmarks, yet their ap-plication to specialized tasks such as insulator fault detection remains an active area of research [9]. More broadly, automated power-line inspection has been increasingly supported by UAV-based vision, robotic inspection platforms, and intelligent sensing pipelines. Prior studies have highlighted the growing relevance of deep learning as the analytical backbone of auto-matic inspection, while also emphasizing the operational importance of scalable data acqui-sition and condition assessment in complex transmission environments [10, 11, 12, 13]. Despite these advances, existing approaches face several limitations. First, the hetero-geneity of insulator types, fault categories, and imaging conditions poses challenges for mod-els trained on limited datasets. Second, the long-tailed distribution of fault types, where 2certain defects occur far more frequently than others, can bias model predictions toward common classes while neglecting rare but critical faults. Third, the manual tuning of hy-perparameters and architectural choices remains a time-consuming process that requires substantial domain expertise. Mixture-of-Experts (MoE) architectures offer a promising paradigm to address the first two challenges [14]. By routing inputs to specialized expert subnetworks based on learned gating mechanisms, MoE models can develop distinct processing pathways for different input characteristics, such as fault types or insulator appearances, without proportional increases in computational cost. This conditional computation enables greater model capacity and specialization while maintaining inference efficiency suitable for real-time applications. To address the challenge of hyperparameter optimization, recent research has explored the use of Large Language Models (LLMs) as intelligent optimization agents [15]. Unlike traditional optimization algorithms that operate purely on numerical representations, LLM-based agents can leverage pre-trained knowledge about neural network architectures, inter-pret experimental results through natural language reasoning, and adaptively refine search strategies based on observed patterns [16]. This emerging paradigm offers the potential to accelerate the optimization process while incorporating domain-specific insights that would otherwise require extensive human expertise. This work proposes an optimized YOLO26-MoE, a novel architecture that integrates MoE layers into a state-of-the-art YOLO26 backbone for insulator fault detection in UAV imagery. The model is optimized through an LLM-based agent that leverages domain knowl-edge about insulator characteristics, fault types, and UAV imaging conditions to guide the hyperparameter search process. The main contributions of this paper are as follows: 
+
+• A novel YOLO26-MoE architecture that incorporates sparse MoE layers into the de-tection backbone, enabling specialized processing pathways for diverse insulator types and fault categories while maintaining computational efficiency. 
+
+• An LLM-based optimization agent that combines natural language reasoning with systematic hyperparameter search, leveraging pre-trained knowledge about computer vision architectures to accelerate convergence and improve final model performance. 
+
+• Comprehensive experimental evaluation on a UAV-acquired insulator dataset, demon-strating that the proposed approach achieves superior detection accuracy compared to baseline YOLO variants and existing insulator detection methods. 
+
+• Ablation studies analyzing the contribution of MoE components and the effectiveness of LLM-guided optimization, providing insights into the design choices that drive per-formance improvements. The remainder of this paper is organized as follows: Section 2 reviews related work on insulator defect detection, YOLO based detectors, Mixture of Experts models, and LLM-driven optimization, establishing the research gap addressed in this work. Section 3 presents 3the technical background of YOLO26, including its architectural design and training strate-gies. Section 4 describes the proposed YOLO26 MoE methodology, detailing the integration of the sparse Mixture of Experts module and the LLM agent responsible for hypertuning, training, and evaluation. Section 5 presents the experimental setup, dataset, hardware con-figuration, evaluation metrics, and benchmarking results. Finally, Section 6 concludes the paper by summarizing the main findings and outlining future research directions. 
+
+2. Related Work 
+
+This section reviews the existing literature on insulator fault detection, object detection architectures for power line inspection, MoE models, and the emerging role of LLMs in hyperparameter optimization. 
+
+2.1. Insulator Fault Detection in Power Systems 
+
+Insulators are critical components in electrical transmission and distribution systems, responsible for mechanically supporting conductors while electrically isolating them from grounded structures. Faults such as contamination, cracks, flashover damage, and missing caps can lead to power outages, equipment damage, and safety hazards [17]. Traditional inspection methods rely on manual visual inspection by trained personnel, which is time-consuming, labor-intensive, and potentially dangerous, particularly for high-voltage transmission lines in remote or difficult terrain [7]. The adoption of UAVs equipped with high-resolution cameras has revolutionized power line inspection by enabling rapid, safe, and cost-effective data acquisition [6]. Early automated approaches employed classical image processing techniques, including edge detection, morphological operations, and template matching [18]. However, these meth-ods struggle with varying lighting conditions, complex backgrounds, and diverse insulator types. The emergence of deep learning has substantially improved detection accuracy and robustness [19]. More specifically, recent studies have investigated intelligent recognition strategies for insulator and transmission-line defect analysis under practical field conditions. These works address challenges such as cluttered backgrounds, small defect regions, and limited availability of representative training samples, showing that modern learning-based methods can substantially improve both fault discrimination and localization robustness in realistic inspection scenarios [20, 21, 22]. 
+
+2.2. Deep Learning for Object Detection in Power Line Inspection 
+
+Convolutional Neural Networks (CNNs) have become the dominant paradigm for visual inspection tasks. Two-stage detectors, such as faster region-based CNN [23], achieve high accuracy but suffer from computational overhead that limits real-time deployment. Single-stage detectors, particularly the YOLO family [8], offer an attractive balance between speed and accuracy for practical applications. The YOLO architecture has evolved significantly since its introduction. YOLOv3 in-troduced multi-scale predictions using feature pyramid networks [24]. YOLOv4 [25] incor-porated bag-of-freebies and bag-of-specials techniques to improve training and inference. 4YOLOv5 popularized the architecture with an accessible implementation and efficient train-ing pipeline. More recent versions, including YOLOv7 [26], YOLOv8, and subsequent itera-tions, have continued to push the boundaries of detection performance through architectural innovations such as extended efficient layer aggregation networks and anchor-free detection heads. Several studies have applied YOLO variants to insulator fault detection. Liu et al. [27] employed YOLOv3 with attention mechanisms to detect insulator defects, achieving im-proved localization accuracy. Wang et al. [28] proposed a modified YOLOv4 with deformable convolutions to handle the geometric variations of insulators captured from different UAV viewpoints. Chen et al. [9] developed a lightweight YOLO variant optimized for edge de-ployment on UAV platforms with limited computational resources. Despite these advances, existing approaches face challenges in handling the long-tailed distribution of fault types, where certain defects (e.g., missing caps) are significantly more common than others (e.g., flashover marks). Additionally, the trade-off between model complexity and inference speed remains a critical consideration for real-time UAV-based inspection systems. 
+
+2.3. Mixture-of-Experts Architectures 
+
+Mixture-of-Experts, in short MoE, models [29] represent a paradigm for scaling neural networks by conditionally activating subsets of parameters based on input characteristics. Rather than processing all inputs through the entire network, MoE architectures employ a gating mechanism to route inputs to specialized expert subnetworks, enabling increased model capacity without proportional increases in computational cost. The seminal work of Shazeer et al. [14] demonstrated the effectiveness of sparsely-gated MoE layers in scaling language models to unprecedented sizes while maintaining compu-tational efficiency. This approach has since been adopted in various domains, including computer vision [30] and multimodal learning [31]. In the context of object detection, MoE architectures offer several potential advantages. Different experts can specialize in detecting objects of varying scales, aspect ratios, or seman-tic categories [32]. For insulator fault detection, this specialization is particularly relevant given the diversity of fault types and the varying appearance of insulators across different manufacturers, voltage classes, and environmental conditions. 
+
+2.4. Hyperparameter Optimization and Neural Architecture Search 
+
+The performance of deep learning models is highly sensitive to hyperparameter choices, including learning rate, batch size, data augmentation strategies, and architectural param-eters [33]. Traditional hyperparameter optimization methods include grid search, random search [33], and Bayesian optimization [34]. Neural Architecture Search (NAS) extends hyperparameter optimization to the archi-tectural level, automatically discovering optimal network topologies [35]. Efficient NAS methods, including differentiable approaches [36] and weight-sharing strategies [37], have reduced the computational cost of architecture search from thousands of GPU-days to more practical timeframes. 5For YOLO-based detectors, several studies have employed automated optimization tech-niques. Wang et al. [38] used NAS to discover efficient scaling strategies for YOLOv4. These approaches typically require substantial computational resources and domain expertise to configure the search space appropriately. 
+
+2.5. Large Language Models as Optimization Agents 
+
+Large language models, in short LLMs, have demonstrated remarkable capabilities in reasoning, code generation, and task planning [39]. Recent research has explored leveraging these capabilities for scientific discovery and optimization tasks [40]. The concept of LLM-based optimization agents represents an emerging paradigm where language models guide the search process through natural language reasoning and code generation [15]. Unlike traditional optimization algorithms that operate on numerical repre-sentations, LLM agents can incorporate domain knowledge, interpret experimental results, and adaptively modify search strategies based on observed patterns. Chen et al. [41] proposed EvoPrompting, which uses LLMs to generate and evolve neural network architectures through natural language descriptions. Liu et al. [42] demonstrated that Large Language Models can effectively support hyperparameter optimization by it-eratively proposing and refining parameter configurations based on observed performance. Jiang et al. [43] introduced LLMOPT, a framework that integrates LLM-based reasoning with traditional optimization algorithms to enhance sample efficiency. The application of LLM agents to optimize object detection models for specific domains presents several advantages. First, LLMs can leverage their pre-trained knowledge about computer vision architectures and training practices. Second, they can interpret qualitative feedback about model behavior, such as failure modes on specific object categories. Third, they can generate human-readable explanations for optimization decisions, improving trans-parency and trust in automated systems. However, challenges remain in ensuring the reliability and consistency of LLM-based op-timization. Hallucination, where models generate plausible but incorrect suggestions, poses risks in safety-critical applications [44]. Additionally, the computational cost of querying LLMs must be balanced against the efficiency gains from improved optimization. 
+
+2.6. Research Gaps and Contributions 
+
+Although prior studies have reported substantial progress in defect detection and inspec-tion automation for power-system assets, most existing approaches still rely on conventional backbone refinements or incremental adaptations of standard object detectors. Compar-atively less attention has been given to conditional-computation mechanisms capable of specializing feature processing for heterogeneous visual patterns in power-line inspection scenarios, particularly when subtle defects occupy limited spatial regions and exhibit strong intra-class variability [45, 46]. Despite significant progress in insulator fault detection and deep learning optimization, several gaps remain in the literature: (i) Existing YOLO variants for insulator detection do not exploit the potential of MoE architectures to handle the heterogeneity of fault types and insulator appearances. 6(ii) The application of state-of-the-art YOLO architectures (beyond YOLOv8) to power line inspection has not been thoroughly investigated. (iii) LLM-based optimization agents have not been applied to domain-specific object de-tection tasks such as insulator fault detection. (iv) The integration of MoE components with modern YOLO architectures and their opti-mization through LLM agents remains unexplored. This work addresses these gaps by proposing YOLO26-MoE, a novel architecture that incorporates MoE layers into a YOLO26 backbone, optimized through an LLM agent that leverages domain knowledge about insulator characteristics and UAV imaging conditions. The proposed approach aims to achieve superior detection performance while maintaining computational efficiency suitable for practical deployment scenarios. 
+
+3. Background of YOLO26 against contemporary detectors 
+
+YOLO26 is an Ultralytics release focused on edge-optimized real-time detection. Its principal design choices are the removal of the distribution focal loss module and native end-to-end inference without non-maximum suppression [47]. YOLO26 further introduces ProgLoss for progressive balancing of loss terms, Small Target Adaptive Labeling (STAL) for small target label assignment, and Multi-Target Sampling Gradient Descent (MuSGD) as a hybrid optimizer. These design choices target deployment simplicity, quantization ro-bustness, and improved small object performance as described in the Ultralytics report. 
+
+3.1. Formal Metrics and Trade Off 
+
+Detection systems are commonly evaluated by mean Average Precision (mAP) and infer-ence latency. Let T denote latency in milliseconds per image measured on a target device. A concise way to express the accuracy latency trade-off is by the scalar score 
+
+Sα = mAP − α · TT0
+
+, (1) where α is a user-chosen penalty factor that encodes how much latency is penalized relative to accuracy, and T0 is a reference latency usually set to 1 ms or to the latency of a baseline model. Models optimal for edge use will maximize Sα for a relatively large α while server-oriented models tolerate a smaller α.
+
+3.2. Architectural and Training Differences 
+
+YOLOv8 uses a decoupled head anchor-free design and, in practice, benefited from Dis-tribution Focal Loss for fine bounding box localization and from standard post-processing based on non-maximum suppression [48]. These elements provided high accuracy on server-class Graphics Processing Units (GPUs) while maintaining promising speed under optimized runtimes. 7YOLOv9 emphasized optimization of internal gradient flow and efficient feature reuse, considering Generalized Efficient Layer Aggregation Network (G-ELAN) [49], while YOLOv10 advanced toward fully end-to-end detection with Optimal Transport-based label assignment and elimination of post-processing [50]. YOLOv11 introduced smaller CSP kernel blocks for efficiency and spatial attention mod-ules to guide focus toward salient regions [51]. YOLOv12 emphasized attention-centric mod-ules to capture global context [52]. These models improved raw accuracy, particularly on large, complex datasets at the cost of increased architectural complexity and greater sensi-tivity to quantization [53]. Detectors that rely on transformer encoders and decoders emphasize end-to-end training and global attention at the architectural level. Those models often yield strong, large object accuracy and improved contextual reasoning [54]. However, these models are typically more sensitive to quantization and incur higher latency on Central Processing Unit (CPU) and some edge accelerators. YOLO26 departs from the recent complexity trend by removing the distribution focal loss module and designing a native end-to-end predictor that does not require non-maximum sup-pression. Training stability and small object recovery are improved by ProgLoss and STAL, respectively. The MuSGD optimizer accelerates convergence and reduces hyperparameter fragility [47]. The combined effect is a model with improved export friendliness, consistent quantization performance, and notably lower CPU latency in nano-scale variants. Empirical claims and deployment guidance are reported in the Ultralytics technical manuscript. 
+
+> Table 1: Selected qualitative comparison of detectors
+
+Model Key innovations Deployment implications YOLOv8 Decoupled head anchor free predictions DFL High accuracy on GPU servers exportable to common runtimes, moderate complexity. YOLOv9 Programmable Gradient In-formation G-ELAN Improved gradient flow and accuracy on medium and large-scale datasets maintain real-time inference. YOLOv10 End-to-end training re-moves non-maximum suppression Simpler inference pipeline, stable recall, and better global optimization efficiency. YOLO11 Efficient CSP variants spa-tial attention Improved accuracy with modest increase in la-tency and export complexity. YOLO12 Attention-centric modules for global context Stronger large object accuracy increased sen-sitivity to quantization. YOLO26 NMS free end-to-end in-ference removal of DFL ProgLoss, STAL, MuSGD Lower CPU latency improved quantization tolerance simpler export to ONNX TensorRT CoreML TFLite and OpenVINO empirical gains for small object detection and edge sce-narios. 83.3. Practical Guidance 
+
+1. When the target device is a CPU or low-power accelerator, prefer YOLO26 for real-time inference and for stable quantized performance. 2. When absolute top line accuracy on large server-class GPUs is the objective, consider attention-enhanced versions such as YOLOv12 or transformer detectors, remembering that increased latency and quantization sensitivity are likely. 3. When small object recall matters, use training strategies similar to ProgLoss and STAL or adopt multi-scale high-resolution training. YOLO26 implements these ideas natively and shows improved small object performance in reported benchmarks. YOLO26 embodies a design shift that privileges deployment simplicity, quantization ro-bustness, and deterministic inference behavior while retaining competitive accuracy. For studies where edge deployment, real-time throughput, and small object robustness are prior-ities, YOLO26 is the recommended baseline. For studies oriented toward large-scale server benchmarks and research into global context modeling, transformer-based detectors remain strong alternatives. 
+
+4. Methodology 
+
+In this section, we describe the proposed methodology adopted in this work. The ob-ject detector used in this paper is a modified version of YOLO26, hereafter referred to as YOLO26-MoE, in which a sparse MoE module is introduced into the small-object detection branch of the head. Hyperparameter optimization, final training, evaluation, and qualitative inspection are coordinated by a tool-augmented LLM agent. As illustrated in Figure 1, the proposed methodology consists of a structured workflow comprising hyperparameter optimization with Optuna, final model training, evaluation on a held-out test set, and qualitative inspection through inference visualization. The LLM agent does not directly optimize model weights; instead, it orchestrates the execution of deterministic tools that implement the different stages of the pipeline. In the following subsections, we first describe the proposed YOLO26-MoE architecture and then detail the LLM-agent process. 
+
+4.1. YOLO26-MoE 4.1.1. Baseline YOLO26 Detector 
+
+YOLO26 follows the YOLO paradigm, in which object detection is formulated as a single-stage dense prediction problem that directly maps image pixels to bounding-box coordinates and class probabilities [55]. Given an input image I ∈ RH×W ×3, the network extracts hier-archical feature representations through a lightweight convolutional backbone and predicts detections at multiple spatial resolutions. Unlike transformer-based detectors that separate localization and classification through decoder attention layers, YOLO26 preserves a fully convolutional topology with efficient 9Cognitive Module (Reflective Agent) 
+
+Semantic Memory 
+
+Context 
+
+LLM 
+
+GPT-OSS:20b Plan-Act-Reflect Augmented Prompt 
+
+JSON Tool Call 
+
+Tool Manager 
+
+Dispatch 
+
+Feedback Loop Tool Registry 
+
+orchestrates 
+
+Dataset Configuration 
+
+data.yaml (train/val/test) 
+
+Hyperparameter Search Space 
+
+Architecture 
+
+> imgsz:[640,800,960] batch:[1,2,4] optimizer:[SGD,AdamW]
+
+Learning Rates   
+
+> lr0:[1e-4,1e-2] lrf:[0.05,0.5] momentum:[0.8,0.98] w_decay: log scale
+
+Regularization 
+
+> warmup_epochs:[0,5] mosaic:[0.0,1.0] mixup:[0.0,0.3]
+
+Augmentation 
+
+> hsv_h:[0.0,0.1] hsv_s:[0.0,0.9] degrees:[0.0,10.0] translate:[0.0,0.2]
+
+Model 
+
+> YOLOv26
+
+Execution Module (Optuna + YOLO Tools) 
+
+no yes 
+
+Trial t: Sample from posterior 
+
+YOLO26 Training 
+
+20 epochs train 
+
+Optuna 
+
+TPE Sampler tune 
+
+Hyperparam Optimization 
+
+eval 
+
+Evaluation 
+
+mAP50-95 on val 
+
+Update Posterior 
+
+Bayesian update Prune? 
+
+Results Handler 
+
+End 
+
+(Logs and Status) 
+
+Utilities 
+
+Loop 
+
+t++ Select Best Hyperparameters 
+
+Best params by mAP 
+
+Final Model Training 
+
+100 epochs with best params 
+
+Test Evaluation 
+
+Metrics and Analysis 
+
+Model Export 
+
+ONNX/TorchScript 
+
+Inference and Viz 
+
+runs/detect output 
+
+Data and Artifacts 
+
+Dataset YAML Weights .pt 
+
+Observe Figure 1: Workflow of the YOLO26-MoE optimization and evaluation process performed by an LLM agent. 
+
+10 feature propagation across stages [47]. Its architecture is designed to maintain a favorable trade-off between computational efficiency and detection accuracy, making it suitable for edge-oriented applications. The detector operates on multiple scales, enabling the localiza-tion of objects with different apparent sizes in the image. The original YOLO26 architecture used in this work consists of a convolutional back-bone followed by a multi-scale detection head with three prediction levels: P3/8, P4/16, and P5/32. The backbone progressively downsamples the input and extracts increasingly semantic feature maps, while the head upsamples and fuses intermediate representations to recover spatial detail for small- and medium-scale objects. The final Detect module receives three feature maps and produces bounding-box and class predictions at the three scales. 
+
+4.1.2. Proposed MoE-based Head Modification 
+
+Although the baseline YOLO26 already provides an efficient multi-scale detection ar-chitecture, its feature refinement blocks are static, meaning that the same convolutional transformation is applied to all input samples regardless of scene content or defect mor-phology. In the present work, we modify the small-object detection branch of YOLO26 by replacing the original P3/8 feature refinement block with a sparse MoE module. This yields the proposed YOLO26-MoE architecture. Figure 2 illustrates the architectural difference between the standard YOLO26 detector and the proposed YOLO26-MoE. As can be observed, the modification is deliberately local-ized to the high-resolution P3 branch, where the original refinement block is replaced by a sparse MoEBlock. This design enables conditional feature refinement through routed expert selection while preserving the remaining backbone, neck, and multi-scale detection structure of the baseline architecture. More specifically, in the original YOLO26 head, the P3 branch is formed after upsampling and concatenating higher-level features with the backbone P3 features, followed by a C3k2 refinement block. In the proposed architecture, this C3k2 block is replaced by a custom MoEBlock, while the P4 and P5 branches remain unchanged. Therefore, the architectural modification is localized to the highest-resolution prediction path, which is the branch most directly associated with small-object representation. Let FP 3 ∈ RB×C×H×W denote the input feature tensor of the modified P3 branch after concatenation. Instead of processing FP 3 with a single shared convolutional block, the pro-posed MoE module first projects the input to an internal representation and then routes each sample in the mini-batch to a subset of specialized experts. The output of the MoE block can be written as 
+
+YP 3 =
+
+> K
+
+X
+
+> j=1
+
+αj Eπj (FP 3), (2) where Eπj (·) denotes the πj -th selected expert, αj is its routing weight, and K is the number of active experts selected for each sample through top-K routing. The routing decision is produced by a lightweight gating subnetwork. Given the input feature tensor FP 3, global average pooling is first applied to obtain a compact channel de-11 Figure 2: Comparison between the standard YOLO26 architecture and the proposed YOLO26-MoE variant. 
+
+12 scriptor, which is then processed by a small multilayer perceptron to generate routing logits: 
+
+z = R(FP 3) ∈ RE , (3) where E is the total number of experts. Routing probabilities are then obtained through a softmax operation: 
+
+p = softmax( z), (4) and the top-K experts are selected according to the largest logits in z. Their normalized routing weights are computed as 
+
+αj = exp( zπj )
+
+PKm=1 exp( zπm ), j = 1 , . . . , K. (5) Each expert is implemented as a lightweight convolutional subnetwork composed of a spatial convolution, batch normalization, SiLU activation, and a pointwise projection back to the target channel dimension. This design allows the expert pool to specialize in differ-ent local appearance patterns while keeping the computational overhead moderate through sparse activation. In the proposed implementation, only the selected experts are evaluated for each input sample, which preserves conditional computation and avoids the cost of dense expert aggregation. The motivation for inserting the MoE module specifically into the P3 branch is related to the characteristics of the target application. In insulator defect detection, damaged regions such as fractures and flashover traces frequently occupy limited spatial regions and may present high intra-class variability, subtle texture changes, and ambiguous boundaries. Since the P3 branch operates at higher spatial resolution, it is particularly relevant for preserving fine structural information. By replacing the static refinement block at this stage with a sparse MoE module, the detector gains the ability to adapt feature processing according to the visual characteristics of each sample, potentially improving discrimination of subtle and heterogeneous defect patterns. 
+
+4.1.3. Detection Head and Prediction Process 
+
+After feature refinement, the YOLO26-MoE detector preserves the original multi-scale prediction mechanism of YOLO26. Detection is performed at three scales corresponding to the P3, P4, and P5 feature maps. For each feature tensor Fl at level l, the detection head predicts objectness, bounding-box regression values, and class scores at each spatial location: 
+
+p(i,j ) 
+
+> obj
+
+= σ(fobj (F (i,j ) 
+
+> l
+
+)) , (6) 
+
+b(i,j ) = g(F (i,j ) 
+
+> l
+
+), (7) 
+
+c(i,j ) = softmax( h(F (i,j ) 
+
+> l
+
+)) , (8) where p(i,j ) 
+
+> obj
+
+denotes the objectness probability, b(i,j ) = ( x, y, w, h ) denotes the predicted bounding-box parameters, and c(i,j ) is the class probability vector. The functions fobj , g,and h are lightweight learned mappings implemented by the detection head. Because the architectural change is restricted to the P3 feature refinement block, the overall detection logic and output structure remain compatible with the baseline YOLO26 framework. 13 4.1.4. Auxiliary Expert-balancing Loss and Training Objective 
+
+A common issue in MoE training is routing collapse, in which only a small subset of experts is repeatedly selected while the remaining experts receive little or no training sig-nal [56]. To mitigate this problem, the proposed MoE block includes an auxiliary balancing loss that promotes more uniform expert utilization. Let p ∈ RE denote the average routing importance across a mini-batch, computed from the softmax probabilities produced by the router, and let l ∈ RE denote the empirical expert selection frequency across the same batch. The auxiliary MoE regularization term is defined as 
+
+Laux = CV 2(p) + CV 2(l), (9) where CV 2(·) denotes the squared coefficient of variation. Minimizing this term encourages a more balanced distribution of routing importance and actual expert usage, while still allowing experts to specialize. The final training objective of the proposed detector is defined as 
+
+Ltotal = LY OLO 26 + λ(t)Laux , (10) where LY OLO 26 is the original YOLO26 detection loss and λ(t) is a progressive weighting factor controlling the contribution of the MoE balancing loss. Rather than applying the full MoE regularization strength from the beginning of training, a linear warmup strategy is adopted: 
+
+λ(t) = λ0 min 
+
+
+
+1, tTw
+
+
+
+, (11) where λ0 is the target auxiliary-loss weight and Tw is the number of warmup iterations. This design prevents the auxiliary routing constraint from dominating the early optimization dynamics, when both the detector and the routing network are still unstable. As training progresses, the balancing term is gradually strengthened, encouraging more stable expert utilization without disrupting early representation learning. In practical terms, this behavior is implemented by extending the original Ultralytics loss routine. Before each forward pass, the MoE auxiliary collector is cleared to ensure that only losses generated in the current iteration are considered. After the standard YOLO26 detection loss is computed, the differentiable auxiliary losses produced by the active MoE blocks are summed and added to the scalar training loss before backpropagation, yielding a joint optimization procedure for detection performance and expert balancing. Figure 3 summarizes the overall training pipeline of the proposed detector, including the interaction between the backbone-neck feature extraction stages, the MoE-enhanced P3 branch, the auxiliary expert-balancing term, and the final joint optimization procedure. 
+
+4.1.5. Deployment Considerations 
+
+The proposed YOLO26-MoE preserves the deployment compatibility of the Ultralytics framework [57]. Since the modification is localized to the P3 branch and implemented using 14 Figure 3: Training pipeline of the proposed YOLO26-MoE detector. The workflow combines standard YOLO26 detection loss with the auxiliary MoE balancing loss, weighted by a progressive warmup schedule, and jointly optimized during training. 
+
+standard PyTorch modules, the architecture remains compatible with common optimization and inference pipelines. Moreover, because the MoE block operates only during feature refinement and does not alter the detector output interface, model evaluation, visualization, and export remain integrated with the standard Ultralytics toolchain. Thus, YOLO26-MoE extends the baseline YOLO26 detector with conditional computation in the high-resolution detection branch. The main objective of this modification is to improve feature adaptability for fine-grained insulator defect patterns while maintaining a lightweight and deployment-oriented detection framework. 
+
+4.2. LLM Agent 
+
+A tool-augmented LLM agent is employed to standardize and automate the hypertuning, training, evaluation, and qualitative inspection of YOLO26-MoE for multi-class insulator condition detection, namely no issues , broken , and flashover damage . The agent does not update network parameters directly. Instead, it performs constrained decision-making over a fixed set of executable tools that deterministically implement training and evaluation procedures. This separation between LLM-based control and tool-based computation re-duces manual hyperparameter selection, improves experimental repeatability, and provides traceable provenance through structured logs and persisted optimization studies. 15 4.2.1. Action Model and Tool Interface 
+
+At each interaction step t, the agent outputs a single action at represented by a tool invocation: 
+
+at = ( τt, xt), τt ∈ T , xt ∈ X τt , (12) where τt is a tool name from a finite registry T and xt is a typed argument dictionary. The LLM output is constrained to a single JSON object encoding ( τt, xt), which is parsed and executed without manual intervention. The canonical schema is: 
+
+{"tool_call": { "name": "<tool_name>", "arguments": { "<arg1>": "<value1>", ... } }}
+
+This strict action schema prevents free-form responses from affecting execution and en-sures that each decision is accountable. Tool outputs, including metrics and artifact paths, are returned as JSON observations and may be re-injected into the agent context. 
+
+4.2.2. Tool Registry 
+
+The tool registry T is designed to mirror the experimental protocol and to provide a minimal and deterministic interface between the LLM policy and the training/evaluation backend. Each tool encapsulates one pipeline stage and returns a structured JSON payload containing primary performance indicators, execution metadata, and artifact locations such as checkpoints, plots, and annotated predictions. The yolo optuna tune tool performs Optuna-based hyperparameter optimization with the objective of maximizing validation mAP@[0.5:0.95]. The search space spans training hy-perparameters, optimization parameters, and data augmentation magnitudes. For each trial, training is executed under a fixed budget of epochs, followed by validation on the validation subset. The returned JSON includes the best objective value and the best hyperparameter configuration λ∗.The yolo train final tool executes the final training schedule using λ∗. The selected hyperparameters are merged into a single configuration and applied for an extended number of epochs with standard convergence controls such as cosine learning-rate scheduling and patience-based stopping. The yolo eval test tool evaluates a specified checkpoint on the held-out test dataset to obtain an unbiased estimate of generalization performance. Evaluation is performed with fixed confidence and IoU thresholds and returns mAP@[0.5] and mAP@[0.5:0.95]. When available, the confusion matrix is also returned in the JSON payload, enabling class-level error analysis. The yolo infer visualize tool performs inference on representative samples and stores annotated outputs for qualitative inspection. The returned JSON provides the output direc-tory and an explicit list of generated artifacts, supporting transparent inspection of localiza-tion quality, missed detections, and recurrent failure patterns. 16 4.2.3. Prompt Specification and Output Contract 
+
+Agent behavior is controlled through a system prompt that formalizes an execution con-tract between the LLM policy and the tool runtime. The prompt constrains the agent along three main dimensions. First, it defines the task scope and domain role as object detection for power-grid insulator defects. Second, it fixes the class taxonomy, namely 0: no issues ,1: broken , and 2: flashover damage , ensuring semantic consistency across tuning, training, evaluation, and qualitative inspection. Third, it enforces a strict output format in which each turn must produce exactly one JSON tool invocation that can be deterministically parsed and executed without manual interpretation. In addition to the interface constraints, the prompt also encodes a protocol-aligned deci-sion policy: prioritize hyperparameter tuning to maximize validation mAP@[0.5:0.95], then train a final model with the selected configuration, evaluate on the held-out test split, and finally generate qualitative visualizations. To reduce ambiguity in tool selection, the prompt is augmented at runtime with an explicit catalog of available tools, including names, argu-ment signatures, and short descriptions. This effectively restricts the action space to valid experimental operations. 
+
+4.2.4. Memory Mechanism and Semantic Retrieval 
+
+The agent stores an interaction history containing user instructions, the corresponding LLM tool-call decisions, and the resulting tool observations. This record preserves the chain of decisions and outcomes required to reconstruct the optimization process, including tuned hyperparameters, selected checkpoints, evaluation thresholds, and generated qualitative ar-tifacts. When the interaction history becomes long, directly appending all prior messages to the prompt may be inefficient and may exceed the available context window. To address this limitation, an optional semantic retrieval mechanism constructs a com-pact task-relevant context for each new instruction. The retrieval stage embeds both the current instruction and the stored messages using a sentence embedding model and ranks previous messages by cosine similarity. The top-k most relevant messages are then selected and placed in chronological order before being injected into the prompt together with the system contract. This yields a shorter context that preserves high-salience information while controlling prompt length. Semantic retrieval affects only which historical information is presented to the LLM for action selection. Training, validation, and inference remain fully determined by deterministic tool execution, ensuring that reported performance metrics are not altered by the retrieval process. 
+
+4.2.5. LLM Hypertuning and Evaluation Protocol 
+
+Let λ ∈ Λ denote the training and augmentation configuration explored during hyper-tuning. The goal is to select the configuration that maximizes validation performance: 
+
+λ∗ = arg max  
+
+> λ∈Λ
+
+mAP val 50:95 (λ), (13) where mAP val 50:95 is computed on the validation dataset. The search is implemented through Optuna, while the LLM agent is responsible for initiating the tuning stage, parameterizing 17 the tool calls, and propagating the best configuration to subsequent stages. Each Optuna trial samples λ from a predefined search space covering input resolution, batch size, optimizer type, learning-rate parameters, momentum, weight decay, warmup epochs, and augmentation magnitudes. For each sampled configuration, YOLO26-MoE is trained for a fixed number of epochs and then evaluated on the validation set. To improve computational efficiency, intermediate validation performance is reported after each epoch through a callback mechanism, enabling the early termination of underperforming trials. After hypertuning, the final model is trained for up to 100 epochs using λ∗, with a cosine learning-rate schedule and patience-based stopping to stabilize convergence. The best model obtained during this stage is then evaluated on the held-out test dataset using fixed confidence and IoU thresholds. These results constitute the quantitative performance measures reported in the Results section. In addition to aggregate metrics, qualitative inspection is performed by running inference on representative samples and storing annotated outputs, enabling visual assessment of localization quality and class confusions. Algorithm 2 summarizes the overall procedure. 
+
+> Table 2: Algorithm 1. LLM-agent of YOLO26-MoE hypertuning and evaluation.
+
+Input: dataset YAML D, device d, number of trials N , visualization source S (im-age/video). 
+
+Output: best configuration λ∗, best checkpoint w∗, test metrics Mtest , qualitative arti-facts A.
+
+1. Initialize tool registry T (tune/train/eval/visualize/export) and interaction memory 
+
+H.
+
+2. Build a system prompt encoding the task definition, label space, strict JSON tool-call schema, and tool catalog. 
+
+3. Hypertune: issue a tuning instruction and construct context from the system prompt and retrieved history (semantic retrieval optional). 
+
+3.1 Query the LLM to obtain a JSON tool invocation. 
+
+3.2 Execute yolo optuna tune ; record the best objective value and the best configu-ration λ∗.
+
+4. Final training: execute yolo train final using λ∗; obtain the best checkpoint w∗
+
+(best.pt ). 
+
+5. Test evaluation: execute yolo eval test with w∗; obtain Mtest .
+
+6. Qualitative inspection: execute yolo infer visualize with w∗ on S; obtain artifacts A under runs/detect .
+
+5. Results and Discussion 
+
+In this section, the results of applying the proposed method are presented and discussed. First, we present the experimental setup considered to compute the experiments; after that, 18 we present the results of applying the proposed methodology and a comparative analysis (benchmarking) to other models. 
+
+5.1. Experimental Setup 
+
+The experimental setup defines the hardware, dataset, and evaluated measures used in this section, making it possible to compare our results with those of other models and to facilitate future comparisons. 
+
+5.1.1. Hardware and Software Specification 
+
+All experiments were conducted using a standardized software and hardware environment to ensure reproducibility and fair comparison of results. The object detection framework was based on Ultralytics version 8.4.6, implemented in Python 3.9.25. Model training and inference were performed using PyTorch version 2.8.0 with CUDA support. All computations were accelerated on a single NVIDIA Quadro RTX 5000 GPU, equipped with 16 GB of dedicated memory, which provided sufficient computational capacity for efficient training and evaluation of the evaluated models. 
+
+5.1.2. Dataset Description 
+
+The dataset employed in the analysis presented in this paper consists of images of in-sulator strings as the primary class, with three subclasses representing the condition of the insulator shell: flashover-damaged insulator shell, broken insulator shell, and intact insu-lator shell. The data comprise original high-resolution images acquired during inspections of high-voltage transmission lines. For reproducibility and future comparative studies, the original dataset, along with detailed documentation, is publicly available in the repository created by Lewis and Kulkarni [58]. High-resolution pictures taken by digital single-lens reflex cameras during power grid inspections in favorable weather circumstances make up the dataset under consideration. The pre-processing involved rescaling the photos to 640 ×640 pixels, which is the usual size for the models under consideration, and converting the annotations from JSON files to YOLO-compatible readable files ( .txt ). An example of the considered insulators (highlighting the damaged ones in a blue box and broken insulators represented by a red box) is shown in Figures 4 a) and b). 
+
+5.1.3. Considered Measures 
+
+The results for precision (14), recall (15), F1-score (16), and mAP (17) are reported. In particular, the evaluation includes mAP@[0.5] and mAP computed over an Intersection over Union threshold ranging from 0.5 to 0.95 (mAP@[0.5:0.95]). All these performance metrics are derived from the true positives ( tp ), false positives ( f p ), and false negatives ( f n ) in the classification task, and are calculated as follows: precision = tp tp + f p (14) 19 (a) (b) 
+
+> Figure 4: Samples from the original dataset highlighted: a) flashover and b) broken insulators.
+
+recall = tp tp + f n (15) F1-score = 2 × recall × precision recall + precision (16) mAP = 1
+
+n
+
+> n
+
+X
+
+> k=1
+
+X
+
+> η
+
+(recall η − recall η−1)precision η
+
+!
+
+> k
+
+(17) where η denotes the nth threshold and k represents the corresponding class among the n
+
+classes. 
+
+5.1.4. Compared Models 
+
+To assess the effectiveness of the proposed YOLO26-MoE architecture, comparisons are conducted against several contemporary YOLO families, namely YOLOv10 [50], YOLO11 [51], YOLO12 [52], and YOLO26 [47], considering multiple scale variants for each architecture, including nano (n), small (s), medium (m), large (l), and extra-large (x). These models were selected because they represent successive design evolutions of the YOLO framework, rang-ing from efficiency-oriented lightweight detectors to higher-capacity variants with enhanced representational power. Such diversity provides a comprehensive basis for evaluating both the detection performance and computational cost of the proposed method. For benchmarking, each YOLO family is evaluated through its scale variants in order to analyze the trade-off between accuracy and computational efficiency. The considered metrics include mAP@0.5, mAP@0.5:0.95, precision, recall, F1-score, training time, and validation time. This experimental design enables a comparative analysis not only across different YOLO generations but also across different model capacities within the same family. 20 In addition to the baseline detectors, the proposed YOLO26-MoE model is included as the final comparative configuration. This model extends the original YOLO26 architecture by incorporating a sparse MoE module in the high-resolution detection branch and by adopting an LLM-guided hyperparameter optimization strategy. Therefore, the benchmark is de-signed to verify whether the proposed architectural modification and optimization pipeline can provide measurable gains over standard YOLO baselines in the context of UAV-based insulator fault detection. 
+
+5.2. Hypertuning Study 
+
+To identify a strong training configuration for the proposed YOLO26-MoE detector model, a hyperparameter optimization study was conducted through the tool-augmented LLM pipeline introduced in Section 4.2.5. The LLM agent invokes a deterministic Optuna-based tool that performs the search automatically over a predefined hyperparameter space. The optimization objective is the validation mAP@[0.5:0.95], which is used as the scalar criterion for ranking candidate configurations. The hypertuning procedure was executed over 50 Optuna trials. In each trial, the pro-posed model configuration was instantiated and trained for 20 epochs on the training split, followed by validation on the val split. During training, the validation metric mAP50-95(B) 
+
+was reported to Optuna at the end of each epoch through a callback mechanism, allowing underperforming trials to be pruned whenever appropriate. After training, the final vali-dation metrics were computed, and the resulting mAP@[0.5:0.95] was returned as the trial objective value. The search space jointly covered optimization, regularization, and augmentation param-eters. More specifically, the explored hyperparameters were the input image size ( imgsz ), batch size ( batch ), optimizer type, initial learning rate ( lr0 ), final learning-rate factor ( lrf ), momentum, weight decay, warmup duration, and several augmentation parameters, namely hue, saturation, and value perturbations ( hsv h , hsv s , hsv v ), as well as mosaic, mixup, rotation, and translation. The best configuration obtained from the study is summarized in Table 3. As shown in Table 3 the choice of a high input resolution indicates that the proposed detector benefits from preserving fine spatial detail, which is consistent with the small and localized nature of broken and flashover-damaged insulator regions. The selection of AdamW further suggests that decoupled regularization contributed to a more favorable optimization trajectory. As shown in Figure 5, the optimization history exhibits a progressive improvement of the objective value over the 50 trials. Although several low-performing configurations were sam-pled during the search, the best-so-far curve increased steadily, indicating that the Optuna study refined the explored configurations and converged toward stronger solutions. Figure 6 presents the relative importance of each hyperparameter with respect to the optimization objective. The results show that mosaic was the most influential parameter, followed by hsv h , lr0 , and batch . This indicates that, for the considered UAV-based insu-lator fault detection task, the final validation performance was strongly affected by both data 21 Table 3: Best hyperparameter configuration obtained for YOLO26-MoE during the Optuna-based hyper-tuning study. 
+
+Hyperparameter Best value Input size ( imgsz ) 960 Batch size ( batch ) 10 Optimizer AdamW Initial learning rate ( lr0 ) 0.00108 Final LR factor ( lrf ) 0.05947 Momentum 0.90001 Weight decay 0.000282 Warmup epochs 3.487 Hue augmentation ( hsv h ) 0.05574 Saturation augmentation ( hsv s ) 0.44839 Value augmentation ( hsv v ) 0.69333 Mosaic 0.45098 Mixup 0.20653 Rotation ( degrees ) 1.64896 Translation 0.18933 
+
+> Figure 5: Optimization history of the Optuna study over 50 trials. Blue markers denote the objective value obtained in each trial, while the red curve indicates the best value achieved up to that trial.
+
+augmentation and optimization dynamics. In particular, the prominence of mosaic augmen-tation suggests that robustness to changes in object scale, position, and surrounding context 22 Figure 6: Relative hyperparameter importance with respect to the validation objective in the Optuna-based hypertuning study. Larger values indicate a stronger contribution to the achieved performance. 
+
+plays an important role in this problem. Conversely, parameters such as warmup epochs ,
+
+hsv s , and imgsz showed a comparatively smaller individual contribution within the ex-plored domain. The resulting parameter set was therefore adopted for the final training phase with 500 epochs. Figure 7 shows the evolution of the main detection metrics throughout training for the final selected configuration. A rapid increase is observed during the initial epochs, followed by a smoother convergence regime, with mAP@0.50 stabilizing close to 0.99 and mAP@0.50:0.95 approaching 0.9515. This behavior indicates that the selected hyperparameter configuration not only improved the final validation objective during the Optuna search, but also yielded stable and sustained optimization during the full training schedule. 
+
+5.3. Benchmarking Against Contemporary YOLO Models 
+
+To evaluate the effectiveness of the proposed detector in a broader comparative setting, benchmarking experiments were conducted against multiple recent YOLO families, namely YOLOv10, YOLO11, YOLO12, and YOLO26, considering several scale variants for each ar-chitecture. The comparison includes both detection effectiveness metrics, namely mAP@0.5, mAP@0.5:0.95, precision, recall, and F1-score, as well as computational indicators such as training time and validation time. The proposed model achieved the best overall detection performance among all evaluated configurations, reaching 0.9900 in mAP@0.5, 0.9515 in mAP@0.5:0.95, 0.9783 in precision, 0.9726 in recall, and 0.9745 in F1-score. These results indicate that the proposed architec-tural modification, together with the adopted hypertuning strategy, was effective in improv-ing both localization quality and classification consistency in the considered insulator fault 23 Figure 7: Evolution of mAP@0.50 and mAP@0.50:0.95 over 500 training epochs for the final optimized YOLO26-MoE configuration. 
+
+detection task. When compared with the YOLOv10 family, the proposed model shows a clear advantage across all detection metrics. Although YOLOv10x was the strongest configuration within that family, with 0.9197 in mAP@0.5:0.95 and 0.9518 in F1-score, it remained consistently below the proposed approach. This suggests that the gains achieved by the proposed method are not restricted to lightweight baselines, but remain evident even against stronger variants of a recent end-to-end YOLO generation. A similar trend is observed with the YOLO11 family. Among these models, YOLO11s provided a strong F1-score of 0.9704, while YOLO11l achieved a particularly competitive recall of 0.9659. Nevertheless, the proposed model still outperformed all YOLO11 variants in every reported detection metric, indicating a more favorable balance between feature representation, defect discrimination, and bounding-box refinement. The YOLO12 family provided the closest competitors overall. In particular, YOLO12s reached 0.9348 in mAP@0.5:0.95 and 0.9706 in F1-score, making it one of the strongest base-lines in the comparison. Even so, the proposed detector maintained a consistent advantage, especially in the stricter mAP@0.5:0.95 metric, where it improved upon YOLO12s by 0.0167 in absolute terms. This result is especially relevant because mAP@0.5:0.95 is more sensitive to localization precision and therefore provides a more demanding assessment of detector quality. The most meaningful comparison is with the YOLO26 family, since the proposed method is directly derived from that architecture. Among the standard YOLO26 variants, YOLO26l achieved the strongest mAP@0.5:0.95 value, equal to 0.9416, while YOLO26x and YOLO26l provided the highest recall and F1 values within that family. However, the proposed YOLO26-24 Table 4: Performance and computational cost comparison of YOLO models 
+
+Model mAP@0.5 mAP@0.5:0.95 Prec. Recall F1 Train (h) Val (s) YOLOv10n 0.9773 0.8822 0.9555 0.9255 0.9403 4.36 6.65 YOLOv10s 0.9763 0.9099 0.9540 0.9310 0.9423 4.48 7.59 YOLOv10m 0.9728 0.9093 0.9618 0.9330 0.9471 5.31 12.29 YOLOv10l 0.9656 0.9079 0.9546 0.9306 0.9425 6.29 18.05 YOLOv10x 0.9731 0.9197 0.9697 0.9346 0.9518 6.93 24.31 YOLO11n 0.9827 0.9047 0.9710 0.9477 0.9592 3.70 7.51 YOLO11s 0.9855 0.9255 0.9794 0.9615 0.9704 3.86 8.20 YOLO11m 0.9803 0.9273 0.9678 0.9507 0.9592 4.94 17.50 YOLO11l 0.9850 0.9293 0.9664 0.9659 0.9661 5.79 27.60 YOLO11x 0.9801 0.9211 0.9660 0.9493 0.9576 7.06 36.33 YOLO12n 0.9847 0.9143 0.9647 0.9581 0.9614 4.40 7.51 YOLO12s 0.9884 0.9348 0.9725 0.9688 0.9706 4.73 9.89 YOLO12m 0.9861 0.9311 0.9707 0.9615 0.9661 5.80 20.03 YOLO12l 0.9841 0.9253 0.9604 0.9642 0.9623 7.75 25.88 YOLO12x 0.9793 0.9102 0.9660 0.9473 0.9566 9.93 46.08 YOLO26n 0.9838 0.9134 0.9607 0.9619 0.9613 4.78 6.47 YOLO26s 0.9783 0.9360 0.9753 0.9369 0.9557 4.87 8.06 YOLO26m 0.9837 0.9370 0.9725 0.9487 0.9605 5.40 16.67 YOLO26l 0.9859 0.9416 0.9701 0.9635 0.9668 6.54 19.17 YOLO26x 0.9852 0.9366 0.9658 0.9670 0.9664 7.96 35.19 Proposed 0.9900 0.9515 0.9783 0.9726 0.9745 9.29 23.17 MoE still outperformed the best baseline YOLO26 configuration, improving mAP@0.5 from 0.9859 to 0.9900, mAP@0.5:0.95 from 0.9416 to 0.9515, and F1-score from 0.9668 to 0.9745. These gains confirm that the insertion of the sparse MoE module and the adopted optimiza-tion strategy produced measurable improvements over the original YOLO26 design. From the computational perspective, the proposed model required 9.29 h of training and 23.17 seconds of validation, which is higher than several lightweight and medium-scale baselines. Therefore, the observed gains in detection quality are accompanied by an increase in computational cost. Nevertheless, the resulting cost remains within a practical range for offline training workflows and validation-oriented studies, while delivering the best overall performance. This makes the proposed method particularly attractive for accuracy-oriented inspection scenarios in which maximizing fault detection reliability is more important than minimizing training time alone. To further characterize the computational trade-off of the proposed approach, Table 5 reports the model complexity within the YOLO26 family in terms of number of parame-ters and GFLOPs. The proposed YOLO26-MoE model contains 15.659 million parameters 25 Table 5: Model complexity comparison within the YOLO26 family in terms of parameter count and GFLOPs. 
+
+Model Parameters (M) GFLOPs YOLO26n 2.370 5.2 YOLO26s 9.466 20.5 YOLO26m 20.351 67.9 YOLO26l 24.748 86.1 YOLO26x 55.637 193.4 Proposed 15.659 58.8 and requires 58.8 GFLOPs, placing it between the smaller YOLO26s configuration and the larger YOLO26m/l/x variants. This result is particularly relevant because it shows that the proposed detector does not achieve its performance gains by merely scaling the baseline architecture to the highest-complexity regime. Instead, it attains superior detection perfor-mance with a complexity level that remains substantially below YOLO26m, YOLO26l, and especially YOLO26x. This observation helps contextualize the longer training and validation times reported previously. Although the proposed model is more computationally demanding than lightweight variants such as YOLO26n and YOLO26s, it remains more compact than the larger baseline detectors while still achieving the strongest overall detection performance. Therefore, the proposed architecture provides a favorable accuracy-complexity trade-off, particularly in sce-narios where detection reliability is prioritized but excessively large models are undesirable. Overall, the benchmarking results show that the proposed YOLO26-MoE establishes the strongest accuracy-performance point among the evaluated models, especially when strict localization quality and balanced precision-recall behavior are required. 
+
+5.4. Statistical Analysis 5.4.1. Robustness to Random Initialization 
+
+To assess the robustness and repeatability of the final optimized YOLO26-MoE config-uration, an additional statistical analysis was conducted over 50 independent runs. The objective of this analysis was to quantify the central tendency, dispersion, and distributional characteristics of the main evaluation metrics, namely mAP@0.5, mAP@0.5:0.95, precision, recall, and F1-score. Table 6 summarizes the descriptive statistics obtained across the 50 runs. The mean values remained very high for all considered metrics, reaching 0.9900 for mAP@0.5, 0.9515 for mAP@0.5:0.95, 0.9783 for precision, 0.9727 for recall, and 0.9755 for F1-score. These values are closely aligned with the corresponding medians, indicating a stable central tendency and the absence of strong discrepancies between typical and average behavior. In addition, the standard deviation and interquartile range remained low across all metrics, showing that the final detector configuration exhibits limited variability over repeated executions. The distributional shape of the results also provides useful insight. The negative skewness observed for mAP@0.5, mAP@0.5:0.95, precision, and recall indicates that most runs are 26 Table 6: Statistical summary of the performance of the optimized YOLO26-MoE model over 50 runs. 
+
+mAP@0.5 mAP@0.5:0.95 Precision Recall F1-score Mean 0.990030 0.951480 0.978290 0.972650 0.975460 Median 0.990500 0.952380 0.979110 0.972230 0.975330 Mode 0.985760 0.946920 0.972880 0.967650 0.971530 Range 0.005610 0.006930 0.010640 0.009210 0.008320 Variance 0.000000 0.000010 0.000020 0.000010 0.000010 Std. Dev. 0.001580 0.002370 0.004140 0.002880 0.002470 25th %ile 0.989930 0.950200 0.974740 0.970840 0.974040 50th %ile 0.990500 0.952380 0.979110 0.972230 0.975330 75th %ile 0.990740 0.953230 0.981820 0.974640 0.976880 IQR 0.000810 0.003030 0.007090 0.003800 0.002830 Skewness -2.598560 -0.972430 -0.155720 -0.090230 0.168840 Kurtosis 7.444460 -0.167180 -1.975530 -0.594890 -0.206260 concentrated near the upper end of the performance range, with only a few lower-performing outcomes. This effect is particularly pronounced for mAP@0.5, which also exhibits a higher kurtosis, suggesting a sharply concentrated distribution around a very high performance level. Overall, these statistics indicate that the proposed detector is not only accurate but also stable and repeatable. 0
+
+> 0.984
+> 0.986
+> 0.988
+> 0.990
+> 0.992
+> mAP50
+> 0
+> 0.944
+> 0.946
+> 0.948
+> 0.950
+> 0.952
+> 0.954
+> 0.956
+> mAP50-95
+> 0
+> 0.970
+> 0.975
+> 0.980
+> 0.985
+> Precision
+> 0
+> 0.9650
+> 0.9675
+> 0.9700
+> 0.9725
+> 0.9750
+> 0.9775
+> 0.9800
+> Recall
+> 0
+> 0.968
+> 0.970
+> 0.972
+> 0.974
+> 0.976
+> 0.978
+> 0.980
+> 0.982
+> F1 Score
+
+Figure 8: Violin plots of mAP@0.5, mAP@0.5:0.95, precision, recall, and F1-score over 50 runs of the optimized YOLO26-MoE model. 
+
+These observations are visually supported by the violin plots shown in Figure 8, where all five metrics present compact distributions centered around high values. In particular, the mAP@0.5 distribution is tightly concentrated around approximately 0.990-0.991, while mAP@0.5:0.95 is centered close to 0.952-0.953. Precision, recall, and F1-score also exhibit 27 narrow and well-concentrated distributions, with no evidence of substantial multimodality or extreme spread. This visual behavior is consistent with the descriptive statistics and confirms the robustness of the final hypertuned model across repeated runs. 
+
+5.4.2. Paired Statistical Comparison to YOLO26 Family 
+
+Although the benchmarking results establish the superior overall performance of the pro-posed model, an additional paired inferential analysis was conducted within the YOLO26 family in order to assess whether the observed gains of the proposed YOLO26-MoE model are statistically consistent with respect to standard YOLO26 baseline variants. This anal-ysis is particularly relevant because it evaluates the proposed detector against its closest architectural relatives, thereby isolating the contribution of the MoE modification and the adopted training strategy from broader inter-family differences. The comparison was performed on the test split using matched random seeds. The pro-posed model, corresponding to the custom YOLO26-MoE configuration with warmup, was compared against the standard YOLO26 baseline variants YOLO26n, YOLO26s, YOLO26m, YOLO26l, and YOLO26x. Since the experiments were paired by seed and no normality as-sumption was imposed, the Wilcoxon signed-rank test was adopted as the primary inferential procedure. Holm’s correction was then applied across the five pairwise comparisons within each metric. In addition, the median paired difference was computed for each comparison in order to quantify the direction and practical magnitude of the observed gains. Positive median differences indicate superior performance of the proposed YOLO26-MoE model. Due to seed overlap constraints, most paired comparisons were conducted over 10 matched runs, while the comparison against YOLO26x used 8 matched runs. Tables 7-10 summarize the inferential comparison for precision, recall, mAP@0.5, and mAP@0.5:0.95, respectively. Overall, the proposed detector achieved statistically signifi-cant improvements over most YOLO26 baseline variants across all evaluated metrics. The only non-significant comparisons were observed against YOLO26l in precision, recall, and mAP@0.5, although even in these cases, the median paired differences remained positive. For the stricter mAP@0.5:0.95 metric, the proposed model significantly outperformed all YOLO26 baseline variants, including YOLO26l.                                      
+
+> Table 7: Paired statistical comparison between the proposed YOLO26-MoE and YOLO26 baseline variants on the test split for precision, using the Wilcoxon signed-rank test with Holm correction across the five pairwise comparisons. Positive median differences indicate superior performance of the proposed model.
+> Comparison Raw
+> p-value Holm-adjusted
+> p-value Reject
+> H0
+> Median difference Direction Proposed vs YOLO26n 0.001953 0.009766 Yes +0.008705 Proposed >YOLO26n Proposed vs YOLO26s 0.001953 0.009766 Yes +0.013132 Proposed >YOLO26s Proposed vs YOLO26m 0.009766 0.023438 Yes +0.007781 Proposed >YOLO26m Proposed vs YOLO26l 0.193359 0.193359 No +0.001583 Proposed >YOLO26l Proposed vs YOLO26x 0.007812 0.023438 Yes +0.025389 Proposed >YOLO26x
+
+28 Table 8: Paired statistical comparison between the proposed YOLO26-MoE and YOLO26 baseline variants on the test split for recall, using the Wilcoxon signed-rank test with Holm correction across the five pairwise comparisons. Positive median differences indicate superior performance of the proposed model. 
+
+Comparison Raw 
+
+p-value Holm-adjusted 
+
+p-value Reject 
+
+H0
+
+Median difference Direction Proposed vs YOLO26n 0.001953 0.009766 Yes +0.012817 Proposed > YOLO26n Proposed vs YOLO26s 0.001953 0.009766 Yes +0.031801 Proposed > YOLO26s Proposed vs YOLO26m 0.001953 0.009766 Yes +0.015093 Proposed > YOLO26m Proposed vs YOLO26l 0.431641 0.431641 No +0.001183 Proposed > YOLO26l Proposed vs YOLO26x 0.007812 0.015625 Yes +0.049037 Proposed > YOLO26x 
+
+> Table 9: Paired statistical comparison between the proposed YOLO26-MoE and YOLO26 baseline variants on the test split for mAP@0.5, using the Wilcoxon signed-rank test with Holm correction across the five pairwise comparisons. Positive median differences indicate superior performance of the proposed model.
+
+Comparison Raw 
+
+p-value Holm-adjusted 
+
+p-value Reject 
+
+H0
+
+Median difference Direction Proposed vs YOLO26n 0.001953 0.009766 Yes +0.008392 Proposed > YOLO26n Proposed vs YOLO26s 0.001953 0.009766 Yes +0.016000 Proposed > YOLO26s Proposed vs YOLO26m 0.003906 0.011719 Yes +0.004639 Proposed > YOLO26m Proposed vs YOLO26l 0.083984 0.083984 No +0.001075 Proposed > YOLO26l Proposed vs YOLO26x 0.007812 0.015625 Yes +0.023990 Proposed > YOLO26x 
+
+> Table 10: Paired statistical comparison between the proposed YOLO26-MoE and YOLO26 baseline variants on the test split for mAP@0.5:0.95, using the Wilcoxon signed-rank test with Holm correction across the five pairwise comparisons. Positive median differences indicate superior performance of the proposed model.
+
+Comparison Raw 
+
+p-value Holm-adjusted 
+
+p-value Reject 
+
+H0
+
+Median difference Direction Proposed vs YOLO26n 0.001953 0.009766 Yes +0.026397 Proposed > YOLO26n Proposed vs YOLO26s 0.001953 0.009766 Yes +0.042125 Proposed > YOLO26s Proposed vs YOLO26m 0.001953 0.009766 Yes +0.006738 Proposed > YOLO26m Proposed vs YOLO26l 0.048828 0.048828 Yes +0.001878 Proposed > YOLO26l Proposed vs YOLO26x 0.007812 0.015625 Yes +0.076509 Proposed > YOLO26x 
+
+The results show that the proposed detector consistently improves upon the lightweight and medium-scale YOLO26 variants, with statistically significant gains across all evalu-ated metrics for YOLO26n, YOLO26s, and YOLO26m. The strongest absolute improve-ments were generally observed against YOLO26x and YOLO26s, particularly in recall and mAP@0.5:0.95, where the median paired differences reached +0.049037 and +0.076509 against YOLO26x, and +0.031801 and +0.042125 against YOLO26s, respectively. A particularly relevant observation concerns the comparison with YOLO26l, which was the strongest baseline in the benchmarking table. In this case, the proposed model did not 29 show statistically significant gains in precision, recall, or mAP@0.5, although the median paired differences remained positive in all three cases. However, for mAP@0.5:0.95, the proposed model still achieved a statistically significant improvement over YOLO26l, with a Holm-adjusted p-value of 0.048828 and a positive median difference of +0.001878. This is especially important because mAP@0.5:0.95 is the strictest localization metric considered in this study, indicating that the proposed model improves detection quality even against the strongest baseline when more demanding IoU thresholds are taken into account. 
+
+> Figure 9: Boxplot comparison of mAP@0.5:0.95 on the test split between the proposed YOLO26-MoE model and the YOLO26l baseline over the matched runs.
+
+These inferential results are visually reinforced by the boxplot shown in Figure 9, which compares the distribution of mAP@0.5:0.95 between the proposed model and the YOLO26l baseline over the matched test runs. The proposed model exhibits an upward shift in the central tendency of the distribution, together with a higher median value, which is consistent with the positive median paired difference and the statistically significant result obtained for this metric. Since YOLO26l constitutes the strongest baseline within the YOLO26 fam-ily, this visual comparison provides additional evidence that the proposed YOLO26-MoE configuration improves detection quality even against the most competitive within-family reference. This inferential analysis complements the benchmarking and descriptive statistical results reported previously. While the benchmarking study establishes the relative position of the proposed detector among contemporary YOLO models, and the descriptive analysis demon-strates that the final configuration is stable across repeated runs, the present Wilcoxon-Holm comparison verifies that the gains observed within the YOLO26 family are statistically mean-ingful in most cases. Therefore, this analysis strengthens the claim that the proposed MoE modification yields systematic improvements over standard YOLO26 baseline configurations. 
+
+5.5. Limitations 
+
+While the proposed YOLO26-MoE model demonstrates superior performance, some lim-itations should be acknowledged: 30 • Computational Complexity: The combination of sparse MoE processing, LLM hy-pertuning, and an extended optimization pipeline increases the computational cost of the proposed approach relative to lightweight YOLO26 variants. Although the fi-nal model remains less complex than larger baseline configurations such as YOLO26m, YOLO26l, and YOLO26x, it still requires higher computational resources than YOLO26n and YOLO26s, which may hinder deployment in highly resource-constrained edge en-vironments. 
+
+• Interpretability Trade-off: While the proposed MoE design improves feature adapt-ability, the routing behavior of the experts adds architectural complexity that may reduce interpretability compared with the standard YOLO26 backbone. 
+
+• Dependence on Search Space Design: The effectiveness of the proposed opti-mization strategy depends on the predefined hyperparameter search space, the selected number of Optuna trials, and the adopted training schedule. Although the LLM agent provides a structured layer, the final optimized configuration is still constrained by the candidate parameter ranges made available during hypertuning. 
+
+6. Conclusion 
+
+This paper presented YOLO26-MoE, a novel detector for UAV-based insulator fault de-tection that integrates a sparse MoE module into the high-resolution branch of a YOLO26 architecture and combines it with an LLM hyperparameter optimization pipeline. The pro-posed approach was designed to improve the adaptability of feature processing for subtle and heterogeneous defect patterns while preserving a deployment-oriented one-stage detec-tion framework. The experimental results demonstrated that the proposed model achieved the strongest overall performance among the evaluated detectors. In the global benchmarking analysis, YOLO26-MoE outperformed all considered YOLOv10, YOLO11, YOLO12, and YOLO26 variants, reaching the highest values of mAP@0.5, mAP@0.5:0.95, precision, recall, and F1-score. In addition, the repeated-run statistical analysis showed that the final hypertuned configuration is stable and repeatable, with high central tendency and low dispersion across 50 independent runs. The paired Wilcoxon-Holm analysis within the YOLO26 family further showed that the proposed detector yields statistically significant improvements over most baseline variants, with particularly strong gains in the stricter mAP@0.5:0.95 metric. From the computational perspective, the proposed detector increases complexity rela-tive to lightweight YOLO26 baselines, but remains below the larger YOLO26m, YOLO26l, and YOLO26x configurations in terms of parameter count and GFLOPs. This indicates that the observed gains are not simply the result of scaling the baseline architecture to a much larger model, but rather stem from a more effective use of model capacity through conditional expert-based feature refinement. As a result, the proposed approach offers a fa-vorable accuracy-complexity trade-off for inspection scenarios in which detection reliability is prioritized. 31 Consent to Publish declaration 
+
+Not applicable 
+
+Consent to Participate declaration 
+
+Not applicable 
+
+Ethics declaration 
+
+Not applicable 
+
+Acknowledgments and Funding 
+
+The APC was supported by the project: Self-adaptive platform based on intelligent agents for the optimization and management of operational processes in logistic warehouses (PLAU-TON), PID2023-151701OB-C21, funded by MCIN/AEI/10.13039/501100011033/FEDER, EU. This work was also supported by FCT – Funda¸ c˜ ao para a Ciˆ encia e Tecnologia, I.P. un-der Grants 2023.15441.TENURE.051/CP00003/CT00029 and the LASIGE Research Unit (ref. UID/00408/2025, DOI: https://doi.org/10.54499/UID/00408/2025), and co-financed by FCT and the PRR - Recovery and Resilience Plan by the European Union under the LASIGE Research Unit (UID/PRR/00408/2025, DOI: https://doi.org/10.54499/UID/PRR/00408/2025). 
+
+References 
+
+[1] Cong, Z., Liu, Y., Yan, Y., Wang, K., Jiang, X.. Study on the mechanism and elec-trical characterization of the distribution porcelain insulator incipient fault in the non-effectively grounded system. IEEE Transactions on Power Delivery 2024;39(3):1840– 1851. [2] Stefenon, S.F., Seman, L.O., Singh, G., Yow, K.C.. Enhanced insulator fault detection using optimized ensemble of deep learning models based on weighted boxes fusion. International Journal of Electrical Power & Energy Systems 2025;168:110682. [3] Lutfi, A., El-Hag, A., Shaban, K.. Nonintrusive ultrasonic sensing and deep learn-ing for outdoor ceramic insulator assessment. IEEE Transactions on Dielectrics and Electrical Insulation 2024;31(6):2993–3000. [4] Corso, M.P., Stefenon, S.F., Singh, G., Matsuo, M.V., Perez, F.L., Leithardt, V.R.Q.. Evaluation of visible contamination on power grid insulators using convolutional neural networks. Electrical Engineering 2023;105:3881–3894. 32 [5] Li, Y., Zhu, C., Zhang, Q., Zhang, J., Wang, G.. If-yolo: An efficient and accurate detection algorithm for insulator faults in transmission lines. IEEE Access 2024;12:167388–167403. [6] Zhang, R., Yang, B., Xiao, W., Liang, F., Liu, Y., Wang, Z.. Uav-based automatic power line inspection using deep learning. IEEE Transactions on Industrial Informatics 2022;18(3):1822–1832. [7] Liu, Y., Liu, J., Ke, Y.. A review of power line inspection by unmanned aerial vehicle. Journal of Physics: Conference Series 2021;1952(2):022014. [8] Redmon, J., Divvala, S., Girshick, R., Farhadi, A.. You only look once: Unified, real-time object detection. In: Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition. 2016, p. 779–788. [9] Chen, C., Zheng, Z., Xu, T., Guo, S., Feng, S., Yao, W., et al. A lightweight insulator defect detection algorithm based on improved YOLOv5. Sensors 2022;22(14):5226. [10] Nguyen, V.N., Jenssen, R., Roverso, D.. Automatic autonomous vision-based power line inspection: A review of current status and the potential role of deep learning. International Journal of Electrical Power & Energy Systems 2018;99:107–120. [11] Alhassan, A.B., Zhang, X., Shen, H., Xu, H.. Power transmission line inspection robots: A review, trends and challenges for future research. International Journal of Electrical Power & Energy Systems 2020;118:105862. [12] Manninen, H., Ramlal, C.J., Singh, A., Rocke, S., Kilter, J., Landsberg, M.. To-ward automatic condition assessment of high-voltage transmission infrastructure using deep learning techniques. International Journal of Electrical Power & Energy Systems 2021;128:106726. [13] Guan, H., Sun, X., Su, Y., Hu, T., Wang, H., Wang, H., et al. Uav-lidar aids automatic intelligent powerline inspection. International Journal of Electrical Power & Energy Systems 2021;130:106987. [14] Shazeer, N., Mirhoseini, A., Maziarz, K., Davis, A., Le, Q., Hinton, G., et al. Outrageously large neural networks: The sparsely-gated mixture-of-experts layer. In: International Conference on Learning Representations. 2017, p. 1–12. [15] Yang, C., Wang, X., Lu, Y., Liu, H., Le, Q.V., Zhou, D., et al. Large language models as optimizers. arXiv:230903409 2024;3:1–42. [16] Huang, S., Yang, K., Qi, S., Wang, R.. When large language model meets optimiza-tion. Swarm and Evolutionary Computation 2024;90:101663. 33 [17] Tao, X., Zhang, D., Wang, Z., Liu, X., Zhang, H., Xu, D.. Detection of power line insulator defects using aerial images analyzed with convolutional neural networks. IEEE Transactions on Systems, Man, and Cybernetics: Systems 2020;50(4):1486–1498. [18] Wu, Q., An, J., Lin, B.. Insulator detection in aerial images for transmission line inspection using single shot multibox detector. IEEE Access 2019;7:9945–9956. [19] Zhao, Z., Zhen, Z., Zhang, L., Qi, Y., Kong, Y., Zhang, K.. Insulator detection method in inspection image based on improved faster r-cnn. Energies 2019;12(7):1204. [20] Deng, F., Xie, Z., Mao, W., Li, B., Shan, Y., Wei, B., et al. Research on edge intelligent recognition method oriented to transmission line insulator fault detection. International Journal of Electrical Power & Energy Systems 2022;139:108054. [21] Liu, Z., Wu, G., He, W., Fan, F., Ye, X.. Key target and defect detection of high-voltage power transmission lines with deep learning. International Journal of Electrical Power & Energy Systems 2022;142:108277. [22] Song, J., Qin, X., Lei, J., Zhang, J., Wang, Y., Zeng, Y.. A fault detection method for transmission line components based on synthetic dataset and improved yolov5. International Journal of Electrical Power & Energy Systems 2024;157:109852. [23] Ren, S., He, K., Girshick, R., Sun, J.. Faster R-CNN: Towards real-time object detection with region proposal networks. In: Advances in Neural Information Processing Systems; vol. 28. 2015, p. 91–99. [24] Yang, Z., Xu, Z., Wang, Y.. Bidirection-fusion-yolov3: An improved method for insulator defect detection using uav image. IEEE Transactions on Instrumentation and Measurement 2022;71:1–8. [25] Han, G., He, M., Zhao, F., Xu, Z., Zhang, M., Qin, L.. Insulator detection and damage identification based on improved lightweight yolov4 network. Energy Reports 2021;7:187–197. [26] Wang, C.Y., Bochkovskiy, A., Liao, H.Y.M.. YOLOv7: Trainable bag-of-freebies sets new state-of-the-art for real-time object detectors. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. 2023, p. 7464–7475. [27] Liu, C., Wu, Y., Liu, J., Sun, Z., Xu, H.. Insulator defect detection with deep learning: A survey. IEEE Access 2021;9:2355–2368. [28] Wang, B., Dong, M., Ren, M., Wu, Z., Zhu, Y.. Insulator fault detection based on im-proved YOLOv4 algorithm. Journal of Physics: Conference Series 2021;1871(1):012067. [29] Seman, L.O., Yow, K.C., Stefenon, S.F.. Sparse mixture of experts enhanced trans-former architecture for short-term hydroelectric reservoir volume prediction. Electric Power Systems Research 2026;255:112754. 34 [30] Riquelme, C., Puigcerver, J., Mustafa, B., Neumann, M., Jenatton, R., Susano Pinto, A., et al. Scaling vision with sparse mixture of experts. In: Advances in Neural Infor-mation Processing Systems; vol. 34. 2021, p. 8583–8595. [31] Mustafa, B., Riquelme, C., Puigcerver, J., Jenatton, R., Houlsby, N.. Multimodal contrastive learning with LIMoE: the language-image mixture of experts. In: Advances in Neural Information Processing Systems; vol. 35. 2022, p. 9564–9576. [32] Gan, W., Ning, Z., Qi, Z., Yu, P.S.. Mixture of experts (MoE): A big data perspective. Information Fusion 2025;127:103664. [33] Bergstra, J., Bengio, Y.. Random search for hyper-parameter optimization. Journal of Machine Learning Research 2012;13(1):281–305. [34] Snoek, J., Larochelle, H., Adams, R.P.. Practical Bayesian optimization of machine learning algorithms. In: Advances in Neural Information Processing Systems; vol. 25. 2012, p. 2951–2959. [35] Zoph, B., Le, Q.V.. Neural architecture search with reinforcement learning. In: International Conference on Learning Representations; vol. 2. 2017, p. 1–16. [36] Liu, H., Simonyan, K., Yang, Y.. DARTS: Differentiable architecture search. In: International Conference on Learning Representations; vol. 2. 2019, p. 13. [37] Pham, H., Guan, M., Zoph, B., Le, Q., Dean, J.. Efficient neural architecture search via parameter sharing. In: International Conference on Machine Learning. PMLR; 2018, p. 4095–4104. [38] Wang, C.Y., Bochkovskiy, A., Liao, H.Y.M.. Scaled-YOLOv4: Scaling cross stage partial network. In: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition. 2021, p. 13029–13038. [39] Brown, T., Mann, B., Ryder, N., Subbiah, M., Kaplan, J.D., Dhariwal, P., et al. Language models are few-shot learners. In: Advances in Neural Information Processing Systems; vol. 33. 2020, p. 1877–1901. [40] Romera-Paredes, B., Barekatain, M., Novikov, A., Balog, M., Kumar, M.P., Dupont, E., et al. Mathematical discoveries from program search with large language models. Nature 2024;625(7995):468–475. [41] Chen, A., Dohan, D., So, D.. EvoPrompting: Language models for code-level neural architecture search. Advances in Neural Information Processing Systems 2024;36. [42] Liu, S., Gao, C., Li, Y.. Large language model agent for hyper-parameter optimization. 2025. URL: https://arxiv.org/abs/2402.01881 . arXiv:2402.01881 .35 [43] Jiang, C., Shu, X., Qian, H., Lu, X., Zhou, J., Zhou, A., et al. Llmopt: Learning to define and solve general optimization problems from scratch. arXiv:241013213 2024;2:1– 27. [44] Ji, Z., Lee, N., Frieske, R., Yu, T., Su, D., Xu, Y., et al. Survey of hallucination in natural language generation. ACM Computing Surveys 2023;55(12):1–38. [45] Zhang, J., Chen, C., Lu, M., Li, L., Shen, Y., Du, J., et al. Efenet: An efficient edge-feature enhanced network for power insulator detection. International Journal of Electrical Power & Energy Systems 2025;171:111019. [46] Wang, Q., Liu, R., Qin, S., Pu, J., Shi, R., Wang, Y.. Optimizing power system edge computing with a high-performance and light-weight yolo-based substation equipment defect detection network. International Journal of Electrical Power & Energy Systems 2025;172:111088. [47] Sapkota, R., Cheppally, R.H., Sharda, A., Karkee, M.. Yolo26: Key archi-tectural enhancements and performance benchmarking for real-time object detection. arXiv:250925164 2025;2:1–14. [48] He, M., Qin, L., Deng, X., Liu, K.. MFI-YOLO: Multi-fault insulator detection based on an improved YOLOv8. IEEE Transactions on Power Delivery 2024;39(1):168–179. [49] Geng, X., Han, X., Cao, X., Su, Y., Shu, D.. YOLOV9-CBM: An improved fire detection algorithm based on YOLOV9. IEEE Access 2025;13:19612–19623. [50] Haoyan, H., Jinwu, T., Haibin, W., Xinyun, L.. Ead-yolov10: Lightweight steel surface defect detection algorithm research based on yolov10 improvement. IEEE Access 2025;13:55382–55397. [51] Shan, Z., Haoyan, H., Zhu, C., Du, S., Jing, H., Haibin, W.. Rsm-yolov11: Lightweight steel surface defect segmentation algorithm research based on yolov11 im-provement. IEEE Access 2025;13:111681–111698. [52] Garza, J.E., Islam, M.F.. Enhanced yolov12 through sliced contrastive supervision and full scene fine-tuning. IEEE Access 2025;13:138813–138819. [53] Lv, J., Fu, J., Shen, D.. Site landscape design optimization based on YOLOv13 and multi-task bayesian federated learning (YOLOv13-HyperACE-BFL). IEEE Access 2025;13:185689–185708. [54] Zhao, J., Ding, Z., Zhou, Y., Zhu, H., Du, W.L., Yao, R., et al. Orientedformer: An end-to-end transformer-based oriented object detector in remote sensing images. IEEE Transactions on Geoscience and Remote Sensing 2024;62:1–16. 36 [55] Carvalho, J.P.M., Stefenon, S.F., Leithardt, V.R.Q., Seman, L.O., Yow, K.C., Santana, J.F.D.P.. Input attention, squeeze and excitation, and spatial transformer of yolo for fault detection using uav. Ain Shams Engineering Journal 2026;17(3):104067. [56] Fedus, W., Zoph, B., Shazeer, N.. Switch transformers: Scaling to trillion param-eter models with simple and efficient sparsity. Journal of Machine Learning Research 2022;23(120):1–39. [57] Sapkota, R., Karkee, M.. Ultralytics YOLO evolution: An overview of YOLO26, YOLO11, YOLOv8 and YOLOv5 object detectors for computer vision and pattern recognition. arXiv:251009653 2025;2:1–16. [58] Lewis, D., Kulkarni, P.. Insulator defect detection. https://ieee-dataport.org/ competitions/insulator-defect-detection ; 2021. Accessed on January 18, 2026. 37

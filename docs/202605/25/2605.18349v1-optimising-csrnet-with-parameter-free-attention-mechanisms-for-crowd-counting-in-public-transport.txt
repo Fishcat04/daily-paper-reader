@@ -1,0 +1,364 @@
+Title: Optimising CSRNet with parameter-free attention mechanisms for crowd counting in public transport
+
+URL Source: https://arxiv.org/pdf/2605.18349v1
+
+Published Time: Tue, 19 May 2026 02:30:34 GMT
+
+Number of Pages: 7
+
+Markdown Content:
+# Optimising CSRNet with parameter-free attention mechanisms for crowd counting in public transport 
+
+Aida Rostamza Graduate Student Member, IEEE , Enrico Del Re Graduate Student Member, IEEE ,Joshua Cherian Varughese Member, IEEE and Cristina Olaverri-Monreal Senior Member, IEEE 
+
+Abstract — Occupancy estimation and crowd counting are critical tasks in designing smart and efficient public transport vehicles. Given that public transport loading can vary from sparse to crowded, classical models for occupancy estimation must be adapted to suit this purpose. Attention mechanisms have shown remarkable capability in enhancing the represen-tational power of deep neural networks for crowd counting in congested scenes with occlusion, complex backgrounds, and perspective distortion. However, conventional approaches, often implemented as parameterized sub-networks within convolu-tional layers, inevitably increase model size and computational cost, limiting deployment on resource-constrained edge devices. This paper investigates the effectiveness of state-of-the-art parameter-free attention mechanisms for crowd counting and density map estimation in highly congested scenes. We evaluate channel-wise (PFCA), spatial-wise (SA), and 3-D (SimAM) modules and compare their performance with parameterized attention modules constrained to introduce no more than 1% additional parameters. Furthermore, we present a novel com-bination of attention mechanisms that combines the strengths of PFCA and SA (PFCASA) customized for analyzing video streams onboard public transport systems. Using CSRNet as the backbone, experiments on the ShanghaiTech dataset demon-strate that parameter-free attention mechanisms achieve com-parable or superior accuracy without introducing additional model parameters. A detailed performance analysis further reveals that PFCASA outperforms other attention modules in scenes with fewer than 40 individuals, while PFCA shows greater effectiveness as crowd density increases, underscoring their potential applicability for integration into smart public transport modalities. 
+
+I. I NTRODUCTION 
+
+In recent years, crowd analysis in densely populated envi-ronments has gained increasing attention for public safety, motivated by tragic incidents such as the 2015 Shanghai stampede [1] and the 2022 Seoul crowd crush [2]. Beyond safety concerns, crowd counting also plays a crucial role in traffic management and urban planning, such as directing passengers to less crowded metro platforms, which can increase transport capacity by up to 54.8% during peak hours [3], [4]. However, achieving reliable crowd counting in dense scenes remains challenging due to severe occlusion, perspective distortion, and scale variation, as well as the               
+
+> Johannes Kepler University Linz, Austria, Department Intelligent Transport Systems, Altenberger Straße 69, 4040 Linz, Austria.
+> {aida.rostamza, enrico.del re, joshua.varughese, cristina.olaverri-monreal }@jku.at
+
+high computational cost of real-time implementation on edge devices. Since the success of CSRNet [5], many crowd-counting methods have adopted VGG-16 or VGG-19 as their encoder backbone, while focusing primarily on designing new de-coder architectures to improve performance. As a result, research has largely emphasized architectural modifications rather than investigating the effectiveness of feature enhance-ment components within a fixed baseline [6]. In particular, attention mechanisms are often introduced as auxiliary mod-ules to improve performance, but their individual contribu-tions and efficiency are rarely systematically evaluated under controlled conditions. Furthermore, most existing attention modules rely on additional learnable parameters, increas-ing model complexity. Parameter-free attention mechanisms, which enhance feature representation without introducing additional parameters, remain largely overlooked in crowd counting. Consequently, it remains unclear whether perfor-mance improvements stem from the attention mechanism itself or simply from increased model capacity, and whether parameter-free alternatives can provide comparable benefits more efficiently. To address this gap, this study investigates the integration of parameter-free attention mechanisms into the CSRNet baseline [5]. The goal is to evaluate the effectiveness of these modules in enhancing crowd counting performance and to explore their potential integration into practical public transport occupancy detection models. We hypothesize that parameter-free attention can improve feature representation and counting accuracy without increasing model complexity, enabling efficient deployment on edge devices in public transport settings. Specifically, we evaluate the effectiveness of parameter-free channel attention (PFCA) [7], spatial atten-tion (SA) [8], their combination in a novel PFCASA atten-tion mechanism, 3-D attention (SimAM) [9], and compare them with parameterized attention modules constrained to introduce no more than 1% additional parameters, as well as the original CSRNet implementation, on the ShanghaiTech dataset [10]. This constraint is motivated by the fact that CSRNet contains approximately 16.26 million parameters; thus, a 1% increase corresponds to roughly 163,000 addi-tional parameters. While this increase appears marginal in large-scale networks, it represents a substantial addition for lightweight models operating in the range of thousands to 
+
+> arXiv:2605.18349v1 [cs.CV] 18 May 2026
+
+hundreds of thousands of parameters. Our experiments focus on Part B of the dataset, which is more representative of public transport environments due to its moderate density and varied crowd distribution. The remainder of this paper is organized as follows: sec-tion II reviews related work on crowd counting and attention mechanisms. section III explains the CSRNet architecture and the attention modules of interest. section IV describes the dataset, training details and experimental setup. section V and section VI present the results and the discussion, respec-tively. Finally, section VII concludes the paper. II. R ELATED WORK 
+
+Crowd counting methods are generally divided into detection-based, regression-based, and density-based ap-proaches. Detection-based methods employ object detectors to locate and count individuals but struggle in dense crowds due to occlusion and overlap. Regression-based methods instead learn a direct mapping from image features to counts, avoiding detection; however, their reliance on handcrafted features and weak spatial context modeling limits their ro-bustness in complex scenes [11]. To address these limitations, density-based methods formulate crowd counting as a density map estimation problem [12]. In this approach, the total count is obtained by integrating over a predicted density map, allowing the model to capture both the number and spatial distribution of individuals. With the advancement of convolutional neural networks (CNNs), density-based meth-ods have become the dominant paradigm, achieving signifi-cant improvements in accuracy and robustness in congested scenes [13]. Following the success of CSRNet, most crowd-counting approaches adopt VGG-16 or VGG-19 as their backbone. Typically, VGG is used as the encoder, while research focuses on improving the decoder design, as seen in Soft-CSRNet [14], CSRNet+ [15], and CDNet [16]. Sim-ilarly, SANet [17] and TEDnet [18] propose alternative encoder–decoder architectures to enhance feature aggrega-tion and improve density estimation accuracy. In addition to encoder–decoder architectural design, a wide range of approaches have been proposed to address challenges such as scale variation, occlusion, and background noise, including multi-column architectures such as MCNN [19] and patch-based methods like Switching-CNN [20]. More recently, attention-based models, including MSAN [21], SCAR [22], and SFANet [23], have further improved performance by en-hancing feature representation, enabling models to focus on informative regions while reducing the influence of irrelevant background. Despite these advances, several limitations remain. Multi-column architectures substantially increase the number of parameters and computational cost, making end-to-end train-ing more difficult. Patch-based methods often suffer from boundary artifacts and inconsistent local predictions, while attention-based models introduce additional learnable pa-rameters, increasing model complexity, memory usage, and power consumption, which limits their suitability for edge deployment. [11] III. M ODEL OVERVIEW 
+
+In this section, we provide an overview of the model and components adopted in our study. Specifically, we describe the CSRNet architecture, which serves as the backbone of our framework, as well as the attention modules integrated to investigate their impact on model performance. 
+
+A. CSRNet 
+
+CSRNet [5] is a single-column CNN architecture designed for crowd counting and density estimation in highly con-gested scenes. It utilizes the first ten convolutional layers of VGG-16 as a frontend for feature extraction and six dilated convolutional layers as a backend for generating high-quality density maps. By demonstrating the redundancy of learned features across MCNN’s columns [5], CSRNet initiated the shift toward efficient single-column designs. Leveraging dilated convolutions to enlarge the receptive field without reducing spatial resolution and employing a straightforward training procedure, it established a foundational baseline for subsequent research. 
+
+B. Attention mechanisms 1) Parameter-Free Channel Attention Module (PFCA): 
+
+The PFCA is a channel attention module that enhances feature representation by reweighting channel importance based on statistical information without introducing addi-tional parameters. Given an input feature map X ∈ RN ×C×H×W , where N ,
+
+C, and H × W denote the batch size, number of channels, and spatial dimensions respectively, PFCA first computes the channel vector U ∈ RN ×C×1×1 by applying global average pooling across the spatial dimensions. For each channel j,the attention weight is obtained as: 
+
+Vj = (Uj − μ)2 + 2( σ2 + λ)4( σ2 + λ) (1) where μ and σ2 represent the mean and variance of the channel vector U computed in the channel dimension, and λ
+
+is a small constant (e.g., 10 −4) for numerical stability. The refined feature map is then computed as: 
+
+Y = X ⊙ Sigmoid (V ) (2) where ⊙ denotes element-wise multiplication, and Sigmoid (·) is the sigmoid activation function. Fig. 1: Figure shows the setup used for investigating the impact of integrating attention modules between the frontend (VGG-16) and the dilated convolutions in the backend of the CSRNet. A total of eleven attention configurations as shown in Table I were tested, comparing their performance with the original CSRNet. 
+
+2) Parameter-Free Spatial Attention Module (SA): The SA module models spatial relations, allowing the network to focus on salient regions within feature maps without increasing the number of parameters. Following [8], given an input feature map X ∈ RC×H×W , where C is the number of channels and H × W are the spatial dimensions, the spatial attention weight at position (i, j ) is computed as: 
+
+p(i, j ) = Softmax 
+
+> C
+
+X
+
+> k=1
+
+xk(i, j )
+
+!
+
+(3) The reweighted feature map is obtained by: 
+
+Xk(i, j ) = xk(i, j ) ⊙ p(i, j ) (4) where ⊙ denotes element-wise multiplication, and Softmax (·) is the softmax activation function applied over the spatial domain to produce normalized attention weights. 
+
+3) Parameter-Free 3-D Attention Module (SimAM): 
+
+SimAM introduces a parameter-free 3-D attention mecha-nism that jointly models spatial and channel dependencies. Given the input feature map X ∈ RC×H×W , where C
+
+is the number of channels and H × W are the spatial dimensions, SimAM models the linear separability between a target neuron and other neurons within the same channel as an energy function, and derives a closed-form solution for the minimal energy as follows: 
+
+e∗ 
+
+> t
+
+= 4(ˆ σ2 + λ)(t − ˆμ)2 + 2ˆ σ2 + 2 λ (5) where ˆμ = 1
+
+> M
+
+PMi=1 xi and ˆσ2 = 1
+
+> M
+
+PMi=1 (xi − ˆμ)2 are the mean and variance of all activations within a channel (M = H × W ), t is the target neuron’s activation value, and λ is a regularization parameter (typically set to 10 −4). Neurons with lower e∗ 
+
+> t
+
+are considered more distinctive and important; thus, attention is inversely proportional to e∗ 
+
+> t
+
+. The refined feature map is obtained as: 
+
+˜X = X ⊙ Sigmoid 
+
+ 1
+
+E
+
+
+
+(6) where ⊙ denotes element-wise multiplication and Sigmoid (·) represents the sigmoid activation function, with 
+
+E being the set of all e∗ 
+
+> t
+
+across spatial and channel dimen-sions. 
+
+4) Parameter-Free Channel and Spatial Attention (PF-CASA): Inspired by the Convolutional Block Attention Mod-ule (CBAM) [24], which sequentially applies channel and spatial attention to refine feature representations, we propose a Parameter-Free Channel and Spatial Attention (PFCASA) module. Unlike CBAM, which relies on learnable param-eters in both its channel and spatial attention components, the proposed PFCASA replaces them with PFCA and SA, respectively. This design improves feature representation without introducing additional learnable parameters. Given an intermediate feature map X ∈ RC×H×W , where 
+
+C is the number of channels and H × W denotes the spatial dimensions, the channel attention output Xc and the channel–spatial attention output Xcs of PFCASA can be expressed as: 
+
+Xc = P F CA (X) ⊙ X (7) 
+
+Xcs = SA (Xc) ⊙ (Xc) (8) where P F CA (·) and SA (·) denote the parameter-free channel and spatial attention modules, respectively, and ⊙
+
+represents element-wise multiplication. 
+
+5) Parameterzied Attention Modules: To investigate the effectiveness of parameter-free attention mechanisms as effi-cient alternatives, we compare them with several widely used parameterized attention modules. Specifically, Squeeze-and-Excitation (SE) [25] is selected as a representative channel attention mechanism, while Coordinate Attention (CAM) [26] and Convolutional Block Attention Module (CBAM) are included as hybrid attention mechanisms incorporating both spatial and channel information. As described in section I, the parameterized attention modules are evaluated under a strict 1% parameter constraint relative to the CSRNet baseline. This design allows the contribution of the attention mechanisms to be assessed with minimal influence from increased parameter capacity. To analyze the impact of parameterization levels, two configu-rations of each parameterized attention module are evaluated using different reduction ratios. The first configuration uses a reduction ratio of 16, resulting in a minimal parameter increase relative to the baseline. The second configuration uses the minimum reduction ratio that produces a parameter increase closest to the defined constraint. This design en-ables a controlled comparison between parameterized and 0 500 1000 1500 2000 
+
+> # of people in image
+> 0
+> 20
+> 40
+> 60
+> 80
+> 100
+> # of images
+> Part A
+> Part B Fig. 2: Histogram showing the distribution of the number of people in images in the test split of ShanghaiTech Part A and B. Part A is stacked on top of part B
+
+parameter-free attention mechanisms under equivalent pa-rameter constraints. IV. M ETHODOLOGY 
+
+In this section, we present the methodology used to evalu-ate the integration of parameter-free attention mechanisms into the CSRNet baseline and to assess our hypothesis. Figure 1 illustrates the overall configurations evaluated in this study. 
+
+A. Dataset Description 
+
+The ShanghaiTech dataset [10] is a widely used bench-mark for crowd counting and density estimation. It contains 1,198 annotated images with a total of 330,165 individuals, captured from diverse scenes across Shanghai. The dataset is divided into two parts: Part A, which consists of 482 images collected from the Internet featuring highly congested urban scenes with dense crowds, and Part B, which includes 716 images captured on the streets of Shanghai with relatively sparse crowds. The histogram in Figure 2 shows the distri-bution of the number of images in the dataset with varying number of people per image. 
+
+B. Training details 
+
+The training setup follows the original CSRNet config-uration in [5]. The first ten convolutional layers are fine-tuned from a pre-trained VGG-16 model, while the remaining layers are initialized using a Gaussian distribution with a standard deviation of 0.01. Training is performed using stochastic gradient descent (SGD) with a weight decay of 
+
+5 × 10 −4, momentum of 0.95, and a fixed learning rate of 
+
+1 × 10 −6.Ground-truth density maps are generated using geometry-adaptive kernels defined as: 
+
+F (x) = 
+
+> N
+
+X
+
+> i=1
+
+δ(x − xi) ∗ Gσi (x), where σi = β ¯di (9) For each annotated target object xi in the ground truth 
+
+δ, di is computed as the average distance to its k nearest neighbors. The density map is then generated by convolving 
+
+δ(x−xi) with a Gaussian kernel with parameter σi (standard deviation). Following [5] we employ a geometry-adaptive kernel with β = 0 .3 and k = 3 for Part A, while a fixed Gaussian kernel with σ = 15 is used for Part B. The Euclidean distance is employed as the loss function to measure the difference between the predicted and ground-truth density maps: 
+
+L(Θ) = 12N
+
+> N
+
+X
+
+> i=1
+
+|Z(Xi; Θ) − ZGT i |22 (10) where N is the batch size, Z(Xi; Θ) is the predicted density map for input image Xi, and ZGT i is the corresponding ground-truth density map. Following the original paper, we applied the same data augmentation strategy. From each image, nine patches of one-quarter the original size were cropped. The first four patches correspond to non-overlapping quadrants, while the remaining five are randomly sampled from the image. Each patch is then horizontally flipped, effectively doubling the size of the training set. 
+
+C. Evaluation 
+
+To assess the impact of integrating parameter-free atten-tion modules, we tested several configurations as shown in (Figure 1). We hypothesized that placing attention modules between the frontend and backend allows the backend to capture more relevant spatial and contextual information, thereby improving counting accuracy. To validate this, we conducted an ablation study evaluating PFCA, SA, SimAM and PFCASA and compared them to some widely used parameterized attention modules including CAM, SE, CBAM and the original CSRNet baseline. All experiments were performed on the ShanghaiTech dataset [10] for 400 epochs, and the best results out of three runs under identical settings were reported. To assess the model’s performance, the Mean Absolute Error (MAE), Mean Squared Error (MSE) and Accuracy evaluation metrics were adopted and defined as follows: MAE = 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+Ci − Cgt  
+
+> i
+
+(11) MSE =
+
+vuut 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+(Ci − Cgt  
+
+> i
+
+)2 (12) Accuracy = 1 − 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+Ci − Cgt 
+
+> i
+
+Cgt 
+
+> i
+
+(13) where N is the total number of test images, Ci is the pre-dicted crowd count for image i, and Cgt i is the corresponding ground truth count. MAE primarily measures the accuracy of the predictions, while accuracy is meant to normalize the error computed by MAE according to the ground truth. TABLE I: Results of integrating attention mechanisms into the CSRNet baseline on ShanghaiTech test sets.                                                                          
+
+> Attention Part A Part B Params(K) Added Params
+> MAE MSE MAE MSE No Attn. 68.20 115.00 10.60 16.00 16,263,041 No PFCA 73.36 113.98 8.50 12.78 16,263,041 No SA 80.44 117.43 9.07 13.97 16,263,041 No PFCASA 73.25 108.34 9.25 14.15 16,263,041 No SimAM 77.08 116.47 9.24 14.40 16,263,041 No SE(r=4) 79.06 117.73 8.87 14.55 16,394,561 Yes CAM(r=8) 83.80 121.33 8.46 15.02 16,363,009 Yes CBAM(r=4) 71.85 114.06 8.85 13.63 16,394,659 Yes SE(r=16) 81.35 119.36 8.67 14.67 16,296,257 Yes CAM(r=16) 83.80 124.92 8.42 13.45 16,313,761 Yes CBAM(r=16) 74.09 118.30 9.53 14.39 16,296,355 Yes
+
+It should be noted that although the training procedure was consistent across all configurations, the SA module failed to train. Upon investigation, this failure was found to be due to the use of the softmax operation in the original SA implementation. To address this issue, we replaced softmax with a sigmoid activation, which restored the model’s learning capability and yielded performance comparable to the baseline. Conse-quently, all subsequent experiments comparing SA with other attention modules were conducted using the sigmoid-based variant rather than the softmax baseline. V. R ESULTS 
+
+A. Importance of attention mechanisms 
+
+Table I summarizes the impact of integrating different at-tention mechanisms into the CSRNet baseline on the Shang-haiTech dataset. Since this work focuses on moderate-density crowd scenarios relevant to public transport applications, the discussion primarily emphasizes the results on Part B. On ShanghaiTech Part B, the baseline CSRNet achieves an MAE of 10.60. All evaluated attention mechanisms improve performance over the baseline, confirming the importance of feature enhancement even within a strong fixed archi-tecture. Among the parameter-free attention methods, PFCA achieved the best overall performance with an MAE of 8.50, corresponding to a relative error reduction of approximately 19.81% compared to the baseline. SA and SimAM also im-proved accuracy, achieving MAEs of 9.07 and 9.24, respec-tively. These results demonstrate that parameter-free attention mechanisms can significantly enhance feature representation without introducing additional parameters. Parameterized attention mechanisms also provided im-provements, but their performance remains comparable to parameter-free alternatives. Specifically, CBAM( r=4) and SE( r=4) achieve MAEs of 8.85 and 8.87, respectively, while SE( r=16) achieves an MAE of 8.67. Although these mod-ules improve accuracy, they introduce additional parameters ranging from 0.20% to 0.81%. In contrast, PFCA achieves the best performance overall while adding no parameters, highlighting its superior efficiency–accuracy trade-off. 
+
+B. Accuracy at different densities 
+
+Figure 3 illustrates the accuracy of the models on binned sections of the datasets. For Part A, shown in Figure 3a, the original model outperforms the different attention mechanisms across most bins. For Part B in Figure 3b the different attention mechanisms show higher accuracy across the majority of the dataset, with different mechanisms performing better or worse depending on the density of people. For 0 - 20 people per image, the original network achieves an accuracy of 0.882 ±0.088 while PFCASA achieves an accuracy of 0.887 ±0.088. For 20 - 40 people per image, the original network achieves an accuracy of 0.896 ±0.090 while PFCASA, SimAM and PFCA achieve accuracies of 0.910 ±0.065, 0.903 ±0.101, and 0.908 ±0.085 respectively. The highest accuracy is achieved by SimAM for images with 40-60 people at 0.939 ±0.059. Averaging across all images with fewer than 100 people, the original network achieves an accuracy of 0.914 ±0.072 while SimAM and PFCA achieve 0.920 ±0.075 and 0.920 ±0.069 respectively. In images between 100 and 500 people PFCA shows an accuracy of 0.933 ±0.058 compared to the original net-work’s 0.921 ±0.062, SimAM’s 0.923 ±0.066 and PFCASA’s 0.928 ±0.062. VI. D ISCUSSION 
+
+Both MAE and Accuracy show that parameter free at-tention mechanisms improve the model’s performance for low–medium numbers of people. In particular, our novel combination of spatial and channel attention (PFCASA) shows the highest improvement of 1.2% compared to the original model for images with less than 40 people and PFCA shows the highest accuracy for higher crowd densities, up to 500 people, with an improvement of 1% . Their respective strengths could be attributed for the former to the joint spa-tial–channel attention design, which enhances the localiza-tion of salient regions while preserving inter-channel feature relationships, an advantage in sparse scenes with isolated individuals and high background variability. For the latter, as crowd density increases, spatial cues become less informative due to severe overlap and occlusion. In such cases, channel attention mechanisms like PFCA prove more effective, as they focus on inter-channel dependencies rather than spatial localization, enabling the model to maintain discriminative capability even when spatial separation between individuals is minimal. However, both MSE and the standard deviation of accuracy highlight how much the model’s performance, in particular for low people count and Part A in general, might depend on specifics in the image itself, such as head orientation, camera angle, severe occlusion, etc. Nonetheless, PFCASA shows promise in improving model performance, without adding to it’s complexity. This makes it particularly suitable for edge applications, such as crowd counting in the field of public transportation, where highly sensitive data has to be processed locally. 0
+
+> 100
+> 200
+> 300
+> 400
+> 500
+> 600
+> # of images
+> 0 -
+> 500
+> 500 -
+> 1000
+> 1000 -
+> 1500
+> 1500 -
+> 2000
+> 2000 -
+> 2500
+
+# of people in image 
+
+> 0.5
+> 0.6
+> 0.7
+> 0.8
+> 0.9
+> 1.0
+> Accuracy
+
+pfcasa 
+
+simam 
+
+pfca org (a) 0
+
+> 100
+> 200
+> 300
+> 400
+> 500
+> 600
+> 700
+> # of images
+> 0 -
+> 100
+> 100 -
+> 200
+> 200 -
+> 300
+> 300 -
+> 400
+> 400 -
+> 539
+
+# of people in image 
+
+> 0.84
+> 0.86
+> 0.88
+> 0.90
+> 0.92
+> 0.94
+> 0.96
+> 0.98
+> 1.00
+> Accuracy
+
+pfcasa 
+
+simam 
+
+pfca org 
+
+(b) 
+
+Fig. 3: Figures (a) and (b) show the accuracy comparison at different crowd densities between different configurations tested for Part A and Part B of the Shanghai Tech dataset respectively. Additionally, the background histogram indicates the number of test images in each density bin, giving context for how the results aggregate into the overall accuracy and MAE. 
+
+VII. C ONCLUSION AND FUTURE WORK 
+
+This study investigated the integration of state-of-the-art parameter-free attention mechanisms and a novel attention mechanism into the CSRNet architecture for crowd counting, aiming to enhance accuracy while preserving efficiency for real-time deployment on edge devices. Our experimental results on the ShanghaiTech dataset showed that parameter-free attention modules consistently improved MAE perfor-mance in sparse scenes (Part B), supporting their potential applicability in smart public transport modalities. The ex-periments focused on Part B of the dataset, which is more representative of public transport environments due to its moderate density and varied crowd distribution, indicating that the novel attention mechanism introduced in this paper, 0
+
+> 50
+> 100
+> 150
+> 200
+> 250
+> # of images
+> 0 -
+> 20
+> 20 -
+> 40
+> 40 -
+> 60
+> 60 -
+> 80
+> 80 -
+> 100
+
+# of people in image 
+
+> 0.75
+> 0.80
+> 0.85
+> 0.90
+> 0.95
+> 1.00
+> Accuracy
+
+pfcasa 
+
+simam 
+
+pfca org 
+
+Fig. 4: Model performance in terms of accuracy for crowd densities relevant for public transport (0 - 100 people per image) are visualized here. Only the best performing models were selected for visualization. 
+
+PFCASA, achieves superior results in images with fewer than 40 individuals, while PFCA performs better as crowd density increases. Consequently, the parameter-free PFCASA demonstrates the potential to substitute parameterized atten-tion modules considered and be integrated with occupancy detection models on resource-constrained edge devices in intelligent transport systems. In future work, we plan to evaluate the proposed model using a real public transport dataset collected in Linz, Austria, to further validate its effectiveness in practical deployment scenarios. ACKNOWLEDGMENT 
+
+This work has been conducted as a part of the OptiPEx project (No.101146513) funded by the European Union. Views and opinions expressed are however those of the author(s) only and do not necessarily reflect those of the European Union or CINEA. Neither the European Union nor the granting authority can be held responsible for them. REFERENCES [1] BBC News. (2015) Shanghai new year crush kills 36. Accessed: 2025-07-14. [2] C. Son, D.-H. Ham, S. Jin, and T. Park, “158 deaths at halloween night: An accimap analysis of 2022 itaewon crowd crush in south korea,” Safety Science , vol. 184, p. 106741, 2025. [3] J. C ¸ apalar, A. Nemec, C. Zahradnik, and C. Olaverri-Monreal, “Opti-mization of passenger distribution at metro stations through a guidance system,” in Computer Aided Systems Theory - EUROCAST 2017 - 16th International Conference, Las Palmas de Gran Canaria, Spain, Febru-ary 19-24, 2017, Revised Selected Papers, Part II , ser. Lecture Notes in Computer Science, R. Moreno-D´ ıaz, F. Pichler, and A. Quesada-Arencibia, Eds., vol. 10672. Springer, 2017, pp. 397–404. [4] X. Zhou, “Optimization analysis of the transportation organization during each peak period of guangzhou metro line 3 (including the third north line),” Technol. Develop. Enterprise , vol. 34, no. 20, pp. 72–74, 2015. [5] Y. Li, X. Zhang, and D. Chen, “Csrnet: Dilated convolutional neural networks for understanding the highly congested scenes,” in 2018 IEEE Conference on Computer Vision and Pattern Recognition, CVPR 2018, Salt Lake City, UT, USA, June 18-22, 2018 . Computer Vision Foundation / IEEE Computer Society, 2018, pp. 1091–1100. [6] Q. Li, C. Ma, H. Chen, X. Chen, and X. Yang, “Combinatorial progressive architecture search for crowd counting,” Displays , vol. 83, p. 102686, 2024. [7] Y. Shi, L. Yang, W. An, X. Zhen, and L. Wang, “Parameter-free channel attention for image classification and super-resolution,” arXiv preprint arXiv:2303.11055 , 2023. [8] H. Wang, Y. Fan, Z. Wang, L. Jiao, and B. Schiele, “Parameter-free spatial attention network for person re-identification,” CoRR , vol. abs/1811.12150, 2018. [9] L. Yang, R.-Y. Zhang, L. Li, and X. Xie, “Simam: A simple, parameter-free attention module for convolutional neural networks,” in International conference on machine learning . PMLR, 2021, pp. 11 863–11 874. [10] Y. Zhang, D. Zhou, S. Chen, S. Gao, and Y. Ma, “Single-image crowd counting via multi-column convolutional neural network,” in 
+
+Proceedings of the IEEE conference on computer vision and pattern recognition , 2016, pp. 589–597. [11] B. Li, H. Huang, A. Zhang, P. Liu, and C. Liu, “Approaches on crowd counting and density estimation: a review,” Pattern Analysis and Applications , vol. 24, no. 3, pp. 853–874, 2021. [12] V. S. Lempitsky and A. Zisserman, “Learning to count objects in images,” in Advances in Neural Information Processing Systems 23: 24th Annual Conference on Neural Information Processing Systems 2010. Proceedings of a meeting held 6-9 December 2010, Vancouver, British Columbia, Canada , J. D. Lafferty, C. K. I. Williams, J. Shawe-Taylor, R. S. Zemel, and A. Culotta, Eds. Curran Associates, Inc., 2010, pp. 1324–1332. [13] M. Rodriguez, I. Laptev, J. Sivic, and J. Audibert, “Density-aware person detection and tracking in crowds,” in IEEE International Con-ference on Computer Vision, ICCV 2011, Barcelona, Spain, November 6-13, 2011 , D. N. Metaxas, L. Quan, A. Sanfeliu, and L. V. Gool, Eds. IEEE Computer Society, 2011, pp. 2423–2430. [14] I. Bakour, H. N. Bouchali, S. Allali, and H. Lacheheb, “Soft-csrnet: Real-time dilated convolutional neural networks for crowd counting with drones,” in 2020 2nd International Workshop on Human-Centric Smart Environments for Health and Well-being (IHSH) . IEEE, 2021, pp. 28–33. [15] H. Zhao, S. Lu, L. Wang, Z. Nie, and Y. Li, “Crowd counting method based on improved csrnet,” International Conference on Artificial Life and Robots , vol. 25, pp. 605–610, 01 2020. [16] R. Zhao, Z. Han, Z. Liu, H. Wang, and J. Zhong, “A location-enhanced and multiscale-friendly crowd detecting approach for tram,” IEEE Trans. Instrum. Meas. , vol. 71, pp. 1–9, 2022. [17] X. Cao, Z. Wang, Y. Zhao, and F. Su, “Scale aggregation network for accurate and efficient crowd counting,” in Proceedings of the European conference on computer vision (ECCV) , 2018, pp. 734–750. [18] X. Jiang, Z. Xiao, B. Zhang, X. Zhen, X. Cao, D. Doermann, and L. Shao, “Crowd counting and density estimation by trellis encoder-decoder networks,” in Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , 2019, pp. 6133–6142. [19] Y. Zhang, D. Zhou, S. Chen, S. Gao, and Y. Ma, “Single-image crowd counting via multi-column convolutional neural network,” in 
+
+2016 IEEE Conference on Computer Vision and Pattern Recognition, CVPR 2016, Las Vegas, NV, USA, June 27-30, 2016 . IEEE Computer Society, 2016, pp. 589–597. [20] D. B. Sam, S. Surya, and R. V. Babu, “Switching convolutional neural network for crowd counting,” in 2017 IEEE Conference on Computer Vision and Pattern Recognition, CVPR 2017, Honolulu, HI, USA, July 21-26, 2017 . IEEE Computer Society, 2017, pp. 4031–4039. [21] X. Yang and X. Lu, “Multi scale attention network for crowd count-ing,” in CSAE 2021: The 5th International Conference on Computer Science and Application Engineering, Sanya, China, October 19 - 21, 2021 , A. Emrouznejad and J. R. Chou, Eds. ACM, 2021, pp. 22:1– 22:8. [22] J. Gao, Q. Wang, and Y. Yuan, “SCAR: spatial-/channel-wise attention regression networks for crowd counting,” Neurocomputing , vol. 363, pp. 1–8, 2019. [23] L. Zhu, Z. Zhao, C. Lu, Y. Lin, Y. Peng, and T. Yao, “Dual path multi-scale fusion networks with attention for crowd counting,” CoRR , vol. abs/1902.01115, 2019. [24] S. Woo, J. Park, J.-Y. Lee, and I. S. Kweon, “Cbam: Convolutional block attention module,” in Proceedings of the European conference on computer vision (ECCV) , 2018, pp. 3–19. [25] J. Hu, L. Shen, and G. Sun, “Squeeze-and-excitation networks,” in 
+
+Proceedings of the IEEE conference on computer vision and pattern recognition , 2018, pp. 7132–7141. [26] Q. Hou, D. Zhou, and J. Feng, “Coordinate attention for efficient mobile network design,” in IEEE Conference on Computer Vision and Pattern Recognition, CVPR 2021, virtual, June 19-25, 2021 .Computer Vision Foundation / IEEE, 2021, pp. 13 713–13 722.

@@ -1,0 +1,70 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.23531v1/fig-001.webp",
+      "caption": "Fig. 3: The overall pipeline of our proposed PixIE. Given a low-light input, the crossscale denoising stream suppresses noise fine-to-coarse, followed by Multi-ReceptiveField Pixel Embedding (MRPE), and DINO-Prompted Pixel Blocks (DPPBs) inject DINO semantic guidance at each scale, and multi-scale fusion aggregates refined features to predict a residual correction Î = I +R.",
+      "page": 6,
+      "index": 1,
+      "width": 683,
+      "height": 233
+    },
+    {
+      "url": "assets/figures/arxiv/2605.23531v1/fig-002.webp",
+      "caption": "Fig. 5: Qualitative comparison of PixIE with recent state-of-the-art methods on LoLv1 (top row), LoLv2-Real (second row), and LSRW (bottom row) test sets, respectively.",
+      "page": 11,
+      "index": 2,
+      "width": 725,
+      "height": 713
+    },
+    {
+      "url": "assets/figures/arxiv/2605.23531v1/fig-003.webp",
+      "caption": "Fig. 1: DINOv3 ViT-S/16 features under low-light degradation. Left: Mean tokenwise cosine similarity across the 12 transformer layers for three comparisons: Clean vs. Low-Match (noise), Low-Match vs. Low-Raw (illumination), and Clean vs. Low-Raw (noise and illumination). Similarity increases with depth, indicating progressively more stable representations; dotted vertical lines mark the layers {2, 5, 8, 11} used for PixIE conditioning. Right: PCA visualizations at selected layers show the same trend.",
+      "page": 2,
+      "index": 3,
+      "width": 725,
+      "height": 221
+    },
+    {
+      "url": "assets/figures/arxiv/2605.23531v1/fig-004.webp",
+      "caption": "Table 1: Quantitative comparison on LOLv1, LOLv2 (Real and Synthetic), and LSRW. Cells highlighted in red, orange, and yellow denote the best, second-best, and third-best results, respectively.",
+      "page": 10,
+      "index": 4,
+      "width": 725,
+      "height": 229
+    },
+    {
+      "url": "assets/figures/arxiv/2605.23531v1/fig-005.webp",
+      "caption": "Fig. 2: Visual comparison of RetinexFormer [2], CIDNet [49], and PixIE (Ours) on an example LoLv2-Real test image. The low-light input is histogram-stretched to match the ground truth for better noise visualization. PixIE demonstrates superior noise suppression and detail restoration.",
+      "page": 3,
+      "index": 5,
+      "width": 725,
+      "height": 246
+    },
+    {
+      "url": "assets/figures/arxiv/2605.23531v1/fig-006.webp",
+      "caption": "Fig. 4: Patch-conditioned modulation strategy comparison: (A) Global broadcast applies one shared vector to all pixels. (B) Patch-wise constant uses one token per patch, yielding piecewise-constant modulation and grid seams at patch boundaries. (C) Perpixel MLP predicts pixel-wise parameters within each patch, but independent per-patch prediction may introduce boundary discontinuities. (D) Ours upsamples the token grid to full resolution, producing a spatially continuous modulation field with no hard patch boundaries.",
+      "page": 8,
+      "index": 6,
+      "width": 725,
+      "height": 233
+    },
+    {
+      "url": "assets/figures/arxiv/2605.23531v1/fig-007.webp",
+      "caption": "Table 2: Quantitative comparison on five unpaired datasets: LIME, VV, DICM, NPE, and MEF. Cells highlighted in red, orange, and yellow denote the best, second-best, and third-best results, respectively.",
+      "page": 12,
+      "index": 7,
+      "width": 725,
+      "height": 216
+    },
+    {
+      "url": "assets/figures/arxiv/2605.23531v1/fig-008.webp",
+      "caption": "Fig. 6: Qualitative comparison of PixIE with recent state-of-the-art methods on five unpaired datasets to show generalization.",
+      "page": 12,
+      "index": 8,
+      "width": 725,
+      "height": 231
+    }
+  ]
+}
