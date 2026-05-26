@@ -1,0 +1,497 @@
+Title: SLIP-RS: Structured-Attribute Language-Image Pre-Training for Remote Sensing Object Detection
+
+URL Source: https://arxiv.org/pdf/2605.23144v1
+
+Published Time: Mon, 25 May 2026 00:19:36 GMT
+
+Number of Pages: 15
+
+Markdown Content:
+# SLIP-RS: Structured-Attribute Language-Image Pre-Training for Remote Sensing Object Detection 
+
+Chenxu Wang 1 Yuxuan Li 1 Yunheng Li 1 Xiang Li 1 2 Jingyuan Xia 3 Qibin Hou 1 2 
+
+Abstract 
+
+Existing language-image pre-training for remote sensing object detection is constrained by Mono-lithic Label Learning, which relies on exhaus-tively enumerating open-set categories via black-box data to acquire fine-grained representations, creating a dependency incompatible with the domain’s inherent data scarcity. To transcend this bottleneck, we propose SLIP-RS, establish-ing a Structured-Attribute Decoupling Paradigm that maps the open-ended category space into a finite, physically meaningful attribute space, unlocking fine-grained discriminability via ex-plicit structural logic. This paradigm is real-ized via two technical pillars: (1) Structured-Attribute Contrastive Learning, which enforces the learning of decoupled intrinsic visual logic via combinatorial attribute augmentation; and (2) Conformal Attribute Reliability Engine, which leverages conformal prediction theory to rigor-ously distill high-fidelity supervision from noisy sources, yielding RS-Attribute-15M, the largest dataset with over 15 million attribute annota-tions. Extensive experiments demonstrate that SLIP-RS establishes unprecedented performance in fine-grained detection and cross-domain gen-eralization. Code: https://github.com/ facias914/SLIP-RS .
+
+1. Introduction 
+
+Large-scale pre-training for remote sensing object detec-tion has emerged as a pivotal research direction, aiming to propel the field from coarse-grained localization to fine-grained semantic understanding. This paradigm is essential to transcend the dual bottlenecks of scarce annotated data and limited category coverage inherent in closed-set detec-tors (Yang et al., 2021a; Li et al., 2025a; Cai et al., 2024). 
+
+> 1
+
+VCIP, CS, Nankai University 2NKIARI, Shenzhen Futian 
+
+> 3
+
+National University of Defense Technology. Correspondence to: Qibin Hou <houqb@nankai.edu.cn >.Category Name                 
+
+> Frequency
+> Commercial Aircraft
+> Combi Aircraft
+> Chartered Aircraft
+> Training Aircraft
+> Private Aircraft
+> Fighter Aircraft
+> Transport Aircraft
+> Propeller Aircraft
+> Reconnaissance
+> ...
+> Piston Aircraft
+> Boeing 737
+> Boeing 747
+> Airbus A330
+> ...
+> Open-WorldRemoteSensingCategorySpace
+> ...
+> CategorySpaceis
+> Open-Ended
+> ...
+> EngineCount
+> ...
+> WingShape
+> ...
+> Structured-AttributeSpace
+> ...Attributesare
+> Limited
+> Propulsion
+> ...
+> Paradigmshift
+> Discriminative
+> FeatureRegion
+> Propulsion
+> WingShape
+> EngineCount
+> 10
+> 01
+
+Figure 1. Structured-Attribute Decoupling Paradigm that decom-poses objects into finite structural attributes, enabling scalable and discriminative fine-grained representation learning. 
+
+Ideally, such a pre-training framework should endow the model with robust and transferable feature representations. These representations enable the model to not only encom-pass a broad spectrum of fine-grained categories with supe-rior domain generalization during pre-training but also serve as a solid foundation that flexibly adapts to diverse novel categories and scenarios via downstream fine-tuning. How-ever, realizing this vision faces a fundamental challenge: How can we effectively expand the perception boundaries of fine-grained categories from an open-ended category space where detailed supervision is notoriously scarce? To bridge the category expansion bottleneck in remote sens-ing, mainstream research (Pan et al., 2025; Huang et al., 2025) predominantly adopts the Open-Vocabulary Learning paradigm from the general vision domain (Li et al., 2022; Liu et al., 2024b). Inspired by CLIP (Radford et al., 2021), this paradigm leverages region-level image–language con-trastive learning to map visual features into the linguistic space, aiming to extending closed-set detectors (Dai et al., 2021; Zhang et al., 2022) to open-set scenarios through the semantically rich language. However, we contend that this approach fundamentally remains trapped in the dogma of Monolithic Label Learning. It merely shifts from the mechanical memorization of discrete category IDs to the 1
+
+> arXiv:2605.23144v1 [cs.CV] 22 May 2026 SLIP-RS: Structured-Attribute Language-Image Pre-Training for Remote Sensing Object Detection
+
+holistic matching of continuous category name embeddings, without truly decoupling the semantic structure. The above paradigm encounters two insurmountable barri-ers in the context of remote sensing fine-grained perception. First is the data-driven scalability bottleneck. This paradigm relies on black-box image-text pairs to exhaustively enumer-ate the open-ended category space, thereby implicitly learn-ing fine-grained representations. However, the remote sens-ing domain naturally lacks comparable public data sources with high semantic density, depriving the model of sufficient supervisory signals for learning fine-grained representations. Second is the loss of discriminability caused by Semantic Binding. The model continues to treat each category (e.g., 
+
+Boeing 747 ) as an inextricable semantic black dot, rather than a set of independent and recombinable visual attributes (e.g., four engines + swept wings ). This neglect of object structure leads to a recognition blind spot, where the model struggles to capture key discriminative features when distin-guishing targets with subtle attribute differences. To address these dilemmas, we argue that the essence of ob-ject semantics should not be confined to a single label but be reconceptualized as a structured combination of attributes (as shown in Figure 1). Inspired by this, we propose SLIP-RS ( Structured-Attribute Language-Image Pre-training for 
+
+Remote Sensing), whose core contribution lies in establish-ing an Structured-Attribute Decoupling Paradigm. Instead of mapping objects to static, indivisible monolithic labels, we decompose them into a set of orthogonal and mutually exclusive semantic primitives (e.g., engine count and wing shape ). This paradigm shift fundamentally reshapes the model’s representation space. On one hand, it endows the model with extreme fine-grained discriminability, enabling it to precisely distinguish visually similar targets through explicit attribute differences (e.g., differentiating engine counts). On the other hand, by aligning with a physically meaningful attribute space, the model acquires robust rep-resentations rich in structural priors. These attribute-level priors transcend simple data memorization, constituting a feature foundation with immense transfer potential. This al-lows the model to leverage its acute perception of geometric structures and fine-grained features to demonstrate superior performance upper bounds during downstream fine-tuning. To substantiate this paradigm, we design two core techni-cal pillars. The first is the Structured-Attribute Contrastive Learning (SACL) mechanism. Through structured-attribute dictionary construction and randomized combinatorial aug-mentation, SACL enforces the learning of independent, de-coupled attribute representations. This mechanism explicitly prevents shortcut learning based on linguistic templates, en-suring that the model comprehends intrinsic visual logic rather than mere rote memorization. The second is the Con-formal Attribute Reliability Engine (CARE). To address the scarcity of grounding-level attribute supervision, CARE operates via a progressive Tune-Calibrate-Scale pipeline. It first fine-tunes a specialized fine-grained teacher model to generate candidate attribute annotations, then critically inte-grates Conformal Prediction theory (Shafer & Vovk, 2008) during calibration. By replacing heuristic thresholding with rigorous statistical boundaries that strictly control the False Discovery Rate, CARE effectively filters noise labels with theoretical guarantees. This engine enables the curation of RS-Attribute-15M (comprising over 15 million instance-level attribute annotations), serving as the robust data fuel for learning fine-grained attribute representations. Extensive experiments validate SLIP-RS’s superiority over other methods across fine-grained category and attribute detection, cross-domain generalization, and downstream fine-tuning tasks. These results confirm that Structured-Attribute Language-Image Pre-Training is a vital pathway for building scalable remote sensing foundation models. In summary, our main contributions are: • We propose SLIP-RS, establishing a novel Structured-Attribute Decoupling Paradigm that shifts from mono-lithic labeling to compositional semantic primitives, fundamentally enhancing fine-grained discriminability. • We design SACL, a Structured-Attribute Contrastive Learning strategy that enforces intrinsic visual logic learning via combinatorial attribute augmentation. • We introduce the CARE engine to curate RS-Attribute-15M, the first detection dataset with attribute annota-tions serving as a robust foundation for learning fine-grained attribute representations. 
+
+2. Related Work 
+
+2.1. Remote Sensing Object Detection 
+
+Benefiting from the flourishing development of deep learn-ing in the general domain (Ren et al., 2016; Redmon et al., 2016; Lin et al., 2017; Carion et al., 2020) and the establish-ment of remote sensing object detection benchmarks (Xia et al., 2018; Sun et al., 2022a), generic detection frameworks have been extensively adapted to the remote sensing domain. To address intrinsic challenges such as extreme variations in scale and aspect ratio, arbitrary object orientation, dense ob-ject clustering, and high annotation costs, existing research has established a comprehensive array of solutions. Specifi-cally, researchers have significantly enhanced performance by innovating in network architecture (Han et al., 2021; Li et al., 2026), designing advanced label assignment strate-gies (Xu et al., 2022b; Hou et al., 2022; Xu et al., 2023), optimizing regression loss functions (Yang et al., 2021b;c), and employing label-efficient learning strategies (Hua et al., 2023; Wang et al., 2025) that leverage unlabeled data for 2SLIP-RS: Structured-Attribute Language-Image Pre-Training for Remote Sensing Object Detection 
+
+semi-supervised training or learn rotated box regression from low-cost horizontal box (Yang et al., 2023; Yu et al., 2023) and point annotations (Yu et al., 2024; 2025). Never-theless, beneath these advancements, most methods treats recognition as discrete ID classification within a static tax-onomy, they collapse diverse instances into semantic black dots, inducing a semantic binding that prevents learning dis-criminative fine-grained representations under data scarcity. 
+
+2.2. Contrastive Language-Image Pre-training 
+
+The field of computer vision has witnessed a paradigm shift from closed-set label supervision to open-ended language supervision. Pioneering works such as CLIP (Radford et al., 2021), ALIGN (Jia et al., 2021), and SigLIP (Zhai et al., 2023) revolutionized visual recognition by introducing con-trastive learning on image-text pairs. By leveraging the rich semantic information inherent in language modality, these models established a robust foundation for fine-grained discriminative representations learning. Inspired by this paradigm, subsequent research (Li et al., 2022; Liu et al., 2024b; Yao et al., 2022; Cheng et al., 2024) has extended this capability to dense prediction tasks, giving rise to Open-Vocabulary Object Detection. Instead of relying on a fixed classifier, these methods align region-level visual features with text embeddings derived from language encoders (e.g., BERT (Devlin et al., 2019) or CLIP text tower) to leverage the boundless semantics of language. Propelled by data en-gines operating on black-box scale image-text corpora, these frameworks derive robust open-vocabulary capabilities and the emergent power to detect novel categories. This paradigm has been extensively adapted to remote sens-ing, yet confronts unique domain-specific hurdles. Ef-forts such as GRAFT (Mall et al., 2023), SkyScript (Wang et al., 2024b), and RemoteCLIP (Liu et al., 2024a) have at-tempted to replicate this paradigm by constructing domain-specific image-text pairs via ground-satellite alignment or geo-spatial tagging, and ScoreRS (Muhtar et al., 2025) fur-ther introduces preference-based scoring to filter these data for higher quality. However, unlike the web-scale corpora in general vision that offer exhaustive fine-grained coverage, these remote sensing datasets are predominantly anchored in coarse-grained alignment. The available textual descrip-tions (e.g., an aerial view of an aircraft ) inherently fail to capture the object attributes (e.g., wing shape ) required for fine-grained recognition. Meanwhile, remote sensing open-vocabulary object detection confronts an identical bot-tleneck. Although recent approaches (Li et al., 2024a; Pan et al., 2025; Huang et al., 2025) attempt to augment se-mantics via Vision-Language Models (Chen et al., 2024) or visual prompts, they remain confined to coarse-grained category expansion. Deprived of the massive attribute-rich data needed to implicitly learn fine-grained details (Li et al., 2025c;d), they struggle to penetrate the semantic binding of objects, compromising their utility in learning fine-grained representations. 
+
+3. Method 
+
+In this section, we present the proposed SLIP-RS frame-work. We begin by revisiting standard contrastive learn-ing, identifying its monolithic supervision relying on data-drive. To bridge this gap, we introduce Structured-Attribute Contrastive Learning (SACL). As illustrated in Figure 2, this module initiates a paradigm shift by eformulating con-trastive learning as the alignment between visual features and attribute set to enforce fine-grained discriminability. Fi-nally, to address the scarcity of required grounding-level attribute data, we propose the Conformal Attribute Reliabil-ity Engine (CARE), a self-improving mechanism that distills high-fidelity pseudo-labels to fuel the SLIP-RS training. 
+
+3.1. Preliminaries 
+
+We first revisit the standard Contrastive Vision-Language Pre-training paradigm. Current mainstream methods (Rad-ford et al., 2021; Li et al., 2022) typically adopt a Monolithic Alignment strategy. Let fI (·) and fT (·) denote the image and text encoders, respectively. Formally, given a batch of N vision-text pairs {(Ii, T i)}Ni=1 , where Ii is the visual input and Ti is the corresponding holistic text description (e.g., A satellite view of an aircraft ), the model align visual embedding and text embedding via the InfoNCE loss: 
+
+L = − 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+log exp (sim ( fI (Ii) , f T (Ti)) /τ )
+
+PNj=1 exp (sim ( fI (Ii) , f T (Tj )) /τ ) ,
+
+where sim (u, v) = uT v/∥u∥∥ v∥ denotes the cosine sim-ilarity between normalized u and v, and τ is a learnable temperature parameter. While effective in general vision, this paradigm relies heavily on brute-force data scaling to compensate for the inherent looseness of In-Batch Negatives. In a standard mini-batch, negative texts {Tj }j̸ =i typically represent distinct categories (e.g., ship vs. aircraft ). These easy negatives allow the model to minimize loss by learn-ing only coarse-grained patterns while ignoring internal structures (e.g., engine count ). In the general domain, this is mitigated by training on billions of pairs to implicitly cover fine-grained descriptions. However, the remote sens-ing domain confronts a data-driven scalability bottleneck since it lacks the massive fine-grained data required to drive such implicit learning. Consequently, relying on this Mono-lithic Label Learning inevitably induces Semantic Binding by treating categories as inextricable semantic black dots, which results in a recognition blind spot where fine-grained categories collapse into indistinguishable clusters. 3SLIP-RS: Structured-Attribute Language-Image Pre-Training for Remote Sensing Object Detection (a) Illustration of the text samples construction pipeline for Structured-Attribute Contrastive Learning          
+
+> RandomDrop&RandomShuffle
+> ProtoTag"Plane"
+> Usage"Military",..."Commercial"
+> Purpose"AirlineAircraft",..."Fighter"
+
+...      
+
+> Engines"One-engine",..."Four-engine"
+> "Plane+Commercial+AirlineAircraft+...+Four-engine"
+> "Plane+Four-engine+Commercial"
+> AttributeReplacement
+> Structured-AttributeDictionary
+> "Plane+One-engine+Commercial"
+> "Plane+Four-engine+Military"
+
+...            
+
+> "Plane+One-engine+Military"
+> Negative
+> Positive
+> Text
+> Encoder
+> TextSamples
+> Construction
+> (b)Structured-AttributeContrastiveLearningforClassification
+> RPN
+> RoIHead
+> (c)Structured-AttributeContrastiveLearningforDetection
+> Attribute
+> Dictionary
+> Image
+> Encoder
+> Image
+> Encoder
+
+Figure 2. Overview of Structured-Attribute Contrastive Learning. (a) Positive prompts are generated via Random Drop and Shuffle to enforce permutation invariance. Hard negatives are synthesized via Attribute Replacement, creating counterfactual prompts for fine-grained discrimination. (b) & (c) Unified Learning: The model optimizes a unified contrastive objective, which aligns representations at the (b) global image level for classification and adapts to the (c) local region level (via RoI features) for detection. 
+
+3.2. Structured-Attribute Contrastive Learning 
+
+To dismantle the barriers of Monolithic Label Learning, we establish a Structured-Attribute Decoupling Paradigm. Instead of mapping visual features to an infinite category space C (|C| → ∞ ), we decompose objects into orthogo-nal semantic primitives within a finite structured-attribute space A. This formulation compels the model to learn fine-grained representations via combinatorial reasoning rather than mechanical memorization. 
+
+Structured Attribute Dictionary Construction. We for-mally redefine the object semantic space. Unlike free-form textual descriptions, we postulate that object semantics can be decomposed into a set of structured attributes. For an object category c, we define its structured attribute dictio-nary as D(c) = {(Km, Vm)}Mm=1 . Here, Km represents a specific Attribute Dimension (e.g., engine count ), and 
+
+Vm = {vm, 1, v m, 2, . . . , v m,N m } denotes the set of valid Se-mantic Primitives (discrete states) for this dimension. This construction adheres to two physical constraints: (1) Di-mensional Orthogonality: each key Km represents an in-dependent axis of visual variation. The semantic state of one dimension (e.g., engine count ) imposes no conditional constraints on another (e.g., propulsion type ). This prior compels the model to learn physically decoupled feature subspaces rather than entangled correlations. (2) State Ex-clusivity: the primitives within a set Vm are mutually exclu-sive. For any object, exactly one primitive vm ∈ V m holds true (e.g., a plane cannot be simultaneously four-engine and 
+
+twin-engine ). This eliminates label ambiguity and sharpens the decision boundaries. Based on this dictionary, we de-fine the ground-truth representation of an object instance 
+
+x ∈ c not as a monolithic label, but as a structured attribute set A(x) = {v1, v 2, . . . , v M }, where each vm is a distinct primitive selected from the dictionary D(c).
+
+Positive Attribute Prompts Construction. We design the positive prompt generation to rigorously model the intrinsic topological structure of the attribute set. Fundamentally, 
+
+A(x) is an unordered collection, whereas text encoders are sequence-dependent. To bridge this gap, we transform the static set into Stochastic Semantic Views via two opera-tions: (1) Random Shuffling: by applying a random per-mutation operator π, we force the model to approximate a permutation-invariant set function, decoupling semantics from spurious positional biases. (2) Random Dropout: we randomly mask attributes to generate subsets ˜A+ ⊆ A (x).Mathematically, this approximates sampling from the at-tribute power set, compelling the model to learn holographic representations where any valid attribute subset aligns with the visual features. Formally, the prompt is generated as 
+
+T + = Φ( π( ˜A+)) , where Φ denotes the serialization func-tion. Beyond theory, this theoretical formulation also serves as robust augmentation, preventing overfitting to fixed lin-guistic templates and simulating partial observability (e.g., occlusion) in remote sensing imagery. 
+
+Negative Attribute Prompts Construction. Complement-ing the robustness of positive views, we introduce Counter-factual Hard Negative Mining to strictly enforce fine-grained discriminability. Standard in-batch negatives typically rep-resent distinct categories (e.g., ship vs. aircraft ), which are semantically distant from the anchor. To dismantle this Se-mantic Binding, we generate negatives that are topologically adjacent to the positive anchor yet semantically contradic-tory. We execute this via Attribute Replacement. Leveraging the State Exclusivity of D(c), we perturb the positive set 
+
+˜A+ by swapping a valid primitive vm with a hard antagonist 
+
+v′ 
+
+> m
+
+sampled from the same dimension: 
+
+˜A− = ( ˜A+ \ { vm}) ∪ { v′
+
+> m
+
+}, v′ 
+
+> m
+
+∈ V m \ { vm}.
+
+The resulting prompt T − = Φ( ˜A−) acts as a near-manifold hard negative, compelling the model to verify local primi-tives and strictly refine the decision boundary. 4SLIP-RS: Structured-Attribute Language-Image Pre-Training for Remote Sensing Object Detection 
+
+Implementation Details. Unlike standard paradigms that share negatives across a batch, we explicitly construct a unique set of a stochastic positive prompt T + and k coun-terfactual hard negatives {T − 
+
+> 1
+
+, · · · , T − 
+
+> k
+
+} for each visual instance I, while I is the global [CLS] token for classifica-tion(figure 2(b)) and RoI feature for detection(figure 2(c)). For instances lacking attribute annotations(e.g., Bridge ), we utilize other distinct categories in the dataset as negative samples(e.g., Intersection and Helipad ). To ensure stable semantic grounding, we prepend a fixed ProtoTag (denoting the coarse category, e.g., Plane ) to the beginning of every prompt(e.g., Plane + four engines + swept wings ). Crucially, this tag is exempt from the random dropout and shuffling applied to the subsequent attributes. The serialization func-tion Φ adopts a minimalist syntax: it simply concatenates the selected attribute primitives with a “ +” separator (e.g., 
+
+delta wing + twin engine ), as shown in Figure 2. 
+
+3.3. Conformal Attribute Reliability Engine 
+
+The efficacy of SLIP-RS hinges on the availability of grounding-level attribute-image data, which is scarce in existing datasets. To bridge this gap, we curate an attribute dataset covering the three most ubiquitous remote sensing categories( plane, ship, vehicle ) via the proposed Conformal Attribute Reliability Engine (CARE). CARE operates via a progressive Tune-Calibrate-Scale pipeline, designed to rig-orously distill high-fidelity supervision from noisy sources with statistical guarantees. 
+
+Tune Stage. The primary objective of this stage is to estab-lish a specialized attribute classifier capable of generating high-quality instance-level pseudo-labels for subsequent scaling. We first address the cold-start problem by curat-ing an expert-verified seed attribute classification dataset 
+
+Dseed . Acknowledging the varying resolutions and struc-tural complexities of remote sensing categories, we em-ploy an adaptive granularity strategy for attribute definition: 1) For large, structurally discernable targets (e.g., planes ), we define component-level attributes (e.g., wing shape , en-gine position ) to capture rich details; 2) For smaller targets (e.g., ships , vehicles ), where component visibility is lim-ited, we focus on functional-level attributes (e.g., container ship , pick-up ). More detailed attribute definitions are pro-vided in Table 7. Upon this foundation, we fine-tune a teacher model (initialized from RemoteCLIP-ViT/32B (Liu et al., 2024a)) using the SACL strategy. This process yields RemoteCLIP-FG, which serves two critical purposes: it equips the teacher with fine-grained discrimination capa-bilities needed for pseudo-labeling, and crucially, it aligns the text encoder with visual concepts, providing a robust initialization for the subsequent detector training. 
+
+Calibrate Stage. Although RemoteCLIP-FG exhibits strong attribute classification capability, its raw confidence distribution is often misaligned with empirical accuracy (e.g., a confidence score of 0.9 does not imply 90% ac-curacy). Applying a heuristic fixed threshold to these un-calibrated scores introduces unpredictable label noise. To ensure high-fidelity supervision, we employ Conformal Prediction (Shafer & Vovk, 2008) to derive statistically valid, attribute-specific thresholds. For an attribute class 
+
+k, we reserve a calibration subset Dkcal and define the non-conformity score function as sk(x) = 1 − ˆpk(x), where 
+
+ˆpk(x) denotes the predicted probability for the ground truth. To control the error rate at a predefined tolerance level α
+
+(e.g., 0.1), we compute the (1 − α)-th quantile of the non-conformity scores on Dkcal , denoted as ˆqk. The calibrated threshold is then derived as τk = 1 − ˆqk. Theoretically, this mechanism provides a marginal coverage guarantee en-suring that the truth is retained in the prediction set with probability at least 1 − α:
+
+P(y ∈ C (x)) ≥ 1 − α, where C(x) = {k | ˆpk(x) ≥ τk}.
+
+By replacing heuristic guesswork with rigorous statistical bounds, this stage purifies the pseudo-labels to reject uncer-tain predictions while preserving high-confidence attributes. 
+
+Scale Stage. Equipped with the statistically calibrated thresholds τk, we execute a large-scale filtration pipeline to construct the final RS-Attribute-15M detection dataset. This dataset is aggregated from two distinct sources: 1) RS-Attribute-O, which revitalizes 14 open-source RS detection datasets and is enriched with fine-grained attribute anno-tations by the CARE; 2) RS-Attribute-C, sourced from di-verse third-party channels, where we first generate instance-level detection pseudo-labels and subsequently append fine-grained attribute pseudo-labels via the CARE. This rigorous filtration yields RS-Attribute-15M (details are shown in Ta-ble 1), the largest attribute-grounded RS dataset to date with over 15 million annotated instances, providing the essential data fuel for learning fine-grained attribute representations. 
+
+4. Experiments 
+
+4.1. Implementation Details 
+
+We implement SLIP-RS based on the Faster R-CNN (Ren et al., 2016) detector, as its label assignment strategy nat-urally accommodates ambiguous samples, enabling more stable training under noisy pseudo labels compared with the hard binary matching strategies adopted by one-stage and DETR-based detectors. Furthermore, we replace the origi-nal MaxIoU label assignment strategy with RFLA (Xu et al., 2022b) to better accommodate the characteristics of remote sensing objects. The visual backbone employs ConvNeXT-T/L (Liu et al., 2022) initialized with DINOv3 (Sim ´eoni et al., 2025) weights, while the text encoder utilizes the frozen RemoteCLIP-FG to maintain semantic stability. All experiments are conducted on 8 NVIDIA A40 GPUs us-5SLIP-RS: Structured-Attribute Language-Image Pre-Training for Remote Sensing Object Detection 
+
+Table 1. Statistics of the RS-Attribute-15M. Note that ‘Instances’ denotes the bounding box annotations, while ‘Attributes’ refers to the subset of high-fidelity instances annotated with attributes via the CARE engine. RS-O and RS-C denote data without attribute annotation. RS-Attribute-O and RS-Attribute-C are subsets of RS-O and RS-C, respectively. RS-Attribute-15M Source Images Instances Attributes RS-Attribute-O & RS-O 
+
+> AITOD-v2 (Xu et al., 2022a); RSD-GOD (Zhuang et al., 2019); DOTA2 (Xia et al., 2018); FGSD (Chen et al., 2020); HRPlane (Bakırman & Sertel, 2023); DIOR (Li et al., 2020); MAR20; SODA-A (Pisani et al., 2024); RSOD (Long et al., 2017); SIMD (Haroon et al., 2020); Fair1M (Sun et al., 2022a); GLHBridge (Li et al., 2024b); DroneVehicle (Sun et al., 2022b); NWPU-VHR-10 (Cheng et al., 2014);
+
+216,895 3,058,905 881,672 RS-Attribute-C & RS-C Diverse third-party channels 570,853 28,092,216 14,609,802 
+
+Table 2. Comparison with existing methods on DOTA-v2.0 (HBB) and DIOR-H. SLIP-RS denotes the baseline trained without attribute supervision, while SLIP-RS* refers to the model trained with our SACL strategy incorporating fine-grained attribute annotations. The base detectors of LAE-DINO and OpenRSD are DINO and RTMDet, respectively. Methods Backbone Training data DOTA2 (mAP) DIOR (AP50) Zero-shot Fine-tune Fine-tune Faster-RCNN (Ren et al., 2016) ConvNeXT-T (Liu et al., 2022) DOTA2.0 & DIOR – 39.21 74.10 DINO (Zhang et al., 2022) Swin-T (Liu et al., 2021) DOTA2.0 & DIOR – 38.32 73.27 RTMDet (Lyu et al., 2022) RTMDet-L (Lyu et al., 2022) DOTA2.0 & DIOR – 39.43 76.52 LAE-DINO (Pan et al., 2025) Swin-T LAE-1M – 39.38 75.67 OpenRSD (Huang et al., 2025) RTMDet-L ORSD+ – 44.57 76.70 ViTP (Li et al., 2025b) ViT-L (Dosovitskiy, 2020) DIOR – – 79.80 SLIP-RS ConvNeXT-T RS-O – 41.24 76.10 SLIP-RS ConvNeXT-T RS-C 35.63 42.56 –SLIP-RS ConvNeXT-T RS-O + RS-C – 45.10 79.97 SLIP-RS* ConvNeXT-T RS-Attribute-15M – 44.43 79.94 SLIP-RS* ConvNeXT-L RS-Attribute-15M – 47.14 83.10 
+
+ing the AdamW optimizer with a batch size of 8, an initial learning rate of 1 × 10 −5, and a weight decay of 5 × 10 −2.The models are trained for 12 epochs, with the learning rate decayed at the 8th and 11th epochs. 
+
+4.2. Zero-Shot and Supervised Transfer 
+
+To comprehensively evaluate the transferability of SLIP-RS, we conduct experiments under two distinct settings: zero-shot domain transfer and supervised transfer. These evaluations are designed to verify not only the model’s cross-domain adaptability but also the generalization efficacy of the proposed paradigm on common categories. 
+
+Datasets and Evaluation Details. We first employ two benchmarks, DOTA-v2.0 (HBB) (Xia et al., 2018) and DIOR-H (Li et al., 2020), to evaluate the model’s adapt-ability to standard scenarios and categories. For DOTA-v2.0 (HBB), we adhere to the official single-scale evaluation pro-tocol. Specifically, high-resolution images are cropped into patches of 1024 × 1024 with an overlap of 200 pixels. To validate the model’s capabilities, we adopt specific train-ing protocols: (1) for zero-shot domain transfer, the model is trained exclusively on our custom RS-C dataset; (2) for supervised transfer, we integrate the training set into the training data. We report the performance on the validation set. For the DIOR-H benchmark, following established practices (Li et al., 2025b), we crop images into 800 × 800 
+
+patches. We merge the training and validation sets for fine-tuning and report the final performance on the testing set. 
+
+Main Results. The quantitative results in Table 2 empir-ically substantiate both the robust cross-domain general-ization and the superior representation quality on common categories delivered by our paradigm. In the zero-shot set-ting, training exclusively on the custom RS-C subset yields a remarkable 35.63% mAP on DOTA-v2.0. Regarding super-vised transfer, our lightweight ConvNeXT-T model achieves 45.10% on DOTA-v2.0 and 79.97% on DIOR, significantly surpassing the specialized OpenRSD (Huang et al., 2025) (44.57% and 76.70%). These underscore the intrinsic ro-bustness of our data, validating its ability to cover diverse semantic scenarios even without target-domain supervision. Scaling to ConvNeXT-L further elevates performance to 47.14% and 83.10%, demonstrating the substantial scalabil-ity of our SLIP-RS. Finally, we address the marginal perfor-mance fluctuation (e.g., 45.10% vs. 44.43%) observed when incorporating fine-grained attribute supervision. This slight trade-off is an expected consequence of the optimization shift that the model diverts capacity from overfitting coarse category boundaries to learning intricate internal structures. Crucially, this negligible cost is well-justified, as it strategi-cally refines the representation space, enabling the coverage of a much broader spectrum of fine-grained categories as demonstrated in subsequent sections. 6SLIP-RS: Structured-Attribute Language-Image Pre-Training for Remote Sensing Object Detection 
+
+Table 3. Quantitative results of atomic fine-grained attribute recognition on the constructed benchmark. ‘P’ for Purpose, ‘U’ for Usage, ‘EP’ for Engine Position, ‘WC’ for Wing Configuration, ‘NE’ for Number of Engine, ‘PT’ for Propulsion Type, ‘S’ for Subcategory. Methods Backbone Training data Plane (mAP) Ship (mAP) Vehicle (mAP) P U EP WC NE PT P U S P ULAE-DINO Swin-T LAE-1M 1.04 6.32 – – – – 8.41 5.47 9.84 14.74 12.31 OpenRSD RTMDet-L ORSD+ 9.03 23.07 – – – – 15.41 12.36 15.67 15.53 18.35 SLIP-RS ConvNeXT-T RS-Attribute-O 67.61 48.77 68.47 70.14 74.27 71.80 20.40 34.00 18.33 19.36 24.72 ConvNeXT-T RS-Attribute-15M 64.85 52.66 71.33 62.60 77.06 76.35 27.26 44.52 17.61 23.90 28.80 ConvNeXT-L RS-Attribute-15M 72.04 57.17 77.33 69.54 80.47 79.10 27.82 48.03 27.61 23.93 31.35 
+
+Table 4. Evaluation of compositional attribute recognition(mAP). Rows 1 and 2 correspond to SLIP-RS-T and SLIP-RS-L. Columns indicate the number of combined attributes, reporting the average performance across all valid combinations. Plane Ship Vehicle 2 3 4 5 6 2 3 262.1 66.9 66.7 60.6 58.8 22.5 15.6 24.0 69.2 72.3 74.4 72.6 72.1 25.2 25.4 23.1 
+
+4.3. Fine-grained and Attribute Recognition 
+
+We then evaluate the fine-grained and attribute recognition capabilities of SLIP-RS. Our objective is to verify that SLIP-RS empowers the model to not only identify visual attributes but also leverage them to expand recognition granularity. 
+
+Benchmark and Evaluation Details. To evaluate fine-grained understanding capabilities, we construct a special-ized benchmark derived from the authoritative datasets, in-cluding Fair1M (Sun et al., 2022a), MAR20 (Wenqi et al., 2024), and HRSC2016. This benchmark encompasses three categories (plane, ship, and vehicle) and is meticulously an-notated with hierarchical attributes, ranging from high-level functional descriptions (e.g., Purpose ) to physical compo-nents (e.g., Engine position ). The details are shown in Ta-ble 9. We adopt a strict prompt-matching protocol to verify the model’s response to specific attributes under two settings: (1) Atomic Attribute Verification: we construct prompts by concatenating the category name with a specific attribute value (formatted as {Category }+{AttributeV alue }, e.g., 
+
+‘Plane+Eight-engine’ ) to test the model’s sensitivity to in-dividual attribute. (2) Compositional Attribute Verification: to further assess multi-attribute recognition robustness, we generate complex prompts by permuting and combining values from different attribute keys (e.g., combining Wing Configuration with Engine Position ). This setting verifying models’ capability to expand the spectrum of recognizable categories through attribute composition. For quantitative evaluation, we report the average performance across all combinations with the same number of attributes. 
+
+Main Results. Table 3 reports the quantitative comparison on atomic attribute verification. Existing methods struggle to distinguish fine-grained classes and attributes. For in-Engine CountWing ShapePurpose     
+
+> AerialSupportAircraftCharteredAircraftAirborneEarlyWarningAircraft
+
+Figure 3. Visualizations of SLIP-RS for attribute-guided fine-grained detection. SLIP-RS not only identifies fine-grained cate-gories but also enables recognition based on specific attributes. 
+
+stance, on Plane Purpose , OpenRSD achieves only 9.03% mAP, failing to differentiate functional types like bombers and fighters. In contrast, SLIP-RS (ConvNeXT-L) achieves 72.04%, representing a significant improvement. This fail-ure stems from their reliance on brute-force category enu-meration, thus are constrained by the scarcity of fine-grained remote sensing data. Finally, we assess the potential to expand recognizable categories through attribute composi-tion. Instead of learning fixed vocabularies, we evaluate the model’s ability to localize targets defined by arbitrary combinations of learned attributes. As shown in Table 4, SLIP-RS achieves robust performance on multi-attribute prompts. This capability is visually corroborated in Figure 4. The model not only precisely distinguishes fine-grained cat-egories but also successfully localizes targets defined by attribute permutations, effectively validating the feasibility of category expansion through attribute composition. 
+
+Qualitative Analysis and Visualization. To interpret the learned representations, we visualize activation maps for different attribute keys (Figure 3). The results demonstrate that SLIP-RS precisely grounds semantic concepts into vi-sual primitives. For instance, in the rows for Engine Count ,the high-response regions are strictly concentrated on the engines, ignoring other fuselage parts. Similarly, for Wing Shape queries, the attention map specifically highlights the wing boundaries, verifying that the model explicitly reasons about geometry rather than global context. Crucially, for abstract Purpose queries, the model identifies key functional discriminators. For instance, it explicitly highlights the cir-7SLIP-RS: Structured-Attribute Language-Image Pre-Training for Remote Sensing Object Detection [ Liquid Cargo Ship, RoRo, Container Ship, Yacht, Barge, Small Car, Van, Bus, Cargo Truck, Excavator, Tractor]                                    
+
+> [Plane+Twin-engnies,
+> Plane+Four-engnies]
+> [Bomber+Swept,variable-sweepwing,Bomber+Sweptwing,
+> EarlyWarningAircraft+Sweptwing,Fighter+Sweptdeltawing]
+> [Plane+Twin-engnies,
+> Plane+Six-engnies]
+> [Plane+Four-engine+Atwingrootsandlowerfuselage,
+> Plane+Twin-engine+Atwingrootsandlowerfuselage]
+> [TransportAircraft+Six-engnies+Propeller]
+> (a)(b)(c)(d)(e)
+> (f)(g)(h)(i)(j)
+
+Figure 4. Visualization of detection results using SLIP-RS. The figure showcases the model’s ability to localize targets based on compositional attributes and identify fine-grained categories. Note that the samples in (d), (e), and (j) are generated by Nano Banana Pro. 
+
+Table 5. Comparison of different methods on the Xview dataset. Methods Backbone Xview (AP50) MTP (Wang et al., 2024a) ViT-L 21.5 ViTP (Li et al., 2025b) ViT-L 26.6 SLIP-RS ConvNeXT-T 25.9 SLIP-RS* ConvNeXT-T 27.2 
+
+cular rotodome for Airborne Early Warning Aircraft and the refueling probe for AerialSupport Aircraft . This confirms that the model reasons based on physically meaningful fea-tures rather than spurious background correlations. We also utilize NanoBanana Pro to synthesize counterfactual sam-ples featuring attribute configurations unseen during train-ing. As illustrated in Figure 4, the model successfully identi-fies aircraft with Six Engines (an attribute cardinality absent in the training set) and correctly localizes targets with un-conventional layouts, such as Plane+Four-engine+At wing roots and lower fuselage , which suggests that the model may capture attributes as partially decoupled visual cues rather than relying solely on holistic label matching. While a systematic evaluation of zero-shot attribute composition is beyond the scope of this study, we believe these prelimi-nary observations highlight an avenue for future research in open-world perception. 
+
+4.4. Evaluation on Complex Downstream Tasks 
+
+We further extend our evaluation to two challenging down-stream scenarios to validate the robustness of SLIP-RS as a pre-training method. 
+
+Transfer to Large-scale Fine-grained Recognition. We first investigate whether the intrinsic fine-grained represen-tations established via attribute supervision can effectively 
+
+Table 6. Evaluation on the DOTAv-2.0 (OBB) dataset. Methods Backbone Params mAP BFM (Cha et al., 2023) ViT-G 2.4B 58.69 S5 (Lv et al., 2025) ViT-H 671.7M 59.89 ViTP (Li et al., 2025b) ViT-L 347.9M 60.23 SLIP-RS ConvNeXT-L 198M 62.54 
+
+transfer to downstream fine-grained recognition task. The underlying hypothesis is that alignment with semantic at-tributes induces a highly discriminative feature manifold, which serves as a superior initialization for resolving sub-tle inter-class discrepancies during subsequent fine-tuning. To verify this, we fine-tune SLIP-RS on Xview dataset, a challenging benchmark encompassing 60 fine-grained cat-egories. Specifically, following prior works (Wang et al., 2024a), we randomly select 700 images for training and 146 images for testing. The images are cropped into 800 × 800 
+
+patches with an overlap of 200 pixels. Quantitative results are presented in Table 5. Incorporating structured-attribute contrastive learning (SLIP-RS*) boosts the baseline AP50 from 25.9% to 27.2%, outperforming even the ViT-L based ViTP (26.6%) despite using a lightweight ConvNeXt-T. This improvement confirms that attribute supervision forces the model to encode critical part-level discriminative cues, which are indispensable for resolving subtle inter-class am-biguities in dense semantic spaces. 
+
+Oriented Object Detection. To further assess the general-ization ability of the learned representations, we extend our evaluation to the DOTA-v2.0 (OBB) benchmark. Specif-ically, we extract the pre-trained ConvNeXT-L backbone from SLIP-RS and integrate it with the Oriented R-CNN detector. We crop images into 1024 × 1024 with an overlap of 200 pixels. Following standard protocols, we merge the training and validation sets for training and report the per-8SLIP-RS: Structured-Attribute Language-Image Pre-Training for Remote Sensing Object Detection 
+
+formance on the test set. Finally, Table 6 shows SLIP-RS achieving 62.54% mAP. This result rivals recent billion-scale foundation models, confirming its exceptional capabil-ity as a robust foundation for adaptation to complex down-stream scenarios. 
+
+5. Conclusions 
+
+We pioneer a Structured-Attribute Decoupling Paradigm to transcend monolithic learning bottlenecks. Leveraging SACL and the CARE, SLIP-RS unlocks robust fine-grained representations without exhaustive supervision. Experi-ments confirm its unprecedented performance, establishing a scalable foundation for remote sensing object detection. 
+
+Acknowledgments 
+
+This research was supported by the Fund of the Na-tional Natural Science Foundation of China (62522607, 62495061, 62276145 and 62576177), Shenzhen Science and Technology Program (QNXMB20250701090801002, JCYJ20250604184027034, JCYJ20240813114237048), Guangdong Basic and Applied Basic Research Foundation (2026A1515011435), and the Fundamental Research Funds for the Central Universities (Nankai University). 
+
+Impact Statement 
+
+This paper presents work whose goal is to advance the field of Machine Learning. There are many potential societal consequences of our work, none which we feel must be specifically highlighted here. 
+
+References 
+
+Bakırman, T. and Sertel, E. A benchmark dataset for deep learning-based airplane detection: Hrplanes. Interna-tional Journal of Engineering and Geosciences , 8(3): 212–223, 2023. Cai, X., Lai, Q., Wang, Y., Wang, W., Sun, Z., and Yao, Y. Poly kernel inception network for remote sensing detection. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pp. 27706– 27716, 2024. Carion, N., Massa, F., Synnaeve, G., Usunier, N., Kirillov, A., and Zagoruyko, S. End-to-end object detection with transformers. In European conference on computer vision ,pp. 213–229. Springer, 2020. Cha, K., Seo, J., and Lee, T. A billion-scale founda-tion model for remote sensing images. arXiv preprint arXiv:2304.05215 , 2023. Chen, K., Wu, M., Liu, J., and Zhang, C. Fgsd: A dataset for fine-grained ship detection in high resolution satellite images. arXiv preprint arXiv:2003.06832 , 2020. Chen, Z., Wu, J., Wang, W., Su, W., Chen, G., Xing, S., Zhong, M., Zhang, Q., Zhu, X., Lu, L., et al. Internvl: Scaling up vision foundation models and aligning for generic visual-linguistic tasks. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pp. 24185–24198, 2024. Cheng, G., Han, J., Zhou, P., and Guo, L. Multi-class geospatial object detection and geographic image clas-sification based on collection of part detectors. ISPRS Journal of Photogrammetry and Remote Sensing , 98:119– 132, 2014. Cheng, T., Song, L., Ge, Y., Liu, W., Wang, X., and Shan, Y. Yolo-world: Real-time open-vocabulary object detection. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pp. 16901–16911, 2024. Dai, X., Chen, Y., Xiao, B., Chen, D., Liu, M., Yuan, L., and Zhang, L. Dynamic head: Unifying object detection heads with attentions. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pp. 7373–7382, June 2021. Devlin, J., Chang, M.-W., Lee, K., and Toutanova, K. Bert: Pre-training of deep bidirectional transformers for lan-guage understanding. In Proceedings of the 2019 confer-ence of the North American chapter of the association for computational linguistics: human language technologies, volume 1 (long and short papers) , pp. 4171–4186, 2019. Dosovitskiy, A. An image is worth 16x16 words: Trans-formers for image recognition at scale. arXiv preprint arXiv:2010.11929 , 2020. Han, J., Ding, J., Xue, N., and Xia, G.-S. Redet: A rotation-equivariant detector for aerial object detection. In Pro-ceedings of the IEEE/CVF conference on computer vision and pattern recognition , pp. 2786–2795, 2021. Haroon, M., Shahzad, M., and Fraz, M. M. Multisized object detection using spaceborne optical imagery. IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing , 13:3032–3046, 2020. Hou, L., Lu, K., Xue, J., and Li, Y. Shape-adaptive selection and measurement for oriented object detection. In Pro-ceedings of the AAAI conference on artificial intelligence ,volume 36, pp. 923–932, 2022. Hua, W., Liang, D., Li, J., Liu, X., Zou, Z., Ye, X., and Bai, X. Sood: Towards semi-supervised oriented object detection. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pp. 15558– 15567, 2023. 9SLIP-RS: Structured-Attribute Language-Image Pre-Training for Remote Sensing Object Detection 
+
+Huang, Z., Feng, Y., Liu, Z., Yang, S., Liu, Q., and Wang, Y. Openrsd: Towards open-prompts for object detection in remote sensing images. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pp. 8384– 8394, 2025. Jia, C., Yang, Y., Xia, Y., Chen, Y.-T., Parekh, Z., Pham, H., Le, Q., Sung, Y.-H., Li, Z., and Duerig, T. Scaling up visual and vision-language representation learning with noisy text supervision. In International conference on machine learning , pp. 4904–4916. PMLR, 2021. Langley, P. Crafting papers on machine learning. In Langley, P. (ed.), Proceedings of the 17th International Conference on Machine Learning (ICML 2000) , pp. 1207–1216, Stan-ford, CA, 2000. Morgan Kaufmann. Li, K., Wan, G., Cheng, G., Meng, L., and Han, J. Object detection in optical remote sensing images: A survey and a new benchmark. ISPRS journal of photogrammetry and remote sensing , 159:296–307, 2020. Li, L. H., Zhang, P., Zhang, H., Yang, J., Li, C., Zhong, Y., Wang, L., Yuan, L., Zhang, L., Hwang, J.-N., et al. Grounded language-image pre-training. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pp. 10965–10975, 2022. Li, Y., Guo, W., Yang, X., Liao, N., He, D., Zhou, J., and Yu, W. Toward open vocabulary aerial object detection with clip-activated student-teacher learning. In European Conference on Computer Vision , pp. 431–448. Springer, 2024a. Li, Y., Luo, J., Zhang, Y., Tan, Y., Yu, J.-G., and Bai, S. Learning to holistically detect bridges from large-size vhr remote sensing imagery. IEEE transactions on pattern analysis and machine intelligence , 46(12):11507–11523, 2024b. Li, Y., Li, X., Dai, Y., Hou, Q., Liu, L., Liu, Y., Cheng, M.-M., and Yang, J. Lsknet: A foundation lightweight backbone for remote sensing. IJCV , 2025a. Li, Y., Zhang, Y., Tang, W., Dai, Y., Cheng, M.-M., Li, X., and Yang, J. Visual instruction pretraining for domain-specific foundation models. arXiv preprint arXiv:2509.17562 , 2025b. Li, Y., Li, X., Li, Y., Yicheng, Z., Dai, Y., Hou, Q., Cheng, M.-M., and Yang, J. Sm3det: A unified model for multi-modal remote sensing object detection. In AAAI , 2026. Li, Z., Song, Y., Cheng, M.-M., Li, X., and Yang, J. Advanc-ing textual prompt learning with anchored attributes. In 
+
+Proceedings of the IEEE/CVF International Conference on Computer Vision , pp. 3618–3627, 2025c. Li, Z., Song, Y., Zhang, X., Luo, L., Li, X., and Yang, J. An-choropt: Towards optimizing dynamic anchors for adap-tive prompt learning. arXiv preprint arXiv:2511.21188 ,2025d. Lin, T.-Y., Goyal, P., Girshick, R., He, K., and Doll ´ar, P. Focal loss for dense object detection. In Proceedings of the IEEE international conference on computer vision ,pp. 2980–2988, 2017. Liu, F., Chen, D., Guan, Z., Zhou, X., Zhu, J., Ye, Q., Fu, L., and Zhou, J. Remoteclip: A vision language foundation model for remote sensing. IEEE Transactions on Geoscience and Remote Sensing , 62:1–16, 2024a. Liu, S., Zeng, Z., Ren, T., Li, F., Zhang, H., Yang, J., Jiang, Q., Li, C., Yang, J., Su, H., et al. Grounding dino: Marry-ing dino with grounded pre-training for open-set object detection. In European conference on computer vision ,pp. 38–55. Springer, 2024b. Liu, Z., Lin, Y., Cao, Y., Hu, H., Wei, Y., Zhang, Z., Lin, S., and Guo, B. Swin transformer: Hierarchical vision transformer using shifted windows. In Proceedings of the IEEE/CVF international conference on computer vision ,pp. 10012–10022, 2021. Liu, Z., Mao, H., Wu, C.-Y., Feichtenhofer, C., Darrell, T., and Xie, S. A convnet for the 2020s. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pp. 11976–11986, 2022. Long, Y., Gong, Y., Xiao, Z., and Liu, Q. Accurate object localization in remote sensing images based on convolu-tional neural networks. IEEE Transactions on Geoscience and Remote Sensing , 55(5):2486–2498, 2017. Lv, L., Wang, D., Zhang, J., and Zhang, L. S5: Scalable semi-supervised semantic segmentation in remote sens-ing. arXiv preprint arXiv:2508.12409 , 2025. Lyu, C., Zhang, W., Huang, H., Zhou, Y., Wang, Y., Liu, Y., Zhang, S., and Chen, K. Rtmdet: An empirical study of designing real-time object detectors. arXiv preprint arXiv:2212.07784 , 2022. Mall, U., Phoo, C. P., Liu, M. K., Vondrick, C., Hariharan, B., and Bala, K. Remote sensing vision-language foun-dation models without annotations via ground remote alignment. arXiv preprint arXiv:2312.06960 , 2023. Muhtar, D., Zhang, E., Li, Z., Gu, F., He, Y., Xiao, P., and Zhang, X. Quality-driven curation of remote sensing vision-language data via learned scoring models. arXiv preprint arXiv:2503.00743 , 2025. Pan, J., Liu, Y., Fu, Y., Ma, M., Li, J., Paudel, D. P., Van Gool, L., and Huang, X. Locate anything on earth: 10 SLIP-RS: Structured-Attribute Language-Image Pre-Training for Remote Sensing Object Detection 
+
+Advancing open-vocabulary object detection for remote sensing community. In Proceedings of the AAAI Confer-ence on Artificial Intelligence , volume 39, pp. 6281–6289, 2025. Pisani, D., Seychell, D., Debono, C. J., and Schembri, M. Soda: A dataset for small object detection in uav captured imagery. In 2024 IEEE International Conference on Image Processing (ICIP) , pp. 151–157. IEEE, 2024. Radford, A., Kim, J. W., Hallacy, C., Ramesh, A., Goh, G., Agarwal, S., Sastry, G., Askell, A., Mishkin, P., Clark, J., et al. Learning transferable visual models from natural language supervision. In International conference on machine learning , pp. 8748–8763. PmLR, 2021. Redmon, J., Divvala, S., Girshick, R., and Farhadi, A. You only look once: Unified, real-time object detection. In 
+
+Proceedings of the IEEE conference on computer vision and pattern recognition , pp. 779–788, 2016. Ren, S., He, K., Girshick, R., and Sun, J. Faster r-cnn: Towards real-time object detection with region proposal networks. IEEE transactions on pattern analysis and machine intelligence , 39(6):1137–1149, 2016. Shafer, G. and Vovk, V. A tutorial on conformal prediction. 
+
+Journal of Machine Learning Research , 9(3), 2008. Sim ´eoni, O., Vo, H. V., Seitzer, M., Baldassarre, F., Oquab, M., Jose, C., Khalidov, V., Szafraniec, M., Yi, S., Ramamonjisoa, M., et al. Dinov3. arXiv preprint arXiv:2508.10104 , 2025. Sun, X., Wang, P., Yan, Z., Xu, F., Wang, R., Diao, W., Chen, J., Li, J., Feng, Y., Xu, T., et al. Fair1m: Abenchmark dataset for fine-grained object recognition in high-resolution remote sensing imagery. ISPRS Journal of Photogrammetry and Remote Sensing , 184:116–130, 2022a. Sun, Y., Cao, B., Zhu, P., and Hu, Q. Drone-based rgb-infrared cross-modality vehicle detection via uncertainty-aware learning. IEEE Transactions on Circuits and Sys-tems for Video Technology , 32(10):6700–6713, 2022b. Wang, C., Xu, C., Li, X., Li, Y., Guo, X., Gu, Z., and Cui, Z. Multi-clue consistency learning to bridge gaps between general and oriented object in semi-supervised detection. In Proceedings of the AAAI Conference on Artificial Intelligence , volume 39, pp. 7582–7590, 2025. Wang, D., Zhang, J., Xu, M., Liu, L., Wang, D., Gao, E., Han, C., Guo, H., Du, B., Tao, D., et al. Mtp: Advancing remote sensing foundation model via multitask pretrain-ing. IEEE Journal of Selected Topics in Applied Earth Ob-servations and Remote Sensing , 17:11632–11654, 2024a. Wang, Z., Prabha, R., Huang, T., Wu, J., and Rajagopal, R. Skyscript: A large and semantically diverse vision-language dataset for remote sensing. In Proceedings of the AAAI Conference on Artificial Intelligence , vol-ume 38, pp. 5805–5813, 2024b. Wenqi, Y., Gong, C., Meijun, W., Yanqing, Y., Xingxing, X., Xiwen, Y., and Junwei, H. Mar20: A benchmark for military aircraft recognition in remote sensing images. 
+
+National Remote Sensing Bulletin , 27(12):2688–2696, 2024. Xia, G.-S., Bai, X., Ding, J., Zhu, Z., Belongie, S., Luo, J., Datcu, M., Pelillo, M., and Zhang, L. Dota: A large-scale dataset for object detection in aerial images. In 
+
+Proceedings of the IEEE conference on computer vision and pattern recognition , pp. 3974–3983, 2018. Xu, C., Wang, J., Yang, W., Yu, H., Yu, L., and Xia, G.-S. Detecting tiny objects in aerial images: A normalized wasserstein distance and a new benchmark. ISPRS Jour-nal of Photogrammetry and Remote Sensing , 190:79–93, 2022a. Xu, C., Wang, J., Yang, W., Yu, H., Yu, L., and Xia, G.-S. Rfla: Gaussian receptive field based label assignment for tiny object detection. In European conference on computer vision , pp. 526–543. Springer, 2022b. Xu, C., Ding, J., Wang, J., Yang, W., Yu, H., Yu, L., and Xia, G.-S. Dynamic coarse-to-fine learning for oriented tiny object detection. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition ,pp. 7318–7328, 2023. Yang, X., Yan, J., Feng, Z., and He, T. R3det: Refined single-stage detector with feature refinement for rotat-ing object. In Proceedings of the AAAI conference on artificial intelligence , volume 35, pp. 3163–3171, 2021a. Yang, X., Yan, J., Ming, Q., Wang, W., Zhang, X., and Tian, Q. Rethinking rotated object detection with gaussian wasserstein distance loss. In International conference on machine learning , pp. 11830–11841. PMLR, 2021b. Yang, X., Yang, X., Yang, J., Ming, Q., Wang, W., Tian, Q., and Yan, J. Learning high-precision bounding box for rotated object detection via kullback-leibler divergence. 
+
+Advances in Neural Information Processing Systems , 34: 18381–18394, 2021c. Yang, X., Zhang, G., Li, W., Wang, X., Zhou, Y., and Yan, J. H2rbox: Horizontal box annotation is all you need for oriented object detection. In International Conference on Learning Representations , 2023. 11 SLIP-RS: Structured-Attribute Language-Image Pre-Training for Remote Sensing Object Detection 
+
+Yao, L., Han, J., Wen, Y., Liang, X., Xu, D., Zhang, W., Li, Z., Xu, C., and Xu, H. Detclip: Dictionary-enriched visual-concept paralleled pre-training for open-world de-tection. Advances in Neural Information Processing Sys-tems , 35:9125–9138, 2022. Yu, Y., Yang, X., Li, Q., Zhou, Y., Da, F., and Yan, J. H2rbox-v2: Incorporating symmetry for boosting hor-izontal box supervised oriented object detection. Ad-vances in Neural Information Processing Systems , 36: 59137–59150, 2023. Yu, Y., Yang, X., Li, Q., Da, F., Dai, J., Qiao, Y., and Yan, J. Point2rbox: Combine knowledge from synthetic visual patterns for end-to-end oriented object detection with single point supervision. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition ,pp. 16783–16793, 2024. Yu, Y., Ren, B., Zhang, P., Liu, M., Luo, J., Zhang, S., Da, F., Yan, J., and Yang, X. Point2rbox-v2: Rethinking point-supervised oriented object detection with spatial layout among instances. In Proceedings of the Computer Vision and Pattern Recognition Conference , pp. 19283–19293, 2025. Zhai, X., Mustafa, B., Kolesnikov, A., and Beyer, L. Sig-moid loss for language image pre-training. In Proceed-ings of the IEEE/CVF international conference on com-puter vision , pp. 11975–11986, 2023. Zhang, H., Li, F., Liu, S., Zhang, L., Su, H., Zhu, J., Ni, L. M., and Shum, H.-Y. Dino: Detr with improved denois-ing anchor boxes for end-to-end object detection, 2022. Zhuang, S., Wang, P., Jiang, B., Wang, G., and Wang, C. A single shot framework with multi-scale feature fusion for geospatial object detection. Remote Sensing , 11(5):594, 2019. 12 SLIP-RS: Structured-Attribute Language-Image Pre-Training for Remote Sensing Object Detection 
+
+A. Implementation Details of Structured-Attribute Contrastive Learning 
+
+Unlike standard paradigms that utilize batch-shared negatives, we implement an instance-specific contrastive formula-tion to enforce fine-grained discrimination. For each visual instance I that represented as the global [CLS] token for classification (Figure 2(b)) or RoI features for detection (Figure 2(c)), we explicitly construct a unique candidate set 
+
+TI = {T +, T −
+
+1 , . . . , T −
+
+k }. The positive prompt T + is generated via a serialization function Φ that adopts a minimalist syntax, concatenating a fixed ProtoTag (denoting the coarse category, e.g., Plane ) with selected attribute primitives using a “ +” separator (e.g., Plane + delta wing + twin engine ). To compel the model to comprehend intrinsic visual logic, we synthesize k counterfactual hard negatives {T −
+
+i } by strategically corrupting the semantic structure of T +. Specifically, we randomly replace attributes with contradictory primitives from the same dimension (e.g., swapping twin-engine for 
+
+four-engine ), while strictly keeping the ProtoTag invariant to ensure stable semantic grounding. For instances lacking attribute annotations, we utilize other distinct categories in the dataset as negative samples. Taking the DOTA-v2.0 dataset as an example, if a Plane instance lacks specific attribute labels, its negative set {T −
+
+i } is constructed by sampling from the other 17 distinct categories (e.g., Ship , Bridge , Harbor , ...), ensuring the model maintains robust categorical boundaries even in the absence of granular supervision. The contrastive loss is then computed exclusively within this instance-wise set TI :
+
+LSACL = − log exp  sim (fI (Ii), f T (T +
+
+i )) /τ 
+
+exp  sim (fI (Ii), f T (T +
+
+i )) /τ  + Pkj exp  sim (fI (Ii), f T (T −
+
+j )) /τ  ,
+
+where sim (u, v) = uT v/∥u∥∥ v∥ denotes the cosine similarity between normalized u and v, and τ is a learnable temperature parameter. It optimizes the alignment between visual features and their precise attribute configurations while suppressing highly plausible but factually incorrect descriptions. 
+
+B. Implementation Details of Conformal Attribute Reliability Engine 
+
+Table 7. Details of the seed attribute classification dataset with attribute statistics for each category. Category Details(The numbers represent the quantity) Plane     
+
+> Number of Images: : 29951.
+> ProtoTag : Plane (29951). Propulsion type : Jet (25586); Propeller (4365). Number of engines : One-engine (2543); Eight-engine (957); Four-engine (11100); Twin-engine (15351).
+> Engine position : One the nose (853); At wing roots and lower fuselage (2758); Beneath the wings (16121); Embedded within wing (276); Above the wings (2); Rear fuselage (9941).
+> Purpose : Aerial Support Aircraft (2591); Airborne Early Warning Aircraft (691); Airline Aircraft (7747); Anti-Submarine Warfare Aircraft (1468); Bomber (3352); Trainer (1035); Chartered aircraft (676); Attack aircraft (203); Fighter (9718); Transport Aircraft (2289). Usage : Civilian Aircraft (1856); Commercial Aircraft (7747); Military Aircraft (20348). Wing configuration : Straight wing (3172); Swept diamond-like wing (409); Flying wing (276); Swept delta wing (185); Swept wing (23835); Swept, variable-sweep wing (2074).
+
+Ship Number of Images: : 10265.    
+
+> ProtoTag : Ship (10265). Purpose : Aircraft Carrier (238); Amphibious Ship (389); Auxiliary Ship (118); Cargo Ship (2686); Commander (75); Cruiser (258); Destroyer (698); Fishing Vessel (1079); Frigate (562); Medical Ship (4); Military Transport Ship (164); Motorboat (496); Passenger Ship (823); Patrol (60); Submarine (550); Landing (53); Medical Ship (13); Tugboat (1257). Subcat : Barge (11); Container Ship (51); Cruise Ship (47); Dry Cargo Ship (3843); Liquid Cargo Ship (597); RoRo (68); Yacht (416). Usage : Civilian Ship (2442); Commercial Ship (2686); Engineering Ship (1871); Military Ship (3266).
+
+Vehicle Number of Images: : 41893.   
+
+> ProtoTag : Vehicle (41893). Purpose : Bus (1063); Cargo Truck (6011); Dump Truck (585); Excavator (1544); Pick-up (859); Small Passenger Car (20855); Tractor (585); Truck Tractor (2024); Van (7610). Usage : Engineering Vehicle (2886); Large Civilian Vehicle (1063); Small Civilian Vehicle (29324); Truck (8620).
+
+B.1. Tune Stage. 
+
+To initiate the pipeline, we construct a high-quality Seed Attribute Classification Dataset, focusing on three of the most ubiquitous yet challenging categories in remote sensing ( Plane, Vehicle, Ship ). Detailed statistics of this seed corpus are provided in Table 7, with representative visual exemplars illustrated in Figure 5. Leveraging this dataset in conjunction with our proposed SACL strategy, we fine-tune the RemoteCLIP-ViT/32B foundation model to serve as a specialized fine-grained teacher (termed as RemoteCLIP-FG), which is subsequently deployed to generate attribute pseudo-labels for every instance across the object detection datasets. We implement a comprehensive adaptation strategy by injecting Low-Rank Adaptation (LoRA) modules into every layer of both the Vision Transformer (ViT) and the Text Encoder. The LoRA rank and alpha scaling factor are set to r = 2 and α = 1 , respectively. RemoteCLIP-FG is optimized using the AdamW optimizer with an initial learning rate of 1 × 10 −5, a weight decay of 1 × 10 −2, and β coefficients of (0 .9, 0.999) . We train the model for 100 epochs, employing a cosine decay schedule to decay the learning rate to a minimum of 1 × 10 −6 every epoch. 13 SLIP-RS: Structured-Attribute Language-Image Pre-Training for Remote Sensing Object Detection "Propulsion type": "Jet",
+
+"Number of engines": "Four-engine",
+
+"Engine position": "Beneath the wings",
+
+"Wing configuration": "Swept wing",
+
+"Purpose": "Airborne Early Warning Aircraft",
+
+"Usage": "Military Aircraft",
+
+"ProtoTag": "Plane"
+
+"Propulsion type": "Jet",
+
+"Number of engines": "Four-engine",
+
+"Wing configuration": "Swept, variable-sweep wing",
+
+"Engine position": "At wing roots and lower fuselage",
+
+"Purpose": "Bomber",
+
+"Usage": "Military Aircraft",
+
+"ProtoTag": "Plane"
+
+"Usage": "Commercial Ship",
+
+"Purpose": "Cargo Ship",
+
+"Subcat": "RoRo",
+
+"ProtoTag": "Ship"
+
+"Usage": "Commercial Ship",
+
+"Purpose": "Cargo Ship",
+
+"Subcat": "Container Ship",
+
+"ProtoTag": "Ship"
+
+"Usage": "Engineering Vehicle",
+
+"Purpose": "Excavator",
+
+"ProtoTag": "Vehicle"
+
+"Usage": "Truck",
+
+"Purpose": "Dump Truck",
+
+"ProtoTag": "Vehicle"
+
+Figure 5. Demo examples from the Seed Attribute Classification Dataset. 
+
+B.2. Calibrate Stage. 
+
+To ensure the robustness of the conformal thresholds, we construct a diverse calibration subset Dcal , with detailed statistics provided in Table 8. On this subset, we set the tolerance level α = 0 .1 to rigorously calibrate the raw attribute prediction score thresholds from RemoteCLIP-FG. However, statistical calibration requires sufficient sample density to be reliable. To address corner cases where specific attribute categories are either absent or sparsely represented (fewer than 10 instances) in the calibration set, we bypass the quantile calculation. Instead, we impose a conservative fixed threshold (e.g., τ = 0 .2) for these long-tail attributes. This fallback strategy is designed to prioritize precision, effectively suppressing potential false positives that could arise from unstable statistical estimates on scarce data. 
+
+Table 8. Details of the calibration dataset with attribute statistics for each category. Category Details(The numbers represent the quantity) Plane     
+
+> Number of Images: : 4882.
+> ProtoTag : Plane (4882). Propulsion type : Jet (3820); Propeller (2429). Number of engines : One-engine (689); Eight-engine (275); Four-engine (2616); Twin-engine (2669).
+> Engine position : One the nose (523); At wing roots and lower fuselage (1224); Beneath the wings (3866); Embedded within wing (15); Above the wings (2); Rear fuselage (621).
+> Purpose : Aerial Support Aircraft (688); Airborne Early Warning Aircraft (478); Airline Aircraft (580); Anti-Submarine Warfare Aircraft (518); Bomber (698); Trainer (556); Chartered aircraft (501); Attack aircraft (351); Fighter (620); Transport Aircraft (699). Usage : Civilian Aircraft (1617); Commercial Aircraft (581); Military Aircraft (4027). Wing configuration : Straight wing (2208); Swept diamond-like wing (85); Flying wing (15); Swept delta wing (185); Swept wing (3565); Swept, variable-sweep wing (373).
+
+Ship Number of Images: : 9028.    
+
+> ProtoTag : Ship (9028). Purpose : Aircraft Carrier (24); Amphibious Ship (30); Auxiliary Ship (6); Cargo Ship (2789); Commander (20); Cruiser (32); Destroyer (698); Fishing Vessel (1283); Frigate (142); Medical Ship (4); Military Transport Ship (9); Motorboat (3626); Passenger Ship (519); Patrol (60); Submarine (202); Landing (23); Medical Ship (13); Tugboat (323). Subcat : Barge (668); Container Ship (301); Cruise Ship (22); Dry Cargo Ship (1014); Liquid Cargo Ship (789); RoRo (17); Yacht (497). Usage : Civilian Ship (5428); Commercial Ship (2789); Engineering Ship (323); Military Ship (488).
+
+Vehicle Number of Images: : 5360.   
+
+> ProtoTag : Vehicle (5360). Purpose : Bus (560); Cargo Truck (651); Dump Truck (562); Excavator (696); Pick-up (658); Small Passenger Car (705); Tractor (349); Truck Tractor (525); Van (654). Usage : Engineering Vehicle (1045); Large Civilian Vehicle (560); Small Civilian Vehicle (2017); Truck (1738).
+
+B.3. Scale Stage. 
+
+In this stage, we aim to scale up the fine-grained supervision. First, we curate a self-built unlabeled dataset, referred to as RS-C. To equip RS-C with object localization information, we utilize a detector trained on the DOTA-v2.0 training set to generate horizontal bounding box annotations. Prioritizing precision over recall to minimize noise, we employ the DOTA-v2.0 validation set as the calibration set. By setting the conformal tolerance level to α = 0 .1, we derive rigorous class-wise score thresholds to filter these bounding box predictions, ensuring high-quality localization. Subsequently, we deploy the RemoteCLIP-FG teacher model, alongside its calibrated attribute thresholds (derived in the Calibrate Stage), to perform attribute pseudo-labeling and filtering on both the aggregated public datasets (RS-O) and the newly curated RS-C. This process culminates in the creation of two massive attribute-annotated datasets: RS-Attribute-O and RS-Attribute-C, 14 SLIP-RS: Structured-Attribute Language-Image Pre-Training for Remote Sensing Object Detection 
+
+Table 9. Details of the fine-grained attribute benchmark, which summarizes the data sources and attribute statistics for each category(‘P’ for Purpose, ‘U’ for Usage, ‘EP’ for Engine Position, ‘WC’ for Wing Configuration, ‘NE’ for Num of Engines, ‘PT’ for Propulsion Type, ‘S’ for Subcat). Category Source Details(The numbers represent the quantity) Plane Fair1m-val Number of Images: : 3394. Number of Instances : 15294;      
+
+> ProtoTag : Plane (15294). Propulsion type : Jet (14013); Propeller (1281). Number of engines : Eight-engine (296); Four-engine (4075); Twin-engine (10923).
+> Engine position : At wing roots and lower fuselage (864); Beneath the wings (11594); Rear fuselage (2836). Purpose : Aerial Support Aircraft (267); Airborne Early Warning Aircraft (221); Airline Aircraft (8756); Anti-Submarine Warfare Aircraft (350); Bomber (1157); Chartered aircraft (133); Fighter (2706); Transport Aircraft (1704). Usage : Civilian Aircraft (133); Commercial Aircraft (8756); Military Aircraft (6405). Wing configuration : Straight wing (922); Swept diamond-like wing (181); Swept wing (12675); Swept, high aspect-ratio wing (655); Swept, variable-sweep wing (861).
+
+MAR20-val&test Ship Fair1m-val Number of Images: : 2951. Number of Instances : 10558;    
+
+> ProtoTag : Ship (10558). Purpose : Aircraft Carrier (111); Amphibious Ship (141); Auxiliary Ship (16); Cargo Ship (4570); Commander (54); Cruiser (142); Destroyer (240); Fishing Vessel (1087); Frigate (156); Medical Ship (4); Military Transport Ship (90); Motorboat (3181); Passenger Ship (463); Patrol (2); Submarine (74); Tugboat (227). Subcat : Barge (11); Container Ship (51); Cruise Ship (47); Dry Cargo Ship (3843); Liquid Cargo Ship (597); RoRo (68); Yacht (416). Usage : Civilian Ship (4731); Commercial Ship (4570); Engineering Ship (227); Military Ship (1030).
+
+HRSC2016 Vehicle Fair1m-val Number of Images: : 2253. Number of Instances : 132162;   
+
+> ProtoTag : Vehicle (132162). Purpose : Bus (611); Cargo Truck (7035); Dump Truck (1605); Excavator (370); Pick-up (5456); Small Passenger Car (56149); Tractor (36); Truck Tractor (358); Van (60542). Usage : Engineering Vehicle (406); Large Civilian Vehicle (611); Small Civilian Vehicle (122147); Truck (8998).
+
+which serve as the data foundation for our SLIP-RS. 
+
+C. Fine-grained and Attribute Recognition Benchmark 
+
+We construct a specialized benchmark derived from the authoritative datasets, including Fair1M (Sun et al., 2022a), MAR20 (Wenqi et al., 2024), and HRSC2016. This benchmark encompasses three categories (plane, ship, and vehicle) and is meticulously annotated with hierarchical attributes, ranging from high-level functional descriptions (e.g., Purpose ,
+
+Usage ) to explicit physical components (e.g., Wing Configuration , Engine Position ). The detail is shown in Table 9, and the processing details are listed below: • MAR20: We utilize both the validation and test sets. Attribute annotations are derived by mapping the specific aircraft model labels to their corresponding structural attributes. • HRSC2016: We employ the entire dataset for construction to maximize the diversity of ship attributes, utilizing the existing fine-grained class labels for attribute derivation. • Fair1M: We select the validation set and preprocess the high-resolution imagery by cropping it into non-overlapping 
+
+1024 × 1024 patches. Regarding attribute generation, we adopt a category-specific strategy: for Airplane instances, we derive attributes via explicit mapping from fine-grained aircraft models; conversely, for vehicle and ship categories, we directly inherit the original fine-grained annotations to construct the attribute set. 
+
+Limitations and Future Work 
+
+Our structured attribute construction is highly sophisticated for Planes , covering intricate details like engine layout and wing shape. In contrast, the attribute definitions for Ships and Vehicles remain relatively coarse. Future work will aim to bridge this gap by extending the paradigm to capture more complex structural semantics, such as island position and mast count for ships, as well as integrating universal visual primitives like color and scale . We believe this expansion will drive the model to learn highly discriminative fine-grained representations, thereby fortifying its universality across broader remote sensing scenarios. Furthermore, we have observed preliminary evidence that learning shared attributes endows the model with intrinsic compositional reasoning capabilities. This opens up a promising avenue for detecting unseen categories simply by permuting and recombining known attribute primitives. We intend to rigorously explore this direction, leveraging the combinatorial logic of attributes to achieve true compositional zero-shot detection in open-world scenarios. 15

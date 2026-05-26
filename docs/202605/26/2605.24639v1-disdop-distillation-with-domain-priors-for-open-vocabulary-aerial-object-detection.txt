@@ -1,0 +1,329 @@
+Title: DisDop: Distillation with Domain Priors for Open-Vocabulary Aerial Object Detection
+
+URL Source: https://arxiv.org/pdf/2605.24639v1
+
+Published Time: Tue, 26 May 2026 00:58:58 GMT
+
+Number of Pages: 10
+
+Markdown Content:
+# DisDop: Distillation with Domain Priors for Open-Vocabulary Aerial Object Detection 
+
+# Ruihao Xu *1 Yong Liu *1 Yansong Tang 1 Sule Bai 1 Xubing Ye 1
+
+# Bingyao Yu 1 Yutao Guo 1 Jiwen Lu 2 Jie Zhou † 2 1Tsinghua Shenzhen International Graduate School, Tsinghua University 
+
+> 2
+
+# Tsinghua University 
+
+# Abstract 
+
+With the widespread application of drones in recent years, object detection of aerial images has attracted increas-ing attention, especially open-vocabulary aerial detection which is not restricted to predefined categories. Due to the scarcity of drone’s viewpoint images and their sig-nificant differences from natural images, it is difficult to achieve satisfying results by directly applying vanilla open-vocabulary detection methods designed for natural scenar-ios. Some studies propose to transfer knowledge from pre-trained models by using lightweight networks or generat-ing pseudo labels, but they tend to rely on models trained on natural images, neglecting the potential of foundation models specifically tailored for remote sensing and aerial imagery. To address this limitation, we propose DisDop, a unified framework that systematically distills multi-level do-main priors from remote sensing foundation models into a lightweight detector. Specifically, we first distill visual pri-ors through a teacher fusion strategy that combines Remote-CLIP’s cross-modal alignment capability with DINOv3’s fine-grained local feature extraction ability, transferring their complementary strengths to the detector’s backbone. Second, we distill textual priors embedded in RemoteCLIP’s text encoder by explicitly modeling inter-category seman-tic relationships, while incorporating global contextual pri-ors to enhance local feature representation for small ob-jects. Through this multi-level prior distillation framework, our DisDop achieves new state-of-the-art performance on open-vocabulary aerial detection benchmarks. Extensive ablation analysis also demonstrates the effectiveness of our proposed modules. Code is available at here. 
+
+# 1. Introduction 
+
+Aerial object detection aims to localizing objects and pre-dicting their categories on the surface of the earth from the          
+
+> *Equal contribution. †Corresponding author. vehicle car truck
+> windmill wind turbine
+> ground track field sports field
+
+Figure 1. Comparison of traditional aerial object detection and open-vocabulary aerial object detection (OVAOD). The former can only detect predefined categories from the training set, such as ”windmill” and ”vehicle,” as shown in the second column. How-ever, in practical applications, it may be necessary to detect newly defined categories, such as ”wind turbine,” or objects of fine-grained category descriptions, such as ”car” and ”truck”, while OVAOD can handle this task, as shown in the third column. 
+
+perspective of drones. Despite achieving great performance in recent years, traditional aerial object detection methods still rely on pre-defined sets of training categories, and are unable to identify objects from categories absent during the training phase. However, in real-world application scenarios, it may be necessary to detect newly designated categories, and 1
+
+> arXiv:2605.24639v1 [cs.CV] 23 May 2026
+
+the emergence of these new categories is often unpre-dictable, significantly impeding their real-world applicabil-ity (Fig. 1). Such a challenge has inspired the exploration of the Open-Vocabulary Aerial Object Detection (OVAOD) setting. Different from traditional closed-set aerial object detection, OVAOD methods can detect arbitrary categories described in natural language, thereby enabling the identifi-cation of previously unseen or newly defined objects with-out the need for retraining on fixed category sets. This flex-ibility makes OVAOD highly adaptable to dynamic real-world conditions, which has various practical applications such as urban management, environmental monitoring, and disaster rescue. Due to the difficulty of acquiring diverse labeled data from the drone’s viewpoint and the remarkable domain gap between aerial images and natural images such as broader range of variations in scales, orientations, and lack of distinctive appearance features, direct application of existing open-vocabulary detection methods designed for natural scenarios is hard to achieve desired perfor-mance. Recently, several pioneering works attempt to de-velop effective frameworks suitable for aerial images. OVA-DETR [31] proposes to take linguistic information as guid-ance and leverage the efficient detection transformer ar-chitecture RT-DETR [38] for the efficiency requirements of aerial detection. CastDet [17] presents a clip-activated teacher-student framework to learn from pseudo labels with a self-distillation and multi-teacher paradigm. However, previous methods tend to focus on the utilization of pre-trained models for natural images and neglect to fully ex-ploit the domain priors embedded in foundation models of more relevant domains, i.e. , remote sensing. Although Cast-Det utilizes the foundation model RemoteCLIP [18] as se-mantic teacher, it only takes it as a classifier for generating pseudo category labels, failing to systematically distill the multi-level domain priors encoded in these models for more accurate detection and recognition. In fact, remote sensing foundation models like RemoteCLIP[18] and DINOv3[27] encapsulate rich do-main priors at multiple levels: RemoteCLIP’s vision en-coder contains visual priors for cross-modal alignment, its text encoder embeds textual priors about category relation-ships, while DINOv3 provides fine-grained spatial priors 
+
+for local feature extraction. However, existing methods only leverage surface-level classification capabilities, leav-ing these deep priors largely unexploited. To this end, we propose DisDop, a unified framework that systematically distills multi-level domain priors from remote sensing foundation models into a lightweight de-tector for open-vocabulary aerial object detection. Specif-ically, we first introduce a teacher fusion strategy to distill 
+
+visual priors . We fuse features from RemoteCLIP and DI-NOv3 using a self-similarity calibration mechanism, where DINOv3’s spatial structure refines RemoteCLIP’s seman-tic features. The fused teacher model is then distilled into the detector’s backbone, enabling it to inherit both cross-modal alignment capability and fine-grained local discrim-ination ability while maintaining computational efficiency. Second, to distill textual priors embedded in RemoteCLIP’s text encoder, we explicitly model inter-category semantic relationships by enforcing that the geometric arrangement of visual features mirrors the semantic topology in the text space. Furthermore, to address the small object challenge in aerial images, we incorporate contextual priors by fusing global scene semantics with local instance features, mim-icking how humans leverage surrounding context to identify small objects. Our contributions can be summarized as follows: • We propose a unified multi-level domain prior distillation framework that systematically extracts and transfers vi-sual priors, textual priors, and contextual priors from re-mote sensing foundation models (RemoteCLIP and DI-NOv3) into a lightweight detector, going beyond surface-level feature utilization. • We introduce a teacher fusion strategy with self-similarity calibration that distills complementary visual priors from RemoteCLIP and DINOv3 into the detector’s backbone, enabling it to simultaneously inherit cross-modal align-ment and fine-grained discrimination capabilities. • We propose a textual and contextual prior distillation ap-proach that explicitly models inter-category semantic re-lationships from RemoteCLIP’s text encoder and incorpo-rates global scene context to enhance small object recog-nition in aerial images. • Extensive experiments on DIOR, DOTAv2.0, and LAE-80C benchmarks demonstrate that our DisDop consis-tently outperforms previous state-of-the-art methods in both open-set and closed-set detection scenarios, validat-ing the effectiveness of our multi-level domain prior dis-tillation framework. 
+
+# 2. Related Work 
+
+2.1. Open Vocabulary Detection 
+
+The open-vocabulary detection (OVD) task focuses on de-tecting objects based on arbitrary text queries, extending beyond predefined category sets. With the strong general-ization capabilities of vision-language pretraining models such as CLIP [25] and ALIGN [12], recent OVD meth-ods [6–8, 32, 36, 39, 40] incorporate these models into object detectors. For example, ViLD [8] uses knowledge distillation from pretrained VLMs to enhance OVD ca-pabilities. RegionCLIP [39] trains on a region-text pair dataset, strengthening its region-level understanding abil-ity. Similarly, LAVT [35] introduces language-aware fu-sion into vision transformers for pixel-level cross-modal 2Figure 2. Overview of DisDop Framework. Our multi-level domain prior distillation framework consists of three key components: (1)    
+
+> Visual Prior Distillation : We fuse RemoteCLIP and DINOv3 features via semantic-adaptive outlier detection and self-similarity calibration, then distill the fused knowledge into a lightweight detector backbone through cosine similarity and attention losses. (2) Textual Prior Distillation : We distill inter-category semantic relationships from RemoteCLIP’s text encoder by enforcing relational consistency between visual and text feature spaces across mini-batches. (3) Contextual Prior Distillation : We enhance small object recognition by incorporating global scene context into the distillation targets. Through this systematic distillation pipeline, DisDop inherits both cross-modal alignment and fine-grained discrimination capabilities while maintaining computational efficiency.
+
+alignment. Detic [40] incorporates image classification datasets to improve vocabulary coverage. Additionally, sev-eral works [4, 15, 19] unify object detection with grounded pretraining, enabling detectors to perform open-vocabulary detection. Grounding-DINO [19] combines the DINO [37] detector with grounded pretraining and fine-grained multi-modal fusion, improving open-set detection after training on large-scale datasets. Furthermore, YOLO-World [4] em-ploys the YOLO framework for grounded pretraining. 
+
+2.2. Aerial Object Detection 
+
+Aerial object detection has rapidly progressed with the growth of remote sensing data and demands in fields like environmental monitoring, urban planning, and disas-ter response. Traditional category-constrained methods[5, 11, 13, 21, 34] struggle in open-world scenarios, lead-ing to the rise of OVAOD, which identifies novel ob-jects without extensive annotations. These works high-light the importance of scalable training, domain adapta-tion, and vision-language integration in advancing OVAOD. CastDet [17] integrates CLIP-based knowledge distillation within a student-teacher framework to enhance pseudo-labeling. OVA-DETR [31] employs image-text alignment and transformer-based architectures for efficient and scal-able detection, excelling in zero-shot mAP on DIOR. LAE-DINO [24] bridges domain gaps through the large-scale LAE-1M dataset and cross-modal alignment. 
+
+# 3. Method 
+
+3.1. Overview 
+
+The overall architecture of DisDop is illustrated in Fig. 2. We build upon the LAE detector [24] and propose a uni-fied Multi-level Domain Prior Distillation framework that systematically extracts and transfers domain priors from remote sensing foundation models (RemoteCLIP and DI-NOv3) into a lightweight detector. First, we distill vi-sual priors from a fused teacher model into the detec-tor’s backbone (Sec. 3.2), enabling it to inherit both cross-modal alignment and fine-grained discrimination capabili-ties. Second, we distill textual priors from RemoteCLIP’s text encoder while incorporating contextual priors to en-3hance small object recognition. Through this systematic distillation of multi-level domain priors, DisDop achieves superior open-vocabulary detection performance. 
+
+3.2. Visual Prior Distillation 
+
+Open-vocabulary aerial object detection requires the de-tector to possess both cross-modal alignment capabilities (to connect visual features with textual descriptions) and fine-grained local feature extraction abilities (to discrim-inate small, densely-distributed objects). However, these two capabilities are rarely present simultaneously in a single pre-trained model. Vision-language models like Remote-CLIP, trained via contrastive learning at the image level, excel at cross-modal alignment but exhibit relatively weak local visual feature extraction due to their image-level opti-mization objective. Conversely, self-supervised models like DINOv3, trained via self-distillation on large-scale image data, capture fine-grained local visual features with strong semantic consistency and spatial structure, but lack the abil-ity to align with textual descriptions. To systematically distill these complementary visual pri-ors into a lightweight detector backbone, we propose a two-stage framework: (1) we first fuse features from Remote-CLIP and DINOv3 into a unified teacher representation via self-similarity calibration, where DINOv3’s spatial struc-ture refines RemoteCLIP’s semantic features; (2) we then distill this fused visual prior knowledge into the detector’s backbone for efficient deployment. 
+
+Teacher Feature Fusion via Self-Similarity Calibration. 
+
+Given an input image, we extract features from both pre-trained models, RemoteCLIP and DINOv3. The key in-novation lies in using DINOv3’s self-similarity structure to calibrate RemoteCLIP features. We first compute the spa-tial self-similarity matrix from DINOv3 features as S = 
+
+> FDINO ·FT
+> DINO
+> ∥FDINO ∥·∥ FT
+> DINO ∥
+
+∈ RN ×N , where N is the total number of vi-sual patched tokens. A critical challenge in feature fusion is handling noisy or semantically inconsistent patches that can degrade the quality of calibrated features. Unlike previous methods that perform outlier detection globally across all patches using a fixed spatial or feature-based criterion, we propose a novel semantic-adaptive outlier detection mech-anism. The key insight is that whether a patch is an outlier should not be determined absolutely, but rather relative to a specific semantic context . Concretely, for each patch i,we first identify its semantic neighborhood Ni = {j|Sij >γlof } using DINOv3’s self-similarity matrix, where γlof is a similarity threshold. Within this semantically coherent re-gion, we then apply Local Outlier Factor (LOF) analysis on RemoteCLIP features to detect patches that are visual anomalies relative to this specific semantic context . This produces a context-dependent outlier mask M ∈ RN ×N ,where Mij = 1 indicates that patch j is an outlier with re-spect to patch i’s semantic neighborhood. Importantly, the same patch j may be considered normal for one semantic context (patch i) but anomalous for another (patch k), en-abling fine-grained, context-aware filtering. This semantic-adaptive strategy is fundamentally different from global outlier detection methods that treat outliers as absolute la-bels, and it is particularly effective for remote sensing im-ages containing diverse objects and complex backgrounds. After filtering outliers, we apply temperature-scaled soft-max to convert filtered similarities into attention weights: 
+
+Aij = exp( Sij /τ )P    
+
+> kexp( Sik /τ )
+
+if Sij > γ and Mij = 0 , and 0 other-wise, where γ filters weak correlations and τ controls atten-tion sharpness. The final fused teacher features are obtained via weighted aggregation: Fteacher = A · FCLIP . This cal-ibration process reinforces intra-object feature consistency, where patches belonging to the same object (identified by DINOv3’s self-similarity) obtain more consistent Remote-CLIP features while preserving CLIP’s semantic informa-tion. 
+
+Feature Distillation to Student Backbone. Although the fused model described above demonstrates excellent feature representation capabilities, its high computational complex-ity and the requirement to load two models make it diffi-cult to directly apply to practical detection tasks. To ad-dress this, we treat the fused model as a teacher model and transfer its rich visual semantic information to a lightweight student model—the detector’s backbone network—through knowledge distillation. Specifically, we extract correspond-ing intermediate layer features from both the teacher and student models, then align the student model features to the teacher model features through channel transforma-tion and interpolation. We employ two types of knowl-edge distillation losses. First is the cosine similarity loss 
+
+Lcosine = 1
+
+> N
+
+PNi=1 
+
+
+
+1 − f (i)   
+
+> teacher ·f(i)
+> student
+> ∥f(i)
+> teacher ∥·∥ f(i)
+> student ∥
+
+
+
+that ensures fea-ture direction alignment. However, we observe that teacher model features suffer from feature homogenization, where feature vectors at different spatial locations become overly similar. Interestingly, when we apply low-temperature soft-max to the similarity matrix of a patch, the resulting sim-ilarity distribution perfectly aligns with the visual seman-tic distribution. Therefore, we adopt an optional atten-tion distillation loss that transfers relational structure cap-tured by attention patterns: Lattn = KL (Pteacher ∥Pstudent ),where Pteacher = softmax (Fteacher FT
+
+> teacher
+
+/τ t) and Pstudent =
+
+softmax (Fstudent FT
+
+> student
+
+/τ s) with temperatures τt = 0 .1 and 
+
+τs = 1 .0. The lower teacher temperature sharpens attention distributions to emphasize important relationships, while the higher student temperature smooths learning to prevent overfitting. The total loss combines both components as 
+
+Lbackbone = λcosine Lcosine + λattn Lattn . Through this frame-work, we enable the detector’s backbone to simultaneously learn open-vocabulary capabilities inherited from Remote-CLIP and local feature extraction abilities from DINOv3, 4Thinking Process    
+
+> of Human
+> Road
+> House
+> Running
+> track
+> Tenniscourt
+> The area enclosed by the red box
+> is a rectangular object located
+> beside a house and a road, so it is
+> most likely a car. The area
+> enclosed by the yellow box is near
+> a running track and a tenniscourt,
+> making it unlikely to be a car.
+> car
+> background
+> interference
+
+Figure 3. Motivation of global context enhancement for re-gional visual feature. Humans tend to leverage contextual scene information surrounding the target region to assist in their recog-nition process of small objects. For example, in the upper right image, the car’s small size makes it difficult to determine its cat-egory, but humans can utilize the surrounding road and houses to recognize it as a car. In the lower left image, there exists a back-ground interference region whose local features closely resemble a car. However, humans can infer that it is not a car based on its location between a running track and a tenniscourt. 
+
+while maintaining the computational efficiency required for practical deployment. 
+
+3.3. Textual and Contextual Prior Distillation 
+
+To enable the model to recognize objects from unseen cat-egories during inference, it is essential to distill the textual priors embedded in RemoteCLIP’s text encoder, which en-codes inter-category relationships in the language space. A common approach is to align the model’s output category features with RemoteCLIP’s feature space, allowing clas-sification of new categories by computing similarities with text embeddings. While previous studies often align model features with discrete text embeddings, this can lead to over-fitting and neglect the rich diversity of intra-class visual fea-tures. A more robust baseline aligns the model’s output category features ( f ic ) directly with the RemoteCLIP visual features ( f iv ) extracted from the corresponding region of in-terest (ROI): 
+
+LKD = 1
+
+N
+
+> N
+
+X
+
+> i=1
+
+ f ic − f iv
+
+2 (1) Here, N is the total number of ROIs in a training batch. By minimizing this loss, we encourage the model to learn a continuous and generalizable visual feature space. However, this instance-level visual feature distillation, while an improvement, has two significant limitations. First, it struggles with small objects. Cropped regions from extremely small bounding boxes (e.g., 2×2 pixels) often lack sufficient detail, leading to poor-quality visual features (f iv ) from RemoteCLIP that deviate from its original train-ing distribution. This is contrary to human cognition, where we leverage surrounding scene context to identify small objects (Fig. 3). For example, a tiny, ambiguous shape on a road next to a house is likely inferred to be a ”car” due to its context, not just its local features. Second, and more critically for distilling textual priors , this point-wise alignment overlooks the relative semantic relationships be-tween different categories encoded in RemoteCLIP’s text encoder. The loss in Eq. (1) only forces each instance’s feature to match its visual target independently, failing to model the semantic topology across categories. This can lead to feature space inconsistencies, where the learned dis-tance between features of semantically related categories (e.g., “bridge” and “ship”) might be larger than that of unre-lated categories (e.g., “bridge” and “windmill”), degrading open-vocabulary classification performance which relies on semantic similarity. To address both limitations and effectively distill textual priors from RemoteCLIP’s text encoder while incorporat-ing contextual priors for small object recognition, we en-hance the distillation target by incorporating global scene context and explicitly model the semantic relationships be-tween categories encoded in the text space. Our distillation loss is formulated as: 
+
+Ldistill = 1
+
+N 2
+
+> N
+
+X
+
+> i=1
+> N
+
+X
+
+> j=1
+
+
+
+f ic − f jeh cos 
+
+− ti − tj
+
+> cos
+
+2
+
+(2) This formulation introduces two key designs that enable multi-level prior distillation. First, to distill contextual pri-ors and tackle the small-object problem, we create an en-hanced visual feature ( f jeh ) that fuses instance-level features with global context: 
+
+f jeh = LN  μf jg + (1 − μ)f jv
+
+ (3) Here, f jv is the local visual feature from the ROI crop, f jg
+
+is the global visual feature extracted from the entire image containing the ROI, and μ ∈ [0 , 1] is a learnable parameter that dynamically balances their contribution. This ensures the distillation target contains both fine-grained details and scene-level contextual semantics. Second, to distill textual priors from RemoteCLIP’s text encoder, the loss function enforces a relational consistency constraint. It requires that the cosine distance between the 5model’s output feature for instance i (f ic ) and the enhanced visual feature for instance j (f jeh ) mirrors the cosine dis-tance between their corresponding category text embed-dings ( ti and tj ) in RemoteCLIP’s language space. This forces the model to learn a feature space where the geomet-ric arrangement of visual features aligns with the semantic topology encoded in the text encoder. For example, the fea-tures for ”bridge” and ”ship” are encouraged to be closer to each other than the features for ”bridge” and ”windmill”, preserving the semantic structure of the language space. Furthermore, inspired by [10], but unlike their approach which operates only within a single image, we perform this relational distillation across the entire mini-batch. Since most training images contain few object categories, within-image distillation provides sparse supervision for modeling semantic relationships. By leveraging the diversity of cate-gories across a mini-batch, our approach receives a much denser and more effective supervision for distilling tex-tual priors, significantly enhancing its ability to transfer the inter-category semantic topology from RemoteCLIP’s text encoder and improve generalization to unseen categories. 
+
+3.4. Training 
+
+Our training pipeline consists of two sequential stages that systematically distill multi-level domain priors into the de-tector. In the first stage, we train only the backbone net-work only using the images from LAE-1M dataset [24], distilling fused visual knowledge from RemoteCLIP and DINOv3 into a lightweight Swin Transformer. In the sec-ond stage, we train the full detector on the labeled LAE-1M dataset, incorporating textual and contextual prior distilla-tion. This two-stage approach enables efficient knowledge transfer while maintaining computational feasibility, as the heavy teacher models (RemoteCLIP and DINOv3) are only needed during the first stage. 
+
+Stage I: Visual Prior Distillation. In the first stage, we train the detector’s backbone network on the unla-beled LAE-1M dataset using the combined loss Lbackbone =
+
+λcosine Lcosine + λattn Lattn described in Sec. 3.2. The fused teacher model is frozen while only the student backbone (Swin Transformer Tiny) is updated. 
+
+Stage II: Detector Training with Textual and Contextual Prior Distillation. After obtaining the distilled backbone, we train the full detector on the labeled LAE-1M dataset. The training objective combines standard detection losses with the textual and contextual prior distillation loss Ldistill 
+
+described in Sec. 3.3. 
+
+# 4. Experiments 
+
+4.1. Experimental Setup 
+
+4.1.1. Evaluation 
+
+To validate the effectiveness of our proposed DisDop model, we employ DIOR [14] and DOTAv2.0 [33], two widely adopted benchmarks in the remote sensing com-munity. Note that we only evaluate the horizontal bound-ing box detection performance on DOTAv2.0. Addition-ally, we evaluate on LAE-80C [24], a remote sensing OVD benchmark comprising 80 classes, to thoroughly assess the open-set detection capability. These three benchmarks col-lectively enable comprehensive evaluation of both open-set and closed-set detection performance. We adopt mAP and 
+
+AP 50 as evaluation metrics throughout our experiments. 
+
+4.1.2. Implementation Details. 
+
+We implement our framework using MMDetection [3] and PyTorch. For the teacher model, we use DINOv3-ViT-L/16 [27] and RemoteCLIP-ViT-L/14 [18] as the founda-tion models. The student backbone is a random initialized Swin Transformer-Tiny [22]. In Stage I, we train for 15,000 iterations with batch size 8 using the AdamW optimizer. For the semantic-adaptive outlier detection, we set the sim-ilarity thresholds γ = 0 .5 and γlof = 0 .8, LOF threshold 
+
+τlof = 1 .2. In Stage II, we follow the training configuration of LAE [24] with the detection-specific hyperparameters. All experiments are conducted on 8 NVIDIA A100 GPUs. 
+
+4.2. Detection Results 
+
+4.2.1. Open-Set Detection. 
+
+We compare the open-set detection results with three ef-fective OVD methods, GLIP [16], GroundingDINO [20] and LAE-DINO[24], trained on natural and remote sensing scenes datasets as shown in Table 1. To train on LAE-1M dataset, we introduce DVC, which was proposed in LAE-DINO, to GLIP and GroundingDINO. As shown in Table 1, our DisDop model achieves supe-rior performance across all three benchmarks. On DIOR, DisDop achieves 87.2% AP 50 , outperforming LAE-DINO by 1.7% and GroundingDINO with DVC by 3.6%. For DOTAv2.0, our method reaches 47.5% mAP, demonstrat-ing a 0.7% improvement over LAE-DINO and a 1.5% gain over GroundingDINO with DVC. Most notably, on the LAE-80C benchmark which evaluates detection capability across 80 diverse categories, DisDop achieves 22.5% mAP, significantly surpassing LAE-DINO by 2.3% and Ground-ingDINO by 4.8%. These consistent improvements across different benchmarks demonstrate the effectiveness of our distillation-based approach in enhancing open-vocabulary detection capabilities for remote sensing imagery. The larger performance gains on LAE-80C particularly high-light DisDop’s superior generalization ability to novel and 6Table 1. The open-set detection results on DIOR, DOTAv2.0 and LAE-80C benchmarks. 
+
+Method Pre-Training Data DIOR DOTAv2.0 LAE-80C 
+
+AP 50 mAP mAP 
+
+GLIP with DVC [16] LAE-1M 82.8 43.0 16.5 GroundingDINO with DVC [16] LAE-1M 83.6 46.0 17.7 LAE-DINO [24] LAE-1M 85.5 46.8 20.2 
+
+DisDop (Ours) LAE-1M 87.2 47.5 22.5  
+
+> Table 2. The closed-set detection results on on DIOR and DOTAv2.0 test set.
+
+Method Backbone Pre-Training Data Fine-Tuning 
+
+DIOR( AP 50 ) DOTAv2.0( mAP )
+
+Generic Object Detection 
+
+GASSL [1] ResNet-50 - 67.4 -CACO [23] ResNet-50 Sentinel-2 66.9 -TOV [29] ResNet-50 TOV-NI,TOV-R 70.2 -Scale-MAE [26] ViT-L FMoW 73.8 -SatLas [2] Swin-B SatlasPretrain 74.1 -RingMo [28] Swin-B RingMoPretrain 75.9 -SkySense [9] Swin-H multi-modal RSI 78.7 -MTP [30] Swin-H MillionAID 81.1 -
+
+Open-Vocabulary Object Detection 
+
+GLIP-FT [16] Swin-T LAE-1M 88.9 51.5 GroundingDINO-FT [20] Swin-T LAE-1M 91.1 55.1 LAE-DINO-FT[20] Swin-T LAE-1M 92.2 57.9 
+
+DisDop-FT (Ours) Swin-T LAE-1M 92.6 58.6 
+
+diverse object categories. 
+
+4.2.2. Closed-Set Detection. 
+
+To prove the benefits of OVD, we perform fine-tuning experiments in remote sensing scenes, comparing some generic detectors (GD) on DIOR and DOTAv2.0 datasets as shown in Table 2. Most previous GDs are fine-tuned to ob-ject detection datasets after pre-training on remote-sensing images using a self-supervised approach. We directly cite the original paper results due to the lack of open source for these generic detectors. Table 2 demonstrates that OVD methods significantly outperform traditional generic detectors when fine-tuned on downstream tasks. Our DisDop achieves 92.6% AP 50 
+
+on DIOR and 58.6% mAP on DOTAv2.0, surpassing the previous best OVD method LAE-DINO-FT by 0.4% and 0.7% respectively. Compared to generic detectors, DisDop shows substantial advantages: it outperforms MTP (the best generic detector) by 11.5% on DIOR, despite MTP using a much larger Swin-H backbone. This significant perfor-mance gap highlights the superiority of OVD pre-training over self-supervised pre-training approaches. The superior performance stems from OVD’s ability to learn rich seman-tic representations through vision-language alignment dur-ing pre-training, which provides a stronger foundation for downstream task adaptation. Furthermore, our distillation-based approach effectively transfers knowledge from the teacher model while maintaining computational efficiency, enabling better feature learning and cross-modal under-standing for remote sensing object detection. 
+
+4.3. Ablation Studies 
+
+4.3.1. Component Analysis. 
+
+We conduct ablation experiments on DIOR test set to val-idate the effectiveness of each proposed component as shown in Table 3. The baseline model is LAE-DINO [24] without any distillation strategies.   
+
+> Table 3. Ablation study Results . The best results for each metric are bolded . VPD denote the Visual Prior Distillation. TCPD de-note the Textual and Context Prior Distillation.
+
+VPD TCPD DIOR DOTAv2.0 LAE-80C 
+
+AP 50 mAP mAP 
+
+85.5 46.8 20.2 
+
+✓ 86.6 47.2 21.5 
+
+✓ 86.2 47.1 20.9 
+
+✓ ✓ 87.2 47.5 22.5 
+
+74.3.2. Ablation on Teacher Feature Fusion Strategy. 
+
+To validate the effectiveness of our semantic-adaptive out-lier detection mechanism in the teacher feature fusion pro-cess, we compare it with alternative fusion strategies in Ta-ble 4. We compare with a global outlier detection method that applies LOF across all patches uniformly, and a sim-ple attention-based fusion using only similarity threshold-ing without outlier filtering.  
+
+> Table 4. Ablation study on teacher feature fusion strategies.
+> SAOD denotes Semantic-Adaptive Outlier Detection.
+
+Fusion Strategy DIOR DOTAv2.0 LAE-80C 
+
+AP 50 mAP mAP 
+
+w/o Outlier Filtering 86.4 47.1 21.3 Global LOF 86.3 47.0 21.2 SAOD (Ours) 86.6 47.2 21.5 
+
+As shown in Table 4, our semantic-adaptive outlier de-tection achieves the best performance across all metrics. The global LOF method (86.3% AP 50 ) performs worse than our approach because it treats outliers as absolute labels, failing to consider that a patch may be normal in one se-mantic context but anomalous in another. The attention fu-sion without outlier filtering (86.4%) shows better results but still falls short, as noisy patches can corrupt the cal-ibrated features. Our semantic-adaptive strategy achieves 86.6% AP 50 by detecting outliers relative to specific seman-tic contexts, enabling fine-grained, context-aware filtering that is particularly effective for complex aerial scenes. 
+
+4.3.3. Ablation on Relational Distillation Scope. 
+
+To validate the importance of performing relational distil-lation across mini-batches rather than within single images, we compare different distillation scopes in Table 5. The point-wise baseline uses Equation 1 without any relational constraints. Within-image relational distillation computes the loss only among ROIs in the same image, while within-batch approach leverages the entire mini-batch diversity.  
+
+> Table 5. Ablation study on relational distillation scope.
+
+Distillation Scope DIOR DOTAv2.0 LAE-80C 
+
+AP 50 mAP mAP 
+
+Point-Wise 85.8 46.8 20.4 Within-Image 86.1 46.9 20.7 Within-Batch (Ours) 86.2 47.1 20.9 
+
+Table 5 demonstrates the superiority of our cross-batch relational distillation. The point-wise baseline achieves only 85.8% AP 50 , failing to capture inter-category semantic relationships. Within-image relational distillation improves to 86.1%, but provides sparse supervision since most im-ages contain only a few object categories. Our cross-batch approach achieves 86.2% AP 50 by leveraging category di-versity across the entire mini-batch, providing much denser supervision for modeling the semantic topology from Re-moteCLIP’s text encoder. The 0.5% improvement on LAE-80C particularly highlights the benefit for generalizing to unseen categories, validating our design choice to distill textual priors at the batch level. 
+
+# 5. Conclusion 
+
+In this paper, we presented DisDop, a unified framework for open-vocabulary aerial object detection that systemati-cally distills multi-level domain priors from remote sensing foundation models. By introducing a teacher fusion strategy with self-similarity calibration, we effectively distill visual priors from RemoteCLIP and DINOv3 into a lightweight detector backbone. Furthermore, our textual and contextual prior distillation approach explicitly models inter-category semantic relationships and incorporates global scene con-text to enhance small object recognition. Extensive exper-iments on DIOR, DOTAv2.0, and LAE-80C benchmarks demonstrate that DisDop consistently outperforms previous state-of-the-art methods in both open-set and closed-set de-tection scenarios. Our work provides valuable insights into leveraging domain-specific foundation models for aerial ob-ject detection and opens new directions for knowledge dis-tillation in aerial applications. Looking forward, we envi-sion DisDop serving as a strong foundation for future re-search in efficient and effective open-vocabulary aerial de-tection tasks. 
+
+# References               
+
+> [1] Kumar Ayush, Burak Uzkent, Chenlin Meng, Kumar Tan-may, Marshall Burke, David Lobell, and Stefano Ermon. Geography-aware self-supervised learning. In Proceedings of the IEEE/CVF International Conference on Computer Vi-sion , 2021. 7 [2] Favyen Bastani, Piper Wolters, Ritwik Gupta, Joe Ferdi-nando, and Aniruddha Kembhavi. Satlaspretrain: A large-scale dataset for remote sensing image understanding. In
+> Proceedings of the IEEE/CVF International Conference on Computer Vision , 2023. 7 [3] Kai Chen, Jiaqi Wang, Jiangmiao Pang, Yuhang Cao, Yu Xiong, Xiaoxiao Li, Shuyang Sun, Wansen Feng, Ziwei Liu, Jiarui Xu, Zheng Zhang, Dazhi Cheng, Chenchen Zhu, Tian-heng Cheng, Qijie Zhao, Buyu Li, Xin Lu, Rui Zhu, Yue Wu, Jifeng Dai, Jingdong Wang, Jianping Shi, Wanli Ouyang, Chen Change Loy, and Dahua Lin. MMDetection: Open mmlab detection toolbox and benchmark. arXiv preprint arXiv:1906.07155 , 2019. 6 [4] Tianheng Cheng, Lin Song, Yixiao Ge, Wenyu Liu, Xing-gang Wang, and Ying Shan. Yolo-world: Real-time open-vocabulary object detection. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 16901–16911, 2024. 3
+
+8[5] Bowei Du, Yecheng Huang, Jiaxin Chen, and Di Huang. Adaptive sparse convolutional networks with global context enhancement for faster object detection on drone images. In 
+
+Proceedings of the IEEE/CVF conference on computer vi-sion and pattern recognition , pages 13435–13444, 2023. 3 [6] Yu Du, Fangyun Wei, Zihe Zhang, Miaojing Shi, Yue Gao, and Guoqi Li. Learning to prompt for open-vocabulary ob-ject detection with vision-language model. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 14084–14093, 2022. 2 [7] Chengjian Feng, Yujie Zhong, Zequn Jie, Xiangxiang Chu, Haibing Ren, Xiaolin Wei, Weidi Xie, and Lin Ma. Prompt-det: Towards open-vocabulary detection using uncurated im-ages. In European conference on computer vision , pages 701–717. Springer, 2022. [8] Xiuye Gu, Tsung-Yi Lin, Weicheng Kuo, and Yin Cui. Open-vocabulary object detection via vision and language knowledge distillation. arXiv preprint arXiv:2104.13921 ,2021. 2 [9] Xin Guo, Jiangwei Lao, Bo Dang, Yingying Zhang, Lei Yu, Lixiang Ru, Liheng Zhong, Ziyuan Huang, Kang Wu, Dingxiang Hu, et al. Skysense: A multi-modal remote sens-ing foundation model towards universal interpretation for earth observation imagery. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition ,2024. 7 [10] Kunyang Han, Yong Liu, Jun Hao Liew, Henghui Ding, Ji-ajun Liu, Yitong Wang, Yansong Tang, Yujiu Yang, Jiashi Feng, Yao Zhao, et al. Global knowledge calibration for fast open-vocabulary segmentation. In Proceedings of the IEEE/CVF International Conference on Computer Vision ,pages 797–807, 2023. 6 [11] Yecheng Huang, Jiaxin Chen, and Di Huang. Ufpmp-det: Toward accurate and efficient object detection on drone im-agery. In Proceedings of the AAAI conference on artificial intelligence , pages 1026–1033, 2022. 3 [12] Chao Jia, Yinfei Yang, Ye Xia, Yi-Ting Chen, Zarana Parekh, Hieu Pham, Quoc Le, Yun-Hsuan Sung, Zhen Li, and Tom Duerig. Scaling up visual and vision-language representa-tion learning with noisy text supervision. In International conference on machine learning , pages 4904–4916. PMLR, 2021. 2 [13] Changlin Li, Taojiannan Yang, Sijie Zhu, Chen Chen, and Shanyue Guan. Density map guided object detection in aerial images. In proceedings of the IEEE/CVF conference on com-puter vision and pattern recognition workshops , pages 190– 191, 2020. 3 [14] Ke Li, Gang Wan, Gong Cheng, Liqiu Meng, and Junwei Han. Object detection in optical remote sensing images: A survey and a new benchmark. ISPRS journal of photogram-metry and remote sensing , 159:296–307, 2020. 6 [15] Liunian Harold Li, Pengchuan Zhang, Haotian Zhang, Jian-wei Yang, Chunyuan Li, Yiwu Zhong, Lijuan Wang, Lu Yuan, Lei Zhang, Jenq-Neng Hwang, et al. Grounded language-image pre-training. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 10965–10975, 2022. 3 [16] Liunian Harold Li, Pengchuan Zhang, Haotian Zhang, Jian-wei Yang, Chunyuan Li, Yiwu Zhong, Lijuan Wang, Lu Yuan, Lei Zhang, Jenq-Neng Hwang, et al. Grounded language-image pre-training. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 2022. 6, 7 [17] Yan Li, Weiwei Guo, Xue Yang, Ning Liao, Dunyun He, Jiaqi Zhou, and Wenxian Yu. Toward open vocabulary aerial object detection with clip-activated student-teacher learning. In European Conference on Computer Vision , pages 431– 448. Springer, 2024. 2, 3 [18] Fan Liu, Delong Chen, Zhangqingyun Guan, Xiaocong Zhou, Jiale Zhu, Qiaolin Ye, Liyong Fu, and Jun Zhou. Re-moteclip: A vision language foundation model for remote sensing. IEEE Transactions on Geoscience and Remote Sensing , 2024. 2, 6 [19] Shilong Liu, Zhaoyang Zeng, Tianhe Ren, Feng Li, Hao Zhang, Jie Yang, Qing Jiang, Chunyuan Li, Jianwei Yang, Hang Su, et al. Grounding dino: Marrying dino with grounded pre-training for open-set object detection. In 
+
+European Conference on Computer Vision , pages 38–55. Springer, 2024. 3 [20] Shilong Liu, Zhaoyang Zeng, Tianhe Ren, Feng Li, Hao Zhang, Jie Yang, Chunyuan Li, Jianwei Yang, Hang Su, Jun Zhu, and Lei Zhang. Grounding DINO: Marrying DINO with grounded pre-training for open-set object detection, 2024. 6, 7 [21] Ziming Liu, Guangyu Gao, Lin Sun, and Zhiyuan Fang. Hrd-net: High-resolution detection network for small objects. In 
+
+2021 IEEE international conference on multimedia and expo (ICME) , pages 1–6. IEEE, 2021. 3 [22] Ze Liu, Yutong Lin, Yue Cao, Han Hu, Yixuan Wei, Zheng Zhang, Stephen Lin, and Baining Guo. Swin transformer: Hierarchical vision transformer using shifted windows. In 
+
+Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) , 2021. 6 [23] Utkarsh Mall, Bharath Hariharan, Kavita Bala, and Kavita Bala. Change-aware sampling and contrastive learning for satellite images. In Proceedings of the IEEE/CVF Confer-ence on Computer Vision and Pattern Recognition , 2023. 7 [24] Jiancheng Pan, Yanxing Liu, Yuqian Fu, Muyuan Ma, Jiahao Li, Danda Pani Paudel, Luc Van Gool, and Xiaomeng Huang. Locate anything on earth: Advancing open-vocabulary ob-ject detection for remote sensing community. arXiv preprint arXiv:2408.09110 , 2024. 3, 6, 7 [25] Alec Radford, Jong Wook Kim, Chris Hallacy, Aditya Ramesh, Gabriel Goh, Sandhini Agarwal, Girish Sastry, Amanda Askell, Pamela Mishkin, Jack Clark, et al. Learning transferable visual models from natural language supervi-sion. In International conference on machine learning , pages 8748–8763. PmLR, 2021. 2 [26] Colorado J Reed, Ritwik Gupta, Shufan Li, Sarah Brock-man, Christopher Funk, Brian Clipp, Kurt Keutzer, Salvatore Candido, Matt Uyttendaele, and Trevor Darrell. Scale-mae: A scale-aware masked autoencoder for multiscale geospatial representation learning. In Proceedings of the IEEE/CVF In-ternational Conference on Computer Vision , 2023. 7 
+
+9[27] Oriane Sim´ eoni, Huy V. Vo, Maximilian Seitzer, Federico Baldassarre, Maxime Oquab, Cijo Jose, Vasil Khalidov, Marc Szafraniec, Seungeun Yi, Micha¨ el Ramamonjisoa, Francisco Massa, Daniel Haziza, Luca Wehrstedt, Jianyuan Wang, Timoth´ ee Darcet, Th´ eo Moutakanni, Leonel Sentana, Claire Roberts, Andrea Vedaldi, Jamie Tolan, John Brandt, Camille Couprie, Julien Mairal, Herv´ e J´ egou, Patrick La-batut, and Piotr Bojanowski. DINOv3, 2025. 2, 6 [28] Xian Sun, Peijin Wang, Wanxuan Lu, Zicong Zhu, Xiao-nan Lu, Qibin He, Junxi Li, Xuee Rong, Zhujun Yang, Hao Chang, et al. Ringmo: A remote sensing foundation model with masked image modeling. IEEE Transactions on Geo-science and Remote Sensing , 2022. 7 [29] Chao Tao, Ji Qi, Guo Zhang, Qing Zhu, Weipeng Lu, and Haifeng Li. Tov: The original vision model for optical re-mote sensing image understanding via self-supervised learn-ing. IEEE Journal of Selected Topics in Applied Earth Ob-servations and Remote Sensing , 2023. 7 [30] Di Wang, Jing Zhang, Minqiang Xu, Lin Liu, Dongsheng Wang, Erzhong Gao, Chengxi Han, Haonan Guo, Bo Du, Dacheng Tao, et al. Mtp: Advancing remote sensing foun-dation model via multi-task pretraining. IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing , 2024. 7 [31] Guoting Wei, Xia Yuan, Yu Liu, Zhenhao Shang, Kelu Yao, Chao Li, Qingsen Yan, Chunxia Zhao, Haokui Zhang, and Rong Xiao. Ova-detr: Open vocabulary aerial object detec-tion using image-text alignment and fusion. arXiv preprint arXiv:2408.12246 , 2024. 2, 3 [32] Xiaoshi Wu, Feng Zhu, Rui Zhao, and Hongsheng Li. Cora: Adapting clip for open-vocabulary detection with region prompting and anchor pre-matching. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 7031–7040, 2023. 2 [33] Gui-Song Xia, Xiang Bai, Jian Ding, Zhen Zhu, Serge Be-longie, Jiebo Luo, Mihai Datcu, Marcello Pelillo, and Liang-pei Zhang. Dota: A large-scale dataset for object detection in aerial images. In The IEEE Conference on Computer Vision and Pattern Recognition , 2018. 6 [34] Fan Yang, Heng Fan, Peng Chu, Erik Blasch, and Haibin Ling. Clustered object detection in aerial images. In Pro-ceedings of the IEEE/CVF international conference on com-puter vision , pages 8311–8320, 2019. 3 [35] Zhao Yang, Jiaqi Wang, Yansong Tang, Kai Chen, Heng-shuang Zhao, and Philip HS Torr. Lavt: Language-aware vision transformer for referring image segmentation. In Pro-ceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 18155–18165, 2022. 2 [36] Yuhang Zang, Wei Li, Kaiyang Zhou, Chen Huang, and Chen Change Loy. Open-vocabulary detr with conditional matching. In European conference on computer vision ,pages 106–122. Springer, 2022. 2 [37] Hao Zhang, Feng Li, Shilong Liu, Lei Zhang, Hang Su, Jun Zhu, Lionel M Ni, and Heung-Yeung Shum. Dino: Detr with improved denoising anchor boxes for end-to-end object detection. arXiv preprint arXiv:2203.03605 , 2022. 3 [38] Yian Zhao, Wenyu Lv, Shangliang Xu, Jinman Wei, Guanzhong Wang, Qingqing Dang, Yi Liu, and Jie Chen. Detrs beat yolos on real-time object detection. In Proceed-ings of the IEEE/CVF conference on computer vision and pattern recognition , pages 16965–16974, 2024. 2 [39] Yiwu Zhong, Jianwei Yang, Pengchuan Zhang, Chun-yuan Li, Noel Codella, Liunian Harold Li, Luowei Zhou, Xiyang Dai, Lu Yuan, Yin Li, et al. Regionclip: Region-based language-image pretraining. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 16793–16803, 2022. 2 [40] Xingyi Zhou, Rohit Girdhar, Armand Joulin, Philipp Kr¨ ahenb¨ uhl, and Ishan Misra. Detecting twenty-thousand classes using image-level supervision. In European confer-ence on computer vision , pages 350–368. Springer, 2022. 2, 3
+
+10

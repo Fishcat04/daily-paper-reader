@@ -1,0 +1,437 @@
+Title: HeartBeatAI: An Interpretable and Robust Deep Learning Framework for Multi-Label ECG Arrhythmia Detection
+
+URL Source: https://arxiv.org/pdf/2605.24588v1
+
+Published Time: Tue, 26 May 2026 00:44:48 GMT
+
+Number of Pages: 27
+
+Markdown Content:
+# HeartBeatAI: An Interpretable and Robust Deep Learning Framework for Multi-Label ECG Arrhythmia Detection 
+
+Shubham Gupta 1* , Nikhil Panwar 2 and Partha Pratim Roy 1
+
+1* Department of Computer Science and Engineering, Indian Institute of Technology (ISM) Dhanbad, Dhanbad, Jharkhand, India. 
+
+2Department of Computer Science and Engineering, Indian Institute of Technology Roorkee, Roorkee, Uttarakhand, India. *Corresponding author(s). E-mail(s): 24et0018@iitism.ac.in; Contributing authors: nikhil p@cs.iitr.ac.in; parthapratim@iitism.ac.in; 
+
+Abstract 
+
+While Deep Learning (DL) enhances automated electrocardiogram (ECG) anal-ysis, clinical deployment is hindered by class imbalance and the generalization gap. This paper presents HeartBeatAI, a deep learning framework combining domain generalization, multi-scale feature aggregation, and clinical explain-ability for robust 12-lead ECG classification. Moving beyond image-based paradigms, HeartBeatAI integrates a Squeeze-and-Excitation (SE) ResNet to iso-late diagnostic leads alongside a Multi-Layer Concentration Pipeline to capture macro-rhythm and micro-morphological anomalies. To mitigate domain shift, the framework employs MixStyle regularization and Label Smoothing. Rigorous benchmarking across four large-scale datasets using intra-source and Leave-One-Domain-Out (LODO) protocols demonstrates high performance (98% Macro F1-score) under intra-source conditions. However, LODO evaluations reveal significant degradation in detecting rare anomalies, highlighting a persistent challenge in cross-institutional deployment. 
+
+Keywords: Deep Learning (DL), Electrocardiogram (ECG), Squeeze-and-Excitation (SE) Resnet, Leave-One-Domain-Out (LODO), Gradient-weighted Class Activation Mapping (Grad-CAM) 
+
+1
+
+> arXiv:2605.24588v1 [cs.AI] 23 May 2026
+
+Fig. 1 : Schematic of the proposed HeartBeatAI research workflow, depicting the six-stage pipeline from data aggregation and preprocessing to architectural deployment and final performance analysis. 
+
+# 1 Introduction 
+
+Cardiovascular disease remains the leading cause of global mortality, necessitating the development of efficient, high-throughput diagnostic methodologies [1]. The 12-lead electrocardiogram (ECG) serves as the non-invasive gold standard for assessing cardiac structure and rhythmic function [2]. While manual interpretation is resource-intensive and prone to inter-observer variability [3], recent advancements in ResNet-based DL architectures have achieved diagnostic accuracies comparable to board-certified cardiologists [4–6]. Despite these successes, a primary barrier to clinical adoption is the generaliza-tion gap—a sharp performance degradation occurring when models encounter data from heterogeneous hospitals or acquisition devices [7–9]. Existing frameworks are focused on domain-specific artifacts, like power-line noise or local site-specific filtering, while completely neglecting the domain invariant physiological features [3, 10]. Con-sequently, these frameworks fail to generalize in different clinical settings, especially in the case of minority morphological categories [7, 9, 11]. To bridge this gap, we propose HeartBeatAI, a robust DL framework designed to capture fine-grained morphological and rhythmic features while mitigating domain shift. As illustrated in Fig. 1, the framework is rigorously evaluated across four large-scale datasets (CPSC2018, PTB-XL, Georgia, and Chapman), totaling 42,555 samples [12–15]. Unlike standard image-based paradigms, HeartBeatAI employs a physiologically-aligned architecture that integrates SE blocks [16] for lead-wise gating and MixStyle regularization [17] to force the learning of domain-invariant physiological patterns. HeartBeatAI framework is evaluated using a zero-shot LODO method [18], designed to mimic the real-world scenario of deployment where the data from the target institution is completely held out from the training phase. Our results show that Heart-BeatAI demonstrates strong performance (98% Macro F1-score) in a single-source scenario, and remains the most resilient in external domains, therefore mitigating the clinical “accuracy paradox” that challenges multi-label ECG classification [8]. While contemporary research has attempted to leverage the success of the field of Computer Vision for ECG processing, it typically transforms the ECG signals into 2D 2Table 1 : Conceptual Comparison and Novelty of HeartBeatAI vs. Prior ECG Frame-works 
+
+Feature State-of-the-Art (SOTA) Frameworks HeartBeatAI Lead Interaction Independent 1D-CNN or simple concatenation [20] Inter-Lead Importance Weighting via SE-recalibration 
+
+Domain Robustness Fixed denoising or intra-dataset optimization [10] Dynamic Domain Smoothing via ECG-aligned MixStyle 
+
+Feature Extraction Standard monolithic CNN variants [5] Physiologically-motivated Multi-scale Concentration 
+
+Clinical Rationale Standard Grad-CAM (visual only) Interpretable Lead-wise Diagnostic Attribution 
+
+Validation Protocol Predominantly Intra-Source evaluations Rigorous Zero-shot LODO 
+
+Table 2 : Comparative performance metrics of ECG classification frameworks and evaluation domains reported in existing work.                                                                                          
+
+> Author Framework Approach (Domain) Training Dataset Testing Dataset No. Pred. Macro-F1 Technique
+> Ribeiro et al. [5] ResNet-1D Intra-Domain CODE (Brazil) 2% Held-out (Brazil) 680.00 Standard 1D-ResNet Hannun et al. [6] 34-layer CNN Intra-Domain 91,232 Records Committee Gold Std. 12 83.70 Deep Residual CNN Attia et al. [21] CNN Prognostic (Intra) Mayo Clinic Data 10% Held-out 280.00 Sub-clinical AF Detection Sangha et al. [19] EfficientNet-B3 OOD (External) CODE (Brazil) PTB-XL (Germany) 677.00 Image-based CNN Sangha et al. [19] Custom CNN OOD (External) CODE (Brazil) PTB-XL (Germany) 665.30 Signal-based CNN Lai et al. [22] MSDNN OOD (External) Wearable 12-Lead CPSC2018 983.90 Self-Supervised (MoCo) Ballas & Diou [8] BioDG (ResNet-18) Intra-Domain CPSC, PTB-XL 20% Source Split 18 38.50 Multi-Layer Concatenation Ballas & Diou [8] BioDG (ResNet-18) OOD CPSC, PTB-XL INCART, G12EC 15 22.42 Multi-Layer Concatenation Ballas & Diou [8] BioDG (S-ResNet) Intra-Domain CPSC, PTB-XL 20% Source Split 18 40.44 Multi-Layer Concatenation Ballas & Diou [8] BioDG (S-ResNet) OOD CPSC, PTB-XL INCART, G12EC 15 22.77 Multi-Layer Concatenation
+
+representations, such as spectrograms or even images [19]. However, these processes lose both the phase information and temporal resolution [20]. By processing 1D time-series data directly, HeartBeatAI preserves physiological relevance. This ensures that micro-morphological features, such as sharp R-peak transitions and T-wave inversions, which are often lost to interpolation, normalization, or compression in image-based feature extraction are retained. The key contributions of this work are summarized as follows: 
+
+• Physiologically-Aligned Architecture: We introduce a 12-lead ECG framework that jointly models lead-wise diagnostic importance via SE-blocks and multi-scale temporal morphology. 
+
+• Robust Domain Generalization: We integrate MixStyle and Label Smoothing to mitigate the generalization gap, evaluated under strict zero-shot LODO constraints to ensure cross-institutional utility. 
+
+• Clinical Explainability: We deploy 1D Grad-CAM to validate that diagnostic deci-sions align with established cardiological markers, providing transparency beyond traditional “black-box” models. 
+
+• Large-Scale Benchmarking: We provide a comprehensive evaluation across four diverse datasets, establishing performance bounds for both matched and out-of-distribution clinical scenarios. Table 1 shows the evolution of HeartBeatAI’s architecture and methodology in relation to previous ECG frameworks, marking its evolution from standard computer vision methods to an ECG physiology- tailored framework. In the context of transforming technologies, the automated diagnosis of a 12-lead ECG has driven a shift from heuristic signal processing to DL approaches. Recent studies show that end-to-end neural networks can achieve the same diagnostic accuracy as human specialists [5, 6, 23]. Recent benchmarks in multi-label ECG classification 3(summarized in Table 2) highlight a trend toward deeper architectures. However, most prioritize Intra-Source accuracy over cross-domain robustness. Our work builds on these foundations by focusing on domain-invariant feature extraction. The efficacy of these diagnostic systems is largely predicated on the ResNet back-bone introduced by He et al. [24] and similarly densely connected networks [25], which mitigates gradient degradation in deep architectures, allowing for the stacking of con-volutional layers required to capture high-frequency signal components [3]. To further refine feature extraction, the SE mechanism proposed by Hu et al. [16] has been inte-grated into these backbones. The attention mechanism specific to each channel allows the framework to adjust the importance of different feature maps, promoting physi-ologically significant leads (e.g., Lead II for rhythm analysis) and diminishing those channels dominated by electromyographic noise. While Vision Transformers (ViT) cap-ture long-range dependencies effectively [26], their high computational cost and data requirements make optimized CNN-based ResNets more viable for real-time clinical deployment [20]. As introduced in Section I, the generalization gap remains a primary barrier to real-world deployment. Li et al. [7] emphasize that models often minimize loss by memorizing dataset-specific artifacts (e.g., local digitization filters) rather than domain-invariant physiological features, leading to catastrophic failure on target domains. Wang et al. [27] categorize this as a DG failure, in which the device-specific shifts within the data result in extreme degradation of the framework’s performance. Unlike the Domain Adaptation [28], which requires the target data to be unlabeled, Gulrajani and Lopez-Paz [18] argue for robust DG algorithms that operate in a zero-shot manner in unseen domains. While traditional domain generalization methods often rely on computationally heavy adversarial training, Invariant Risk Minimization (IRM), or Correlation Align-ment (CORAL), recent advancements to mitigate these shifts focus on lightweight regularization of latent space statistics and enhancing architectural diversity [29]. Specifically, Zhou et al. [17] proposed a framework called MixStyle, which encourages domain-invariant learning by perturbing feature statistics across domains. Concur-rently, Ballas and Diou [8] explored the “BioDG” framework through multi-layer concatenation to construct multi-scale representations. However, as demonstrated in Table 2, this approach leads to catastrophic performance degradation due to domain shifts, with the Macro-F1 score dropping from 40.44% in Intra-Domain scenarios to 22.42% in out-of-distribution (OOD) evaluations. This severe drop underscores the limitations of simple feature concatenation without explicit domain alignment. Furthermore, Sangha et al. [19] highlighted the disparity between image-based and signal-based CNNs, where signal-based frameworks often struggle more with external validation on datasets like PTB-XL. More recently, self-supervised learning paradigms have been deployed to improve feature extraction. As shown in Table 2, Lai et al. [22] utilized a multi-expert self-supervised network (MSDNN) to achieve a robust Macro-F1 of 83.90% in OOD scenarios. However, such multi-expert systems often require immense computational overhead, highlighting the need for lightweight regularization techniques. To address framework overconfidence and label noise within standard architectures, Szegedy et al. 
+
+4Table 3 : Architectural Ablation Study and Average Generalization Performance. 
+
+MixStyle refers to MixStyle Regularization.                 
+
+> Framework Variant Base framework Concentration & Label Smoothing MixStyle Avg. LODO Macro-F1
+> Baseline [5] ResNet-1D No No 0.32 Intermediate [8] ResNet-1D Yes No 0.40
+> HeartBeatAI (Proposed) SE-ResNet-1D Yes Yes 0.56
+> Note: Average LODO Macro-F1 is calculated across the Chapman, CPSC2018, Georgia, and PTB-XL target domains.
+
+[30] introduced Label Smoothing , which improves calibration and prevents overfitting to source-specific characteristics. Ultimately, while intra-domain classification has reached high-performance com-parable to prior works performance [4], signal-based OOD generalization remains a critical vulnerability [19]. The proposed HeartBeatAI framework specifically targets this gap by integrating SE-ResNet feature extraction with MixStyle regularization to enforce the learning of domain-invariant physiological morphologies over site-specific acquisition artifacts. 
+
+# 2 Results 
+
+To ensure the robustness and reliability of the reported metrics, rigorous statistical sig-nificance testing was conducted across both evaluation techniques. Across Intra-Source and LODO protocols, 95% Confidence Intervals (CIs) for the Macro-F1 scores were empirically estimated utilizing a non-parametric bootstrapping approach, wherein the test sets were resampled 1,000 times with replacement. Furthermore, comparative per-formance analysis against the Baseline and Intermediate architectures was validated using a Wilcoxon signed-rank test. Across the primary testing distributions, the per-formance improvements and domain generalization gains achieved by the proposed HeartBeatAI framework are statistically significant ( p < 0.05). To systematically isolate the contribution of each architecture’s module and provide a comprehensive ablation study across both protocols, the following three configurations were benchmarked: 1. Baseline [5]: Standard ResNet1D optimized with standard Cross-Entropy. 2. Intermediate [8]: BioDG framework (ResNet1D + Concentration Pipeline + Label Smoothing). 3. HeartBeatAI (Proposed) : The full proposed framework (SE-ResNet1D +MixStyle Regularization + Concentration Pipeline + Label Smoothing). The architectural progression and its corresponding impact on overcoming the generalization gap are summarized in Table 3. 
+
+2.1 Intra-Source Learning Capacity (Upper Bound) 
+
+Under ideal, distribution-matched conditions, with the standard train/validation/test split of 70/10/20 [8], the HeartBeatAI framework demonstrated that it can indeed capture complex patterns of arrhythmia [7, 31]. This comparison is against the Intermediate Framework (BioDG with ResNet1D [24], Concentration, and Label 5Smoothing). HeartBeatAI is a further improvement of BioDG that includes MixStyle [17] and Label Smoothing [30]. 
+
+2.1.1 Quantitative Comparison 
+
+The metrics of accuracy and F1 score are compiled in Table 4 for four disparate datasets: Chapman [15], CPSC2018 [13], Georgia [12], and PTB-XL [14]. These find-ings also showcase that the proposed changes to the framework markedly increased the Macro F1-score even in those datasets that are characterized by a high degree of class imbalance. HeartBeatAI achieved an accuracy of 0.99 and a Macro F1-score of 0.98 on the Chapman dataset. The high performance on Chapman is influenced by class dis-tribution and dataset homogeneity. For the PTB-XL dataset, HeartBeatAI (0.75) outperformed both the baseline (0.55) and the Intermediate framework (0.68), though it was surpassed by MSDNN, which achieved the highest F1-score of 0.79. To provide a comprehensive benchmark, Table 4 compares HeartBeatAI against the Baseline (a standard 1D-ResNet [5]), the Intermediate framework [8], and MSDNN (a self-supervised multi-expert network [22]). While the Baseline framework demon-strates strong performance on simpler distributions like the Chapman dataset (0.98 Macro F1), its performance degrades on complex, imbalanced datasets, dropping to a 0.28 F1-score on Georgia and 0.55 on PTB-XL. Conversely, MSDNN [22] establishes a competitive benchmark in these matched-distribution scenarios. However, Heart-BeatAI remains robust, surpassing the Baseline and Intermediate frameworks across all complex datasets. Notably, HeartBeatAI outperforms MSDNN on the CPSC2018 dataset (0.80 vs. 0.79) and the Georgia dataset (0.53 vs. 0.48), while establishing the second-best performance on PTB-XL. Furthermore, the HeartBeatAI framework achieves this performance with high computational efficiency. While multi-expert systems like MSDNN incur substan-tial parameter overhead, the integration of lightweight SE blocks and parameter-free MixStyle regularization ensures the framework remains suitable for clinical deploy-ment. The proposed framework requires a comparable parameter footprint to the standard ResNet-1D baseline, avoiding the exponential increase in floating-point operations (FLOPs) typical of ensemble or heavy self-supervised paradigms. 
+
+2.1.2 Training Stability and Convergence 
+
+Unlike the Intermediate framework, which suffered from the easy negatives and yielded oscillations in the validation metrics, HeartBeatAI converged quickly and, most impor-tantly, was stable. As shown in Fig. 3, HeartBeatAI converges, with the validation Macro F1-score and accuracy stabilizing near 1.0 after 15 epochs, signifying that the framework is optimizing the correct objective (i.e., discriminating between classes) rather than merely overfitting to the classification task. This behavior showcases that the Multi-Layer Concentration Pipeline has achieved an optimal balance and collects just the right features from early layers, with no gradient instability. 6Table 4 : Performance comparison under the Intra-Source protocol 
+
+Train Test Framework Accuracy Prec. Rec. F1 (Mean ± SD) AUROC 
+
+Chapman (n = 6 , 651) Chapman (n = 1 , 900) Baseline [5] 0.99 0.97 0.99 0.98 ± 0.01 0.99 
+
+Intermediate [8] 0.99 0.97 0.99 0.98 ± 0.01 0.99 
+
+MSDNN [22] 0.99 0.97 0.99 0.98 ± 0.01 0.99 
+
+HeartBeatAI 0.99 0.97 0.99 0.98 ± 0.01 0.99 
+
+CPSC2018 (n = 4 , 375) CPSC2018 (n = 1 , 250) Baseline [5] 0.76 0.56 0.57 0.56 ± 0.02 0.65 Intermediate [8] 0.74 0.74 0.72 0.72 ± 0.02 0.78 MSDNN [22] 0.82 0.79 0.80 0.79 ± 0.02 0.84 HeartBeatAI 0.83 0.80 0.80 0.80 ± 0.02 0.86 
+
+Georgia (n = 4 , 673) Georgia (n = 1 , 335) Baseline [5] 0.88 0.29 0.28 0.28 ± 0.03 0.55 Intermediate [8] 0.69 0.26 0.30 0.26 ± 0.03 0.52 MSDNN [22] 0.94 0.47 0.49 0.48 ± 0.03 0.67 HeartBeatAI 0.95 0.52 0.55 0.53 ± 0.03 0.72 
+
+PTB-XL (n = 14 , 090) PTB-XL (n = 4 , 026) Baseline [5] 0.91 0.53 0.58 0.55 ± 0.02 0.66 Intermediate [8] 0.84 0.65 0.77 0.68 ± 0.02 0.75 MSDNN [22] 0.94 0.77 0.82 0.79 ± 0.02 0.85 
+
+HeartBeatAI 0.92 0.72 0.80 0.75 ± 0.02 0.81 Note: Sample counts ( n) represent the specific 70% training and 20% testing partitions utilized in the Intra-Source evaluation protocol. Bold indicates the best performance, while underline indicates the second-best. Results are reported as Mean ± Standard Deviation across 5 independent initialization seeds. Area Under the Receiver Operating Characteristic (AUROC) is included to validate discriminative capacity. Evaluations are conducted across seven ECG arrhythmia subclasses: N, AF, PAC, PVC, LBBB, RBBB, and I-AVB. 
+
+(a) CPSC2018 (b) Georgia (c) PTB-XL 
+
+Fig. 2 : Confusion matrices for the Intra-Source evaluation across (a) CPSC2018, (b) Georgia, and (c) PTB-XL datasets. The X-axis represents the Predicted Class and the Y-axis represents the Actual Class. 
+
+2.1.3 Class-wise Ablation Analysis 
+
+In the Georgia dataset, the Intermediate framework suffered a total loss for the clas-sification of Atrial Fibrillation (AF) with an F1-score of 0.00, while HeartBeatAI recovered this class to an F1 of 0.84. In addition, in the case of the detection of Pre-mature Atrial Contractions (PAC), the PTB-XL dataset shows more than a two-fold increase (0.12 → 0.31), thus, MixStyle is shown to preserve local morphological details that were otherwise lost in feature extraction [17]. 7Table 5 : Performance comparison under the LODO generalization protocol 
+
+Train Source Domains Test Target Framework Acc. Prec. Rec. Macro F1 AUROC 
+
+CPSC, Georgia, PTB-XL (n = 33 , 054) Chapman (n = 9 , 501) Baseline [5] 0.76 0.22 0.14 0.16 ± 0.02 0.45 Intermediate [8] 0.69 0.28 0.20 0.24 ± 0.03 0.52 HeartBeatAI 0.69 0.99 0.78 0.87 ± 0.02 0.94 
+
+Chapman, Georgia, PTB-XL (n = 36 , 305) CPSC2018 (n = 6 , 250) Baseline [5] 0.46 0.39 0.42 0.38 ± 0.03 0.58 Intermediate [8] 0.56 0.60 0.52 0.50 ± 0.03 0.67 HeartBeatAI 0.59 0.58 0.60 0.57 ± 0.03 0.74 
+
+Chapman, CPSC, PTB-XL (n = 35 , 879) Georgia (n = 6 , 676) Baseline [5] 0.83 0.39 0.46 0.38 ± 0.03 0.60 Intermediate [8] 0.84 0.44 0.53 0.41 ± 0.03 0.63 
+
+HeartBeatAI 0.78 0.40 0.53 0.39 ± 0.03 0.61 Chapman, CPSC, Georgia (n = 22 , 427) PTB-XL (n = 20 , 128) Baseline [5] 0.62 0.38 0.46 0.37 ± 0.02 0.58 Intermediate [8] 0.66 0.41 0.58 0.45 ± 0.02 0.66 
+
+HeartBeatAI 0.62 0.39 0.60 0.42 ± 0.02 0.63 Note: Bold indicates the best performance and underline indicates the second-best performance. Sample counts ( n) represent the total recordings used for training and testing, respectively. Results are reported as Mean ± Standard Deviation across 5 independent initialization seeds. Evaluations cover seven ECG subclasses: N, AF, PAC, PVC, LBBB, RBBB, and I-AVB. 
+
+Fig. 3 : Training dynamics and convergence for the Chapman dataset (Intra-Source), demonstrating the stability of loss reduction and the rapid optimization of Macro F1 and Accuracy metrics. Furthermore, Table 4 highlights how HeartBeatAI compares against recent self-supervised paradigms like MSDNN [22], under the Intra-Source Protocol. In distribution-matched environments, HeartBeatAI demonstrates strong performance in the majority of datasets. It outperforms MSDNN on the CPSC2018 (0.80 vs. 0.79) and Georgia (0.53 vs. 0.48) datasets, while matching the top performance on the Chapman dataset (0.98). While MSDNN remains highly competitive on the PTB-XL dataset with a Macro F1-score of 0.79 compared to 0.75 for HeartBeatAI, the primary advan-tage of the proposed HeartBeatAI framework lies in its targeted architectural design for Out-of-Distribution (OOD) reliability and generalizability. 8Fig. 4 : Training dynamics for the Chapman target domain under the LODO protocol; fluctuations in validation metrics reflect the framework’s adaptation to the domain shift inherent in unseen hospital systems. 
+
+2.2 Inter-Domain Generalization (LODO Protocol) 
+
+2.2.1 Performance Metrics Overview 
+
+The metrics comparison provided in Table 5 allows us to analyze the overall perfor-mance of the three frameworks in the study. The Baseline framework exhibited the greatest difficulty with domain shifts in the datasets, particularly with the CPSC2018 dataset, reporting a Macro F1 of 0.38. This was improved to 0.50 for the Intermedi-ate framework, while the HeartBeatAI framework provided the highest score with a generalization performance of 0.57. Similarly, on the unseen Chapman dataset, Heart-BeatAI achieved a Macro F1 of 0.87, significantly outperforming both the Baseline (0.16) and Intermediate (0.24) frameworks. To ensure the statistical significance of these findings, the LODO experiments were repeated across five random initialization seeds to establish confidence intervals. The HeartBeatAI framework consistently demonstrated reduced variance in Out-of-Distribution (OOD) scenarios compared to the Baseline. Beyond the Macro F1-score, Area Under the Receiver Operating Characteristic (AUROC) metrics further validated the framework’s discriminative capacity, confirming that the performance gains are robust against minor stochastic variations in the training pipeline. 
+
+2.2.2 Domain Shift Training Dynamics 
+
+The learning curve related to the LODO protocol training stability is shown in Fig. 4. The Chapman dataset, which was the unseen target dataset, presents the learning curve and illustrates the difficulty in achieving the optimal performance for generalizability. The training loss (blue) experiences a steady decline, while the worrying distribution of the source domains and the target causes the validation mea-sures (red/purple/green) to rapidly oscillate. It is noted that, despite this oscillatory response, the Macro F1 (Center) is shown to achieve a high score and has a positive trend, with the upward volatility stabilizing the trend. This validates the hypoth-esis that MixStyle regularization guides robust feature representation and prevents framework collapse, even when encountering severe domain discrepancies from distinct hospital systems. 92.2.3 Analysis of Generalization by Class 
+
+The breakdown of results by class exhibits different generalization behaviors for the three architectures. For Atrial Fibrillation (AF) detection, the HeartBeatAI frame-work showed the most substantial gains in robustness in the Chapman and CPSC2018 datasets, obtaining F1-scores of 0.93 and 0.84 and gains over Baseline of 0.20 and 0.34, respectively. The Intermediate framework in the Georgia dataset showed the strongest retention of AF features (0.83) and HeartBeatAI, at 0.76, was competitively above Baseline (0.66). In the retrieval of rare conduction and morphologic abnormal-ities, which are often lost to domain shift, a major benefit of HeartBeatAI is noted. For I-AVB in the CPSC2018 dataset, HeartBeatAI improved the F1-score to 0.79, which is a noteworthy improvement over the Intermediate framework (0.60) and Base-line, which was completely nonresponsive for detection of this class (0.00). Also, for CPSC2018 Premature Atrial Contractions (PAC), detection capability was recovered to 0.31 by HeartBeatAI, while the Intermediate framework was severely limited at this (0.06). This evidence suggests that while the Intermediate framework (BioDG) effec-tively generalizes global rhythm features (like AF), the HeartBeatAI framework (with MixStyle) is essential for preserving the fine-grained morphological features required for identifying minority classes in unseen domains. 
+
+2.3 Visualizing the Generalization Gap 
+
+To analyze the “Accuracy Paradox” and the drop in out-of-distribution sensitivity, this paper compare the Intra-Source confusion matrices in Fig. 2 against the LODO confusion matrices in Fig. 5. A consistent pattern of performance degradation is observed across all domains when switching from Intra-Source to LODO protocols. For the Georgia dataset (Fig. 5c vs. 2b), the framework demonstrated relatively robust transferability, with accuracy dropping by 26%. The framework displays strong discrimination for Normal rhythms ( N = 2062 correctly classified), but there seems to be increased confusion for Atrial Fibrillation (AF) rhythms and the rest of the rhythms in the unseen data. In contrast, the PTB-XL dataset displays a pronounced generalization failure, as seen in Fig. 5d vs. 2c. Compared to the Intra-Source domain, where the framework performed best (90.91%), the LODO protocol showed a loss of accuracy to 62.04 The matrix shows a loss of conduction abnormality recognition, especially the I-AVB vs Normal rhythms. This suggests that the feature definitions of blocks in the source domains (CPSC2018/Georgia/Chapman) differ from PTB-XL. Similarly, CPSC2018 target in the Fig. 5b vs. 2a shows a drop from 79.92% to 59.22%. The LODO framework struggled significantly with local morphological anomalies, where Normal beats were a large portion of the PACs in that category. This strengthens the result that while reasonable transfer of global rhythm statistics (MixStyle) at the morphological level, fine-grained (Concentration Pipeline) is device-specific acquisition artifacts. 10 (a) Chapman (b) CPSC2018  
+
+> (c) Georgia (d) PTB-XL
+
+Fig. 5 : Confusion matrices representing zero-shot transfer performance under the LODO evaluation protocol for (a) Chapman, (b) CPSC2018, (c) Georgia, and (d) PTB-XL datasets, where the X-axis represents the Predicted Class and the Y-axis represents the Actual Class. This phenomenon, where the framework artificially inflates its overall performance metrics by defaulting to the majority “Normal” class at the expense of rare morpho-logical anomalies, highlights a critical vulnerability in current evaluation protocols. We characterize this behavior as the “Accuracy Paradox”, the mechanics and clinical implications of which are explored in detail in Section V-C. Table 6 presents a compar-ative analysis of computational efficiency, demonstrating that HeartBeatAI achieves a favorable balance between framework parsimony and low-latency inference compared to significantly larger transformer-based and multi-scale frameworks. 11 2.4 Clinical Explainability via 1D Grad-CAM 
+
+To provide multi-class explainability, Grad-CAM analysis was extended across distinct pathologies. For Atrial Fibrillation (AF), the network correctly distributed saliency across the RR-intervals rather than specific waveforms, indicating rhythm-aware fea-ture extraction. For PVCs, activations localized sharply on the broad, abnormal ventricular complexes. However, we note a current limitation: while the heatmaps demonstrate strong qualitative alignment with known clinical markers, quantitative validation (e.g., using Intersection over Union (IoU) with cardiologist-annotated waveform boundaries) remains future work. Such quantitative bounding-box validation is critical for ultimate regulatory certification. To address the lack of clinical auditability and the problem of “black-box” DL, this framework adopted the 1D Grad-CAM method as described in Algorithm 2. This method can illustrate the specific time segments that are most significant for the HeartBeatAI framework [32]. Figure 6 shows the importance heatmap of a Representative Normal (N) sam-ple from the Chapman dataset. Significant correspondence between the framework’s focus and notable physiological characteristics. The areas with red-spectrum “Impor-tance” correspond with the QRS complexes, which mark the beginning of ventricular depolarization. This visualization gives us insight into the framework’s inner workings as follows: 
+
+• Morphological Focus: The framework shows the ability to disregard baseline wander and low amplitude noise, and focus on high-resolution morphological changes [10]. 
+
+• Lead Recalibration: The saliency map supports the claim regarding the efficacy of the SE blocks in the backbone [16]. The framework, by using global descriptors of the 12 leads, dynamically recalibrates the importance of leads to elevate clinically relevant ones. 
+
+• Rhythmic Invariance: Constantly emphasizing recurring QRS peaks throughout the 10-second span illustrates the capability of the Multi-Layer Concentration Pipeline to gain positive captures on global rhythmic dependencies, which are crucial to the correct identification of arrhythmias [31]. 
+
+• Future Quantitative Alignment: While the current heatmaps qualitatively align with known clinical markers, a limitation of this study is the absence of large-scale quantitative overlap metrics (such as Intersection over Union) between Grad-CAM activations and cardiologist-annotated waveform boundaries. Validating these inter-pretability maps against explicit clinical bounding boxes remains a critical next step for real-world diagnostic certification. This explainability layer acts as a “visual proof” for clinicians, demonstrating that the high Macro-F1 scores recorded in the Intra-Source and LODO protocols are based on actual physiological findings rather than dataset-specific artifacts [7]. 12 Table 6 : Computational Complexity and Inference Efficiency                
+
+> Framework Params (M) FLOPs (G) Inference (ms)
+> ResNet-1D [5] 4.2 1.8 12.4 ECG-Transformer [26] 22.5 8.4 45.2 MSDNN [22] 18.1 6.2 38.5
+> HeartBeatAI 5.8 2.1 14.8
+
+Fig. 6 : 1D Grad-CAM importance heatmap for a correctly predicted Normal (N) ECG sample from the Chapman dataset [15]. The importance heatmap H is scaled to [0, 1] and overlaid on the signal to highlight features that most heavily influenced the classification decision. 
+
+2.5 Robustness to Noise and Missing Leads 
+
+To validate the framework’s clinical resilience, HeartBeatAI was stress-tested against common real-world acquisition failures. First, we simulated sensor degradation by dropping random ECG leads (masking 1 to 3 random channels per instance). Second, we introduced varying levels of Gaussian noise (SNR from 5dB to 20dB) to simulate electromyographic interference. While the baseline framework’s Macro-F1 degraded by over 35% under the 3-lead-drop scenario, HeartBeatAI maintained competitive performance, dropping by only 14%. This robustness is directly attributed to the SE-blocks dynamically routing diagnostic weight to the remaining uncorrupted channels. 
+
+# 3 Discussion 
+
+The novelty of HeartBeatAI does not lie in the existence of the SE-ResNet or MixStyle components, but in the architectural alignment with the hierarchical nature of cardiac diagnosis, where macro-rhythms and micro-morphologies are fused via a Concentration Pipeline to solve the intra-institutional generalization gap. 13 This study examined the HeartBeatAI framework on four varied ECG datasets and found a pronounced discrepancy between practical clinical application and theoretical learning capability. Even though the framework reached excellent achievements for Intra-Source cases (F1: 0.99), the LODO studies brought to light serious limitations that DL frameworks entail once introduced to practical clinical settings. 
+
+3.1 The Generalization Gap and Clinical Reliability 
+
+As established in Section I, the tendency of the DL frameworks to overfit to domain-specific noise limits their cross-domain clinical relevance [7]. The results obtained in this study confirm this assertion. For the Georgia dataset, the F1 score for Atrial Fibrillation (AF) of the Intermediate framework collapsed to 0.00, which meant that the framework was clinically useless even when it demonstrated high accuracy during the training phase. Incorporating MixStyle regulation allows the framework to recover performance in the Georgia dataset by an F1 score of 0.71. This validates the hypothesis by Zhou et al [17] that domain mixing at training time can lead to the discovery of features that are robust and invariant to the varied target domains. 
+
+3.2 Divergence of Global vs. Local Feature Learning 
+
+Analyzing the failure modes shows some arrhythmias are more difficult to generalize. A clear divergence based on feature type is evident. 
+
+• Global Rhythm Features (Success): Similar successes were noted for rhythm-based irregularities and generalized well for conditions like Atrial Fibrillation (AF) and Sinus Rhythm. The Concentration Pipeline aggregated multi-scale temporal depen-dencies, enabling the framework to capture RR-interval variability, irrespective of the signal morphology. 
+
+• Local Morphological Features (Failure): Anomalies of specific shapes, such as PVC and Premature Atrial Contractions (PAC), showed significant drops in the LODO protocol (e.g., PVC F1 ≈ 0.03 in Georgia). It indicates that although the statistical alignment (MixStyle) technique is effective at the level of the global distribution, it is ineffective at the level of precise local morphologies. As described by Bedin et al. [33], local morphological reconstruction requires explicit geometric alignment, which statistical methods alone cannot fully bridge. 
+
+3.3 Statistical Regularization Limitations 
+
+Although MixStyle increased robustness for rhythm classes, it was not enough to support the alignment of fine-grained local patterns. MixStyle assumes the shifts of the domain are stylistic, like global statistics of mean and variance. However, when it comes to ECG analysis, the “morphological definition” of a rare arrhythmia may undergo a semantic shift across datasets due to actual protocols in physical leads placed (e.g. the precordial leads). As such, the system most likely learned the specific shape of a PVC among the training domains (CPSC2018/PTB-XL) but did not assign the slightly different shape 14 of a PVC in the target domain (Georgia) to the same class. This exemplifies the Accu-racy Paradox: the framework blindly defaults to the majority class to boost overall accuracy, while effectively sacrificing sensitivity and failing the minority class. This sets the agenda for future work to transcend global statistical alignment in favor of focus, explicit empirical, and morphologically invariant representation learning [34]. While LODO evaluation rigorously tests inter-domain generalization, true external validation on entirely unseen institutional datasets remains a vital next step. Future work will validate this framework on prospective, real-world clinical cohorts. Addition-ally, while Macro-F1 provides a balanced harmonic mean, future deployments will be evaluated using extended clinical metrics, including class-wise Sensitivity, Specificity, and Precision-Recall curves to better capture clinical utility under severe imbalance. 
+
+3.4 Failure Case Analysis and Confusion Trends 
+
+Analyzing ECGs that have been misclassified reveals certain failure modes for LODO assessments. One of the more obvious confusion trends is between Normal rhythms and typical morphological anomalies such as PVCs and PACs (PTB-XL zero-shot evalua-tion). The framework appears to go to the “Normal” majority class when it encounters novel acquisition artifacts that distort some local waveforms. This “Accuracy Paradox” indicates that the MixStyle effect is sufficient to stabilize global rhythm classification, whereas localized morphological anomalies are still vulnerable to site-specific sensor artifacts. 
+
+# 4 Reproducibility Statement 
+
+To ensure the reproducibility of the findings presented in this study, the PyTorch implementation, including framework, preprocessing scripts, and specific train/test data splits, will be made publicly available upon publication. All experiments were conducted utilizing deterministic algorithmic implementations where possible, with a fixed global random seed (Seed = 42) to ensure consistent weight initialization and data shuffling across the 5 independent runs. Training was executed on a single NVIDIA GPU using the AdamW optimizer with a learning rate of 1 × 10 −3, weight decay of 1 × 10 −4, and a batch size of 64. 
+
+# 5 Conclusion 
+
+This paper presented HeartBeatAI, a fused DL framework designed to enhance the robustness of automated ECG analysis [33]. By integrating an SE ResNet backbone with a Multi-Layer Concentration Pipeline, the proposed framework secured a new benchmark in Intra-Source assessments, demonstrating highly accurate intra-domain feature extraction on benchmark datasets and effectively resolving the class collapse observed in standard architectures [29, 31, 32]. The framework successfully recalibrated lead-wise importance to prioritize physiologically informative signals while preserving fine-grained morphological details through multi-scale feature fusion [16, 31]. However, the rigorous LODO benchmarking demonstrated the generalization gap as the most critical, yet still unresolved issue for medical AI [8, 35]. While the proposed 15 domain generalization components, particularly MixStyle and Label Smoothing, have shown the ability to recover performance for the global rhythm disorders and for atrial fibrillation detection. The detection of local morphological anomalies such as PVCs is still fragile and susceptible to variability across different heterogeneous hospital systems [7, 19]. While local morphology is extremely susceptible to the device used and the data collection artifacts, global rhythm patterns can generalize well through statistical alignment [7, 11]. The results indicate that the current benefits are gained from simply improving the depth of a framework. The focus in future investigations must change to the following two areas: 1. Causal Representation Learning: Building frameworks that focus on the reliable and invariant physiological causes, such as the absence of a P-wave, rather than the statistically relevant and contextually variable signal [34]. 2. Generative Data Augmentation: The use of diffusion frameworks to realistically morph the synthesis of rare and atypical arrhythmias to fill the long tail of the data distribution [33]. In summary, HeartBeatAI is a milestone in terms of strong rhythm analysis, univer-sal ECG diagnosis requires a significant change from a statistical approach of detecting patterns to a contextual comprehension of the signal. 
+
+# 6 METHODOLOGY 
+
+This section details the construction and computational logic of the HeartBeatAI framework, encompassing the unified cohort datasets (III-A), evaluation protocols (III-B), and preprocessing pipelines (III-C), culminating in the proposed architectural design (III-D). 
+
+6.1 Dataset Overview 
+
+To critically analyze the cross-domain robustness of the HeartBeatAI framework, we utilized a unified cohort of 42,555 samples from four large-scale, heterogeneous public ECG datasets: CPSC2018 [13], PTB-XL [14], Georgia [12], and Chapman [15]. These datasets were selected to capture realistic clinical variations in patient demographics, recording devices, and signal lengths (ranging from 6 to 60 seconds, all standardized to a 500 Hz sampling rate). This study focuses on the classification of seven broad categories: Normal (N), Atrial Fibrillation (AF), Premature Atrial Contraction (PAC), Premature Ventricular Contraction (PVC), Left Bundle Branch Block (LBBB), Right Bundle Branch Block (RBBB), and First-degree Atrioventricular Block (I-AVB). Concentrating on these clinically dominant arrhythmias ensures sufficient sample sizes with clear morpholog-ical features, mitigating statistical noise from rare outlier pathologies across global hospital systems [1, 36]. Detailed characteristics, dataset-specific sample sizes, and label distributions are comprehensively outlined in Table 7. 16 Algorithm 1 HeartBeatAI Training and Optimization 
+
+Require: Data loaders {L tr , Lvl }, initial weights θ, scheduler S, patience P .
+
+Ensure: Optimized weights θbest .
+
+1: for epoch = 1 to Emax do 
+
+2: Training Phase: Set θ to training mode. 
+
+3: for batch ( X, Y ) ∈ L tr do 
+
+4: ˜X = Augment(Normalize(Filter( X))) 
+
+5: {F1, . . . , F 4} = FeatureExtractor( ˜X, θ )
+
+6: Hf usion = Concatenate(CP 1(F1), . . . , CP 4(F4)) 
+
+7: ˆY = MLP( Hf usion )
+
+8: Compute L = CrossEntropy( ˆY , Y ) with label smoothing 
+
+9: Update θ via ∇θ L and adaptive momentum 
+
+10: end for 
+
+11: Validation Phase: Calculate F 1curr on Lvl .
+
+12: Step S and update θbest if F 1curr > F 1best .
+
+13: if patience limit P is reached then 
+
+14: break 
+
+15: end if 
+
+16: end for 
+
+17: return θbest 
+
+The aggregated cohort presents a rigorous test for domain generalization across diverse populations spanning three continents. Excluding PTB-XL (which lacks spe-cific demographic metadata but remains vital for morphological feature learning) [14], the mean patient age across the remaining sources is 60 .2 ± 17 .2 years, with a gender distribution of 54.8% male and 45.2% female. This diverse, balanced represen-tation minimizes demographic bias and reinforces the clinical legitimacy of our LODO evaluation [37]. 
+
+Table 7 : Comprehensive overview of dataset demographics and arrhythmia class dis-tribution across the unified cohort ( N = 42 , 555).                                                                          
+
+> Dataset Demographics Arrhythmia Class Distribution
+> Subjects ( n)Age (Yrs) Male (%) Female (%) AF I-AVB LBBB NPAC PVC RBBB Total Samples CPSC2018 [13] 6,250 60.5 ±19.1 54.1% 45.9% 1,221 722 199 918 544 971 1,675 6,250 Chapman [15] 9,501 60.3 ±16.8 56.6% 43.4% 2,224 007,277 0009,501 Georgia [12] 6,676 59.9 ±15.8 52.8% 47.2% 258 343 610 4,925 99 17 424 6,676 PTB-XL [14] 18,885 N/A N/A N/A 1,307 566 414 15,950 341 1,143 407 20,128
+> Total 41,312* 60.2 ±17.2 54.8% 45.2% 5,010 1,631 1,223 29,070 984 2,131 2,506 42,555
+
+*Note: Demographic average Age (Mean ± Std), Gender are calculated based on CPSC2018, Chapman, and Georgia datasets. Total subject count includes the distinct patients from PTB-XL. 
+
+17 6.2 Evaluation Protocols 
+
+To ensure a robust and comprehensive evaluation of the HeartBeatAI framework, two distinct data partitioning protocols are implemented. 
+
+6.2.1 Intra-Source Evaluation 
+
+This evaluation determines the theoretical learning capacity of the framework. The entire dataset across the individual source domains (CPSC2018, PTB-XL, Georgia, and Chapman) is split into training, validation, and testing subsets, with the standard distribution of 70%, 10%, and 20%, respectively [20]. 
+
+6.2.2 LODO 
+
+This setup is used to mimic a real-world clinical setting and to assess cross-domain gen-eralization. In this case, each dataset is treated as the unseen target domain to assess zero-shot transfers to unseen, to evaluate the framework’s ability to generalize to com-pletely new data. The framework is developed using data from N − 1 source domains and is tested with the remaining target domain data. This is done N = 4 times, such that each individual dataset (CPSC2018, PTB-XL, Georgia, and Chapman) is used as the target domain once [27]. 
+
+6.3 Data Preprocessing 
+
+To extract strong and dependable features from heterogeneous datasets, this study adopts a streamlined three-step preprocessing pipeline that enhances the signal-to-noise ratio (SNR) while strictly normalizing input dimensions [7] as illustrated in Algorithm 1. 
+
+6.3.1 Digital Filtering and Artifact Removal 
+
+Raw ECG signals are naturally impacted by power line interference, EMG noise, and baseline noise due to respiration and movement of the electrodes. To remove these artifacts, the signals undergo a second-order Butterworth bandpass filter with a passband from 0 .5 Hz to 45 Hz. The lower cutoff of 0 .5 Hz will attenuate low-frequency baseline drift [10]. The upper cutoff of 45 Hz removes high-frequency noise while allowing the QRS Complex and P-wave morphology to remain clinically usable [3]. 
+
+6.3.2 Statistical Amplitude Normalization 
+
+Z-score normalization is performed on each lead independently that make the frame-work invariant to absolute voltage scales and is focused on relative morphological changes and the rhythm patterns obtained from different clinical settings [38]. 
+
+6.3.3 Temporal Windowing and Segmentation 
+
+As part of mini-batch processing for deep neural networks, continuous records of ECG are translated into representations as of a fixed size [5]. Each signal is split into windows 18 of L = 5000 samples. Assuming a sampling frequency of 500 Hz, this means a window captures a 10-second interval [14]. This is long enough to capture complex arrhythmias, including Atrial Fibrillation (AF) and bundle branch blocks [6]. For records where the length len (x) < L , we use zero-padding for the suffix to keep things uniform [8]. For longer records, we use center-cropping during the evaluation phase and random-offset cropping during the training phase. This type of cropping serves as stochastic temporal data augmentation, which is effective in improving the framework’s generalization [3]. 
+
+6.4 Structure of HeartBeatAI Framework 
+
+The proposed HeartBeatAI framework is designed to address domain shift failures by extracting domain-invariant features. Unlike traditional “black-box” frameworks, HeartBeatAI incorporates specific architectural mechanisms to force the learning of physiologically relevant features. The framework consists of two core components: the SE Backbone and the Multi-Layer Concentration Pipeline, as illustrated in Fig. 7. 
+
+Fig. 7 : Architectural diagram of the HeartBeatAI framework, highlighting the inte-gration of the SE-ResNet backbone, MixStyle-driven domain generalization, and the Multi-Layer Concentration Pipeline. 
+
+6.4.1 SE Block 
+
+Standard Convolutional Neural Networks (CNNs) treat all input channels with equal inductive bias. While appropriate for the RGB channels of standard images, this is fundamentally misaligned with 12-lead ECG analysis, where diagnostic information is heavily skewed depending on the pathology (e.g., Lead II for rhythm, precordial leads for bundle branch blocks). SE blocks are integrated to act as a simulated “diagnostic attention” mechanism. This dynamically recalibrates lead importance per instance by: 19 Fig. 8 : Detailed architecture of the SE-ResBlock ( C = 64 , stride = 1), showing the “Squeeze” (Global Average Pooling) and “Excitation” (2-layer MLP) mechanisms for channel-wise feature recalibration. 
+
+• Elevating physiologically relevant leads based on pathology (e.g., Lead II for rhythm). 
+
+• Suppressing channels dominated by transient artifacts, such as baseline wander or electrode motion. To enhance the network’s sensitivity to informative ECG leads while suppressing noise, SE blocks are employed within the residual backbone [16, 24] as illustrated in Fig. 8. 
+
+6.4.2 Concentration Pipeline (Feature Aggregation) 
+
+While traditional visual tasks rely heavily on final network layers, cardiac arrhyth-mias manifest across wildly varying temporal scales. For example, Atrial Fibrillation presents as global RR-interval irregularities, whereas inverted T-waves are local-ized, high-frequency aberrations. To prevent discarding these fine-grained details, the Multi-Layer Concentration Pipeline aggregates intermediate features. This ensures the final feature vector ( Hf inal ) preserves both macro-rhythm statistics and micro-morphological geometry. Unlike standard ResNets that utilize only the final feature map, the proposed framework aggregates features from multiple intermediate layers to capture multi-scale representations [31]. Let Fl ∈ RCl×Tl denote the feature map from the l-th residual layer. The concentration operation Φ consists of a 1 × 1 convolution ( W1×1) to reduce dimensionality, followed by global average pooling (GAP): 
+
+hl = Φ( Fl) = GAP(Dropout(ReLU( W1×1 ∗ Fl))) (1) 20 The final representation H is obtained by concatenating the extracted features from all N selected layers: 
+
+H = [ h1, h2, . . . , hN ] (2) 
+
+6.4.3 Domain Generalization via MixStyle Regularization 
+
+Domain shift in computer vision typically involves variations in lighting, background, or camera angle. As noted in Section I, domain shift in clinical electrophysiology manifests as fundamentally different statistical noise profiles driven by institutional protocols and devices. To mitigate this, we employ MixStyle regularization [17], which is uniquely suited to smooth out these deterministic device signatures. By proba-bilistically interpolating the mean and variance of intermediate feature maps between random samples during training, MixStyle simulates novel “virtual” domains. Let x ∈ RB×C×L be a feature map within the residual layers, where B, C, and 
+
+L denote the batch size, number of channels, and temporal length, respectively. The mean μ and standard deviation σ are computed across the temporal dimension L. To synthesize a novel style, a mixing coefficient λ is sampled from a Beta distribution: 
+
+λ ∼ Beta( α, α ), where α = 0 .1 (3) Given a spatially shuffled instance xperm from the same batch, the mixed feature statistics γmix and βmix are derived as follows: 
+
+γmix = λσ (x) + (1 − λ)σ(xperm ) (4) 
+
+βmix = λμ (x) + (1 − λ)μ(xperm ) (5) The stylized feature map ˆ x is then reconstructed by applying the mixed statistics to the normalized input [38]: ˆx = γmix 
+
+ x − μ(x)
+
+σ(x)
+
+
+
++ βmix (6) This operation is applied during training with a probability p = 0 .3. This stochas-tic perturbation forces the network to prioritize the domain-invariant physiological features discussed previously [17]. 
+
+6.4.4 Classification and Optimization 
+
+After feature aggregation from the Concentration Pipeline, the fused representation vector Hf inal ∈ R256 contains multi-scale morphological information, and then the vector is fed to the last classification head. 
+
+Multilayer Perceptron (MLP) Head 
+
+The classifier is structured as a dense MLP to project the high-dimensional features into the relevant diagnostic classes. It has a single hidden linear layer with 256 neurons and a ReLU activation function. To address overfitting, which is a major concern on 21 high-dimensional ECG data, a Dropout layer is used with p = 0 .5 prior to the last output layer [39]. The last projection assigns the latent features to the class logits z ∈ RK where 
+
+K = 7 is the number of target arrhythmia classes (N, AF, I-AVB, LBBB, RBBB, PAC, PVC). 
+
+Objective Function with Label Smoothing 
+
+Standard Cross-Entropy (CE) loss pushes the framework to predict the correct class with a probability of 1.0, which could result in overfitting and failure to generalize to unseen domains. The proposed framework uses Label Smoothing with a soft target dis-tribution instead of a one-hot encoded target. This regularization technique penalizes over-confident predictions and clusters classes more tightly in the embedding space. 
+
+6.5 Explainability Layer via 1D Grad-CAM (EX-AI) 
+
+To move beyond the “black-box” DL models and clinical auditability, the Heart-BeatAI framework uses an integrated explainability layer via 1D Grad-CAM [32]. This mechanism will help empirically trace the explainability of the diagnostic deci-sion to particular morphological segments of the ECG, thereby making sure that the framework’s high performance is based on relevant physiological reasoning rather than dataset overfitting [7]. The computation of the Grad-CAM saliency map is detailed in Algorithm 2. Grad-CAM serves as “visual proof” for the framework’s internal reasoning, which are below: 
+
+• Physiological Alignment: The highlighted areas in the heatmap are in qualitative alignment with the QRS and T-wave complexes, hence it is clear that the network captures clinically relevant components for the detection of arrhythmias [29]. 
+
+• Lead-wise Validation: The saliency computation validates the SE blocks [16] by illustrating how the framework recalibrates lead importance to concentrate on high-fidelity diagnostic components. 
+
+• Architectural Transparency: This layer, along with the Concentration Pipeline [31], allows visualization of the multi-scale representations so that the last 256-dimensional feature vector Hf inal contains the useful morphological changes. 
+
+6.6 Implementation Details and Hyperparameter Configuration 
+
+The HeartBeatAI framework is implemented in Python 3.8 with PyTorch [40]. All the experiments have been done using a workstation with an Intel Core i7 CPU, 32 GB RAM, and an NVIDIA GPU with CUDA for the heavy multi-domain ECG processing tasks. For our experiments, we chose the AdamW optimizer with a weight decay of 1 × 10 −4 [41], which decouples weight decay and gradient updates. This configuration improves generalization across ECG datasets, while regularization works under the stochastic shifts caused by MixStyle. Training begins with a learning rate of 1 × 10 −3
+
+which is adjusted automatically through a ReduceLROnPlateau scheduler, based on the validation Macro-F1 score. If there is no improvement, the scheduler decreases the 22 Algorithm 2 1D Grad-CAM for Explainable Arrhythmia Detection 
+
+Require: Trained Framework M , Target Convolutional Layer L, Input ECG Signal 
+
+X, Target Class c
+
+Ensure: Class-Discriminative Saliency Map H 
+
+> 1:
+
+BEGIN  
+
+> 2:
+
+Extract feature map activations A from layer L during the forward pass of M (X) 
+
+> 3:
+
+Compute predicted class scores ˆ y = M (X) 
+
+> 4:
+
+Isolate the unnormalized score for the target class: Sc = ˆ yc 
+
+> 5:
+
+Compute gradients of Sc with respect to the layer activations A: G = ∂S c 
+
+> ∂A
+> 6:
+
+Channel Weighting:  
+
+> 7:
+
+for each channel k do  
+
+> 8:
+
+Calculate global average pooling of gradients over time dimension T : wk =
+
+> 1
+> T
+
+PTt=1 Gk,t  
+
+> 9:
+
+end for  
+
+> 10:
+
+Compute the linear combination of activations weighted by wk: LGrad −CAM =ReLU ( P 
+
+> k
+
+wkAk) 
+
+> 11:
+
+Normalization and Visualization:  
+
+> 12:
+
+Normalize the heatmap to the range [0 , 1]: H = LGrad −CAM   
+
+> max( LGrad −CAM )
+> 13:
+
+Interpolate H to match the original temporal length of X 
+
+> 14:
+
+return H 
+
+> 15:
+
+END learning rate by a factor of 0.5 after 5 epochs. To minimize the use of computational resources and reduce overfitting, Early stopping is implemented with a patience of 15 epochs and a maximum training limit of 50 epochs with a batch size of 64. This further increased the framework’s robustness by using cross-entropy loss with label smoothing ( ϵ = 0 .05), which helps in softening overconfident predictions and thus helps in generalization. 
+
+# References 
+
+[1] World Health Organization: Cardiovascular diseases (CVDs). WHO Fact Sheets. https://www.who.int/news-room/fact-sheets/detail/ cardiovascular-diseases-(cvds) (2021) [2] Siontis, K.C., et al. : Artificial intelligence-enhanced electrocardiography in car-diovascular disease management. Nat. Rev. Cardiol. 18 , 465–478 (2021). https: //doi.org/10.1038/s41569-020-00503-2 [3] Hong, S., et al. : Opportunities and challenges in deep learning methods on electro-cardiogram data: A systematic review. Comput. Biol. Med. 122 , 103801 (2020). https://doi.org/10.1016/j.compbiomed.2020.103801 [4] Jin, Y., Li, Z., Wang, M., et al.: Cardiologist-level interpretable knowledge-fused deep neural network for automatic arrhythmia diagnosis. Commun. Med. 4(31) 23 (2024). https://doi.org/10.1038/s43856-024-00464-4 [5] Ribeiro, A.H., et al. : Automatic diagnosis of the 12-lead ecg using a deep neural network. Nat. Commun. 11 , 1760 (2020). https://doi.org/10.1038/ s41467-020-15432-4 [6] Hannun, A.Y., et al. : Cardiologist-level arrhythmia detection and classification in ambulatory electrocardiograms using a deep neural network. Nat. Med. 25 ,65–69 (2019). https://doi.org/10.1038/s41591-018-0268-3 [7] Li, X., Li, C., Xu, X., Wei, Y., Wei, J., Sun, Y., Qian, B., Xu, X.: Towards generalization of cardiac abnormality classification using ecg signal. In: Comput-ing in Cardiology (CinC) 2021 (2021). https://www.cinc.org/archives/2021/pdf/ CinC2021-212.pdf [8] Ballas, A., Diou, C.: Towards domain generalization for ecg and eeg classifica-tion: Algorithms and benchmarks. IEEE Transactions on Biomedical Engineering 
+
+71 (2), 641–652 (2024). https://ieeexplore.ieee.org/document/10233054 [9] Dissanayake, T., Fernando, T., Denman, S., Ghaemmaghami, H., Sridharan, S., Fookes, C.: Domain generalization in biosignal classification. IEEE Trans. Biomed. Eng. 68 (6), 1978–1989 (2021). https://arxiv.org/pdf/2011.06207 [10] Wang, J., et al. : Adversarial de-noising of electrocardiogram. Neurocomputing 
+
+349 , 212–224 (2019). https://doi.org/10.1016/j.neucom.2019.04.041 [11] Hasani, H., Bitarafan, A., Baghshah, M.S.: Classification of 12-lead ecg signals with adversarial multi-source domain generalization. In: 2020 Computing in Car-diology, pp. 1–4 (2020). https://www.cinc.org/archives/2020/pdf/CinC2020-445. pdf [12] Alday, E.A.P., et al. : Classification of 12-lead ecgs: the physionet/computing in cardiology challenge 2020. Physiol. Meas. 41 , 124003 (2020). https://doi.org/10. 1088/1361-6579/abc960 [13] Liu, F., et al. : An open access database for evaluating the algorithms of electro-cardiogram rhythm and morphology abnormality detection. J. Med. Imag. Health Inform. 8, 1368–1373 (2018). https://doi.org/10.1166/jmihi.2018.2442 [14] Wagner, P., et al. : Ptb-xl, a large publicly available electrocardiography dataset. Sci. Data 7, 154 (2020). https://doi.org/10.1038/s41597-020-0495-6 [15] Zheng, J., et al. : A 12-lead electrocardiogram database for arrhythmia research covering more than 10,000 patients. Sci. Data 7, 48 (2020). https://doi.org/10. 1038/s41597-020-0386-x [16] Hu, J., Shen, L., Sun, G.: Squeeze-and-excitation networks. In: Proc. IEEE Conf. 24 Comput. Vis. Pattern Recognit. (CVPR), pp. 7132–7141 (2018). https://doi.org/ 10.1109/CVPR.2018.00745 [17] Zhou, K., Yang, Y., Qiao, Y., Xiang, T.: Domain generalization with mixstyle. In: Int. Conf. Learn. Represent. (ICLR) (2021). https://arxiv.org/abs/2104.02008 [18] Gulrajani, I., Lopez-Paz, D.: In search of lost domain generalization. In: Proc. 9th Int. Conf. Learn. Represent. (ICLR), pp. 1–26 (2021). https://openreview. net/forum?id=lQdXeXDoWtI [19] Sangha, V., et al. : Automated multilabel diagnosis on electrocardiographic images and signals. Nat. Commun. 13 , 1583 (2022). https://doi.org/10.1038/ s41467-022-29153-3 [20] Strodthoff, N., et al. : Deep learning for ecg analysis: Benchmarks and insights from ptb-xl. IEEE J. Biomed. Health Inform. 25 , 1519–1528 (2021). https://doi. org/10.1109/JBHI.2020.3022989 [21] Attia, Z.I., et al. : An artificial intelligence-enabled ecg algorithm for the identi-fication of patients with atrial fibrillation during sinus rhythm: a retrospective analysis of outcome prediction. Lancet 394 , 861–867 (2019). https://doi.org/10. 1016/S0140-6736(19)31721-0 [22] Lai, J., Tan, H., Wang, J., et al.: Practical intelligent diagnostic algorithm for wearable 12-lead ecg via self-supervised learning on large-scale dataset. Nat. Commun. 14 (3741) (2023). https://doi.org/10.1038/s41467-023-39472-8 [23] Topol, E.J.: High-performance medicine: the convergence of human and artificial intelligence. Nat. Med. 25 , 44–56 (2019). https://doi.org/10.1038/ s41591-018-0300-7 [24] He, K., Zhang, X., Ren, S., Sun, J.: Deep residual learning for image recogni-tion. In: Proc. IEEE Conf. Comput. Vis. Pattern Recognit. (CVPR), pp. 770–778 (2016). https://doi.org/10.1109/CVPR.2016.90 [25] Huang, G., et al. : Densely connected convolutional networks. In: Proc. IEEE Conf. Comput. Vis. Pattern Recognit. (CVPR), pp. 4700–4708 (2017). https: //doi.org/10.1109/CVPR.2017.243 [26] Febeena, K.R., Kurian, C.: Advanced arrhythmia classification using transformer-based cnn. Journal of Clinical and Biomedi-cal Sciences 15 , 118–125 (2025). https://jcbsonline.ac.in/articles/ advanced-arrhythmia-classification-using-transformer-based-cnn [27] Wang, J., et al. : Generalizing to unseen domains: A survey on domain gen-eralization. IEEE Trans. Knowl. Data Eng. 35 (8), 8052–8072 (2022). https: //arxiv.org/abs/2103.03097 25 [28] Ganin, Y., Lempitsky, V.: Unsupervised domain adaptation by backpropaga-tion. In: Proc. Int. Conf. Mach. Learn. (ICML), pp. 1180–1189 (2015). https: //proceedings.mlr.press/v37/ganin15.html [29] Goettling, M., et al. : xecgarch: a trustworthy deep learning architecture for inter-pretable ecg analysis considering short-term and long-term features. Sci. Rep. 14 ,13122 (2024). https://doi.org/10.1038/s41598-024-63656-x [30] Szegedy, C., et al. : Rethinking the inception architecture for computer vision. In: Proc. IEEE Conf. Comput. Vis. Pattern Recognit. (CVPR), pp. 2818–2826 (2016). https://doi.org/10.1109/CVPR.2016.308 [31] Zhou, F., Fang, D.: Classification of multi-lead ecg based on multiple scales and hierarchical feature convolutional neural networks. Sci. Rep. 15 , 16418 (2025). https://doi.org/10.1038/s41598-025-94127-6 [32] Jang, J.H., et al. : A novel xai framework for explainable ai-ecg using generative counterfactual xai (gcx). Sci. Rep. 15 , 23608 (2025). https://doi.org/10.1038/ s41598-025-08080-5 [33] Bedin, L., Cardoso, G., Duchateau, J., Dubois, R., Moulines, E.: Leveraging an ecg beat diffusion model for morphological reconstruction from indirect signals. In: NeurIPS 2024 Proceedings (2024). https://proceedings.neurips.cc/paper files/ paper/2024/file/9988f2c8e07c1f98af7ba9ca31ccae0b-Paper-Conference.pdf [34] Vapnik, V.N.: An overview of statistical learning theory. IEEE Trans. Neural Netw. 10 , 988–999 (1999). https://doi.org/10.1109/72.788640 [35] Lai, J., Zhang, Y., Zhao, C., et al.: Multi-expert ensemble ecg diagnostic algo-rithm using mutually exclusive–symbiotic correlation between 254 hierarchical multiple labels. npj Cardiovasc. Health 1(8) (2024). https://doi.org/10.1038/ s44325-024-00010-0 [36] Thygesen, K., et al. : Fourth universal definition of myocardial infarction (2018). European Heart Journal 40 , 237–269 (2019). https://doi.org/10.1093/eurheartj/ ehy462 [37] Zhou, K., et al. : Domain generalization: A survey. IEEE Trans. Pattern Anal. Mach. Intell. 45 , 4396–4415 (2022). https://doi.org/10.1109/TPAMI.2022. 3195549 [38] Ioffe, S., Szegedy, C.: Batch normalization: Accelerating deep network training by reducing internal covariate shift. In: Proc. Int. Conf. Mach. Learn. (ICML), pp. 448–456 (2015). https://proceedings.mlr.press/v37/ioffe15.html [39] Srivastava, N., et al. : Dropout: A simple way to prevent neural networks from overfitting. J. Mach. Learn. Res. 15 , 1929–1958 (2014). http://jmlr.org/papers/ 26 v15/srivastava14a.html [40] Paszke, A., et al. : Pytorch: An imperative style, high-performance deep learning library. In: Adv. Neural Inf. Process. Syst. (NeurIPS), vol. 32, pp. 8024–8035 (2019). https://proceedings.neurips.cc/paper/2019/hash/ bdbca288fee7f92f2bfa9f7012727740-Abstract.html [41] Loshchilov, I., Hutter, F.: Decoupled weight decay regularization. In: Proc. 7th Int. Conf. Learn. Represent. (ICLR), pp. 1–18 (2019). https://openreview.net/ forum?id=Bkg6RiCqY7 [42] Ben-Baruch, E., et al.: Asymmetric loss for multi-label classification. arXiv preprint arXiv:2009.14119 (2020). https://doi.org/10.48550/arXiv.2009.14119 [43] Dosovitskiy, A., et al. : An image is worth 16x16 words: Transformers for image recognition at scale. In: Int. Conf. Learn. Represent. (ICLR) (2021). https:// openreview.net/forum?id=YicbFdNTTy [44] Tang, X., et al.: Hierarchical transformer for electrocardiogram diagnosis. arXiv preprint arXiv:2411.00755 (2024). https://doi.org/10.48550/arXiv.2411.00755 27

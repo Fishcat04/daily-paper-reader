@@ -1,0 +1,110 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.24831v1/fig-001.webp",
+      "caption": "Table 3. Architectural Comparison: YOLOv8 vs. YOLO26",
+      "page": 6,
+      "index": 1,
+      "width": 1022,
+      "height": 402
+    },
+    {
+      "url": "assets/figures/arxiv/2605.24831v1/fig-002.webp",
+      "caption": "Figure 9. YOLOv8-x and YOLO26-x on VisDrone, showing highcapacity detection in crowded aerial scenes.",
+      "page": 10,
+      "index": 2,
+      "width": 492,
+      "height": 284
+    },
+    {
+      "url": "assets/figures/arxiv/2605.24831v1/fig-003.webp",
+      "caption": "Table 1. Architectural Evolution of the YOLO Family (v1-v26)",
+      "page": 3,
+      "index": 3,
+      "width": 1026,
+      "height": 275
+    },
+    {
+      "url": "assets/figures/arxiv/2605.24831v1/fig-004.webp",
+      "caption": "Table 2. Dataset Characteristics: Pascal VOC vs. VisDrone",
+      "page": 3,
+      "index": 4,
+      "width": 986,
+      "height": 306
+    },
+    {
+      "url": "assets/figures/arxiv/2605.24831v1/fig-005.webp",
+      "caption": "Figure 4. Accuracy-speed trade-off (mAP@50:95 vs. CPU latency) for YOLOv8 and YOLO26. The plot shows that CPU latency increases sharply with model scale, especially for large and extra-large variants.",
+      "page": 8,
+      "index": 5,
+      "width": 496,
+      "height": 363
+    },
+    {
+      "url": "assets/figures/arxiv/2605.24831v1/fig-006.webp",
+      "caption": "Table 6. Computational efficiency of YOLOv8 and YOLOv26 across model scales. Latency is reported in milliseconds (ms).",
+      "page": 8,
+      "index": 6,
+      "width": 500,
+      "height": 261
+    },
+    {
+      "url": "assets/figures/arxiv/2605.24831v1/fig-007.webp",
+      "caption": "Figure 2. Accuracy-computation Pareto frontier (mAP@50:95 vs. GFLOPs) for YOLOv8 and YOLO26 on Pascal VOC and VisDrone. The curves show that accuracy generally improves with model scale, but the gain becomes smaller at the largest variants.",
+      "page": 8,
+      "index": 7,
+      "width": 496,
+      "height": 362
+    },
+    {
+      "url": "assets/figures/arxiv/2605.24831v1/fig-008.webp",
+      "caption": "Figure 3. Accuracy-speed trade-off (mAP@50:95 vs. GPU latency) for YOLOv8 and YOLO26. The plot shows that GPU latency increases with model scale, but the increase is more moderate than the CPU latency trend.",
+      "page": 8,
+      "index": 8,
+      "width": 496,
+      "height": 360
+    },
+    {
+      "url": "assets/figures/arxiv/2605.24831v1/fig-009.webp",
+      "caption": "Figure 1. Architectural model of YOLO26.[22]",
+      "page": 4,
+      "index": 9,
+      "width": 496,
+      "height": 408
+    },
+    {
+      "url": "assets/figures/arxiv/2605.24831v1/fig-010.webp",
+      "caption": "Figure 5. Accuracy-storage trade-off (mAP@50:95 vs. model size) for YOLOv8 and YOLO26. Model size increases across scales, while accuracy gains become smaller at the higher model tiers.",
+      "page": 9,
+      "index": 10,
+      "width": 496,
+      "height": 363
+    },
+    {
+      "url": "assets/figures/arxiv/2605.24831v1/fig-011.webp",
+      "caption": "Figure 8. YOLOv8-x and YOLO26-x on Pascal VOC, showing high-capacity detection in standard object scenes.",
+      "page": 9,
+      "index": 11,
+      "width": 535,
+      "height": 261
+    },
+    {
+      "url": "assets/figures/arxiv/2605.24831v1/fig-012.webp",
+      "caption": "Figure 6. YOLOv8-n and YOLO26-n on Pascal VOC, showing lightweight-model behavior in standard object scenes.",
+      "page": 9,
+      "index": 12,
+      "width": 534,
+      "height": 263
+    },
+    {
+      "url": "assets/figures/arxiv/2605.24831v1/fig-013.webp",
+      "caption": "Figure 7. YOLOv8-n and YOLO26-n on VisDrone, showing lightweight detection under dense aerial small-object conditions.",
+      "page": 9,
+      "index": 13,
+      "width": 533,
+      "height": 282
+    }
+  ]
+}

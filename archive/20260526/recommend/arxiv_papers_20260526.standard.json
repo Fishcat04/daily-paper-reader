@@ -1,0 +1,367 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-05-26T20:37:14.159947+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 5,
+    "deep_cap": 6,
+    "deep_selected": 5,
+    "quick_candidates": 4,
+    "quick_skim_target": 11,
+    "quick_selected": 4
+  },
+  "deep_dive": [
+    {
+      "id": "2605.24831v1",
+      "source": "arxiv",
+      "title": "Multiscale Real-Time Object Detection in the NMS-Free Era: A Comparative Performance Evaluation of YOLOv8 and YOLO26",
+      "abstract": "Non-Maximum Suppression (NMS) remains a key post-processing step in many real-time object detection pipelines, but it can introduce latency variation and deployment complexity in resource-constrained settings. Recent NMS-free designs such as YOLO26 aim to reduce this dependence through end-to-end detection, yet their performance relative to established NMS-based models such as YOLOv8 remains underexplored beyond standard benchmarks. This paper compares YOLOv8 and YOLO26 on Pascal VOC and VisDrone, representing general object detection and dense aerial small-object detection, respectively. Both model families are evaluated across five scales using accuracy, localization, model size, GFLOPs, and CPU/GPU latency. Results show that YOLO26 achieves stronger detection performance and lower model complexity on Pascal VOC across most scales, while the performance gap narrows on VisDrone, where both models struggle with dense small targets. YOLOv8 remains competitive in GPU latency, showing that NMS-free design does not guarantee universal deployment superiority. Overall, the study shows that detector selection depends on dataset characteristics, object scale, model capacity, and hardware constraints.",
+      "authors": [
+        "Chidera G. Oguine",
+        "Kanyifeechukwu J. Oguine",
+        "Obiozor M. Oguine",
+        "Ozioma C. Oguine"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-05-24T02:55:33+00:00",
+      "link": "https://arxiv.org/pdf/2605.24831v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "Evaluates YOLOv8 and YOLO26 on VisDrone for dense aerial small-object detection",
+      "llm_evidence_cn": "在VisDrone数据集上评估YOLOv8和YOLO26的密集航拍小目标检测性能",
+      "llm_evidence": "在VisDrone数据集上评估YOLOv8和YOLO26的密集航拍小目标检测性能",
+      "canonical_evidence": "在VisDrone数据集上评估YOLOv8和YOLO26的密集航拍小目标检测性能",
+      "llm_tldr_en": "Compares NMS-free and NMS-based YOLO models on small-object benchmarks like VisDrone.",
+      "llm_tldr_cn": "在VisDrone等小目标基准数据集上对比了无NMS和有NMS的YOLO模型性能。",
+      "llm_tldr": "在VisDrone等小目标基准数据集上对比了无NMS和有NMS的YOLO模型性能。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "benchmarking small object detection on public datasets",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.24928v1",
+      "source": "arxiv",
+      "title": "MambaDSF: Multi-Scale SSM with Dilated Feature Fusion for Sonar Small Target Detection",
+      "abstract": "Sonar imaging is the primary modality for underwater target detection, yet small targets remain difficult to detect due to insufficient pixel coverage, low acoustic contrast, and scale ambiguity across imaging ranges. CNN-based detectors extract local features efficiently but cannot suppress noise-induced false alarms without global acoustic context. Transformer-based methods capture long-range dependencies at quadratic computational cost. Existing Mamba-based vision models offer efficient linear-cost scanning but lack multi-scale semantic alignment across pyramid levels, multi-receptive-field fusion, and small-target-aware training supervision needed for reliable sonar detection.   This letter proposes Mamba Dilated-Scale Fusion (MambaDSF), a hybrid framework addressing these limitations through three contributions: a Mamba Enhanced Feature Pyramid (MambaEFP) backbone that jointly captures local echo cues and global acoustic context at linear complexity; a Dilate Fusion Mamba (DFMamba) encoder that enforces multi-scale feature alignment across pyramid levels; and Scale-Adaptive Weighted IoU (SA-WIoU) and Cross-Scale Coherence (CSC) losses that stabilize small-target training. MambaDSF achieves 91.5% mAP50 on the UATD forward-looking sonar benchmark with 28.7 million parameters, surpassing all compared detectors. On a small-target subset the gain reached +2.2 percentage points, and cross-domain evaluation on FLS and MD-FLS confirms the generalization of the proposed architecture. The codes are publicly available at https://github.com/IDontKnowAAA/MambaDSF.",
+      "authors": [
+        "Hui Lin",
+        "Jiayi Li",
+        "Jing Wang",
+        "Shenghui Rong"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-24T08:14:19+00:00",
+      "link": "https://arxiv.org/pdf/2605.24928v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "Multi-scale feature fusion and small-target-aware supervision for sonar small target detection",
+      "llm_evidence_cn": "用于声呐小目标检测的多尺度特征融合和针对小目标的监督学习",
+      "llm_evidence": "用于声呐小目标检测的多尺度特征融合和针对小目标的监督学习",
+      "canonical_evidence": "用于声呐小目标检测的多尺度特征融合和针对小目标的监督学习",
+      "llm_tldr_en": "Proposes MambaDSF for sonar small target detection using multi-scale feature fusion and dilated scanning.",
+      "llm_tldr_cn": "提出MambaDSF，通过多尺度特征融合和空洞扫描进行声呐小目标检测。",
+      "llm_tldr": "提出MambaDSF，通过多尺度特征融合和空洞扫描进行声呐小目标检测。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.25046v1",
+      "source": "arxiv",
+      "title": "TinyFormer: Preserving Tiny Objects in YOLO-DETRHybridReal-time Detectors",
+      "abstract": "YOLO-series and DETR-based detectors struggle with tiny-object detection. YOLO-style models benefit from efficient dense prediction, but their large-stride backbones may suppress tiny instances in deep feature maps and make grid assignment ambiguous. DETR-based models remove hand-crafted post-processing through set prediction, yet they reason over coarse token grids, where tiny objects occupy only a few weak tokens and are easily overlooked during matching. To address these limitations, we propose TinyFormer, a unified YOLO--DETR hybrid real-time detector that combines ViT representations, NMS-free set prediction, and a YOLO-style pyramid neck for accurate small-object detection. TinyFormer introduces a Parallel Bi-fusion Module (PBM), which builds high-resolution shortcuts from shallow stages to the feature pyramid, preserving fine spatial details during multi-scale fusion. We further design a Spatial Semantic Adapter (SSA) to compensate for the spatial loss caused by coarse tokenization. SSA extracts high-resolution cues from early stages and injects them into transformer token embeddings, improving tiny-object localization without sacrificing the global modeling ability of DETR. Experiments on MS COCO show that TinyFormer consistently outperforms recent YOLO-series detectors and the strong DEIMv2 baseline. TinyFormer-X achieves 58.4% AP even without PBM, while adding PBM improves the overall AP to 58.5% and brings a 1.6% AP gain on small objects. With Objects365 pre-training, TinyFormer-X-PBM reaches 60.2% AP, surpassing RF-DETR and other Objects365-pretrained detectors with fewer parameters and lower computation. These results demonstrate that TinyFormer bridges dense YOLO-style feature fusion and DETR-style set prediction, providing a strong accuracy-efficiency trade-off for real-time tiny-object detection. Code is available at https://github.com/mmpmmpmmpjosh/TinyFormer.",
+      "authors": [
+        "Jun-Wei Hsieh",
+        "Meng-Yu Kao",
+        "Ghufron Wahyu Kurniawan",
+        "Kuan-Chuan Peng"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-05-24T12:42:13+00:00",
+      "link": "https://arxiv.org/pdf/2605.25046v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "YOLO-DETR hybrid for tiny-object detection",
+      "llm_evidence_cn": "用于微小目标检测的YOLO-DETR混合模型",
+      "llm_evidence": "用于微小目标检测的YOLO-DETR混合模型",
+      "canonical_evidence": "用于微小目标检测的YOLO-DETR混合模型",
+      "llm_tldr_en": "TinyFormer combines YOLO and DETR architectures to improve detection of extremely small objects.",
+      "llm_tldr_cn": "TinyFormer结合了YOLO和DETR架构，旨在提升对极小目标的检测精度。",
+      "llm_tldr": "TinyFormer结合了YOLO和DETR架构，旨在提升对极小目标的检测精度。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "state of the art deep learning methods for small object detection",
+      "matched_requirement_id": "req-7",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.19595v1",
+      "source": "arxiv",
+      "title": "A novel YOLO26-MoE optimized by an LLM agent for insulator fault detection considering UAV images",
+      "abstract": "The inspection of electrical power line insulators is essential for ensuring grid reliability and preventing failures caused by damaged or degraded insulation components. In recent years, Unmanned Aerial Vehicles (UAVs) combined with deep learning-based vision systems have emerged as an effective solution for automating this process. However, insulator fault detection remains challenging due to small defect regions, heterogeneous fault patterns, complex backgrounds, and varying imaging conditions. To address these challenges, this paper proposes an optimized YOLO26-MoE, a novel object detection architecture that integrates a sparse Mixture-of-Experts (MoE) module into the high-resolution branch of the YOLO26 detector. The proposed modification enables adaptive feature refinement for subtle and diverse fault patterns while preserving the efficiency of a one-stage detection framework. Hyperparameter optimization, final training, and evaluation were coordinated through a tool-augmented Large Language Model (LLM) agent. The proposed model achieved 0.9900 mAP@0.5 and 0.9515 mAP@0.5:0.95, outperforming the latest YOLO versions. These results demonstrate that the proposed model provides an effective and reliable solution for UAV-based insulator fault detection.",
+      "authors": [
+        "João Pedro Matos-Carvalho",
+        "Laio Oriel Seman",
+        "Stefano Frizzo Stefenon",
+        "Mohammad Khalaf Mohammad Khreasat",
+        "Gabriel Villarrubia González"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-05-19T09:40:05+00:00",
+      "link": "https://arxiv.org/pdf/2605.19595v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 9.5,
+      "llm_evidence_en": "YOLO-based architecture for small defect regions in UAV images",
+      "llm_evidence_cn": "针对无人机图像中小缺陷区域的YOLO架构",
+      "llm_evidence": "针对无人机图像中小缺陷区域的YOLO架构",
+      "canonical_evidence": "针对无人机图像中小缺陷区域的YOLO架构",
+      "llm_tldr_en": "Optimizes YOLO26 with a Mixture-of-Experts module to detect small insulator faults in UAV imagery.",
+      "llm_tldr_cn": "通过集成专家混合模块优化YOLO26，用于检测无人机图像中的电力绝缘子小目标缺陷。",
+      "llm_tldr": "通过集成专家混合模块优化YOLO26，用于检测无人机图像中的电力绝缘子小目标缺陷。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.23144v1",
+      "source": "arxiv",
+      "title": "SLIP-RS: Structured-Attribute Language-Image Pre-Training for Remote Sensing Object Detection",
+      "abstract": "Existing language-image pre-training for remote sensing object detection is constrained by Monolithic Label Learning, which relies on exhaustively enumerating open-set categories via black-box data to acquire fine-grained representations, creating a dependency incompatible with the domain's inherent data scarcity. To transcend this bottleneck, we propose SLIP-RS, establishing a Structured-Attribute Decoupling Paradigm that maps the open-ended category space into a finite, physically meaningful attribute space, unlocking fine-grained discriminability via explicit structural logic. This paradigm is realized via two technical pillars: (1) Structured-Attribute Contrastive Learning, which enforces the learning of decoupled intrinsic visual logic via combinatorial attribute augmentation; and (2) Conformal Attribute Reliability Engine, which leverages conformal prediction theory to rigorously distill high-fidelity supervision from noisy sources, yielding RS-Attribute-15M, the largest dataset with over 15 million attribute annotations. Extensive experiments demonstrate that SLIP-RS establishes unprecedented performance in fine-grained detection and cross-domain generalization, validating structured attributes as a vital foundation for remote sensing. Code: https://github.com/facias914/SLIP-RS.",
+      "authors": [
+        "Chenxu Wang",
+        "Yuxuan Li",
+        "Yunheng Li",
+        "Xiang Li",
+        "Jingyuan Xia",
+        "Qibin Hou"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-22T01:50:19+00:00",
+      "link": "https://arxiv.org/pdf/2605.23144v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 8.5,
+      "llm_evidence_en": "language-image pre-training for remote sensing object detection with fine-grained representations",
+      "llm_evidence_cn": "用于遥感目标检测的语言图像预训练，具有细粒度表示",
+      "llm_evidence": "用于遥感目标检测的语言图像预训练，具有细粒度表示",
+      "canonical_evidence": "用于遥感目标检测的语言图像预训练，具有细粒度表示",
+      "llm_tldr_en": "Introduces SLIP-RS for remote sensing object detection using structured-attribute decoupling for fine-grained tasks.",
+      "llm_tldr_cn": "引入SLIP-RS，通过结构化属性解耦实现遥感目标检测的细粒度任务。",
+      "llm_tldr": "引入SLIP-RS，通过结构化属性解耦实现遥感目标检测的细粒度任务。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2605.24639v1",
+      "source": "arxiv",
+      "title": "DisDop: Distillation with Domain Priors for Open-Vocabulary Aerial Object Detection",
+      "abstract": "With the widespread application of drones in recent years, object detection of aerial images has attracted increasing attention, especially open-vocabulary aerial detection which is not restricted to predefined categories. Due to the scarcity of drone's viewpoint images and their significant differences from natural images, it is difficult to achieve satisfying results by directly applying vanilla open-vocabulary detection methods designed for natural scenarios. Some studies propose to transfer knowledge from pre-trained models by using lightweight networks or generating pseudo labels, but they tend to rely on models trained on natural images, neglecting the potential of foundation models specifically tailored for remote sensing and aerial imagery. To address this limitation, we propose DisDop, a unified framework that systematically distills multi-level domain priors from remote sensing foundation models (e.g., RemoteCLIP and DINOv3) into a lightweight detector. Specifically, we first distill visual priors through a teacher fusion strategy that combines RemoteCLIP's cross-modal alignment capability with DINOv3's fine-grained local feature extraction ability, transferring their complementary strengths to the detector's backbone. Second, we distill textual priors embedded in RemoteCLIP's text encoder by explicitly modeling inter-category semantic relationships, while incorporating global contextual priors to enhance local feature representation for small objects. Through this multi-level prior distillation framework, our DisDop achieves new state-of-the-art performance on open-vocabulary aerial detection benchmarks. Extensive ablation analysis also demonstrates the rationality and effectiveness of our proposed modules.",
+      "authors": [
+        "Ruihao Xu",
+        "Yong Liu",
+        "Yansong Tang",
+        "Sule Bai",
+        "Xubing Ye",
+        "Bingyao Yu",
+        "Yutao Guo",
+        "Jiwen Lu",
+        "Jie Zhou"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-05-23T16:01:20+00:00",
+      "link": "https://arxiv.org/pdf/2605.24639v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.5,
+      "llm_evidence_en": "aerial object detection often involves small objects due to drone viewpoints",
+      "llm_evidence_cn": "无人机视角下的航空目标检测通常涉及小目标检测",
+      "llm_evidence": "无人机视角下的航空目标检测通常涉及小目标检测",
+      "canonical_evidence": "无人机视角下的航空目标检测通常涉及小目标检测",
+      "llm_tldr_en": "Proposes DisDop for open-vocabulary aerial object detection using domain priors and knowledge distillation.",
+      "llm_tldr_cn": "提出DisDop，利用领域先验和知识蒸馏进行开放词汇航空目标检测。",
+      "llm_tldr": "提出DisDop，利用领域先验和知识蒸馏进行开放词汇航空目标检测。",
+      "llm_tags": [
+        "query:sod:composite"
+      ],
+      "matched_query_tag": "query:sod:composite",
+      "matched_query_text": "Papers central to 小目标检测相关论文检索, especially work that connects or combines: deep learning methods for small object detection; FPN and its variants for multi-scale object detection; oversampling and augmentation strategies for small objects; spatial and channel attention for small object feature enhancement; multi-scale feature fusion techniques in computer vision; specialized loss functions for small object localization; state of the art deep learning methods for small object detection; benchmarking small object detection on public datasets.",
+      "matched_requirement_id": "req-composite-sod",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.18288v1",
+      "source": "arxiv",
+      "title": "Collision-Resistant Single-Pass Method for Unsupervised Fine-Grained Image Hashing",
+      "abstract": "Unsupervised fine-grained image hashing aims to learn compact binary codes that preserve subtle visual differences among highly similar instances without manual annotations. However, most existing methods neglect collision resistance, leading to identical hash codes for slightly semantically different samples. In this paper, we propose Collision-Resistant Single-Pass Self-Supervised Semantic Hashing (CS3H), a collision-resistant framework that directly optimizes Hamming-space similarity via a single-pass normalized Hamming distance loss to produce well-separated binary representations. We further introduce a collision-sensitive attention module to emphasize rare and discriminative local patterns, reducing hash collisions and improving fine-grained discrimination. Experiments on multiple benchmarks show that CS3H consistently outperforms state-of-the-art methods in retrieval accuracy while achieving superior collision resistance with minimal computational overhead.",
+      "authors": [
+        "Anh-Kiet Duong",
+        "Petra Gomez-Krämer",
+        "Jean-Michel Carozza"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-18T12:16:33+00:00",
+      "link": "https://arxiv.org/pdf/2605.18288v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.5,
+      "llm_evidence_en": "collision-sensitive attention module to emphasize rare and discriminative local patterns",
+      "llm_evidence_cn": "冲突敏感注意力模块，用于强调稀有且具有辨识度的局部模式",
+      "llm_evidence": "冲突敏感注意力模块，用于强调稀有且具有辨识度的局部模式",
+      "canonical_evidence": "冲突敏感注意力模块，用于强调稀有且具有辨识度的局部模式",
+      "llm_tldr_en": "Introduces a collision-sensitive attention module for fine-grained image hashing to capture subtle differences.",
+      "llm_tldr_cn": "引入冲突敏感注意力模块进行细粒度图像哈希，以捕捉图像间的细微差异。",
+      "llm_tldr": "引入冲突敏感注意力模块进行细粒度图像哈希，以捕捉图像间的细微差异。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "spatial and channel attention for small object feature enhancement",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.24691v1",
+      "source": "arxiv",
+      "title": "AdaFuse-Det: Adaptive Cross-Modal Fusion of Event Cameras for Robust Object Detection in Low-Light RGB Imagery",
+      "abstract": "Detecting objects reliably under extreme low-light conditions is an open problem in computer vision, with practical urgency in applications ranging from nighttime surveillance to search-and-rescue robotics. Conventional RGB cameras degrade sharply at low photon flux, while event cameras which record asynchronous per-pixel brightness changes at microsecond resolution and high dynamic range provide complementary structural cues that are largely illumination-invariant. We present AdaFuse-Det, a dual-stream framework that fuses CLAHE-enhanced RGB frames with voxelized event tensors through an Adaptive Cross-Modal Fusion (ACMF) module grounded in minimum-variance linear estimation theory. We formally show that the learned attention map asymptotically recovers the Gauss-Markov optimal fusion weights, and establish event conservation and temporal resolution bounds for the voxelization stage. On the LLE-VOS benchmark, AdaFuse-Det achieves a Recall of $65.54\\%$, Precision of $53.85\\%$, and F1-Score of $59.12\\%$ under severe illumination degradation, outperforming single-modality detectors in recall by a margin that reflects the theoretically predicted illumination-adaptation behavior.",
+      "authors": [
+        "Raju Imandi",
+        "Chethana B",
+        "Bharatesh Chakravarthi",
+        "Yong-Guk Kim",
+        "Manipriya S",
+        "Pavan Kumar B N"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-23T18:01:48+00:00",
+      "link": "https://arxiv.org/pdf/2605.24691v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Adaptive cross-modal fusion of RGB and event data for robust detection",
+      "llm_evidence_cn": "RGB与事件相机的自适应跨模态融合用于鲁棒检测",
+      "llm_evidence": "RGB与事件相机的自适应跨模态融合用于鲁棒检测",
+      "canonical_evidence": "RGB与事件相机的自适应跨模态融合用于鲁棒检测",
+      "llm_tldr_en": "Fuses RGB and event camera data using an adaptive module to improve object detection in low-light conditions.",
+      "llm_tldr_cn": "利用自适应模块融合RGB和事件相机数据，提升低光照环境下的目标检测性能。",
+      "llm_tldr": "利用自适应模块融合RGB和事件相机数据，提升低光照环境下的目标检测性能。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.24588v1",
+      "source": "arxiv",
+      "title": "HeartBeatAI: An Interpretable and Robust Deep Learning Framework for Multi-Label ECG Arrhythmia Detection",
+      "abstract": "While Deep Learning (DL) enhances automated electrocardiogram (ECG) analysis, clinical deployment is hindered by class imbalance and the generalization gap. This paper presents HeartBeatAI, a deep learning framework combining domain generalization, multi-scale feature aggregation, and clinical explainability for robust 12-lead ECG classification. Moving beyond image-based paradigms, HeartBeatAI integrates a Squeeze-and-Excitation (SE) ResNet to isolate diagnostic leads alongside a Multi-Layer Concentration Pipeline to capture macro-rhythm and micro-morphological anomalies. To mitigate domain shift, the framework employs MixStyle regularization and Label Smoothing. Rigorous benchmarking across four large-scale datasets using intra-source and Leave-One-Domain-Out (LODO) protocols demonstrates high performance (98% Macro F1-score) under intra-source conditions. However, LODO evaluations reveal significant degradation in detecting rare anomalies, highlighting a persistent challenge in cross-institutional deployment.",
+      "authors": [
+        "Shubham Gupta",
+        "Nikhil Panwar",
+        "Partha Pratim Roy"
+      ],
+      "primary_category": "cs.AI",
+      "categories": [
+        "cs.AI",
+        "cs.LG"
+      ],
+      "published": "2026-05-23T13:58:12+00:00",
+      "link": "https://arxiv.org/pdf/2605.24588v1",
+      "tags": [
+        "keyword:SOD"
+      ],
+      "llm_score": 6.5,
+      "llm_evidence_en": "multi-scale feature aggregation and Squeeze-and-Excitation attention for signal detection",
+      "llm_evidence_cn": "用于信号检测的多尺度特征聚合和SE注意力机制",
+      "llm_evidence": "用于信号检测的多尺度特征聚合和SE注意力机制",
+      "canonical_evidence": "用于信号检测的多尺度特征聚合和SE注意力机制",
+      "llm_tldr_en": "Integrates multi-scale feature aggregation and SE attention for robust ECG arrhythmia classification.",
+      "llm_tldr_cn": "结合多尺度特征聚合和SE注意力机制，实现鲁棒的心电图心律失常分类。",
+      "llm_tldr": "结合多尺度特征聚合和SE注意力机制，实现鲁棒的心电图心律失常分类。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

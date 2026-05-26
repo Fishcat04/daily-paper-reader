@@ -1,0 +1,78 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.25046v1/fig-001.webp",
+      "caption": "Figure 1: Comparison of TinyFormer with the state-of-the-art detectors on COCO [14] and VisDrone [31]. By effectively recovering spatial priors, TinyFormer explicitly surpasses CNN-based YOLOs in small object detection while maintaining higher overall AP than ViT-based DETRs.",
+      "page": 2,
+      "index": 1,
+      "width": 818,
+      "height": 242
+    },
+    {
+      "url": "assets/figures/arxiv/2605.25046v1/fig-002.webp",
+      "caption": "Table 1: Comparison with real-time object detectors on COCO val2017. All models are measured on a 3090 GPU with an image size of 640× 640 and batch size 1. Bold indicates best performance.",
+      "page": 7,
+      "index": 2,
+      "width": 827,
+      "height": 713
+    },
+    {
+      "url": "assets/figures/arxiv/2605.25046v1/fig-003.webp",
+      "caption": "Table 2: Performance comparison of models pre-trained on Objects365. All models are fine-tuned on the MS COCO train2017 split and evaluated on the val2017 split. Latency measurements are conducted on a single RTX 3090 GPU with a batch size of 1. Bold indicates best performance.",
+      "page": 7,
+      "index": 3,
+      "width": 823,
+      "height": 193
+    },
+    {
+      "url": "assets/figures/arxiv/2605.25046v1/fig-004.webp",
+      "caption": "Figure 2: Overall architecture of TinyFormer. The framework consists of a DINOv3 [22] backbone, a multi-scale fusion neck, and an attention-based decoder. (a) Macro-level architecture to highlight the integration of Spatial Semantic Adapter (SSA) and Neck structure. (b) Detailed internal structure of the neck, which processes the enhanced multi-scale features (F2, F3, F4, F5, corresponding to 1/4, 1/8, 1/16, and 1/32 scales) provided by SSA.",
+      "page": 3,
+      "index": 4,
+      "width": 812,
+      "height": 285
+    },
+    {
+      "url": "assets/figures/arxiv/2605.25046v1/fig-005.webp",
+      "caption": "Table 3: Compare with real-time object detectors on the VisDrone 2019 validation set. All models are evaluated with a standard input size of 640 × 640. Bold means the best performance within each scale. AP75, APS , APM , and APL of TinyFormer and baselines are in the appendix. †: Results are cited from SO-DETR.",
+      "page": 8,
+      "index": 5,
+      "width": 618,
+      "height": 634
+    },
+    {
+      "url": "assets/figures/arxiv/2605.25046v1/fig-006.webp",
+      "caption": "Figure 6: Grad-CAM visualization on the VisDrone 2019 val. Top: baseline DEIMv2-X; bottom: TinyFormer-X-PBM. From left to right, columns show detection results and multi-scale neck activation maps (F̄3, F̄4, F̄5, defined in Fig. 3, corresponding to 1/8, 1/16, 1/32 resolutions, respectively).",
+      "page": 8,
+      "index": 6,
+      "width": 790,
+      "height": 237
+    },
+    {
+      "url": "assets/figures/arxiv/2605.25046v1/fig-007.webp",
+      "caption": "Figure 4: Detailed architecture of the fusion block in Neck.",
+      "page": 4,
+      "index": 7,
+      "width": 816,
+      "height": 269
+    },
+    {
+      "url": "assets/figures/arxiv/2605.25046v1/fig-008.webp",
+      "caption": "Figure 3: Parallel Bi-fusion Module (PBM). (a) Standard FPN and PAN structures. (b) PBM (purple) replaces conventional top-down fusion with two parallel bi-fusion blocks that aggregate features from three scales: current (Fi), deeper semantic context (Fi+1), and shallower high-resolution details (Fi−1), enabling bidirectional feature flow. (c) Architecture of the bi-fusion block.",
+      "page": 4,
+      "index": 8,
+      "width": 816,
+      "height": 286
+    },
+    {
+      "url": "assets/figures/arxiv/2605.25046v1/fig-009.webp",
+      "caption": "Figure 5: Architecture of the Spatial Semantic Adapter (SSA). (a) SSA integrated with the DINOv3 backbone, featuring the Spatial Detail Extractor (SDE) and Semantic Purification Block (SPB). (b) Detailed structure of the SDE. (c) Intermediate fusion method at the F3 scale. C denotes the base channel dimension.",
+      "page": 5,
+      "index": 9,
+      "width": 744,
+      "height": 466
+    }
+  ]
+}

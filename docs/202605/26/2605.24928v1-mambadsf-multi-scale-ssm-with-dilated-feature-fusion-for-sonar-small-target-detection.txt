@@ -1,0 +1,573 @@
+Title: MambaDSF: Multi-Scale SSM with Dilated Feature Fusion for Sonar Small Target Detection
+
+URL Source: https://arxiv.org/pdf/2605.24928v1
+
+Published Time: Tue, 26 May 2026 01:25:08 GMT
+
+Number of Pages: 8
+
+Markdown Content:
+# MAMBA DSF: M ULTI -S CALE STATE -S PACE MODEL WITH 
+
+# DILATED FEATURE FUSION FOR SONAR SMALL TARGET 
+
+# DETECTION 
+
+Hui Lin 1,∗, Jiayi Li 1,∗, Jing Wang 2, and Shenghui Rong 1,†
+
+> 1
+
+School of Information Science and Engineering, Ocean University of China, Qingdao 266100, China 
+
+> 2
+
+School of Information and Communication Technology, Griffith University, Nathan, QLD 4111, Australia 
+
+{harrylin929, leanolee58}@gmail.com, wangjingname@gmail.com, rsh@ouc.edu.cn 
+
+> ∗
+
+Equal contribution (co-first authors). †Corresponding author. 
+
+ABSTRACT 
+
+Sonar imaging is the primary modality for underwater target detection, yet small targets remain difficult to detect due to insufficient pixel coverage, low acoustic contrast, and scale ambiguity across imaging ranges. CNN-based detectors extract local features efficiently but cannot suppress noise-induced false alarms without global acoustic context. Transformer-based methods capture long-range dependencies at quadratic computational cost. Existing Mamba-based vision models offer efficient linear-cost scanning but lack multi-scale semantic alignment across pyramid levels, multi-receptive-field fusion, and small-target-aware training supervision needed for reliable sonar detection. This letter proposes Mamba D ilated-Scale Fusion ( MambaDSF ), a hybrid framework addressing these limitations through three contributions: a Mamba E nhanced Feature Pyramid (MambaEFP ) backbone that jointly captures local echo cues and global acoustic context at linear complexity; a Dilate Fusion Mamba (DFMamba ) encoder that enforces multi-scale feature alignment across pyramid levels; and Scale-Adaptive Weighted IoU (SA-WIoU) and Cross-Scale Coherence (CSC) losses that stabilize small-target training. MambaDSF achieves 91.5% mAP 50 on the UATD forward-looking sonar benchmark with 28.7 M parameters, surpassing all compared detectors. On a small-target subset the gain reached +2.2 pp, and cross-domain evaluation on FLS and MD-FLS confirms the generalization of the proposed architecture. The codes are publicly available at 
+
+https://github.com/IDontKnowAAA/MambaDSF .
+
+Keywords Sonar imagery · Small target detection · State space model · Mamba · Multi-scale attention · Feature fusion 
+
+1 Introduction 
+
+Sonar imaging serves as the primary modality for underwater target detection in marine survey, port security, and autonomous underwater vehicle (AUV) navigation [ 1, 2]. Forward-looking sonar (FLS) and side-scan sonar (SSS) are widely deployed for real-time frontal imaging and high-resolution seabed mapping, respectively [ 3 ]. Both modalities share fundamental challenges for small targets. Sonar targets face detection difficulties analogous to optically small objects because the underwater acoustic channel introduces propagation loss, multipath interference, and scattering, collectively producing low spatial resolution, strong speckle noise, and blurred target boundaries [ 4 ]. Small sonar targets consequently generate weak echo returns readily masked by background reverberation, and their edges tend to merge with the surrounding seabed [5]. Three interconnected challenges arise from these conditions. Scarce discriminative features : targets may collapse to one or two feature-map cells after successive downsampling [ 5 , 6]. Low target-to-clutter contrast : echo intensities from true targets are comparable to reverberation and speckle, causing frequent false alarms [ 7]. Scale ambiguity :apparent target size shifts with imaging range and grazing angle [ 2], demanding feature representations across multiple receptive-field scales. 
+
+This work is under review at IEEE Geoscience and Remote Sensing Letters. 
+
+> arXiv:2605.24928v1 [cs.CV] 24 May 2026
+
+MambaDSF: Multi-Scale SSM with Dilated Feature Fusion for Sonar Small Target Detection L2   
+
+> L3
+> L4
+> L5
+> N2
+> N3
+> N4
+> N5
+> Dilate Attention Module
+> MambaEFP
+> Selective Cross -scale
+> Modulation Module
+> Aggregated  Feature
+> Refinement Module
+> Uncertainty -minimal
+> Query Selection
+> Decoder & Head
+> LateralConv F2
+> F3
+> F4
+> F5
+> Stage1
+> Stage2
+> Stage3
+> C=640
+> C=320
+> C=160
+> C=80
+> PatchEmbed
+> DFMamba
+> Channel Attn
+> Edge Attn
+> DilateConv
+> LateralConv
+> LateralConv
+> LateralConv
+> Cube
+> Ball
+> Circle Cage
+> Cube
+> Ball
+> Circle Cage
+> Up -sample
+> Up -sample
+> FPNConv
+> FPNConv
+> E-FPN Block
+> E-FPN Block Down -sample
+> Down -sample Up -sample
+> FPNConv
+> E-FPN Block Down -sample
+
+Figure 1: Overall architecture of MambaDSF. The MambaEFP backbone extracts multi-scale features at three pyramid levels. The DFMamba encoder refines each level via multi-scale dilated attention and cross-scale SSM fusion. A query-based decoder yields detections from 300 learnable queries. CNN-based detectors [ 8, 9, 10 ] extract local features efficiently but cannot model the global acoustic noise pattern needed to separate true targets from pervasive clutter. Transformer-based methods, including DETR [ 11 ], RT-DETR [ 12 ], and the sonar-oriented LS-DETR [ 13 ], achieve global context modeling through self-attention yet incur quadratic complexity that limits real-time deployment. SSMs, particularly Mamba [ 14 ], aggregate spatial context at linear cost through input-dependent selective gating, making them well suited to clutter discrimination. MambaVision [ 15 ] extends SSMs to hierarchical vision backbones, and MiM-ISTD [ 16 ] demonstrates their advantage for infrared small targets. However, 1-D flattening of 2-D feature maps dilutes sparse target tokens, and no existing Mamba-based detector enforces cross-scale semantic consistency, provides multi-receptive-field coverage, or includes small-target-specific supervision for sonar. To overcome these limitations, we propose MambaDSF , a hybrid framework with three contributions. (1) We design the MambaEFP backbone, coupling MambaVision with a Hybrid Block that preserves local echo cues alongside global SSM context, and an enhanced bidirectional pyramid with contrast and edge enhancement modules for low-contrast target discrimination. (2) We introduce the DFMamba encoder, which applies multi-scale dilated attention across complementary receptive fields and cross-scale SSM fusion to enforce semantic alignment across pyramid levels, handling targets whose apparent size varies with imaging range. (3) We devise two task-specific losses: SA-WIoU 
+
+maintains non-zero regression gradients even when predicted and ground-truth boxes do not overlap; and CSC penalizes inconsistent multi-scale representations across encoder levels. 
+
+2 Proposed Method 
+
+2.1 Architecture Overview 
+
+MambaDSF follows a three-stage pipeline illustrated in Fig. 1. The MambaEFP backbone extracts hierarchical features via MambaVision and refines them through a Hybrid Block and enhanced bidirectional pyramid, yielding 
+
+{N3, N 4, N 5} at strides {8, 16 , 32 } with 256 channels each. The DFMamba encoder applies multi-scale dilated attention and cross-scale SSM fusion at each level, producing {E3, E 4, E 5}. A query-based decoder produces final detections, supervised by two task-specific losses: SA-WIoU counters gradient vanishing for small targets, and CSC 
+
+enforces semantic consistency across pyramid levels. 
+
+2.2 MambaEFP Backbone 
+
+MambaEFP integrates three sub-components— a MambaVision feature extractor, a Hybrid Block, and an enhanced feature pyramid (E-FPN). 
+
+MambaVision feature extractor. MambaVision [ 15 ] is a hierarchical network whose later stages use Mamba-Transformer blocks built around the selective SSM: 
+
+ht = ¯A h t−1 + ¯B x t, (1) 
+
+yt = C h t + D x t, (2) 2MambaDSF: Multi-Scale SSM with Dilated Feature Fusion for Sonar Small Target Detection Dilated Attention 
+
+> Module
+> Selective Cross -scale Modulation Module
+> AFR Block
+> AFR Block
+> AFR Block
+
+## E3
+
+E4 
+
+> E5
+> Decoder
+> Aggregated Feature
+> Re finement Module
+
+N3
+
+N4        
+
+> N5
+> Mamba EFP
+> MSDA Split
+> MSDA Split
+> MSDA Split
+> SCM Block d4
+> SCM Block d4
+> SCM Block d3
+> SCM Block d3
+> SCM Block d2
+> SCM Block d2
+> SCM Block d1
+> SCM Block d1
+
+Figure 2: DFMamba encoder architecture. {N3, N 4, N 5} from MambaEFP are split into nd dilated attention branches by the MSDA module. Each branch undergoes independent cross-scale fusion in the SCM Block via FusSSM, whose gating parameters derive from spatially aligned auxiliary features of adjacent pyramid levels. The AFR module aggregates all branches and produces {E3, E 4, E 5} for the decoder. where ¯A = exp(∆ A), ¯B = ∆ B, and B, C, ∆ are input-dependent. The input-dependent ∆ is central to sonar processing: large values retain target token information in the hidden state while small values suppress noise token contributions, providing scene-wide clutter attenuation at linear cost. Four hierarchical feature maps {F2, F 3, F 4, F 5}
+
+are extracted across the backbone stages. 
+
+Hybrid Block. Although MambaVision accumulates global context efficiently, flattening 2-D feature maps into 1-D sequences dilutes sparse target tokens within the dominant background. The Hybrid Block, inserted at Stage 3 (Fig. 3(a)), addresses this through a dual-branch design: a local branch with parallel DW 3×3 and DW 5×5 depthwise convolutions operates directly in the spatial domain, preserving fine-grained echo boundaries without sequence flattening; its output is combined with the SSM branch through learnable residual weights, allowing the network to adaptively balance local precision and global awareness. 
+
+Enhanced bidirectional feature pyramid network (E-FPN). Sonar targets are distinguished by intensity contrast and boundary sharpness rather than semantic texture, demanding explicit reinforcement of these cues before cross-scale aggregation. Adapting the CNN feature-pyramid paradigm to the Mamba backbone, E-FPN cascades three modules within each pyramid block: a contrast enhancement block applies SE-style channel attention [ 17 ] with depthwise spatial refinement to amplify channels most responsive to target echo intensity; an edge attention block stacks two depthwise convolution layers to extract high-frequency boundary responses and weights spatial positions by their edge-activation magnitude; and a multi-scale enhancer applies ASPP-style dilated convolutions to capture echo envelopes at varying spatial extents. PANet [ 18 ] then adds a bottom-up path to propagate localization signals back to deeper levels. The outputs {N3, N 4, N 5}, each with 256 channels, are passed to the DFMamba encoder. 
+
+2.3 Dilate Fusion Mamba Encoder (DFMamba) 
+
+The backbone produces strong multi-scale representations, yet the encoder further refines two key properties. Multi-receptive-field sensitivity is needed because the echo envelope of different sonar target categories spans substantially different spatial extents. Cross-scale semantic coherence is required because acoustic shadow length and highlight intensity vary with imaging conditions, causing the same target to elicit inconsistent responses across pyramid levels. DFMamba resolves both through a two-step process. 
+
+Intra-scale enhancement via Multi-Scale Dilated Attention (MSDA) [ 19 ]. At each level Ni, query, key, and value tensors are split into nd groups of C/n d channels, each processed at a distinct dilation rate d:DilAttn d = softmax Qd ·Unfold d(Kd)⊤
+
+pC/n d
+
+!
+
+Unfold d(Vd), (3) where Unfold d extracts a 3 × 3 neighbourhood at pixel spacing d, giving branch d an effective receptive field of 
+
+(2 d+1) ×(2 d+1) . Smaller d preserves fine boundary detail while larger d captures the broader echo envelope, enabling joint encoding of local target cues and surrounding context. Each branch yields features Bdi .
+
+Cross-scale fusion via Selective Cross-scale Modulation (SCM) and Aggregated Feature Refinement (AFR). 
+
+Each branch d undergoes independent cross-scale fusion in the SCM Block. Auxiliary features from adjacent pyramid levels are spatially aligned and projected to form modulator Fdm, which is flattened into four directional sequences and processed by FusSSM [20], whose parameters derive from the modulator: 3MambaDSF: Multi-Scale SSM with Dilated Feature Fusion for Sonar Small Target Detection DW 3×3    
+
+> DW 5×5
+> Conv 1×1
+> BN
+> CC
+> BN
+> MLP
+> MambaVision
+> Mixer
+> Self Attention
+> MLP
+> MLP
+> Hybrid Block
+
+(a) (b) 
+
+> Align -down
+> Align -up
+
+FusSSM 
+
+FusSSM 
+
+Ni+1 NiNi-1 AFR Block 
+
+# BiBi       
+
+> Fm
+> ΔB C
+> Ft
+> SSM
+> Fm
+> ΔB C
+> Ft
+> SSM
+> Ni
+> CC
+> Bi
+> Layer Norm
+> d2d3d4d1d2d3d4d1
+
+Figure 3: Detailed module architectures. (a) Hybrid Block: parallel DW 3×3 and DW 5×5 branches preserve local spatial detail alongside the SSM branch, merged via learnable residual weights. (b) SCM and AFR Blocks: MSDA splits features into nd branches; FusSSM derives SSM parameters (∆ , B, C) from aligned auxiliary features and applies multiplicative gating for cross-scale fusion. 
+
+∆fus , Bfus , Cfus = Split  Wp Fdm
+
+, (4) where Wp is a learnable projection. Bdi is then scanned via Eqs. (1)–(2) using these modulator-derived parameters, and the four directional outputs are aggregated through a sigmoid gate: 
+
+g = σ
+
+ P4 
+
+> k=1
+
+SSM k
+
+ Bdi ; ¯A, ¯B(k) 
+
+> fus
+
+, C(k)
+
+> fus
+
+
+
+, (5) 
+
+˜Bdi = (1 −α) Bdi + α (Bdi ⊙ g), (6) where α is a learnable scalar. With SSM parameters derived from the modulator rather than the target branch, g encodes cross-scale complementary evidence, selectively amplifying positions with consistent multi-level support. The AFR module concatenates all branches with a residual skip: Ei = LN (Concat ( ˜B1..n d 
+
+> i
+
+)+ Ni).
+
+2.4 Decoder and Loss Function 
+
+Small sonar targets often produce zero IoU between predicted and ground-truth boxes, causing standard regression gradients to vanish. Meanwhile, independent per-level supervision allows contradictory representations of the same target across encoder scales. We introduce two task-specific losses to address these issues. Detections are generated by the adopted RT-DETR decoder [ 12 ] operating on {E3, E 4, E 5}. The total loss is L = Lfocal + LSA-WIoU + ℓ1 + λc · L CSC .
+
+Scale-Adaptive Weighted IoU (SA-WIoU). Each bounding box b = ( cx, c y , w, h ) is modelled as a 2-D Gaussian with mean (cx, c y )⊤ and covariance diag( w2/4, h 2/4) . The squared Wasserstein distance between predicted and ground-truth Gaussians admits the closed form [21]: 
+
+W22 = ∥μp − μg ∥2 + 14
+
+(wp −wg )2 + ( hp −hg )2, (7) yielding the Normalized Wasserstein Distance LNWD = 1 −exp( −W 2/τ w). SA-WIoU blends this with CIoU [ 22 ] via an area-adaptive weight: 
+
+LSA-WIoU = ω LNWD + (1 −ω) LCIoU , ω = exp 
+
+
+
+− ag
+
+τs
+
+
+
+, (8) where ag is the normalized ground-truth box area, so that ω automatically favours the Wasserstein term for small targets and CIoU for large ones. 
+
+Cross-Scale Coherence (CSC). Feature vectors sampled at each ground-truth box centre across {E3, E 4, E 5} are aligned in direction via pairwise cosine similarity, unifying categorical identity without constraining per-level magni-tudes: 
+
+LCSC = 1 − 1
+
+|P||G| 
+
+X
+
+> g∈G
+
+X
+
+> (i,j )∈P
+
+egi · egj
+
+∥egi ∥ ∥ egj ∥ , (9) where P = {(3 , 4) , (4 , 5) , (3 , 5) } and G is the set of ground-truth boxes in the current batch. SA-WIoU and CSC jointly stabilize training by preserving regression gradients and resolving cross-scale semantic conflicts, respectively. 4MambaDSF: Multi-Scale SSM with Dilated Feature Fusion for Sonar Small Target Detection Table 1: Comparison across four evaluation benchmarks. All models were pretrained on UATD and fine-tuned on each target dataset under identical settings. Best results in bold , second-best underlined. 
+
+UATD Test UATD Subset FLS Test MD-FLS Test 
+
+Type Method Params GFLOPs FPS mAP50 50-95 mAP50 50-95 mAP50 50-95 mAP50 50-95 
+
+CNN Faster R-CNN [10] 41.4 M 65.4 96.6 86.8 39.7 49.5 20.7 69.0 37.4 89.1 57.5 YOLOv3 [25] 61.6 M 283.0 116.2 85.6 39.6 52.9 26.8 71.4 38.4 89.7 63.1 YOLOv5-L [26] 53.2 M 135.3 123.3 87.1 41.9 50.4 26.9 75.1 43.0 88.9 62.6 YOLOv8-L [9] 43.6 M 165.4 137.9 87.2 44.6 56.5 27.5 78.7 47.5 89.5 64.4 YOLOv10-L [27] 25.8 M 127.3 90.8 86.8 41.4 53.7 24.7 73.1 47.1 85.5 62.4 Trans. Def. DETR [28] 41.6 M 160.7 31.1 88.7 42.7 40.5 19.4 81.9 49.0 92.3 65.9 DINO-DETR [29] 47.6 M 119.0 41.1 82.8 40.1 56.1 25.1 77.4 51.5 88.9 66.2 RT-DETR R50 [12] 42.9 M 135.8 67.6 89.2 43.5 56.3 28.8 77.2 52.3 90.8 65.3 LS-DETR [13] 13.7 M 45.3 37.4 86.1 42.5 56.6 26.1 80.6 50.8 89.7 66.4 SSM MambaDSF 28.7 M 141.5 47.5 91.5 46.8 58.8 30.3 83.3 56.7 91.0 69.2 
+
+3 Experiments 
+
+3.1 Experimental Setup 
+
+We evaluated MambaDSF on three sonar benchmarks. The Underwater Acoustic Target Detection (UATD) dataset [ 5]contains 9,200 multibeam forward-looking sonar images across 10 categories (7:1:2 train/val/test split) and serves as the primary training source. A small-target subset is further constructed by selecting annotations whose bounding-box area falls below the 25th percentile of the UATD test-set distribution ( ≈50 ×50 pixels). FLS [23 ] and MD-FLS [ 24 ]are two additional forward-looking sonar datasets used exclusively for cross-domain evaluation: models pretrained on UATD were fine-tuned on each target set with the backbone frozen for 50 epochs. All experiments used an NVIDIA RTX 4090 GPU, 640 ×640 input resolution, and the AdamW optimizer. We report mAP 50 and mAP 50 -95 following the COCO protocol. 
+
+3.2 Comparison with State-of-the-Art 
+
+Table 1 summarizes results across four evaluation settings. On the full UATD test set, MambaDSF achieves the highest mAP 50 of 91.5% and mAP 50 -95 of 46.8%, surpassing all CNN- and Transformer-based baselines. The selective gating of MambaEFP effectively suppresses noise-induced false positives affecting CNN-based methods, while the multi-scale dilated attention in DFMamba preserves discriminative boundary responses across varying target sizes. On the small-target subset, MambaDSF retains the highest accuracy across both metrics, confirming that global context modeling, multi-scale alignment, and gradient-preserving regression jointly benefit scarce-pixel target detection. Cross-domain results on FLS and MD-FLS further validate generalization: MambaEFP’s global context suppresses domain-varying noise, DFMamba aligns multi-scale semantics across unseen target distributions, and SA-WIoU sharpens localization, yielding the highest mAP 50 on FLS and the highest mAP 50 -95 on both cross-domain sets. In terms of efficiency, MambaDSF achieves 47.5 FPS with 28.7 M parameters, more compact than seven of nine baselines. Its 141.5 GFLOPs and lower throughput relative to CNN-based methods reflect the added cost of SSM recurrence and multi-scale fusion, yet this computational trade-off yields the highest accuracy across all evaluation settings. 
+
+3.3 Ablation Study 
+
+Table 2 presents a 23 full factorial ablation of the three proposed components. Each single-component addition improves over the baseline. Component B yields the largest single-factor mAP 50 gain, confirming that multi-receptive-field coverage is the dominant factor for handling diverse sonar echo sizes. Component A delivers a comparable mAP 50 -95 
+
+improvement, reflecting the benefit of global noise-aware context that vanilla MambaVision alone cannot provide due to 1-D serialization dilution. Component C primarily boosts mAP 50 -95 , consistent with SA-WIoU’s gradient advantage for tightly localizing small targets. Two-factor combinations consistently exceed their single-factor counterparts, confirming 5MambaDSF: Multi-Scale SSM with Dilated Feature Fusion for Sonar Small Target Detection Table 2: Component ablation on the UATD test set. A: MambaEFP backbone vs. vanilla MambaVision; B: full DFMamba encoder vs. MSDA only; C: proposed losses (SA-WIoU & CSC) vs. focal + GIoU + ℓ1.
+
+A B C P R mAP50 50-95 
+
+91.4 94.4 88.2 42.9 
+
+✓ 91.0 94.6 88.6 44.0 
+
+✓ 93.4 95.0 89.7 45.2 
+
+✓ 93.7 95.0 89.0 45.2 
+
+✓ ✓ 92.5 95.0 89.9 45.8 
+
+✓ ✓ 93.1 95.2 89.2 45.3 
+
+✓ ✓ 94.2 95.9 90.1 46.3 
+
+✓ ✓ ✓ 93.7 95.5 91.5 46.8 Victim (GT)         
+
+> Boat (GT)
+> Boat 0.76 Plane (GT)
+> Victim (GT)
+> Boat (GT)
+> Boat 0.88 Plane (GT)
+> Victim (GT) Victim 1.00
+> Plane 0.92
+> Boat 1.00
+> Boat (GT) Plane (GT)
+> Plane 0.84
+> Victim (GT)
+> Victim 0.79
+> Boat 0.96
+> Boat (GT) Plane (GT)
+> Victim (GT) Victim 0.93
+> Boat 0.97
+> Boat (GT) Plane (GT)
+> Victim (GT)
+> Boat 0.91
+> Boat (GT) Plane (GT)
+> Victim (GT)
+> Boat (GT) Plane (GT)
+> Boat 0.89
+> Victim (GT) Victim 0.76
+> Boat 0.93
+> Boat (GT)
+> Plane 0.76
+> Plane (GT)
+
+TP:1 FN:2 FP:0 TP:1 FN:2 FP:0 TP:3 FN:0 FP:1 TP:2 FN:1 FP:0 TP:2 FN:1 FP:0 TP:1 FN:2 FP:0 TP:1 FN:2 FP:0 TP:3 FN:0 FP:0         
+
+> Victim (GT)
+> Boat (GT)
+> Boat 0.76 Plane (GT)
+> Victim (GT)
+> Boat (GT)
+> Boat 0.88 Plane (GT)
+> Victim (GT) Victim 1.00
+> Plane 0.92
+> Boat 1.00
+> Boat (GT) Plane (GT)
+> Plane 0.84
+> Victim (GT)
+> Victim 0.79
+> Boat 0.96
+> Boat (GT) Plane (GT)
+> Victim (GT) Victim 0.93
+> Boat 0.97
+> Boat (GT) Plane (GT)
+> Victim (GT)
+> Boat 0.91
+> Boat (GT) Plane (GT)
+> Victim (GT)
+> Boat (GT) Plane (GT)
+> Boat 0.89
+> Victim (GT) Victim 0.76
+> Boat 0.93
+> Boat (GT)
+> Plane 0.76
+> Plane (GT)
+
+TP:1 FN:2 FP:0 TP:1 FN:2 FP:0 TP:3 FN:0 FP:1 TP:2 FN:1 FP:0 TP:2 FN:1 FP:0 TP:1 FN:2 FP:0 TP:1 FN:2 FP:0 TP:3 FN:0 FP:0        
+
+> Cir. Cage (GT)
+> Tyre 0.79
+> Ball 0.82
+> Ball (GT)
+> Cube (GT) Cube 0.78
+> Cir. Cage (GT)
+> Ball 0.87
+> Ball (GT)
+> Cube (GT) Cube 0.85
+> Cir. Cage 0.92
+> Cir. Cage (GT)
+> Ball 1.00
+> Ball (GT)
+> Cube (GT) Cube 0.96
+> Cir. Cage (GT)
+> Cir. Cage 0.84
+> Ball 0.91
+> Ball (GT)
+> Cube (GT)
+> Cir. Cage (GT)
+> Met. Buck. 0.56
+> Ball 0.94
+> Ball (GT)
+> Cube (GT) Cube 0.92
+> Cir. Cage 0.80
+> Cir. Cage (GT)
+> Ball 0.81
+> Ball (GT)
+> Cube (GT) Cube 0.79
+> Cir. Cage (GT)
+> Cir. Cage 0.84
+> Ball 0.81
+> Ball (GT)
+> Cube (GT) Cube 0.79
+> Cir. Cage 0.78
+> Cir. Cage (GT)
+> Ball 0.84
+> Ball (GT)
+> Cube (GT) Cube 0.79
+
+TP:2 FN:1 FP:1 TP:2 FN:1 FP:0 TP:3 FN:0 FP:0 TP:2 FN:1 FP:0 TP:2 FN:1 FP:1 TP:3 FN:0 FP:0 TP:3 FN:0 FP:0 TP:3 FN:0 FP:0 TP:2 FN:1 FP:1 TP:2 FN:1 FP:0 TP:3 FN:0 FP:0 TP:2 FN:1 FP:0 TP:2 FN:1 FP:1 TP:3 FN:0 FP:0 TP:3 FN:0 FP:0 TP:3 FN:0 FP:0        
+
+> Cir. Cage (GT)
+> Tyre 0.79
+> Ball 0.82
+> Ball (GT)
+> Cube (GT) Cube 0.78
+> Cir. Cage (GT)
+> Ball 0.87
+> Ball (GT)
+> Cube (GT) Cube 0.85
+> Cir. Cage 0.92
+> Cir. Cage (GT)
+> Ball 1.00
+> Ball (GT)
+> Cube (GT) Cube 0.96
+> Cir. Cage (GT)
+> Cir. Cage 0.84
+> Ball 0.91
+> Ball (GT)
+> Cube (GT)
+> Cir. Cage (GT)
+> Met. Buck. 0.56
+> Ball 0.94
+> Ball (GT)
+> Cube (GT) Cube 0.92
+> Cir. Cage 0.80
+> Cir. Cage (GT)
+> Ball 0.81
+> Ball (GT)
+> Cube (GT) Cube 0.79
+> Cir. Cage (GT)
+> Cir. Cage 0.84
+> Ball 0.81
+> Ball (GT)
+> Cube (GT) Cube 0.79
+> Cir. Cage 0.78
+> Cir. Cage (GT)
+> Ball 0.84
+> Ball (GT)
+> Cube (GT) Cube 0.79
+
+TP:2 FN:1 FP:1 TP:2 FN:1 FP:0 TP:3 FN:0 FP:0 TP:2 FN:1 FP:0 TP:2 FN:1 FP:1 TP:3 FN:0 FP:0 TP:3 FN:0 FP:0 TP:3 FN:0 FP:0 
+
+> Bottle 0.95
+> Bottle (GT)
+> Wall 0.76
+> Wall (GT)
+> Bottle 0.79
+> Bottle (GT)
+> Wall (GT)
+> Bottle 1.00
+> Bottle (GT)
+> Wall 0.95
+> Wall 0.85
+> Wall (GT)
+> Bottle 0.90
+> Bottle (GT)
+> Wall 0.73
+> Wall (GT)
+> Bottle 0.80
+> Bottle (GT)
+> Wall (GT)
+> Bottle 0.88
+> Bottle (GT)
+> Wall 0.69
+> Wall (GT)
+> Bottle 0.89
+> Bottle (GT)
+> Wall 0.77
+> Wall (GT)
+> Bottle 0.88
+> Bottle (GT)
+> Wall 0.69
+> Wall (GT)
+
+TP:2 FN:0 FP:0 TP:1 FN:1 FP:0 TP:2 FN:0 FP:1 TP:2 FN:0 FP:0 TP:1 FN:1 FP:0 TP:2 FN:0 FP:0 TP:2 FN:0 FP:0 TP:2 FN:0 FP:0 TP:2 FN:0 FP:0 TP:1 FN:1 FP:0 TP:2 FN:0 FP:1 TP:2 FN:0 FP:0 TP:1 FN:1 FP:0 TP:2 FN:0 FP:0 TP:2 FN:0 FP:0 TP:2 FN:0 FP:0 
+
+> Bottle 0.95
+> Bottle (GT)
+> Wall 0.76
+> Wall (GT)
+> Bottle 0.79
+> Bottle (GT)
+> Wall (GT)
+> Bottle 1.00
+> Bottle (GT)
+> Wall 0.95
+> Wall 0.85
+> Wall (GT)
+> Bottle 0.90
+> Bottle (GT)
+> Wall 0.73
+> Wall (GT)
+> Bottle 0.80
+> Bottle (GT)
+> Wall (GT)
+> Bottle 0.88
+> Bottle (GT)
+> Wall 0.69
+> Wall (GT)
+> Bottle 0.89
+> Bottle (GT)
+> Wall 0.77
+> Wall (GT)
+> Bottle 0.88
+> Bottle (GT)
+> Wall 0.69
+> Wall (GT)
+
+TP:2 FN:0 FP:0 TP:1 FN:1 FP:0 TP:2 FN:0 FP:1 TP:2 FN:0 FP:0 TP:1 FN:1 FP:0 TP:2 FN:0 FP:0 TP:2 FN:0 FP:0 TP:2 FN:0 FP:0 
+
+(a) YOLOv10 -L (b) YOLOv8 -L (c) Faster R -CNN (d) Def . DETR (e) DINO -DETR (f) LS -DETR (g) RT -DETR R50 (h) Ours 
+
+Figure 4: Qualitative comparison across three sonar datasets (one row per dataset: UATD, FLS, MD-FLS) and eight methods. Ground-truth boxes in green; TP/FN/FP counts annotated below each sub-image. that the three components address distinct aspects and combine synergistically. The full model achieves 91.5% mAP 50 
+
+and 46.8% mAP 50 -95 .
+
+3.4 Qualitative Results 
+
+Fig. 4 presents representative detection results across all three datasets. CNN-based methods frequently miss low-contrast targets or generate false positives where target echo intensity approaches the background level, a pattern consistent across all three datasets and attributable to their inability to model global acoustic noise. Transformer-based methods perform more reliably on MD-FLS but struggle on the multi-scale FLS scene, where targets span a wider range of apparent sizes. MambaDSF achieves the fewest missed detections and false positives overall. 
+
+4 Conclusion 
+
+This letter proposes MambaDSF, a hybrid SSM-Transformer framework for small target detection in sonar imagery, built around three coordinated contributions: the MambaEFP backbone for joint local and global feature extraction, the DFMamba encoder for multi-scale semantic alignment, and task-specific SA-WIoU and CSC losses for stable small-target supervision. On UATD, MambaDSF achieves state-of-the-art accuracy with 28.7 M parameters, and cross-domain evaluation on FLS and MD-FLS confirms that the learned representations generalize across sonar imaging geometries. Ablation validates that the three components address distinct aspects of the detection problem and combine synergistically. The current implementation has been validated solely on forward-looking sonar in a laboratory setting, so we will focus on edge deployment on AUV platforms and extend to broader underwater perception tasks. 6MambaDSF: Multi-Scale SSM with Dilated Feature Fusion for Sonar Small Target Detection 
+
+Acknowledgments 
+
+This work was supported in part by the National Natural Science Foundation of China under Grant 62001443, and in part by the Natural Science Foundation of Shandong Province under Grant ZR2020QE294. 
+
+References 
+
+[1] Z. Song, H. Bian, and A. Zielinski. Application of acoustic image processing in underwater terrain aided navigation. Ocean Eng. , 121:279–290, 2016. [2] T. Zhou, J. Si, L. Wang, C. Xu, and X. Yu. Automatic detection of underwater small targets using forward-looking sonar images. IEEE Trans. Geosci. Remote Sens. , 60:1–12, 2022. [3] J. Su, J. Qian, X. Tu, F. Qu, and Y. Wei. Analysis and compensation of acoustic rolling shutter effect of acoustic-lens-based forward-looking sonar. IEEE J. Ocean. Eng. , 49(2):474–486, 2024. [4] P. Blondel. The Handbook of Sidescan Sonar . Springer, Berlin, Germany, 2009. [5] K. Xie, J. Yang, and K. Qiu. A dataset with multibeam forward-looking sonar for underwater object detection. Sci. Data , 9(1):739, 2022. [6] C. Chen, M.-Y. Liu, O. Tuzel, and J. Xiao. R-CNN for small object detection. In Proc. Asian Conf. Comput. Vis. ,pages 214–230, 2016. [7] Z. Wang, S. Zhang, W. Huang, J. Guo, and L. Zeng. Sonar image target detection based on adaptive global feature enhancement network. IEEE Sensors J. , 22(2):1509–1530, 2022. [8] W. Kong, J. Hong, M. Jia, J. Yao, W. Cong, H. Hu, and H. Zhang. YOLOv3-DPFIN: A dual-path feature fusion neural network for robust real-time sonar target detection. IEEE Sensors J. , 20(7):3745–3756, 2020. [9] Ultralytics. YOLOv8, 2023. [Online]. Available: https://github.com/ultralytics/ultralytics. [10] S. Ren, K. He, R. Girshick, and J. Sun. Faster R-CNN: Towards real-time object detection with region proposal networks. In Proc. Adv. Neural Inf. Process. Syst. , volume 28, pages 91–99, 2015. [11] N. Carion, F. Massa, G. Synnaeve, N. Usunier, A. Kirillov, and S. Zagoruyko. End-to-end object detection with transformers. In Proc. Eur. Conf. Comput. Vis. , pages 213–229, 2020. [12] Y. Zhao, W. Lv, S. Xu, J. Wei, G. Wang, Q. Dang, Y. Liu, and J. Chen. DETRs beat YOLOs on real-time object detection. In Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. , pages 16965–16974, 2024. [13] J. Wang, X. Chen, A. Dai, Y. Liu, and G. Huo. LS-DETR: Lightweight transformer for object detection in forward-looking sonar images. IEEE Geosci. Remote Sens. Lett. , 22:1–5, 2025. [14] A. Gu and T. Dao. Mamba: Linear-time sequence modeling with selective state spaces. arXiv preprint arXiv:2312.00752 , 2024. [Online]. Available: https://arxiv.org/abs/2312.00752 .[15] A. Hatamizadeh and J. Kautz. MambaVision: A hybrid Mamba-Transformer vision backbone. In Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. , 2025. [16] T. Chen, Y. Lv, S. Zhao, and G. Shi. MiM-ISTD: Mamba-in-mamba for efficient infrared small target detection. 
+
+IEEE Trans. Geosci. Remote Sens. , 62:1–17, 2024. [17] J. Hu, L. Shen, and G. Sun. Squeeze-and-excitation networks. In Proc. IEEE/CVF Conf. Comput. Vis. Pattern Recognit. (CVPR) , pages 7132–7141, 2018. [18] S. Liu, L. Qi, H. Qin, J. Shi, and J. Jia. Path aggregation network for instance segmentation. In Proc. IEEE Conf. Comput. Vis. Pattern Recognit. , pages 8759–8768, 2018. [19] J. Jiao, Y.-M. Tang, K.-Y. Lin, Y. Gao, A. J. Ma, Y. Wang, and W.-S. Zheng. DilateFormer: Multi-scale dilated transformer for visual recognition. IEEE Trans. Multimedia , 25:8906–8919, 2023. [20] F. Gao, X. Jin, X. Zhou, J. Dong, and Q. Du. MSFMamba: Multiscale feature fusion state space model for multisource remote sensing image classification. IEEE Trans. Geosci. Remote Sens. , 63:1–16, 2025. [21] C. Xu, J. Wang, W. Yang, H. Yu, L. Yu, and G.-S. Xia. Detecting tiny objects in aerial images: A normalized Wasserstein distance for tiny object detection. ISPRS J. Photogramm. Remote Sens. , 190:79–95, 2022. [22] Z. Zheng, P. Wang, W. Liu, J. Li, R. Ye, and D. Ren. Distance-IoU loss: Faster and better learning for bounding box regression. In Proc. AAAI Conf. Artif. Intell. , volume 34, pages 12993–13000, 2020. [23] X. Zhu. Forward-looking sonar detection dataset. https://github.com/XingYZhu/ Forward-looking-Sonar-Detection-Dataset , 2021. 7MambaDSF: Multi-Scale SSM with Dilated Feature Fusion for Sonar Small Target Detection [24] M. Valdenegro-Toro, D. C. Padmanabhan, D. Singh, B. Wehbe, and Y. Petillot. The marine debris forward-looking sonar datasets. In OCEANS 2025 – Brest , pages 1–10, 2025. [25] J. Redmon and A. Farhadi. YOLOv3: An incremental improvement. arXiv preprint arXiv:1804.02767 , 2018. [Online]. Available: https://arxiv.org/abs/1804.02767 .[26] G. Jocher. YOLOv5. https://github.com/ultralytics/yolov5 , 2020. [27] A. Wang, H. Chen, L. Liu, K. Chen, Z. Lin, J. Han, and G. Ding. YOLOv10: Real-time end-to-end object detection. In Proc. Adv. Neural Inf. Process. Syst. , volume 37, 2024. [28] X. Zhu, W. Su, L. Lu, B. Li, X. Wang, and J. Dai. Deformable DETR: Deformable transformers for end-to-end object detection. In Proc. Int. Conf. Learn. Represent. , 2021. [29] H. Zhang, F. Li, S. Liu, L. Zhang, H. Su, J. Zhu, L. Ni, and H. Shum. DINO: DETR with improved denoising anchor boxes for end-to-end object detection. In Proc. Int. Conf. Learn. Represent. , pages 1–19, 2023. 8

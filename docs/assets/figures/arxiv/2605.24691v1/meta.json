@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.24691v1/fig-001.webp",
+      "caption": "Fig. 2: Qualitative results on LLE-VOS: enhanced RGB (top), predicted detections with confidence scores (center), groundtruth masks (bottom). The model localizes pedestrians in neardark conditions where RGB contrast is negligible.",
+      "page": 4,
+      "index": 1,
+      "width": 500,
+      "height": 414
+    },
+    {
+      "url": "assets/figures/arxiv/2605.24691v1/fig-002.webp",
+      "caption": "Fig. 1: AdaFuse-Det architecture. Dual-stream encoders process voxelized event data and CLAHE-enhanced RGB frames independently; the ACMF module learns spatially varying attention weights that balance modality contributions at each pyramid scale; a multi-scale YOLO-style head produces final detections.",
+      "page": 3,
+      "index": 2,
+      "width": 772,
+      "height": 409
+    }
+  ]
+}

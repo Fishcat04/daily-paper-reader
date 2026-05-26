@@ -1,0 +1,46 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.24928v1/fig-001.webp",
+      "caption": "Figure 4: Qualitative comparison across three sonar datasets (one row per dataset: UATD, FLS, MD-FLS) and eight methods. Ground-truth boxes in green; TP/FN/FP counts annotated below each sub-image.",
+      "page": 6,
+      "index": 1,
+      "width": 976,
+      "height": 319
+    },
+    {
+      "url": "assets/figures/arxiv/2605.24928v1/fig-002.webp",
+      "caption": "Figure 1: Overall architecture of MambaDSF. The MambaEFP backbone extracts multi-scale features at three pyramid levels. The DFMamba encoder refines each level via multi-scale dilated attention and cross-scale SSM fusion. A query-based decoder yields detections from 300 learnable queries.",
+      "page": 2,
+      "index": 2,
+      "width": 970,
+      "height": 302
+    },
+    {
+      "url": "assets/figures/arxiv/2605.24928v1/fig-003.webp",
+      "caption": "Figure 2: DFMamba encoder architecture. {N3, N4, N5} from MambaEFP are split into nd dilated attention branches by the MSDA module. Each branch undergoes independent cross-scale fusion in the SCM Block via FusSSM, whose gating parameters derive from spatially aligned auxiliary features of adjacent pyramid levels. The AFR module aggregates all branches and produces {E3, E4, E5} for the decoder.",
+      "page": 3,
+      "index": 3,
+      "width": 874,
+      "height": 216
+    },
+    {
+      "url": "assets/figures/arxiv/2605.24928v1/fig-004.webp",
+      "caption": "Figure 3: Detailed module architectures. (a) Hybrid Block: parallel DW3×3 and DW5×5 branches preserve local spatial detail alongside the SSM branch, merged via learnable residual weights. (b) SCM and AFR Blocks: MSDA splits features into nd branches; FusSSM derives SSM parameters (∆,B,C) from aligned auxiliary features and applies multiplicative gating for cross-scale fusion.",
+      "page": 4,
+      "index": 4,
+      "width": 622,
+      "height": 345
+    },
+    {
+      "url": "assets/figures/arxiv/2605.24928v1/fig-005.webp",
+      "caption": "Table 1: Comparison across four evaluation benchmarks. All models were pretrained on UATD and fine-tuned on each target dataset under identical settings. Best results in bold, second-best underlined.",
+      "page": 5,
+      "index": 5,
+      "width": 988,
+      "height": 362
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.24639v1/fig-001.webp",
+      "caption": "Figure 1. Comparison of traditional aerial object detection and open-vocabulary aerial object detection (OVAOD). The former can only detect predefined categories from the training set, such as ”windmill” and ”vehicle,” as shown in the second column. However, in practical applications, it may be necessary to detect newly defined categories, such as ”wind turbine,” or objects of finegrained category descriptions, such as ”car” and ”truck”, while OVAOD can handle this task, as shown in the third column.",
+      "page": 1,
+      "index": 1,
+      "width": 487,
+      "height": 523
+    },
+    {
+      "url": "assets/figures/arxiv/2605.24639v1/fig-002.webp",
+      "caption": "Table 2. The closed-set detection results on on DIOR and DOTAv2.0 test set.",
+      "page": 7,
+      "index": 2,
+      "width": 829,
+      "height": 402
+    },
+    {
+      "url": "assets/figures/arxiv/2605.24639v1/fig-003.webp",
+      "caption": "Figure 2. Overview of DisDop Framework. Our multi-level domain prior distillation framework consists of three key components: (1) Visual Prior Distillation: We fuse RemoteCLIP and DINOv3 features via semantic-adaptive outlier detection and self-similarity calibration, then distill the fused knowledge into a lightweight detector backbone through cosine similarity and attention losses. (2) Textual Prior Distillation: We distill inter-category semantic relationships from RemoteCLIP’s text encoder by enforcing relational consistency between visual and text feature spaces across mini-batches. (3) Contextual Prior Distillation: We enhance small object recognition by incorporating global scene context into the distillation targets. Through this systematic distillation pipeline, DisDop inherits both cross-modal alignment and fine-grained discrimination capabilities while maintaining computational efficiency.",
+      "page": 3,
+      "index": 3,
+      "width": 1036,
+      "height": 590
+    },
+    {
+      "url": "assets/figures/arxiv/2605.24639v1/fig-004.webp",
+      "caption": "Figure 3. Motivation of global context enhancement for regional visual feature. Humans tend to leverage contextual scene information surrounding the target region to assist in their recognition process of small objects. For example, in the upper right image, the car’s small size makes it difficult to determine its category, but humans can utilize the surrounding road and houses to recognize it as a car. In the lower left image, there exists a background interference region whose local features closely resemble a car. However, humans can infer that it is not a car based on its location between a running track and a tenniscourt.",
+      "page": 5,
+      "index": 4,
+      "width": 489,
+      "height": 479
+    }
+  ]
+}

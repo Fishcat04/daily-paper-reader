@@ -1,0 +1,647 @@
+Title: TinyFormer: Preserving Tiny Objects in YOLO-DETRHybridReal-time Detectors
+
+URL Source: https://arxiv.org/pdf/2605.25046v1
+
+Published Time: Tue, 26 May 2026 01:36:56 GMT
+
+Number of Pages: 22
+
+Markdown Content:
+# TinyFormer: Preserving Tiny Objects in YOLO-DETR Hybrid Real-time Detectors 
+
+Jun-Wei Hsieh 1∗ Meng-Yu Kao 1 Ghufron Wahyu Kurniawan 1 Kuan-Chuan Peng 2
+
+> 1
+
+College of Artificial Intelligence, National Yang Ming Chiao Tung University, Taiwan 
+
+> 2
+
+Mitsubishi Electric Research Laboratories 
+
+{jwhsieh, kobekao.ai12, Ghufron.ai13}@nycu.edu.tw kpeng@merl.com 
+
+## Abstract 
+
+Both YOLO-series and DETR-based object detectors exhibit systematic limitations in detecting tiny objects. YOLO-style detectors typically rely on backbones with a total downsampling factor of 32 ×, causing tiny objects to vanish at deep feature levels and resulting in ambiguous grid assignments. In contrast, DETR-based detectors perform global self-attention on coarse feature maps, where tiny objects correspond to only a few low-energy tokens and are thus disadvantaged during bipartite matching. To address these challenges, we propose TinyFormer, a unified YOLO–DETR hybrid real-time detector that combines ViTs, the NMS-free set prediction of DETRs, and the YOLO neck for accurate detection of small objects. TinyFormer introduces a Parallel Bi-fusion Module (PBM) that establishes multi-ple high-resolution shortcuts from shallow layers to the pyramid neck, preserving fine-grained spatial details during multi-scale fusion. In addition, to mitigate spatial information loss caused by stride-16 tokenization in standard DETR architectures, we propose a Spatial Semantic Adapter (SSA) that extracts high-resolution cues from early network stages and injects them into transformer token embeddings, enhancing tiny-object localization. Extensive experiments on MS COCO demon-strate that TinyFormer outperforms the state-of-the-art (SoTA) detectors, including the latest YOLO-series, as well as the strong baseline DEIMv2. Specifically, TinyFormer-X achieves an impressive 58.4% AP without the PBM. Integrating PBM pushes the overall performance to 58.5% AP and maximizes the utility of the supplemented spatial features, yielding a remarkable 1.6% AP boost in small object AP S . Moreover, when pre-trained on Objects365, TinyFormer-X-PBM reaches 60.2% AP, surpassing other Objects365-pretrained methods like RF-DETR while needing much fewer parameters and lower compute. These results validate that TinyFormer offers a superior trade-off between accuracy and efficiency. The code is available at https://github.com/mmpmmpmmpjosh/TinyFormer .
+
+## 1 Introduction 
+
+Real-time object detection is often seen as solved, with near-saturated benchmarks. Yet small object detection remains difficult. In safety-critical tasks like autonomous driving [ 13 ] and surveillance [ 27 ], small objects dominate long-range and crowded scenes, but their accuracy lags behind larger ones. We argue this stems not from optimization or heuristics, but from structural biases in dominant paradigms. CNN detectors ( e.g. , YOLO [ 6, 20 , 23 ]) lose fine spatial detail via aggressive downsampling, while grid assignment and Non-Maximum Suppression (NMS) further hurt performance on small objects. DETRs [ 2 , 17 , 30 ] remove NMS and use global attention, but they introduce the token competition   
+
+> ∗*Corresponding author. Preprint.
+> arXiv:2605.25046v1 [cs.CV] 24 May 2026 (a) Performance v.s. Params. (b) Performance v.s. FLOPs. (c) Performance on VisDrone.
+
+Figure 1: Comparison of TinyFormer with the state-of-the-art detectors on COCO [ 14 ] and VisDrone [ 31 ]. By effectively recovering spatial priors, TinyFormer explicitly surpasses CNN-based YOLOs in small object detection while maintaining higher overall AP than ViT-based DETRs. bias in favor of large instances, suppressing small ones. Despite architectural differences, both CNN and Transformer detectors share a key bottleneck: early compression to stride-32 features. This downsampling irreversibly removes high-frequency spatial cues, causing tiny objects to vanish before high-level reasoning. Once lost, such detail cannot be recovered by deeper layers or better matching. We argue this early information loss is the main barrier to small-object detection and must be addressed by preserving spatial detail from the earliest stages. To address this limitation, we propose TinyFormer , a YOLO–DETR hybrid combining Vision Transformer (ViT) semantics, DETR’s NMS-free prediction, and a YOLO-style neck with explicit spatial preservation. Since FPNs use heavily downsampled features where small objects occupy few cells, we propose the Parallel Bi-fusion Module (PBM) to add parallel high-resolution paths from shallow layers to the feature pyramid neck, preserving fine-grained spatial details during multi-scale fusion. As DETR tokenizes stride-32 features, small objects have few tokens and weak localization. We thus propose the Spatial Semantic Adapter (SSA) to extract fine-grained spatial features from shallow representations and inject them into transformer tokens, complementing ViT semantics with minimal computational overhead. By preventing early spatial loss in both convolutional and transformer pipelines, TinyFormer preserves fine detail while remaining real-time, achieving SoTA results (Fig. 1): 60.2% AP / 43.0% AP S on COCO [ 14 ], and 34.7% AP / 24.7% AP S
+
+on VisDrone2019 [31], outperforming recent YOLO [6, 20, 23] and DETR [18] detectors. Our main contributions are summarized as follows: (1) We propose TinyFormer , a hybrid YOLO-DETR architecture that improves tiny object detection by combining the global contextual modeling of Vision Transformers with an enhanced YOLO-style neck. TinyFormer outperforms all recent YOLO-based [ 6, 20 , 23 ] and DETR-based detectors [ 18 ] on both COCO and VisDrone2019 datasets. (2) We introduce the Parallel Bi-fusion Module (PBM) to break the irreversible spatial degradation of traditional FPNs. By establishing multiple direct high-resolution shortcuts to the fusion neck, the PBM ensures pixel-level localization for tiny targets. (3) We design the Spatial Semantic Adapter (SSA) to explicitly recover the early-stage spatial details typically lost during the ViT tokenization process, seamlessly fusing high-resolution spatial priors with deep semantic features. (4) TinyFormer is the first real-time detector to surpass 60% AP and 40.5% AP S on the COCO benchmark without relying on pretraining from external datasets. 
+
+## 2 Related Work 
+
+Convergences of YOLO and DETR. Object detection is dominated by CNN-based YOLO [ 1, 5 , 11 ]and Transformer-based DETR [ 2, 30 ]. YOLO is fast but 32× downsampling loses tiny objects, while grid assignment and NMS further hurt them in crowded scenes. DETR [ 2, 17 , 30 ] removes NMS and uses global attention, but token competition favors large instances, suppressing small ones. Recently, both paradigms are converging toward a balance of efficiency and end-to-end learning. YOLO26 [ 20 ] adds Hungarian matching for NMS-free detection, bridging YOLO’s localization and DETR’s simplicity. TinyFormer follows this trend, combining both to improve real-time detection. 
+
+Backbone Bottleneck for Tiny Object Detection. Both YOLO and DETR are limited by aggressive backbone downsampling. Modern models use stride-32 features, where each cell covers a large input 2F1   
+
+> F4
+> F5
+> F3
+> F2 1
+> 32 1
+> 16 1
+> 81
+> 41
+> 32 1
+> 16 1
+> 8
+> Backbone Fusion Block
+> Parallel Bi -fusion
+> Module(PBM)
+> Conv 3 ⅹ3 stride 2
+> + BN + Activation Down -sampling
+
+Neck 3F4F5F
+
+> (b)
+> A
+> B
+> (a)
+> Up -sampling
+> Decoder
+> CC
+
+Decoder 
+
+Neck 
+
+> SSA SSA
+> Image
+> Backbone:
+> DINOv3
+> Backbone:
+> DINOv3
+> Backbone:
+> DINOv3
+> Spatial Semantic Adapter(SSA)
+> …
+> Output feature
+> from Neck iF
+
+Figure 2: Overall architecture of TinyFormer. The framework consists of a DINOv3 [ 22 ] backbone, a multi-scale fusion neck, and an attention-based decoder. (a) Macro-level architecture to highlight the integration of Spatial Semantic Adapter (SSA) and Neck structure. (b) Detailed internal structure of the neck, which processes the enhanced multi-scale features ( F2, F 3, F 4, F 5, corresponding to 
+
+1/4, 1/8, 1/16 , and 1/32 scales) provided by SSA. region. This boosts efficiency and semantics but harms tiny objects, which may shrink to one token or vanish. Thus, YOLO suffers poor grid assignment and localization, while DETR has weak token representation and higher attention competition. This stride-32 bottleneck limits tiny object detection in both, explaining why even YOLO26-X and RT-DETRv2 still struggle—a problem not solved by parameter scaling alone. 
+
+Vision Transformers and Adapters. Vision Transformers (ViTs) [ 4 ], including DINOv3, struggle with tiny objects. Patch tokenization ( e.g. , 14×14 or 16×16) lowers resolution, causing tiny objects to collapse into one token or blend with background. Global self-attention also favors large regions, suppressing few-token objects. Thus, ViTs are less effective for precise tiny localization. We address this by proposing the Spatial Semantic Adapter (SSA), a spatial branch alongside the ViT. By extracting and injecting fine-grained details, SSA preserves DINOv3’s semantics while restoring high-resolution cues for reliable tiny object detection. 
+
+Multi-scale Feature Fusion. Feature fusion enables scale-invariant detection; FPN [ 15 ] and PAN [ 16 ] are standard. However, their top-down upsampling cannot recover spatial detail lost in early downsampling, leaving irreversible degradation—a key issue for real-time detectors. We propose the Parallel Bi-fusion Module (PBM). Rather than reconstructing coarse features, PBM adds direct high-resolution shortcuts, injecting raw spatial details (from SSA) via a parallel path. This preserves tiny object boundaries, improving AP S and overall AP .
+
+## 3 Method 
+
+We propose TinyFormer , an end-to-end real-time object detector designed to resolve the failure of current paradigms in localizing tiny objects. As illustrated in Fig. 2, our pipeline consists of a Vision Transformer backbone, a YOLO-style feature pyramid neck, and an attention-based decoder. TinyFormer introduces two core innovations: the Parallel Bi-fusion Module (PBM) ,which establishes bifusion shortcuts in parallel to inject high-resolution spatial details into the neck; 
+
+Spatial Semantic Adapter (SSA) rescues detailed spatial feature loss caused by the aggressive ViT tokenization process. Thus, TinyFormer can ensure that tiny targets survive the entire forward pass without being overwhelmed by global context or lost in downsampling. 
+
+3.1 Parallel Bi-fusion Module (PBM) 
+
+Real-time detectors typically adopt a YOLO-style neck that processes features through a fixed top-down hierarchy ( 1/32 → 1/16 → 1/8). Although YOLO improves small-object detection via the Path Aggregation Network (PAN) [ 16 ], which extends the conventional Feature Pyramid Network (FPN) [ 15 ] with an additional bottom-up pathway for enhanced multi-scale fusion, several limitations 3F1 
+
+> F4
+> F5
+> F3
+> F21
+> 32 1
+> 16 1
+> 81
+> 41
+> 32 1
+> 16 1
+> 8
+> Backbone Fusion Block
+> Bi -fusion Block
+> Conv 3x3 stride 2
+> + BN + Activation
+> Down -sampling
+
+Parallel Bifusion Module (PBM) 3F4F5F
+
+(b)  
+
+> A
+> B
+> F1
+> F4
+> F5
+> F3
+> F21
+> 32 1
+> 16 1
+> 81
+> 32 1
+> 16 1
+> 8
+> Backbone Fusion Block
+> Ouput features
+> from Neck
+> Conv 3x3 stride 2
+> + BN + Activation
+> Up -sampling
+
+FPN Fi3F4F5F
+
+(a) 
+
+PAN 
+
+> Up -sampling
+
+PBM Fi+1   
+
+> Fi
+> Fi-1Conv 11Conv3 3
+> S=2
+> CC
+
+Bi -fusion Block Bilinear 2
+
+(c) 
+
+> CC
+> Fusion Block
+> Element -wise sum Concatenation
+> Fi
+
+Figure 3: Parallel Bi-fusion Module (PBM). (a) Standard FPN and PAN structures. (b) PBM (purple) replaces conventional top-down fusion with two parallel bi-fusion blocks that aggregate features from three scales: current ( Fi), deeper semantic context ( Fi+1 ), and shallower high-resolution details (Fi−1), enabling bidirectional feature flow. (c) Architecture of the bi-fusion block. Channel Split 
+
+Xpart 
+
+Xid 
+
+>   convolution part
+
+id 
+
+
+
+> Channel Split
+> 33 convolution
+> C
+
+Identity 
+
+Identity 
+
+> Channel Split
+> 33 convolution
+
+Identity 
+
+> C
+>   convolution
+
+Input 1 
+
+Input 2 '' 
+
+> id X''
+> part X
+>   convolution
+
+Figure 4: Detailed architecture of the fusion block in Neck. remain (Fig. 3(a)). First, PAN cannot recover fine-grained spatial information lost during early-stage backbone downsampling. Second, its heavy reliance on top-down upsampling from coarse semantic features often leads to blurred boundaries and degraded texture details. Third, repeated cross-scale feature aggregation may further suppress the already weak responses of tiny objects, particularly in cluttered scenes dominated by large instances. To address these limitations, we propose the Parallel Bi-fusion Module (PBM), a lightweight bi-fusion connector inspired by PRBNet[ 3 ]. The PBM is specifically designed to enhance tiny object detection. PBM introduces two bidirectional shortcut pathways that explicitly propagate low-level spatial details from shallow layers (green paths in Fig. 3(b)) together with high-level semantic representations from deep layers (orange paths in Fig. 3(b)) into the main feature stream, thereby generating fine-grained spatial and semantic features for tiny object detection. In contrast, the neck designs adopted in conventional YOLO-series detectors rely solely on a top-down pathway while discarding bottom-up information flow during cross-scale feature aggregation. As illustrated in Fig. 3(b), the conventional top-down cross-scale concatenation is replaced by two parallel bi-fusion blocks (purple blocks). This design enables simultaneous feature interaction across three scales, effectively preserving both semantic context and fine localization cues. Consequently, PBM produces prediction maps with enhanced semantic richness and spatial precision, thereby improving the efficiency and accuracy of detecting both tiny and large objects. The proposed bi-fusion process adopts an “Align-then-Injection” mechanism, in which multi-scale features are first spatially aligned and subsequently injected into the target feature stream for effective cross-scale fusion as follows: 
+
+˜Fi = Fi + Up ×2(Conv 1×1(Fi+1 )) , (1) 
+
+Fi = P
+
+ ˜Fi, Conv 3×3,s =2 (Fi−1)
+
+
+
+, (2) 4Image                                   
+
+> SSA
+> DINOv3
+> ... ... ...
+> Bilinear
+> Concate 3
+> vit
+> F4
+> vit
+> F5
+> vit
+> F3F2F4F5F
+> Stride 2 Conv3 3
+> Patch
+> Embed
+> Attention
+> Block5
+> Attention
+> Block1
+> Image
+> Stride 2 Conv3 3Stride 2 Conv3 3Stride 2 Conv3 3Stride 2 Conv3 3Conv3 3Stride 2 Conv3 3Stride 2 Conv1 1 
+> SDE SPB
+> Attention
+> Block8
+> f
+> f
+> Attention
+> Block11 Conv1 1 
+> (a)
+> (b) (c)
+> Spatial Detail Extractor (SDE)
+> I22
+> WHC1SDE ( ) I2SDE ( ) I2SDE ( ) I2F3SDE ( ) I
+> I: Image C: Base channel dimension of SSA
+> Stride 2 Conv3 3Stride 2 Conv3 3Stride 2 Conv3 3Stride 2 Conv3 3Stride 2 Conv3 3Stride 2 Conv3 344
+> WHC288
+> WHC3F3SDE ( ) I3
+> vit
+> F
+
+Figure 5: Architecture of the Spatial Semantic Adapter (SSA). (a) SSA integrated with the DINOv3 backbone, featuring the Spatial Detail Extractor (SDE) and Semantic Purification Block (SPB). (b) Detailed structure of the SDE. (c) Intermediate fusion method at the F3 scale. C denotes the base channel dimension. where Fi denotes the features on the target scale, Fi+1 represents the deep branch that provides high-level semantic context from the heavily downsampled scale, and Up ×2 denotes spatial upsampling by a factor of 2 ( e.g. , via bilinear interpolation) to generate the intermediate semantically aligned feature ˜Fi. To get high-resolution spatial details for tiny object detection, we process the shallow spatial branch Fi−1, which contains raw edge details from the finer scale with a stride-2 convolution. The result and ˜Fi are fed into a fusion block P to yield the detail-enriched feature Fi.The fusion block P takes two inputs and generates richer representations for object detection. As illustrated in Fig. 4, the two inputs are first concatenated and processed by a 1 × 1 convolution to produce the intermediate feature map X. Inspired by CSPNet (Cross Stage Partial Network) [ 25 ], the feature map X is then divided into two branches. The partial transformation branch ( Xpart ) passes through convolutional layers to extract deeper features, while the identity branch ( Xid ) bypasses these transformations and preserves shortcut information. The two branches are subsequently merged to form the output feature map. By partially propagating features through the network, this CSP-inspired design reduces computational cost, avoids redundant gradient propagation, and preserves feature diversity. Unlike CSPNet, which partitions channels only once, the proposed fusion block recursively partitions the channels three times. This recursive partition strategy keeps both original and newly generated features at each stage. Finally, multi-level feature maps are fused to produce the output, enabling richer representations and improving the network’s capacity for accurate object detection. Another key aspect of PBM is its parallelized bi-fusion design, which allows multi-scale feature aggregation to occur simultaneously rather than sequentially. This parallel structure improves feature representation while maintaining computational efficiency, enabling the detector to capture both fine-grained spatial details and high-level semantic cues for accurate localization across object scales. 
+
+3.2 Spatial Semantic Adapter (SSA) 
+
+Both CNN- and Transformer-based detectors face challenges when detecting extremely small objects. CNN-based detectors are constrained by the progressive loss of spatial resolution in deeper layers; furthermore, their dependence on Non-Maximum Suppression (NMS) frequently results in missed detections when tiny objects are densely clustered. Transformer-based detectors, in contrast, excel at capturing long-range dependencies to construct robust high-level semantic representations; however, their standard patch embedding, often using large strides, aggressively downsamples the input, 5causing fine-grained details of tiny objects to be severely degraded or even completely eliminated in early representations. To address these limitations, we introduce the Spatial Semantic Adapter (SSA) , a lightweight dual-branch module designed to separate spatial detail preservation from semantic representation learning (Fig. 5 (a)). Instead of relying solely on the ViT backbone, SSA includes a Spatial Detail Extractor (SDE) to explicitly preserve high-resolution localization cues and a Semantic Purification Block (SPB) to refine transformer features for robust semantic representation from the deeper layer of pretrained ViT. By integrating these two complementary sources, SSA provides both precise spatial details, thereby improving tiny object detection and mantain reliable semantic context. The aggressive downsampling during tokenization significantly degrades the discriminative signatures of tiny objects, making it extremely difficult to recover such fine-grained details from deeper feature representations. To address this limitation, SDE operates directly on the raw input image through a sequence of lightweight convolutional layers (as illustrated in Fig. 5(b)), extracting high-grained spatial priors before substantial information degradation occurs. Formally, let SDE n(I) denote the feature representation of input image I after passing through n successive 3 × 3 convolutional blocks with stride 2, as shown in Fig. 5(b): SDE n(I) = Conv s=2 3×3(SDE n−1(I)) , (3) where SDE 0(I) = I. This design preserves fine-grained spatial cues at early stages, ensuring that critical details remain accessible to the Parallel Bi-fusion Module (PBM) for effective multi-scale feature fusion and improved tiny object detection. Then, the shallow feature map F2 is defined as 
+
+F2 = SDE 2(I). (4) To effectively combine spatial and semantic information, SSA performs feature fusion at an interme-diate level (illustrated in Fig. 5(a) and (c)): 
+
+F3 = Conv 1×1
+
+ Concat SDE 3(I), Up (F vit  
+
+> 3
+
+) . (5) This fusion strategy is designed to prevent injecting spatial information too early, as it provides limited benefit due to insufficient semantic context, while introducing it at deeper stages may interfere with already well-formed semantic representations. By fusing at an intermediate scale, SSA achieves a balance between localization precision and semantic richness. While SDE focuses on preserving spatial fidelity, SPB is designed to address the inconsistency and redundancy of ViT features in intermediate transformer representations when directly used for dense prediction. Raw ViT features are not inherently optimized for detection tasks and may contain noise or misaligned feature distributions before the multiscale fusion in FPN [ 15 ]. To alleviate this issue, SPB refines the high-level semantic features through lightweight convolutional projections, improving their compatibility with the detection pipeline. The semantic features are formulated as: 
+
+F4 = Conv 1×1(F vit  
+
+> 4
+
+), (6) 
+
+F5 = Conv s=2 3×3(F vit  
+
+> 5
+
+), (7) where F vit i is the intermediate representations from ViT backbone to construct the i-th feature scale. 
+
+## 4 Experiment 
+
+4.1 Comparison with State-of-the-Art (SoTA) Methods 
+
+Table 1 compares TinyFormer with recent state-of-the-art real-time detectors ( e.g. , YOLOv11/12, D-FINE, and DEIMv2) on the COCO dataset. Our framework consistently achieves superior accuracy across all model scales while maintaining competitive latency. At the smallest scale, TinyFormer-S achieves 51.3% AP, outperforming both DEIMv2-S and YOLOv12-S-turbo. At the large-scale end, TinyFormer-X-PBM establishes a new state of the art with 58.5% AP, surpassing YOLO11-X and DEIMv2-X while using fewer parameters. To further explore the scaling capability of the proposed architecture, TinyFormer-XL-PBM achieves 60.6% AP while preserving real-time inference speed. To the best of our knowledge, without relying on pretraining from external datasets, TinyFormer-XL-PBM is the first real-time detector to surpass 60% AP on the benchmark. 6Table 1: Comparison with real-time object detectors on COCO val2017. All models are measured on a 3090 GPU with an image size of 640 × 640 and batch size 1. Bold indicates best performance. 
+
+Method Params (M) FLOPs (G) Lat. (ms) AP AP 50 AP 75 AP S AP M AP L
+
+YOLOv10-S [24] 7.2 21.6 1.41 46.3 63.0 50.4 26.8 51.0 63.8 YOLO11-S [10] 9.4 21.5 1.65 46.9 63.9 50.7 29.0 51.7 64.4 YOLOv12-S-turbo [23] 9.2 21.4 1.90 47.5 64.1 - - - -YOLOv13-S [12] 9.0 20.8 2.57 48.0 65.2 52.0 - - -D-FINE-S [18] 10.0 25.0 1.93 48.5 65.6 52.6 29.1 52.2 65.4 DEIMv2-S [8] 9.7 25.6 2.34 50.9 68.3 55.1 31.4 55.3 70.3 TinyFormer-S (Ours) 9.8 25.1 2.33 51.3 68.7 55.5 32.4 55.0 70.2 
+
+TinyFormer-S-PBM (Ours) 10.8 32.6 2.36 51.5 68.9 55.7 32.6 55.3 69.8 RT-DETRv2-S [17] 20.0 60.0 1.81 48.1 65.1 52.1 30.2 51.2 64.2 YOLOv10-M [24] 15.4 59.1 2.24 51.1 68.1 55.8 33.8 56.5 67.0 YOLO11-M [10] 20.1 68.0 2.31 51.2 67.9 55.3 33.0 56.7 67.5 D-FINE-M [18] 19.0 57.0 2.51 52.3 69.8 56.4 33.2 56.5 70.2 YOLOv12-M-turbo [23] 19.6 59.8 2.66 52.6 69.5 - - - -DEIMv2-M [8] 18.1 52.2 3.09 53.0 70.2 57.5 34.2 57.4 71.5 TinyFormer-M (Ours) 18.2 51.2 3.05 53.5 70.7 58.2 35.0 57.9 71.5 TinyFormer-M-PBM (Ours) 20.2 63.9 3.22 53.7 70.9 58.3 35.1 57.8 71.3 RT-DETRv2-M [17] 36.4 92.0 2.28 49.9 67.5 54.1 32.0 53.2 66.5 YOLOv10-L [24] 24.4 120.3 3.17 53.2 70.1 58.1 35.8 58.5 69.4 YOLO13-L [12] 27.6 88.4 5.33 53.4 70.9 58.1 - - -RT-DETRv2-L [17] 42.7 136.0 3.09 53.4 71.6 57.4 36.1 57.9 70.8 YOLO11-L [10] 25.3 86.9 2.83 53.4 70.1 58.2 35.6 59.1 69.2 D-FINE-L [18] 31.0 91.0 3.26 54.0 71.6 58.4 36.5 58.0 71.9 YOLOv12-L-turbo [23] 26.5 82.4 4.10 54.0 70.6 - - - -YOLOv10-X [24] 29.5 160.4 3.81 54.4 71.3 59.3 37.0 59.8 70.9 DEIMv2-L [8] 32.2 96.7 3.59 56.0 73.5 61.1 37.5 60.8 75.2 
+
+TinyFormer-L (Ours) 32.3 96.3 3.54 56.5 74.0 61.5 38.1 61.2 75.1 
+
+TinyFormer-L-PBM (Ours) 33.6 105.9 3.72 56.8 74.3 61.8 39.0 61.2 75.5 
+
+RT-DETRv2-X [17] 76.0 259.0 4.42 54.3 72.8 58.8 35.8 58.8 72.1 YOLO11-X [10] 56.9 194.9 4.01 54.6 71.6 59.5 37.7 59.7 70.2 YOLO13-X [12] 64.0 199.2 7.39 54.8 72.0 59.8 - - -YOLOv12-X-turbo [23] 59.3 184.6 5.90 55.7 72.2 - - - -D-FINE-X [18] 61.6 202.2 4.71 55.8 73.7 60.2 37.3 60.5 73.4 DEIMv2-X [8] 50.3 151.6 4.72 57.8 75.4 63.2 39.2 62.9 75.9 
+
+TinyFormer-X (Ours) 49.8 151.1 4.63 58.4 75.9 64.1 39.3 63.1 76.5 
+
+TinyFormer-X-PBM (Ours) 51.5 164.2 4.81 58.5 75.9 64.1 40.9 63.2 76.6 TinyFormer-XL-PBM (Ours) 125.5 437.9 7.91 60.6 78.0 66.3 43.4 65.9 77.9 Table 2: Performance comparison of models pre-trained on Objects365. All models are fine-tuned on the MS COCO train2017 split and evaluated on the val2017 split. Latency measurements are conducted on a single RTX 3090 GPU with a batch size of 1. Bold indicates best performance. 
+
+Method Input Params (M) FLOPs (G) Lat. (ms) AP AP 50 AP 75 AP S AP M AP L
+
+YOLO26-X [20] (nms) 640 × 640 55.7 193.9 4.11 57.5 75.0 62.8 41.8 62.2 73.4 YOLO26-X [20] (w/o nms) 640 × 640 55.7 193.9 3.81 56.9 74.5 62.2 41.4 61.2 72.8 RF-DETR-XL [19] 700 × 700 126.4 299.3 - 58.6 77.4 63.8 40.3 63.9 76.2 D-FINE-X [18] 640 × 640 62.0 202.0 4.71 59.3 76.8 64.6 42.3 64.2 76.4 
+
+TinyFormer-X-PBM (Ours) 640 × 640 51.5 164.2 4.81 60.2 77.6 65.8 43.0 65.1 76.7 
+
+RF-DETR-2XL [19] 880 × 880 126.9 438.4 - 60.1 78.5 65.5 43.2 64.9 76.2 
+
+TinyFormer-XL-PBM (Ours) 640 × 640 125.5 437.9 7.91 62.5 79.7 68.4 46.8 67.4 78.2 
+
+Breakthrough in Small Object Detection (AP S ): TinyFormer excels in localizing tiny instances by synergizing SSA (which mitigates the ViT spatial bottleneck) and PBM (which optimizes multi-scale aggregation). Integrating PBM yields remarkable AP S gains across all scales. Notably, TinyFormer-X-PBM achieves an unprecedented 40.9% AP S ; that is, a massive +1.7% over DEIMv2-X and +1.6% over our base model. Similarly, the L-size model improves from 38.1% to 39.0% AP S with PBM. These results confirm that PBM effectively resolves conventional neck limitations, fully unleashing SSA’s spatial features for fine-grained localization. 7Table 3: Compare with real-time object detectors on the VisDrone 2019 validation set. All models are evaluated with a standard input size of 640 × 640 . Bold means the best performance within each scale. AP 75 , AP S , AP M , and AP L of TinyFormer and baselines are in the appendix. †:Results are cited from SO-DETR.                                                                                                             
+
+> Method Params (M) FLOPs (G) AP AP 50
+> YOLOv9-S [26] †7.2 26.7 22.7 38.3 YOLOv8-S [5] †11.1 28.5 22.3 37.6 YOLOv11-S [10] †9.4 21.3 23.0 38.7 DEIMv2-S [8] 9.7 25.3 26.7 45.0 D-FINE-S [18] 9.7 24.9 25.8 43.4 SO-DETR-EFV2 (Distilled) [29] †12.1 33.3 28.8 47.5
+> TinyFormer-S-PBM (Ours) 10.8 32.6 28.9 47.9
+> YOLOv11-M [10] †20.0 67.7 25.9 43.1 YOLOv9-M [26] †20.1 76.8 25.2 42.0 YOLOv8-M [5] †25.9 78.9 24.6 40.7 DEIMv2-M [8] 18.1 51.8 28.9 48.0 D-FINE-M [18] 19.1 56.1 29.1 48.3 SO-DETR-R18 [29] †20.5 64.3 29.9 49.0
+> TinyFormer-M-PBM (Ours) 20.1 63.0 30.9 50.0
+> RT-DETRv2-L [17] 42.7 136.0 29.0 48.3 D-FINE-L [18] 30.6 90.7 30.3 50.1 DEIMv2-L [8] 32.1 96.4 30.4 49.9
+> TinyFormer-L-PBM (Ours) 33.6 105.6 32.2 52.1
+> YOLOv11-X [10] †56.8 194.5 28.1 45.6 RT-DETRv2-X [17] 76.0 259.0 29.5 49.1 SO-DETR-R50 [29] †44.4 161.4 31.5 51.5 D-FINE-X [18] 61.5 202.2 31.6 51.5 DEIMv2-X [8] 50.2 151.3 32.2 52.3
+> TinyFormer-X-PBM (Ours) 51.5 163.9 34.7 55.5
+
+Figure 6: Grad-CAM visualization on the VisDrone 2019 val. Top: baseline DEIMv2-X; bottom: TinyFormer-X-PBM. From left to right, columns show detection results and multi-scale neck activa-tion maps ( ¯F3, ¯F4, ¯F5, defined in Fig. 3, corresponding to 1/8, 1/16 , 1/32 resolutions, respectively). 
+
+4.2 Scaling up with Objects365 Pre-training 
+
+To explore the architectural upper bound, we pre-train TinyFormer on Objects365 prior to COCO fine-tuning. As shown in Table 2, TinyFormer-X reaches 60.2% AP at the standard 640 × 640 
+
+resolution, outperforming all counterparts at the same scale. Scaling further, our largest variant, TinyFormer-XL, achieves an outstanding 62.5% AP. Compared to RF-DETR-2XL (60.1% AP), which relies on 880 × 880 input resolution, TinyFormer-XL delivers a +2.4% AP gain at the standard 
+
+640 × 640 resolution with comparable parameters. Furthermore, it achieves 46.8% AP S , surpassing RF-DETR-2XL by +3.6%, while maintaining real-time inference speed. 8Table 4: Ablation study on the core components of TinyFormer on MS COCO dataset. The baseline utilizes 3-scale ViT features via standard bilinear interpolation.       
+
+> Scales PBM SSA Params (M) FLOPs (G) AP AP SAP MAP L
+> 3
+
+✗ ✗ 48.8 146.8 57.13 38.50 62.67 75.62 3 ✗ ✓ 49.8 151.1 58.38 39.33 63.14 76.46 4 ✓ ✗ 51.4 164.7 57.32 39.08 62.99 75.38 4 ✓ ✓ 51.5 164.2 58.50 40.94 63.15 76.55 
+
+Table 5: Generalization capability of PBM across diverse architectures on MS COCO dataset. 
+
+We integrate the PBM module into the multi-scale fusion necks of representative FPN-based detectors. The consistent performance gains across different backbones (ResNet-101 and HGNetv2) demonstrate that PBM serves as a robust and architecture-agnostic upgrade for real-time detection.                                    
+
+> Model Backbone Params (M) FLOPs (G) AP AP SAP MAP L
+> RT-DETRv2-X [17] ResNet-101 [7] 76.5 260.9 53.14 32.83 57.74 71.70 + PBM ResNet-101 [7] 79.2 287.2 53.34 34.45 57.69 72.13
+> DEIM-X [9] HGNetv2 61.6 202.6 56.02 37.50 61.10 73.81
+> + PBM HGNetv2 62.0 214.7 56.56 38.18 61.11 73.79
+
+4.3 Generalization on Extreme Scenarios: VisDrone 2019 
+
+To evaluate TinyFormer’s generalization on extreme scenarios dominated by tiny instances, we evaluate its performance on the challenging VisDrone 2019 dataset [ 31 ]. Captured primarily from UAVs, VisDrone features severe scale variations, dense occlusions, and an overwhelming proportion of extremely small objects (often < 10 × 10 pixels). Table 3 shows that TinyFormer consistently yields substantial improvements over our strong baseline, DEIMv2, across all scales. Notably, TinyFormer-X-PBM achieves 34.7% AP and 24.7% AP S , outperforming DEIMv2-X by +2.5% AP and a remarkable +3.2% AP S . This exceptional localization capability extends to the M and L variants, which boost AP S by +2.4% and +2.3% respectively. These robust gains on an aerial-centric benchmark confirm that the synergy between our SSA and PBM modules effectively keeps high-frequency spatial cues. Qualitative visualizations are in Fig. 6 
+
+4.4 Ablation Study Ablation on Main Components. We ablate on TinyFormer’s core modules in Table 4. Since PBM needs a 4-scale pyramid, we evaluate its independent performance (Row 3) by creating a surrogate 
+
+1/4 scale input via naive bilinear upsampling from ViT features. We show that while PBM marginally improves AP, the gain in AP S is limited ( +0 .58% ), exposing a structural bottleneck: aggressive stride-16 tokenization in plain ViTs causes irreversible spatial loss that coarse-feature fusion alone cannot recover. Conversely, isolating SSA within a 3-scale neck (Row 2) greatly boosts AP S to 39.33%, confirming that routing raw spatial details from early stages effectively bypasses lossy tokenization. The peak performance (58.50% AP, 40.94% AP S ) is achieved only when unifying both modules (Row 4). This synergy shows that SSA provides the essential spatial foundation, while PBM ensures its non-diluted distribution across the pyramid to resolve tiny object localization deficiencies. 
+
+Generalization of PBM on FPN-based Detectors. To validate the structural superiority of PBM over traditional top-down FPNs, we plug it into the multi-scale fusion necks of two mainstream SoTA real-time detectors: RT-DETRv2-X and DEIM-X. Table 5 shows that PBM consistently drives up detection performance regardless of the baseline architecture. Notably, the integration of PBM boosts the AP S of RT-DETRv2-X by +1.62% along with a +0.20% gain in overall AP. Similarly, for DEIM-X, it yields a +0.68% improvement in AP S and a +0.54% increase in overall AP. This robust cross-model validation underscores PBM as an effective architectural upgrade for resolving the multi-scale aggregation bottleneck for tiny objects in modern detectors. 95 Conclusions 
+
+We present TinyFormer, advancing real-time small object detection. Experiments on MS COCO show it overcomes key YOLO and DETR limitations. By integrating the Parallel Bi-fusion Module and the Spatial Semantic Adapter, TinyFormer achieves the SoTA performance: up to 60.2% AP and 43.0% AP S with Objects365 pretraining. TinyFormer surpasses YOLO-series, D-FINE, and DEIMv2 while using much fewer parameters and lower computational costs. 
+
+Limitations and Future Work. TinyFormer is efficient but faces scalability limitations at ultra-high resolutions ( e.g. , > 1280 2). Unlike CNNs with linear complexity, Transformer self-attention incurs quadratic complexity with respect to the number of visual tokens, leading to higher computational and memory costs. Future work will explore hardware-aware pruning and linear attention for memory-constrained edge devices. 
+
+## References 
+
+[1] Alexey Bochkovskiy, Chien-Yao Wang, and Hong-Yuan Mark Liao. Yolov4: Optimal speed and accuracy of object detection. arXiv , 2020. [2] Nicolas Carion, Francisco Massa, Gabriel Synnaeve, Nicolas Usunier, Alexander Kirillov, and Sergey Zagoruyko. End-to-end object detection with transformers. In European conference on computer vision ,pages 213–229. Springer, 2020. [3] Ping-Yang Chen, Ming-Ching Chang, Jun-Wei Hsieh, and Yong-Sheng Chen. Parallel residual bi-fusion feature pyramid network for accurate single-shot object detection. IEEE Transactions on Image Processing ,30:9099–9111, 2021. doi: 10.1109/TIP.2021.3118953. [4] Alexey Dosovitskiy, Lucas Beyer, Alexander Kolesnikov, Dirk Weissenborn, Xiaohua Zhai, Thomas Unterthiner, Mostafa Dehghani, Matthias Minderer, Georg Heigold, Sylvain Gelly, et al. An image is worth 16x16 words: Transformers for image recognition at scale. arXiv preprint arXiv:2010.11929 , 2020. [5] Jocher Glenn. Yolov8. https: // docs. ultralytics. com/ models/ yolov8/ , 2023. [6] Jocher Glenn. Yolo11. https: // docs. ultralytics. com/ models/ yolo11/ , 2024. [7] Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun. Deep residual learning for image recognition. In CVPR , 2016. [8] Shihua Huang, Yongjie Hou, Longfei Liu, Xuanlong Yu, and Xi Shen. Real-time object detection meets dinov3. arXiv , 2025. [9] Shihua Huang, Zhichao Lu, Xiaodong Cun, Yongjun Yu, Xiao Zhou, and Xi Shen. Deim: Detr with improved matching for fast convergence. In Proceedings of the Computer Vision and Pattern Recognition Conference , pages 15162–15171, 2025. [10] Glenn Jocher. yolov11. https://github.com/ultralytics , 2024. [11] Glenn Jocher, K Nishimura, T Mineeva, and RJAM Vilariño. yolov5. 
+
+https://github.com/ultralytics/yolov5/tree , 2, 2020. [12] Mengqi Lei, Siqi Li, Yihong Wu, and et al. Yolov13: Real-time object detection with hypergraph-enhanced adaptive visual perception. arXiv preprint arXiv:2506.17733 , 2025. [13] Yanfen Li, Hanxiang Wang, L Minh Dang, Tan N Nguyen, Dongil Han, Ahyun Lee, Insung Jang, and Hyeonjoon Moon. A deep learning-based hybrid framework for object detection and recognition in autonomous driving. IEEE Access , 8:194228–194239, 2020. [14] Tsung-Yi Lin, Michael Maire, Serge Belongie, James Hays, Pietro Perona, Deva Ramanan, Piotr Dollár, and C Lawrence Zitnick. Microsoft coco: Common objects in context. In European conference on computer vision , pages 740–755. Springer, 2014. [15] Tsung-Yi Lin, Piotr Dollár, Ross Girshick, Kaiming He, Bharath Hariharan, and Serge Belongie. Feature pyramid networks for object detection. In CVPR , 2017. [16] Shu Liu, Lu Qi, Haifang Qin, Jianping Shi, and Jiaya Jia. Path aggregation network for instance seg-mentation. In Proceedings of IEEE Conference on Computer Vision and Pattern Recognition (CVPR) ,2018. 
+
+10 [17] Wenyu Lv, Yian Zhao, Qinyao Chang, Kui Huang, Guanzhong Wang, and Yi Liu. Rt-detrv2: Improved baseline with bag-of-freebies for real-time detection transformer, 2024. URL https://arxiv.org/abs/ 2407.17140 .[18] Yansong Peng, Hebei Li, Peixi Wu, Yueyi Zhang, Xiaoyan Sun, and Feng Wu. D-fine: Redefine regression task in detrs as fine-grained distribution refinement. arXiv , 2024. [19] Isaac Robinson, Peter Robicheaux, Matvei Popov, Deva Ramanan, and Neehar Peri. Rf-detr: Neural architecture search for real-time detection transformers, 2025. URL https://arxiv.org/abs/2511. 09554 .[20] Ranjan Sapkota, Rahul Harsha Cheppally, Ajay Sharda, and Manoj Karkee. Yolo26: key architec-tural enhancements and performance benchmarking for real-time object detection. arXiv preprint arXiv:2509.25164 , 2025. [21] Shuai Shao, Zeming Li, Tianyuan Zhang, Chao Peng, Gang Yu, Xiangyu Zhang, Jing Li, and Jian Sun. Objects365: A large-scale, high-quality dataset for object detection. In Proceedings of the IEEE/CVF international conference on computer vision , pages 8430–8439, 2019. [22] Oriane Siméoni, Huy V. Vo, Maximilian Seitzer, Federico Baldassarre, Maxime Oquab, Cijo Jose, Vasil Khalidov, Marc Szafraniec, Seungeun Yi, Michaël Ramamonjisoa, Francisco Massa, Daniel Haziza, Luca Wehrstedt, Jianyuan Wang, Timothée Darcet, Théo Moutakanni, Leonel Sentana, Claire Roberts, Andrea Vedaldi, Jamie Tolan, John Brandt, Camille Couprie, Julien Mairal, Hervé Jégou, Patrick Labatut, and Piotr Bojanowski. DINOv3, 2025. URL https://arxiv.org/abs/2508.10104 .[23] Yunjie Tian, Qixiang Ye, and David Doermann. Yolov12: Attention-centric real-time object detectors. 
+
+arXiv preprint arXiv:2502.12524 , 2025. [24] Ao Wang, Hui Chen, Lihao Liu, Kai Chen, Zijia Lin, Jungong Han, and Guiguang Ding. Yolov10: Real-time end-to-end object detection. arXiv preprint arXiv:2405.14458 , 2024. [25] Chien-Yao Wang, Hong-Yuan Mark Liao, Yueh-Hua Wu, Ping-Yang Chen, Jun-Wei Hsieh, and I-Hau Yeh. Cspnet: A new backbone that can enhance learning capability of cnn. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition workshops , pages 390–391, 2020. [26] Chien-Yao Wang, I-Hau Yeh, and Hong-Yuan Mark Liao. Yolov9: Learning what you want to learn using programmable gradient information. arXiv , 2024. [27] Shibo Wang, Shusen Yang, and Cong Zhao. Surveiledge: Real-time video query based on collaborative cloud-edge deep learning. In IEEE INFOCOM 2020-IEEE Conference on Computer Communications ,pages 2519–2528. IEEE, 2020. [28] Hongyi Zhang. mixup: Beyond empirical risk minimization. In ICLR , 2017. [29] Huaxiang Zhang, Hao Zhang, Aoran Mei, Zhongxue Gan, and Guo-Niu Zhu. So-detr: leveraging dual-domain features and knowledge distillation for small object detection. In 2025 International Joint Conference on Neural Networks (IJCNN) , pages 1–8. IEEE, 2025. [30] Yian Zhao, Wenyu Lv, Shangliang Xu, Jinman Wei, Guanzhong Wang, Qingqing Dang, Yi Liu, and Jie Chen. Detrs beat yolos on real-time object detection, 2023. [31] Pengfei Zhu, Longyin Wen, Dawei Du, Xiao Bian, Heng Fan, Qinghua Hu, and Haibin Ling. Detection and tracking meet drones challenge. IEEE Transactions on Pattern Analysis and Machine Intelligence , 44 (11):7380–7399, 2021. 
+
+11 Appendix A Implementation Details 
+
+We implement TinyFormer in PyTorch 2.5.1 with CUDA 12.2, building upon the DEIMv2 [ 8]. To ensure a strictly fair architectural comparison, we adopt the exact same pretrained DINOv3 feature extraction backbone as our baseline DEIMv2. Furthermore, all models are trained following identical hyperparameter schedules and data augmentation pipelines on MS COCO (detailed in the appendix B). Our TinyFormer models are evaluated on the MS COCO val2017 dataset with a standard input image size of 640 × 640 . For all qualitative visualizations in the main text and appendix, the detection confidence thresholds are set to 0.4 for VisDrone and MS COCO. For experiments on the VisDrone dataset (Table 3), all models trained by us are initialized with their respective COCO pre-trained weights. To ensure a fair evaluation, we train the competing methods (e.g., YOLO-series) strictly following their official COCO training recipes. However, for our proposed TinyFormer and the baseline DEIMv2 [ 8], we explicitly disable the Mosaic augmentation during training to prevent the structural degradation of tiny object characteristics. A detailed ablation study comparing the impact of enabling versus disabling Mosaic augmentation is provided in the appendix. To ensure consistent speed benchmarking, all latency measurements are conducted on a single NVIDIA RTX 3090 GPU using PyTorch 2.5.1 and CUDA 12.2 with a batch size of 1. Regarding the training phase, all models (with the exception of the XL variant) and the baseline were trained on a single NVIDIA RTX 3090 GPU. The TinyFormer-XL was trained using two NVIDIA H100 GPUs to accommodate its higher computational requirements. We maintained a consistent total batch size of 32 across all models and baseline configurations to ensure a fair comparison. For architectural configurations omitting the Parallel Bi-fusion Module (PBM), the Spatial Semantic Adapter (SSA) explicitly restricts its spatial injection to the 1/8 fusion level ( F3), omitting the 1/4 scale ( F2)pathway to remain compatible with standard 3-scale necks. Detailed training configurations and scaling protocols for the large-scale Objects365 [ 21 ] pre-training and fine-tuning are also provided in the appendix C. 
+
+## B COCO Dataset Training Hyperparameters 
+
+Table A1: Detailed MS COCO training hyperparameters for the TinyFormer variants (XL, X, L, M, S). Settings are mostly adopted from DEIMv2 [ 8 ], with specific adjustments for the XL variant. Back. 
+
+denotes the backbone. We use Local Loss to denote the Fine-Grained Localization (FGL) Loss and the Decoupled Distillation Focal (DDF) Loss introduced in D-FINE [18].                                                                                                                             
+
+> Hyperparameter XL XLMS
+> Resolution 640 ×640 640 ×640 640 ×640 640 ×640 640 ×640
+> Total Epochs 58 58 68 102 132 Local Loss ✓✓✓✓✓
+> Weight Decay 1.25 ×10 −41.25 ×10 −41.25 ×10 −41.0×10 −41.0×10 −4
+> Base LR 2.5×10 −45.0×10 −45.0×10 −45.0×10 −45.0×10 −4
+> Min LR 1.25 ×10 −42.5×10 −42.5×10 −42.5×10 −42.5×10 −4
+> Back. LR 5.0×10 −61.0×10 −51.25 ×10 −52.5×10 −52.5×10 −5
+> Back. Min LR 2.5×10 −65.0×10 −66.25 ×10 −61.25 ×10 −51.25 ×10 −5
+> Augmentation Stages Active Epochs
+> Mosaic ( p= 0 .5)[4, 29] [4, 29] [4, 34] [4, 49] [4, 64] MixUp ( p= 0 .5)[4, 29] [4, 29] [4, 34] [4, 49] [4, 64] CopyBlend ( p= 0 .5)[4, 50] [4, 50] [4, 60] [4, 90] [4, 120]
+
+12 C Object365 Pre-training and Fine-tuning Hyperparameters 
+
+In this section, we provide the comprehensive training protocols for TinyFormer-X-PBM and 
+
+TinyFormer-XL-PBM . We denote training durations and warmup periods in iterations (equivalent to training batches). 
+
+C.1 Objects365 Pre-training Protocol 
+
+To establish a robust feature representation for tiny objects, we first conduct large-scale pre-training on the Objects365 (V2) dataset [ 21 ]. As summarized in Table A2, we employ the AdamW optimizer with a constant learning rate to maintain training stability. To prevent over-fitting, TinyFormer-XL-PBM 
+
+adopts a more conservative learning rate compared to the X variant. Table A2: Hyperparameters for Objects365 pre-training. p denotes augmentation probability. 
+
+Hyperparameter X-PBM XL-PBM 
+
+Input Resolution 640 × 640 640 × 640 
+
+Total Batch Size 32 32 Total Epochs 20 20 Optimizer AdamW ( β1 = 0 .9, β 2 = 0 .999 )Base LR (incl. SSA) 5.0 × 10 −4 2.5 × 10 −4
+
+Backbone LR (DINOv3) 1.0 × 10 −5 5.0 × 10 −6
+
+Weight Decay 1.25 × 10 −4 1.25 × 10 −4
+
+LR / EMA Warmup (iters) 2000 / 1000 2000 / 1000 LR Scheduler Constant Constant EMA Decay 0.9999 0.9999 
+
+Augmentation Stages Active Epochs 
+
+Random Photo. Distort ( p = 0 .5) [2, 20] [2, 20] Random Zoom-out / Crop ( p = 0 .8) [2, 20] [2, 20] Mosaic [1] / Mixup [28] / CopyBlend [8] Disabled 
+
+Table A3: Hyperparameters for MS COCO fine-tuning for TinyFormer variants. 
+
+Hyperparameter X-PBM XL-PBM 
+
+Input Resolution 640 × 640 640 × 640 
+
+Total Batch Size 32 32 Total Epochs 24 24 Optimizer AdamW ( β1 = 0 .9, β 2 = 0 .999 )Base LR (incl. SSA) 2.5 × 10 −4 1.25 × 10 −4
+
+Backbone LR (DINOv3) 5.0 × 10 −6 2.5 × 10 −6
+
+Weight Decay 1.25 × 10 −4 1.25 × 10 −4
+
+LR / EMA Warmup (iters) 0 / 0 0 / 0 LR Scheduler Constant Constant EMA Decay 0.9999 0.9999 
+
+Augmentation Stages Active Epochs 
+
+Mosaic [1] ( p = 1 .0) [2, 12] [2, 12] Mixup [28] ( p = 0 .5) [2, 12] [2, 12] CopyBlend [8] ( p = 0 .5) [2, 20] [2, 20] No-Aug Stage (Final) Last 4 Epochs Last 4 Epochs 
+
+13 C.2 MS COCO Fine-tuning Protocol 
+
+After pre-training, the models are fine-tuned on MS COCO [ 14 ] for 24 epochs. We adopt a multi-stage augmentation strategy [ 9] where heavy augmentations are disabled in the final 4 epochs. The fine-tuning parameters for both variants are detailed in Table A3. 
+
+## D Architectural Specifications of TinyFormer Variants 
+
+In this section, we provide the detailed architectural configurations for all TinyFormer variants. Our scaling strategy is designed to balance the high-level semantic reasoning of ViT backbones with the fine-grained spatial precision provided by the Spatial Semantic Adapter (SSA) and Parallel Bi-fusion Module (PBM). 
+
+D.1 Backbone Scaling and Channel Alignment 
+
+The core of TinyFormer’s scalability lies in the selection of the DINOv3 backbone series. For variants requiring extreme efficiency (M and S), we adopt distilled compact transformers [ 8] that maintain the semantic priors of larger models. To ensure structural consistency, we define an Adapter Base Channel ( C) for the SSA, which serves as the primary hidden dimension for spatial detail extraction and interacts with the neck ( dN eck ) and decoder ( dDec ) as specified in Table A4. Table A4: Architectural details of TinyFormer variants. dBack. denotes the backbone’s output dimension, and C represents the Adapter Base Channel dimension of our SSA.                                             
+
+> Variant Backbone Hidden Dimension Layers Model Adapter Base Channel ( C)dBack. dN eck dDec. #Back. #Dec.
+> XL ViT-B[22] 128 768 384 256 12 6
+> XViT-S+[22] 64 384 256 256 12 6
+> LViT-S[22] 32 384 256 256 12 4
+> MViT-T+ [8] 16 256 256 256 12 4
+> SViT-T [8] 16 192 192 192 12 4
+
+D.2 Variant Descriptions 
+
+• Backbone Selection : While official DINOv3 releases include B, S+, and S scales, we extend TinyFormer to more compact regimes by employing ViT-T+ and ViT-T . These models utilize knowledge distillation [ 8] to preserve strong semantic representations within a significantly reduced parameter budget. • Adapter Base Channel ( C): This parameter C dictates the base channel dimension of the convolution layer in the SSA. As demonstrated in our SSA architectural diagrams (see Sec. 3, Fig. 5) and ablation studies (see Sec. 4, Fig. A10). • Multi-scale Configuration : The integration of our Parallel Bi-fusion Module (PBM) neck naturally enables a 4-scale feature pyramid (incorporating the high-resolution F2 spatial prior). This configuration is primarily utilized in our flagship XL variant to maximize tiny object recall, whereas other variants utilize a 3-scale neck optimized for inference efficiency. • dN eck : We define the dimension of the PBM as dN eck to emphasize its role in synergizing spatial and semantic features before the attention-based decoder. 14 E Training Configurations on VisDrone 2019 
+
+To ensure a strictly fair comparison on the VisDrone 2019 dataset, we standardize the training configuration across our proposed TinyFormer and the baseline DEIMv2. Both models are initialized from COCO pre-trained weights to accelerate convergence and strictly follow the default COCO training hyperparameters (detailed in Table A1), with only two specific exceptions: the deactivation of Mosaic augmentation and a standardized warmup schedule. Notably, for aerial-centric datasets dominated by extremely small instances, aggressive spatial augmentations can severely distort object scales. As demonstrated in Table A6, disabling Mosaic augmentation consistently yields superior performance; for instance, TinyFormer-X-PBM achieves an AP of 34.7% without Mosaic compared to 34.4% when enabled. Consequently, all VisDrone results reported in our main text (Table 3) are obtained with Mosaic explicitly disabled. Furthermore, for all baseline comparisons utilizing a learning rate warmup, the duration is standardized to approximately half of an epoch (specifically set to 100 iterations in our implementation). Table A5: Comparison with the baseline real-time object detector on the VisDrone 2019-val set. 
+
+All models are evaluated with a standard input size of 640 × 640 . Bold indicates best performance within each scale.                                                                         
+
+> Method Param.(M) FLOPs(G) AP AP 50 AP 75 AP SAP MAP L
+> DEIMv2-S [8] 9.7 25.3 26.7 45.0 26.5 16.7 38.9 59.5
+> TinyFormer-S-PBM (Ours) 10.8 32.6 28.9 47.9 29.0 18.9 40.5 61.4
+> DEIMv2-M [8] 18.1 51.8 28.9 48.0 29.1 18.5 41.7 64.0
+> TinyFormer-M-PBM (Ours) 20.1 63.0 30.9 50.0 31.4 20.9 43.2 67.4
+> DEIMv2-L [8] 32.1 96.4 30.4 49.9 31.1 19.8 43.8 64.2
+> TinyFormer-L-PBM (Ours) 33.6 105.6 32.2 52.1 32.7 22.1 44.7 68.5
+> DEIMv2-X [8] 50.2 151.3 32.2 52.3 32.9 21.5 45.6 67.0 TinyFormer-X-PBM (Ours) 51.5 163.9 34.7 55.5 35.8 24.7 47.5 66.1
+
+Table A6: Comparison of TinyFormer trained with or without Mosaic on the VisDrone 2019-val set. All models are evaluated with a standard input size of 640 ×640 . Bold indicates best performance within each scale.                                         
+
+> Method Param.(M) FLOPs(G) AP AP 50 AP 75 AP SAP MAP L
+> TinyFormer-L-PBM w/ mosaic 33.6 105.6 31.4 51.2 31.9 21.8 43.3 67.9
+> TinyFormer-L-PBM w/o mosaic 33.6 105.6 32.2 52.1 32.7 22.1 44.7 68.5
+> TinyFormer-X-PBM w/ mosaic 51.5 163.9 34.4 55.2 35.4 24.5 46.8 65.0
+> TinyFormer-X-PBM w/o mosaic 51.5 163.9 34.7 55.5 35.8 24.7 47.5 66.1
+
+15 F Additional Qualitative Comparisons 
+
+This section evaluates TinyFormer’s feature representation quality across various datasets and object scales through detection results and Grad-CAM visualizations. For all visualizations, the detection confidence threshold is set to 0.4 to avoid visual clutter. 
+
+F.1 Qualitative Detection Results on VisDrone 2019 val 
+
+To visually demonstrate the superiority of TinyFormer in capturing extremely small instances, we provide a direct qualitative comparison of object detection results against the baseline DEIMv2 detector. As illustrated in Figs. A1–A3, we select challenging scenes from the VisDrone 2019-val set characterized by dense vehicle distributions and severe scale variations. TinyFormer exhibits significantly higher recall and localization accuracy, particularly in heavily cluttered aerial environ-ments. Note that the red circles focus exclusively on pronounced performance discrepancies in object presence and localization; minor, shared classification ambiguities ( e.g. , confusing a car with a van) are intentionally left unhighlighted to preserve visual clarity.    
+
+> (a) DEIMv2 (b) Ours
+> (c) Input Image (d) Ground Truth
+> (e) Zoomed-in View of (a) (f) Zoomed-in View of (b)
+
+Figure A1: Qualitative object detection results. (a) and (b) show the detection performance of DEIMv2-X and TinyFormer-X-PBM, respectively. (c) Input image and (d) Ground Truth. The red circles in (e) indicate missed detections by the baseline, which are successfully localized by TinyFormer in (f), highlighting our superior recall for tiny objects. 16 (a) DEIMv2 (b) Ours   
+
+> (c) Input Image (d) Ground Truth
+> (e) Zoomed-in View of (a) (f) Zoomed-in View of (b)
+
+Figure A2: Qualitative object detection results. (a) and (b) show the detection performance of DEIMv2-X and TinyFormer-X-PBM, respectively. (c) Input image and (d) Ground Truth. (e) and (f) provide magnified views of the regions enclosed by green boxes. While the baseline produces redun-dant and conflicting predictions (incorrectly labeling a pedestrian as both "motor" and "pedestrian"), TinyFormer maintains accurate classification for tiny targets. 17 (a) DEIMv2 (b) Ours   
+
+> (c) Input Image (d) Ground Truth
+> (e) Zoomed-in View of (a) (f) Zoomed-in View of (b)
+
+Figure A3: Qualitative object detection results. (a) and (b) show the detection performance of DEIMv2-X and TinyFormer-X-PBM, respectively. (c) Input image and (d) Ground Truth. (e) and (f) provide magnified views of the regions enclosed by green boxes. While the baseline produces redun-dant and conflicting predictions (incorrectly labeling a pedestrian as both "motor" and "pedestrian"), TinyFormer maintains accurate classification for tiny targets. 18 F.2 Grad-CAM Visualizations on VisDrone 2019 
+
+Following the configuration in the main text, these visualizations are generated across the multi-scale neck outputs ( ¯F3, ¯F4, ¯F5), as defined in Fig. 3, corresponding to 1/8, 1/16 , and 1/32 spatial resolutions, respectively. From left to right, the columns in each set display the detection results and the corresponding activation maps from the neck outputs. 
+
+> (a) DEIMv2
+> (b) Ours
+
+Figure A4: Grad-CAM Visualizations on VisDrone 2019 val (Set 1). (a) DEIMv2-X; (b) TinyFormer-X-PBM. 
+
+> (a) DEIMv2
+> (b) Ours
+
+Figure A5: Grad-CAM Visualizations on VisDrone 2019 val (Set 2). (a) DEIMv2-X; (b) TinyFormer-X-PBM. 
+
+> (a) DEIMv2
+> (b) Ours
+
+Figure A6: Grad-CAM Visualizations on VisDrone 2019 val (Set 3). (a) DEIMv2-X; (b) TinyFormer-X-PBM. 19 F.3 Grad-CAM Visualizations on MS COCO val2017 
+
+To evaluate general object detection, we provide MS COCO val2017 visualizations following the same configurations as defined in Sec. F.2. These results confirm that TinyFormer maintains stable feature representations across common categories, demonstrating that our enhancements do not compromise general detection capabilities on standard benchmarks. 
+
+> (a) DEIMv2
+> (b) Ours
+
+Figure A7: Grad-CAM Visualizations on COCO val2017 (Set 1). (a) DEIMv2-X; (b) TinyFormer-X-PBM. 
+
+> (a) DEIMv2
+> (b) Ours
+
+Figure A8: Grad-CAM Visualizations on COCO val2017 (Set 2). (a) DEIMv2-X; (b) TinyFormer-X-PBM. 
+
+> (a) DEIMv2
+> (b) Ours
+
+Figure A9: Grad-CAM Visualizations on COCO val2017 (Set 3). (a) DEIMv2-X; (b) TinyFormer-X-PBM. 20 G Design Choices of SSA 
+
+Based on the full TinyFormer-X-PBM framework, we investigate the optimal architectural design for SSA to determine where CNN-derived spatial priors best harmonize with ViT-based semantic tokens. As presented in Table A7 and Fig. A10, we evaluated our proposed configuration against several variants focusing on injection depth (Variants A–C), module complexity (Variant D), and fusion strategy (Variant E). This investigation is critical because the integration of high-resolution spatial priors into a non-hierarchical Transformer backbone must balance pixel-level precision with the model’s capacity for global semantic abstraction. 4CCfConv1 1                                    
+
+> Image SDE Conv3 3Stride 2 Conv3 3Stride 2 Conv3 3Stride 2 Conv3 3Stride 2 Conv3 3
+> Stride 2
+> Image SDE
+> Image SDE Image SDE
+> BottleNeck:
+> Variant BVariant A
+> Variant CVariant D
+> BottleNeck
+> SDE
+> Proposed SDE:
+> Image
+> Proposed SPB:
+> SPB Input Channel: d d/4 Conv3  3d/4 Output
+> d3F2F5F
+> Image f4F
+> Variant E
+> SPB Conv3 3
+> Stride 2 Conv3 3Stride 2 Conv3 3
+> Stride 2 Conv3 3Stride 2 Conv3 3Stride 2 Conv3 3Stride 2
+> f
+> BottleNeck
+> (Attention Block 2) 2F4F5F4
+> vit
+> F5
+> vit
+> FConv1 1 Conv1 1 4
+> vit
+> F5
+> vit
+> F3
+> vit
+> F4
+> vit
+> F5
+> vit
+> F3
+> vit
+> F4
+> vit
+> F5
+> vit
+> F3
+> vit
+> F4
+> vit
+> F5
+> vit
+> F3
+> vit
+> F4
+> vit
+> F5
+> vit
+> F3
+> vit
+> F2
+> vit
+> F3F2F5F4F3F2F5F4F5F4F3F2F5F4F3F2F
+> ffffff
+> ff
+> DINOv3 Feature
+> Adapter Feature
+> fConv1 1 
+> Concate
+> Bilinear
+> Bilinear 2C2CC2C4C2C2C4C4C4C
+
+Figure A10: Illustration of the architectural variants of the Spatial Semantic Adapter (SSA). 
+
+(Top) Detailed internal structures of the proposed SDE and SPB components, alongside an optional Bottleneck block. (Middle and Bottom) We evaluate five architectural variants (A–E) to determine the optimal configuration for tiny object detection: Variant A, B, and C explore different injection depths, extending spatial cues up to F4, F5, or specific hierarchical combinations; Variant D investigates the impact of replacing standard convolutions with Bottleneck blocks within the SPB to balance complexity and performance; Variant E evaluates the effect of early feature fusion at the 1/4
+
+scale ( F2), where spatial features are integrated with intermediate transformer representations. The notations C, 2C, 4C denote hierarchical channel scaling, and d represents the hidden dimension of the Bottleneck block. Table A7: Ablation on different architectural variants of SSA on MS COCO dataset. We explore various structural designs, including different injection stages and module types. All models are based on TinyFormer-X-PBM. Bold indicates the optimal overall performance. 
+
+Configuration Param(M) FLOPs(G) AP AP S AP M AP L
+
+Variant A (Up to F4) 51.8 165.3 58.12 39.68 62.76 75.61 Variant B (Up to F5) 52.5 165.9 58.13 40.15 62.84 75.59 Variant C ( F2 & F3 & F5) 52.4 165.6 58.29 40.50 63.11 76.15 Variant D (Bottleneck SPB) 51.8 165.5 58.26 40.29 63.22 75.54 Variant E (Early F2 Fusion) 51.6 169.2 58.31 40.72 63.40 75.93 
+
+Proposed SSA ( F2 & F3) 51.5 164.2 58.50 40.94 63.15 76.55 
+
+21 The results reveal a consistent trend: extending spatial priors into deeper stages does not improve performance and can even degrade detection accuracy for small objects. This suggests that spatial information becomes less beneficial once high-level semantic abstraction has been established. For instance, Variant B, which pushes spatial priors all the way to the 1/32 scale ( F5), results in a noticeable drop in AP S from 40 .94% to 40 .15% . Similarly, Variant D introduces Bottleneck blocks into the SPB to increase model capacity; however, it yields inferior AP S (40 .21% ) while increasing both parameters and FLOPs. We observe that while deeper injection or more complex modules add more pathways, they also introduce additional computational overhead without commensurate accuracy gains for tiny instances. Furthermore, we explore the effect of early feature fusion in Variant E, where spatial features are integrated with intermediate transformer representations at the F2 stage. Although Variant E achieves a slightly higher AP M (63 .40% ), it incurs a significant computational penalty ( 169 .2G FLOPs) and fails to match the proposed SSA in AP S (40 .72% vs. 40 .94% ). These results confirm that maintaining F2 as a pure spatial prior is more effective for tiny object localization than premature interaction with semantic features. Consequently, our findings confirm that restricting the SSA strictly to the early stages ( F2, F 3) achieves the optimal architectural balance: it delivers sufficient spatial cues for small instances while maintaining the maximum accuracy and efficiency of the model. 
+
+## H Structural Variations of PBM 
+
+We further optimize the internal logic of the PBM by ablating its block deployment and fusion operations, as detailed in Table A8. 
+
+Number of Blocks: We first assess the impact of hierarchical coverage. Compared to the baseline without PBM, deploying a single bi-fusion block at the intermediate F3 level yields a solid improve-ment of +0.59% in AP S . However, the most substantial gain is achieved by deploying two blocks to cover both F3 and F4 scales, resulting in a +1.61% boost to 40.94% AP S . This demonstrates that small object localization benefits from a multi-stage spatial reconstruction process that captures cues across varying receptive fields, ensuring that fine-grained details are propagated through the pyramid neck. 
+
+Fusion Operations: A critical aspect of our bi-fusion design is the "Align-then-Injection" protocol. In our proposed configuration, we treat the deep semantic map as a context residual (element-wise addition) while treating the high-resolution shallow map as independent spatial evidence (concatenation). To test this hypothesis, we evaluated a swapped configuration where shallow features were added and deep features were concatenated. This modification led to a noticeable decline in 
+
+AP S from 40.94% to 40.51%. Table A8: Ablation on PBM structural designs on MS COCO dataset. We test the impact of the number of PBM blocks and the choice of fusion operations. The baseline (0 blocks) corresponds to our base TinyFormer-X model. 
+
+# Blocks Configuration (Scale) Param(M) FLOPs(G) AP AP S AP M AP L
+
+0 Baseline (No PBM) 49.8 151.1 58.38 39.33 63.14 76.46 1 Add Fi+1 , Concate Fi−1 (i = 3 ) 50.8 161.9 58.46 39.92 63.15 75.70 2 Add Fi−1, Concate Fi+1 (i = 3 , 4) 51.5 164.2 58.38 40.51 62.88 76.23 
+
+2 Add Fi+1 , Concate Fi−1 (i = 3 , 4) 51.5 164.2 58.50 40.94 63.15 76.55 
+
+22
