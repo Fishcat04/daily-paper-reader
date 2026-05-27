@@ -1,0 +1,46 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.26456v1/fig-001.webp",
+      "caption": "Figure 3: Qualitative comparison on two Virtual KITTI scenes. Four columns from left to right: RGB image, ground-truth depth, MoGe-2 monocular baseline, and SLIM (ours). Red circles mark regions where the baseline exhibits errors in fine or distant structures.",
+      "page": 5,
+      "index": 1,
+      "width": 832,
+      "height": 274
+    },
+    {
+      "url": "assets/figures/arxiv/2605.26456v1/fig-002.webp",
+      "caption": "Table 1: Distance-stratified results. SLIM vs. the MoGe-2 monocular baseline at injection ratio 0.005. Bold indicates the better value per metric.",
+      "page": 3,
+      "index": 2,
+      "width": 898,
+      "height": 286
+    },
+    {
+      "url": "assets/figures/arxiv/2605.26456v1/fig-003.webp",
+      "caption": "Figure 2: AbsRel as a function of distance bin. SLIM’s curve remains comparatively flat across distance, whereas the MoGe-2 baseline’s error grows steeply in the long-range regime. Drawn from Table 1.",
+      "page": 3,
+      "index": 3,
+      "width": 686,
+      "height": 400
+    },
+    {
+      "url": "assets/figures/arxiv/2605.26456v1/fig-004.webp",
+      "caption": "Table 2: Sparse encoder ablation across six injection ratios. Bold indicates the better value per metric.",
+      "page": 4,
+      "index": 4,
+      "width": 727,
+      "height": 409
+    },
+    {
+      "url": "assets/figures/arxiv/2605.26456v1/fig-005.webp",
+      "caption": "Figure 1: SLIM architecture. The visual branch is the MoGe-2 [1] backbone (DINOv2 ViT-S/14; intermediate features taken from layers 5 and 11; projected feature dimension 384), producing a five-level visual feature pyramid (channels 384, 256, 128, 64, 32). The sparse-geometry branch applies local sparsedepth filling (nearest-neighbor propagation) followed by a five-stage PartialConv encoder (strides [1, 2, 2, 2, 2]; channels [32, 64, 128, 256, 512]) with mask-aware updates and ratio scaling. The DepthFusionNeck injects sparse-geometry features into the visual pyramid at five levels (L0–L4) for coarse-to-fine geometry-guided refinement. The decoder produces the metric 3D point map; auxiliary MoGe-2 heads predict surface normal, validity mask, and global metric scale (the latter via an MLP on the concatenation of the CLS token and a global sparse feature).",
+      "page": 2,
+      "index": 5,
+      "width": 832,
+      "height": 330
+    }
+  ]
+}

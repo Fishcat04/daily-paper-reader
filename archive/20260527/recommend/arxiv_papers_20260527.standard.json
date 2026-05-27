@@ -1,0 +1,252 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-05-27T21:36:50.158436+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 2,
+    "deep_cap": 6,
+    "deep_selected": 2,
+    "quick_candidates": 4,
+    "quick_skim_target": 11,
+    "quick_selected": 4
+  },
+  "deep_dive": [
+    {
+      "id": "2605.26884v1",
+      "source": "arxiv",
+      "title": "Small Object Detection in Industrial Recycling: A New Dataset and YOLO Performance Evaluation",
+      "abstract": "In this paper, we address the problem of detecting small, dense, and overlapping objects, a major challenge in computer vision. Our focus is on reviewing proposed methods based on deep learning supervised approaches. We provide a detailed comparison of these systems on a new dataset of more than 10k images and 120k instances, highlighting their performance, accuracy, and computational efficiency in the industrial recycling process use case. Through this comparative analysis, we identify the most reliable systems currently available and the specific challenges they are designed to tackle. Furthermore, we explore the benefits of data augmentation and synthetic images. Based on our analysis, we also propose potential future directions and innovative solutions that could enhance the effectiveness of small, dense and overlapped object detection systems. The scope of our investigations encompasses object detection, length measurement, and anomaly detection within the context of the recycling process. The anomaly detection strategy is robust against variations in image resolution and zoom levels, ensuring reliable performance in industrial applications. The repository of the proposed dataset, methods and evaluation codes can be found at: https://github.com/o-messai/SDOOD",
+      "authors": [
+        "Oussama Messai",
+        "Abbass Zein-Eddine",
+        "Abdelouahid Bentamou",
+        "Mickael Picq",
+        "Nicolas Duquesne",
+        "Stéphane Puydarrieux",
+        "Yann Gavet"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.DB"
+      ],
+      "published": "2026-05-26T11:47:31+00:00",
+      "link": "https://arxiv.org/pdf/2605.26884v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 10.0,
+      "llm_evidence_en": "benchmarking small object detection on a new dataset of 10k images and 120k instances",
+      "llm_evidence_cn": "在包含1万张图像和12万个实例的新数据集上进行小目标检测基准测试",
+      "llm_evidence": "在包含1万张图像和12万个实例的新数据集上进行小目标检测基准测试",
+      "canonical_evidence": "在包含1万张图像和12万个实例的新数据集上进行小目标检测基准测试",
+      "llm_tldr_en": "Evaluates YOLO performance on a new industrial recycling dataset specifically for small, dense objects.",
+      "llm_tldr_cn": "针对工业回收中的小而密集目标，在新数据集上评估了YOLO的性能。",
+      "llm_tldr": "针对工业回收中的小而密集目标，在新数据集上评估了YOLO的性能。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "benchmarking small object detection on public datasets",
+      "matched_requirement_id": "req-8",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.24639v1",
+      "source": "arxiv",
+      "title": "DisDop: Distillation with Domain Priors for Open-Vocabulary Aerial Object Detection",
+      "abstract": "With the widespread application of drones in recent years, object detection of aerial images has attracted increasing attention, especially open-vocabulary aerial detection which is not restricted to predefined categories. Due to the scarcity of drone's viewpoint images and their significant differences from natural images, it is difficult to achieve satisfying results by directly applying vanilla open-vocabulary detection methods designed for natural scenarios. Some studies propose to transfer knowledge from pre-trained models by using lightweight networks or generating pseudo labels, but they tend to rely on models trained on natural images, neglecting the potential of foundation models specifically tailored for remote sensing and aerial imagery. To address this limitation, we propose DisDop, a unified framework that systematically distills multi-level domain priors from remote sensing foundation models (e.g., RemoteCLIP and DINOv3) into a lightweight detector. Specifically, we first distill visual priors through a teacher fusion strategy that combines RemoteCLIP's cross-modal alignment capability with DINOv3's fine-grained local feature extraction ability, transferring their complementary strengths to the detector's backbone. Second, we distill textual priors embedded in RemoteCLIP's text encoder by explicitly modeling inter-category semantic relationships, while incorporating global contextual priors to enhance local feature representation for small objects. Through this multi-level prior distillation framework, our DisDop achieves new state-of-the-art performance on open-vocabulary aerial detection benchmarks. Extensive ablation analysis also demonstrates the rationality and effectiveness of our proposed modules.",
+      "authors": [
+        "Ruihao Xu",
+        "Yong Liu",
+        "Yansong Tang",
+        "Sule Bai",
+        "Xubing Ye",
+        "Bingyao Yu",
+        "Yutao Guo",
+        "Jiwen Lu",
+        "Jie Zhou"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-05-23T16:01:20+00:00",
+      "link": "https://arxiv.org/pdf/2605.24639v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "open-vocabulary aerial object detection for drone viewpoint images",
+      "llm_evidence_cn": "无人机视角图像的开集词汇航空目标检测",
+      "llm_evidence": "无人机视角图像的开集词汇航空目标检测",
+      "canonical_evidence": "无人机视角图像的开集词汇航空目标检测",
+      "llm_tldr_en": "Proposes DisDop for open-vocabulary aerial object detection using distillation with domain priors.",
+      "llm_tldr_cn": "提出DisDop，通过领域先验蒸馏实现开集词汇航空目标检测。",
+      "llm_tldr": "提出DisDop，通过领域先验蒸馏实现开集词汇航空目标检测。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2605.24508v1",
+      "source": "arxiv",
+      "title": "FDDet: Achieving Data-Efficient Food Defect Detection Under Real-World Scenarios",
+      "abstract": "Food defect detection is critical for automated quality control, yet existing studies lack unified benchmarks and suffer from data scarcity. We introduce FDD-48, a comprehensive dataset with fine-grained annotations across 13 food types and 48 defect categories under diverse real-world conditions. To improve detection with limited labeled data, we propose FDDet, a semi-supervised framework featuring two key components: (1) BBoxMixUp, a data augmentation technique that mixes same-category defect regions to reduce spurious feature associations, and (2) CGPC (Consistency-Guided Pseudo-Label Calibration), which filters pseudo-labels based on intra-sample consistency. Experiments show FDDet significantly outperforms mainstream detectors on FDD-48, demonstrating its effectiveness for food defect detection under data-limited scenarios.",
+      "authors": [
+        "Ruihao Xu",
+        "Yong Liu",
+        "Yansong Tang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-23T10:42:21+00:00",
+      "link": "https://arxiv.org/pdf/2605.24508v1",
+      "tags": [
+        "keyword:SOD"
+      ],
+      "llm_score": 7.5,
+      "llm_evidence_en": "BBoxMixUp data augmentation for defect detection",
+      "llm_evidence_cn": "用于缺陷检测的BBoxMixUp数据增强技术",
+      "llm_evidence": "用于缺陷检测的BBoxMixUp数据增强技术",
+      "canonical_evidence": "用于缺陷检测的BBoxMixUp数据增强技术",
+      "llm_tldr_en": "Introduces FDDet and BBoxMixUp to improve food defect detection with limited labeled data.",
+      "llm_tldr_cn": "引入FDDet和BBoxMixUp技术，在有限标注数据下提升食品缺陷检测性能。",
+      "llm_tldr": "引入FDDet和BBoxMixUp技术，在有限标注数据下提升食品缺陷检测性能。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "oversampling and augmentation strategies for small objects",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.26273v1",
+      "source": "arxiv",
+      "title": "Frequency-Guided Fusion For RGB-Thermal Semantic Segmentation",
+      "abstract": "Semantic segmentation in complex environments such as urban driving scenes remains challenging under adverse lighting conditions, where RGB images alone provide insufficient information. RGB-Thermal fusion leverages the complementary strengths of visible and infrared imagery to improve scene understanding; however, effectively integrating these heterogeneous modalities at varying levels of feature abstraction remains an open problem. In this paper, we propose a multi-modal fusion architecture built upon dual ConvNeXt V2 backbones that employs stage-wise, modality-adaptive fusion strategies. For early-stage features, we introduce a Frequency-Based Fusion Module that decomposes infrared features into low- and high-frequency components via Gaussian filtering, applies dual-branch spatial attention to selectively emphasize thermal patterns and fine-grained boundaries, and integrates them with RGB features through a confidence-gated residual mechanism. For late-stage features, we design a semantic fusion module with cross-modal attention and multi-scale depthwise convolutions to capture semantic correspondences across modalities. The fused features are decoded via a PANet-style bidirectional decoder with deep supervision. Experiments on MFNet and PST900 demonstrate that our lightest variant achieves 61.73\\% and 86.24\\% mIoU, respectively, with only 35.43M parameters, outperforming recent methods while using substantially fewer parameters and lower computational cost. Code is available at https://github.com/ismailemrecntz/VISIBLE-INFRARED-SENSOR-FUSION",
+      "authors": [
+        "İsmail Emre Canıtez",
+        "Özgür Erkent"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-25T18:57:22+00:00",
+      "link": "https://arxiv.org/pdf/2605.26273v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "multi-modal fusion architecture integrating features at varying levels of abstraction",
+      "llm_evidence_cn": "在不同抽象层级整合特征的多模态融合架构",
+      "llm_evidence": "在不同抽象层级整合特征的多模态融合架构",
+      "canonical_evidence": "在不同抽象层级整合特征的多模态融合架构",
+      "llm_tldr_en": "Proposes a frequency-guided fusion module for multi-modal semantic segmentation.",
+      "llm_tldr_cn": "提出一种频率引导的融合模块，用于多模态语义分割。",
+      "llm_tldr": "提出一种频率引导的融合模块，用于多模态语义分割。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.25385v1",
+      "source": "arxiv",
+      "title": "Weakly Supervised Camouflaged Object Detection Based on the SAM Model and Mask Guidance",
+      "abstract": "Camouflaged object detection (COD) from a single image is a challenging task due to the high similarity between objects and their surroundings. Existing fully supervised methods require labor-intensive pixel-level annotations, making weakly supervised methods a viable compromise that balances accuracy and annotation efficiency. However, weakly supervised methods often experience performance degradation due to the use of coarse annotations. In this paper, we introduce a new weakly supervised approach for camouflaged object detection to overcome these limitations. Specifically, we propose a novel network, MGNet, which tackles edge ambiguity and missed detections by utilizing initial masks generated by our custom-designed Cascaded Mask Decoder (CMD) to guide the segmentation process and enhance edge predictions. We introduce a Context Enhancement Module(CEM) to reduce the missing detection, and a Mask-guided Feature Aggregation Module (MFAM) for effective feature aggregation. For the weak supervision challenge, we propose BoxSAM, which leverages the Segment Anything Model (SAM) with bounding-box prompts to generate pseudo-labels. By employing a redundant processing strategy, high quality pixel-level pseudo-labels are provided for training MGNet. Extensive experiments demonstrate that our method delivers competitive performance against current state-of-the-art methods.",
+      "authors": [
+        "Xia Li",
+        "Xinran Liu",
+        "Lin Qi",
+        "Junyu Dong"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-05-25T03:26:13+00:00",
+      "link": "https://arxiv.org/pdf/2605.25385v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Weakly supervised camouflaged object detection",
+      "llm_evidence_cn": "弱监督伪装目标检测",
+      "llm_evidence": "弱监督伪装目标检测",
+      "canonical_evidence": "弱监督伪装目标检测",
+      "llm_tldr_en": "MGNet utilizes SAM and mask guidance to improve weakly supervised camouflaged object detection.",
+      "llm_tldr_cn": "MGNet利用SAM和掩码引导技术改进弱监督伪装目标检测。",
+      "llm_tldr": "MGNet利用SAM和掩码引导技术改进弱监督伪装目标检测。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.26456v1",
+      "source": "arxiv",
+      "title": "Sparse-LiDAR Prompting of Monocular Geometry Foundations: An Empirical Study Toward Long-Range Driving Depth",
+      "abstract": "Sparse-LiDAR-prompted depth foundation models (PromptDA, Prior Depth Anything, DMD3C) have shown strong results on indoor scenes or within KITTI's standard 80-meter evaluation cap. However, two limitations remain: (i) systematic distance-stratified evaluation in long-range driving regimes (50-150 m) is largely absent; (ii) prior approaches built on disparity-based foundations rely on pre-interpolated dense priors, leaving truly sparse LiDAR injection on point-map foundations (e.g., MoGe-2, NeurIPS 2025) unexplored. We present SLIM (Sparse-LiDAR Injected Monocular geometry), the first adaptation of MoGe-2 to accept truly sparse LiDAR input. SLIM integrates a partial-convolution sparse encoder with a multi-scale fusion neck that fuses LiDAR features into the point-map decoder at five scales. We adopt density-agnostic training (random injection ratio in [0.005, 0.30]) so a single model serves diverse input densities. On Virtual KITTI and CARLA, SLIM reduces the absolute relative error of the MoGe-2 baseline by approximately 39-51% at 100-150 m. Ablation across six injection ratios shows partial-convolution injection improves both AbsRel and RMSE on Virtual KITTI in all six settings; on CARLA, AbsRel improves in five of six settings (one near-tie at 0.015 differs by 0.0013), and RMSE is comparable across encoders, with partial-convolution improving in three settings (by up to 0.31 unit) and losing by at most 0.11 unit in the other three.",
+      "authors": [
+        "Kai Zheng",
+        "Qiang Feng",
+        "Xingjian Liu",
+        "Wenquan Tan",
+        "Yuan Li"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-26T02:12:15+00:00",
+      "link": "https://arxiv.org/pdf/2605.26456v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "multi-scale fusion for sparse LiDAR injection in monocular geometry",
+      "llm_evidence_cn": "单目几何中稀疏激光雷达注入的多尺度融合",
+      "llm_evidence": "单目几何中稀疏激光雷达注入的多尺度融合",
+      "canonical_evidence": "单目几何中稀疏激光雷达注入的多尺度融合",
+      "llm_tldr_en": "SLIM integrates sparse LiDAR with multi-scale fusion to improve long-range driving depth estimation.",
+      "llm_tldr_cn": "SLIM 将稀疏激光雷达与多尺度融合相结合，以改进远程驾驶深度估计。",
+      "llm_tldr": "SLIM 将稀疏激光雷达与多尺度融合相结合，以改进远程驾驶深度估计。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}

@@ -1,0 +1,353 @@
+Title: FDDet: Achieving Data-Efficient Food Defect Detection Under Real-World Scenarios
+
+URL Source: https://arxiv.org/pdf/2605.24508v1
+
+Published Time: Tue, 26 May 2026 00:39:33 GMT
+
+Number of Pages: 7
+
+Markdown Content:
+# FDDet: Achieving Data-Efficient Food Defect Detection Under Real-World Scenarios 
+
+Ruihao Xu, Yong Liu, Yansong Tang †
+
+Tsinghua Shenzhen International Graduate School, Tsinghua University FDD-48 
+
+> Fine-grained Label
+> Real-world
+> Scenario
+
+Fig. 1: FDD-48: A food defect detection dataset with fine-grained annotations to closely align with practical application scenarios. It encompasses 13 food types and 48 defect types, covers diverse scenarios like Planting, Transportation, and Consumption, and ensures balanced distributions of image sizes and bounding box sizes for real-world applications. 
+
+Abstract —Food defect detection is critical for automated qual-ity control, yet existing studies lack unified benchmarks and suffer from data scarcity. We introduce FDD-48, a comprehensive dataset with fine-grained annotations across 13 food types and 48 defect categories under diverse real-world conditions. To improve detection with limited labeled data, we propose FDDet, a semi-supervised framework featuring two key components: (1) BBoxMixUp, a data augmentation technique that mixes same-category defect regions to reduce spurious feature associations, and (2) CGPC (Consistency-Guided Pseudo-Label Calibration), which filters pseudo-labels based on intra-sample consistency. Experiments show FDDet significantly outperforms mainstream detectors on FDD-48, demonstrating its effectiveness for food defect detection under data-limited scenarios. 
+
+I. I NTRODUCTION 
+
+Food safety and quality assurance are core concerns in the global food industry. Traditional detection methods rely on manual inspection or basic image processing [1]–[3], while machine learning approaches [4]–[7] improved accuracy but remain limited by training data quality. Deep learning has enabled automated, real-time food defect detection [8]–[11], yet most studies rely on proprietary datasets from controlled 
+
+> †
+
+Corresponding author: tang.yansong@sz.tsinghua.edu.cn. This work was supported in part by the National Key Research and Develop-ment Program of China under Grant 2023YFF1105101. 
+
+environments with homogeneous backgrounds and binary clas-sification labels, lacking fine-grained defect categories and localization annotations. To address these gaps, we intro-duce the FDD-48 dataset. As shown in table I, FDD-48 encompasses multiple fine-grained food defect types, instance-level annotations, and diverse real-world backgrounds. We deliberately maintained a moderate dataset size to simulate real-world data scarcity, enabling effective evaluation of model generalization and practical robustness. We subsequently evaluated the performance of several main-stream general-purpose object detection models on FDD-48, with results presented in table II. The models exhibited sub-optimal performance, which we attribute to overfitting caused by limited annotated data, further highlighting the limitations of general-purpose models in data-constrained scenarios. To investigate further, we analyzed FDD-48 samples and visu-alized model outputs. We observed substantial variation in non-defect features (e.g., shape, color) across defect types, which the limited training set failed to cover comprehensively. Moreover, food defects often occupy small surface areas, providing insufficient supervisory signals. These factors col-lectively predispose models to overfit to non-defect features. To address these challenges, we first propose BBoxMixUp ,a novel data augmentation technique tailored for food de-fect detection. Unlike traditional mixing methods [18]–[22], 
+
+> arXiv:2605.24508v1 [cs.CV] 23 May 2026
+
+TABLE I: Comparison with other public food defect datasets.                                                 
+
+> Dataset Diverse Scenarios Label Level Cls. Real Images Labels Avg. Inst. /Img
+> FruitNet [12] qGlobal 18 14700 14700 ≈3
+> HDFruits [13] qGlobal 410000 10000 1MeatQA [14] qGlobal 2948 948 1PotatoDS [15] qGlobal 54813 4813 1Fmaaa307 [16] qInstance 41200 1200 1VisA-Food [17] qInstance 43 4603 4603 ≈2
+> FDD-48 (ours) §Instance 48 4000 15913 ≈11
+
+which blend images and labels globally, BBoxMixUp performs localized mixing exclusively within bounding boxes of the same defect category. This approach enhances diversity in non-defect features while disrupting spurious correlations between defect types and non-defect features caused by data scarcity, thereby mitigating overfitting. Recognizing that unlabeled data is often more accessible than labeled data in real-world applications, we further explore semi-supervised learning (SSL) paradigms for food defect detection to leverage the 2,497 unlabeled samples in FDD-48. However, directly applying common semi-supervised object detection frameworks [23] led to training collapse. We attribute this to two factors: (1) unupdated buffer weights (e.g., Batch Normalization parameters) prevented the teacher model from adapting to domain shifts between labeled and unlabeled data; (2) conventional high-confidence pseudo-label thresholds (e.g., 0.9) were incompatible with FDD-48’s class similarity and generally low model confidence, discarding substantial valid supervisory signals. To resolve these issues, we implemented some modifications to [23], successfully stabilized training and significantly improved model performance. To further refine and calibrate pseudo-label quality, we pro-pose CGPC (Consistency-Guided Pseudo-Label Calibration). CGPC optimizes initial teacher-generated pseudo-labels by enforcing multi-dimensional consistency constraints: (1) 
+
+Context-Semantic Consistency leverages the prior that ob-jects within an image typically belong to the same high-level semantic category (e.g., food type), unifying all pseudo-labels in a single image to the most frequent food type; (2) 
+
+Visual-Semantic Consistency ensures visually similar regions receive consistent labels based on features extracted by an external pretrained backbone; (3) Spatial Consistency removes spatially redundant pseudo-labels via non-maximum suppres-sion (NMS)-like methods. Through CGPC’s multi-dimensional calibration, we provide higher-quality supervisory signals for the student model, further enhancing the effectiveness of semi-supervised learning. The main contributions of this paper are as follows:  
+
+> •
+
+We introduce FDD-48, a novel benchmark dataset for food defect detection featuring diverse real-world sce-narios, fine-grained defect categories, and instance-level annotations.  
+
+> •
+
+We propose BBoxMixUp, a data augmentation technique tailored for food defect detection, which performs local-ized mixing to enhance non-defect feature diversity and mitigate overfitting under data scarcity.  
+
+> •
+
+We enable effective semi-supervised learning (SSL) on FDD-48 by adapting existing frameworks for stable training, and introduce CGPC, a novel method that refines pseudo-labels through multi-dimensional consis-tency constraints to further improve SSL‘s performance.  
+
+> •
+
+Through extensive experiments, we demonstrate the lim-itations of existing models on FDD-48 and validate the significant performance gains achieved by our methods. II. FDD-48: A F OOD DEFECT DETECTION DATASET 
+
+Data is a vital driver of deep learning, making task-specific datasets indispensable. Unlike general object detection datasets, food defect detection datasets require annotators with specific expertise, making large-scale annotation difficult. As a result, existing research datasets are limited in terms of sample size, diversity of data collection scenarios, number of defect types, and granularity of defect types, hindering their real-world applications. 
+
+A. Food Objects and Defect Types 
+
+We initiated our study with fruits due to their high con-sumption rates and significant economic value. Fruits are highly perishable and susceptible to a variety of defects during planting, production, transportation, and consumption stages. Monitoring and detecting these defects are crucial for ensuring food quality and safety. We selected 13 fruit types that are among the most consumed on a global scale: apple, apricot, banana, cantaloupe, cherry, lychee, mango, orange, peach, pear, plum, strawberry, and watermelon. For each fruit, we identified the most common defect types occurring in different scenarios. In total, we identified 48 distinct food defect types, as shown in Figure 1. 
+
+B. Image Acquisition and Preprocessing 
+
+We used the Selenium Python library to automatically crawl images from online search engines, employing the previously defined ”food category + defect type” as keywords, resulting in a total of 50,000 raw images. Given that web-crawled images often contain irrelevant or noisy data, manual filtering was impractical due to the large volume. To address this, we employed the multimodal large model MiniCPM-V-2.6 [24] to automatically assess whether the images contained the target food type and removed those without it. Subsequently, to elim-inate duplicate images, we used DINOv2 [25] to extract image features, calculated feature similarity, and removed images with similarity exceeding a preset threshold. Finally, through manual screening, we obtained 4,000 images with diverse scenes and balanced food categories as the final dataset. 
+
+C. Dataset Annotation 
+
+For initial annotating with bounding boxes, we leveraged YOLO-World [26], an open-source object detector capable of utilizing textual prompts to detect corresponding objects. By M
+
+> (b) Input-level Mixing
+> R
+> M
+> R
+> Mixing Operation
+> Resize Operation
+> (a) Mixing Candidate Selection
+> Class-wise instances pool
+> class 1
+> class 2
+> class 3
+> class 4
+
+Fig. 2: Illustration of BBoxMixUp. (a) Mixing Candidate Selection. Bounding boxes of the same class are pooled and randomly paired for mixing. (b) Localized Mixing. Regions from different images are blended to create new instance. inputting a vocabulary list of the 13 fruit names as a prompt, YOLO-World generated bounding box annotations for both normal and defective fruits within the images. Subsequently, we conducted manual verification to annotate any missed fruit instances and to assign specific defect labels to all bounding boxes, ensuring that the dataset had high-quality annotations suitable for training and evaluating defect detection models. 
+
+D. Statistical Characteristics of the Dataset 
+
+The dataset consists of 4,000 images, including 1,503 labeled images and 2,497 unlabeled images. The labeled data contains 15,913 fruit instances, with an average of approximately 10.58 objects per image. The distribution of images across 13 fruit categories is balanced, of which 39% include defective fruits. The dataset covers 48 defect types, with their frequency distribution presented in a pie chart, alongside statistical distributions of image and bounding box sizes. Additionally, the dataset encompasses diverse scenarios, including planting, transportation, and consumption. Finally, the set of labeled data is randomly split into training and testing sets in a 7:3 ratio. III. FDD ET 
+
+In this section, we propose FDDet, a food defect detection model based on RTMDet. FDDet incorporates three key com-ponents: (1) BBoxMixUp, a localized data mixing strategy for food defect data; (2) adapted semi-supervised learning to address training collapse; and (3) CGPC, a consistency-based pseudo-label calibration strategy. 
+
+A. BBoxMixUp 
+
+Food defect detection faces three key challenges: (1) defect regions are often very small, providing insufficient supervisory signals; (2) limited training data causes models to overfit to sample appearances rather than defect features; and (3) Context-Semantic   
+
+> Consistency
+> Visual-Semantic
+> Consistency
+> Spatial Consistency
+> CGPC
+> Original Pseudo-Labels Refined Pseudo-Labels
+> normal strawberry spoiled strawberry normal cherry
+
+Fig. 3: CGPC applies multi-dimensional consistency calibra-tions to initial, noisy pseudo-labels from a teacher model, pro-ducing higher-quality pseudo-labels for student model training. traditional augmentation methods ( e.g. MixUp and CutMix) focus on global transformations, neglecting localized defect characteristics. To address these issues, we propose BBoxMixUp , a local-ized data mixing strategy that blends object regions of the same class from different images. As shown in Figure 2, BBoxMixUp consists of two stages: (1) Mixing Candidate Selection. For each target bounding box, we randomly select a candidate box from a different image containing an object of the same class. (2) Mixing Operation. The candidate region is resized to match the target region dimensions. A mixing ratio λ is sampled from Beta (α, β ), and the target region is replaced by a weighted combination of both regions. 
+
+B. Semi-Supervised Learning for Food Defect Detection 
+
+To leverage the 2,497 unlabeled samples in FDD-48, we adopt the semi-supervised object detection framework [23], which employs a teacher-student paradigm where the teacher generates pseudo-labels for unlabeled data and is updated via exponential moving average (EMA) from the student. How-ever, direct application causes training collapse—the teacher model suddenly produces empty predictions after a few it-erations. We identify two causes and propose corresponding solutions: 
+
+(1) EMA Buffer Update. The original framework does not update the teacher’s buffer weights ( e.g. , BatchNorm statistics) via EMA. For small datasets like FDD-48 with potential domain shifts between labeled and unlabeled data, this causes the teacher to produce erroneous pseudo-labels. We enable EMA updates for buffer weights to allow dynamic adaptation. 
+
+(2) Lower Confidence Threshold. Standard high thresholds (e.g. , 0.9) discard many reliable pseudo-labels, as high inter-class similarity in food defects leads to inherently lower confidence scores. We use a lower threshold (0.35) to retain more valuable pseudo-labels. 
+
+C. CGPC 
+
+To further enhance the effectiveness of semi-supervised learning, we analyzed the characteristics of the teacher model’s predictions on unlabeled data. We observed that when using a relatively low threshold for initial pseudo-labels filtering, the teacher model often outputs multiple pseudo-labels with different categories but highly overlapping bounding boxes, among which the correct labels are frequently included (shown TABLE II: Comparison with State-of-the-Art object detectors on FDD-48. The best results for each metric are bolded , and the second-best results are underlined. Our method achieves new state-of-the-art results.                                                                         
+
+> Method Backbone Param.(M) Pre-trained Data mAP 50 :95 (%) mAP 50 (%) mAP 75 (%)
+> YOLOX [27] YOLOX-x 99.0 COCO 38.9 44.3 42.7 RTMDet [28] RTMDet-x 94.8 COCO 40.0 45.6 43.7 DAB-DETR [29] R-50 43.7 COCO 34.7 40.2 38.3 DINO [30] R-50 47.6 COCO 38.2 42.8 41.0 GLIP [31] Swin-T 231.8 O365, GoldG, CC3M, SBU 25.0 27.7 26.6 DDQ [32] R-50 48.5 COCO 37.6 41.6 40.4 EfficientDet [33] EfficientNet-b3 12.0 COCO 41.7 46.9 45.0 VitDet [34] ViT-B 108.1 COCO 41.5 47.0 44.4 CO-DETR [35] Swin-L 235.2 Objects365, COCO 40.0 43.7 42.8 YOLOv10 [36] YOLOv10-x 29.5 COCO 41.2 46.3 45.0 FDDet (ours) RTMDet-x 94.8 COCO 42.2 49.0 46.0
+
+TABLE III: Component Analysis. BM, SSL, and CGPC de-note BBoxMixUp, semi-supervised learning, and Consistency-Guided Pseudo-Label Calibration, respectively.                    
+
+> BM SSL CGPC mAP 50 :95 (%) mAP 50 (%) mAP 75 (%)
+> 40.0 45.6 43.7
+> ✓41.4 47.9 44.7
+> ✓✓41.7 48.3 45.2
+> ✓✓✓42.2 49.0 46.0
+
+in Figure 3). Therefore, we proposed the CGPC (Consistency-Guided Pseudo-Label Calibration) strategy to identify the correct pseudo-labels after initial pseudo-labels filtering. The core idea of CGPC lies in refining and calibrating the initial pseudo-labels generated by the teacher model by enforcing ”consistency” across multiple dimensions and levels. Here, ”consistency” is reflected in the following three aspects: 
+
+Context-Semantic Consistency. Since we collect data through web retrieval, in most cases, food instances within the same image belong to the same food category—for example, both fresh and spoiled apples are apples. Therefore, different pseudo-labels within the same image should align at the high-level semantic level of food category. To achieve this consistency, we adopted a straightforward method: we first identify the most frequently occurring food category among all pseudo-labels in a single image, then replace the food category of all pseudo-labels with this most frequent one. 
+
+Visual-Semantic Consistency. Visually similar regions likely belong to the same category. CGPC extracts region fea-tures using a pre-trained visual backbone (e.g., RegNet [37]) and computes pairwise similarities. For each pseudo-label, regions with similarity above a threshold are identified as peers, and the pseudo-label is replaced by the most frequent one among them. 
+
+Spatial Consistency. For bounding boxes with high spatial overlap, they are highly likely to point to the same ob-ject instance, so their pseudo-labels should be unified. After pseudo-label correction based on context-semantic or visual-semantic consistency, some regions may still have multiple pseudo-labels of the same category. To address this, CGPC employs an IOU-based method similar to NMS after each of the two correction processes to remove duplicate pseudo-labels, eliminating redundant detections in space. IV. E XPERIMENT 
+
+A. Experiment Settings 
+
+We selected some state-of-the-art models for general object detection as baselines. These models were first initialized with pre-trained weights then fine-tuned on the FDD-48 training set, and their performance was evaluated on the test set. Model per-formance was evaluated using mean Average Precision (mAP). We report mAP@0.5, mAP@0.75, and mAP@0.5:0.95. 
+
+B. Results on FDD-48 
+
+On the FDD-48 dataset, our FDDet achieves new state-of-the-art performance with 42.2% mAP 50:95 , 49.0% mAP 50 ,and 46.0% mAP 75 . This surpasses prior top scores by 0.5%, 2.0%, and 1.0% in mAP 50:95 , mAP 50 , and mAP 75 respectively. Furthermore, FDDet substantially outperforms its baseline RTMDet by 2.2%, 3.4%, and 2.3% in mAP 50:95 , mAP 50 ,and mAP 75 respectively, highlighting its superiority and the effectiveness of our proposed modifications. 
+
+C. Component Analysis. 
+
+Results shown in the Table III demonstrate the in-cremental benefits on FDD-48 test set of each compo-nent proposed in this paper. BBoxMixUp (BM) alone improved mAP 50:95 /mAP 50 /mAP 75 by +1.4%/+2.3%/+1.0% over the baseline (i.e. RTMDet). Adding semi-supervised learning (SSL) to BM further yielded +0.3%/+0.4%/+0.5% gains. Finally, Consistency-Guided Pseudo-Label Calibration (CGPC) built upon BM+SSL, contributing an additional +0.5%/+0.7%/+0.8%, leading to the full model’s 42.2% mAP 50:95 , 49.0% mAP 50 and 46.0% mAP 75 .V. C ONCLUSION 
+
+This paper introduces FDD-48, a fine-grained food de-fect detection benchmark with diverse real-world scenarios, and proposes FDDet, a semi-supervised framework inte-grating BBoxMixUp for localized augmentation and CGPC for consistency-guided pseudo-label calibration. Experiments demonstrate FDDet achieves state-of-the-art performance on FDD-48, validating the effectiveness of our approach for food defect detection under limited annotation. REFERENCES [1] Cong Kai Yee, Ying Heng Yeo, Lai Hoong Cheng, and Kin Sam Yen, “Impurities detection in edible bird’s nest using optical segmentation and image fusion,” Machine Vision and Applications , vol. 31, no. 7, pp. 68, 2020. [2] Yan Chen, Ke Feng, Jianjian Lu, and Zhigang Hu, “Machine vision on the positioning accuracy evaluation of poultry viscera in the automatic evisceration robot system,” International Journal of Food Properties ,vol. 24, no. 1, pp. 933–943, 2021. [3] Krishna Kumar Patel, A Kar, and MA Khan, “Monochrome computer vision for detecting common external defects of mango,” Journal of Food Science and Technology , pp. 1–8, 2021. [4] Hailiang Zhang, Ying Chen, Xuemei Liu, Yifeng Huang, Baishao Zhan, and Wei Luo, “Identification of common skin defects and classification of early decayed citrus using hyperspectral imaging technique,” Food Analytical Methods , vol. 14, no. 6, pp. 1176–1193, 2021. [5] Nawaporn Thanasarn, Supapan Chaiprapat, Kriangkrai Waiyakan, and Kunlapat Thongkaew, “Automated discrimination of deveined shrimps based on grayscale image parameters,” Journal of Food Process Engineering , vol. 42, no. 4, pp. e13041, 2019. [6] Dipankar Mandal, Arpitam Chatterjee, and Bipan Tudu, “A color channel based on multiple random forest coupled with a computer vision technique for the detection and prediction of sudan dye-i adulteration in turmeric powder,” Color Research & Application , vol. 47, no. 2, pp. 388–400, 2022. [7] Anuja Bhargava, Atul Bansal, Vishal Goyal, and Aasheesh Shukla, “Ma-chine learning & computer vision-based optimum black tea fermentation detection,” Multimedia Tools and Applications , vol. 82, no. 28, pp. 43335–43347, 2023. [8] Longsheng Fu, Yali Feng, Jingzhu Wu, Zhihao Liu, Fangfang Gao, Yaqoob Majeed, Ahmad Al-Mallahi, Qin Zhang, Rui Li, and Yongjie Cui, “Fast and accurate detection of kiwifruit in orchard using improved yolov3-tiny model,” Precision Agriculture , vol. 22, pp. 754–776, 2021. [9] KD Mohana Sundaram, T Shankar, and N Sudhakar Reddy, “A novel fuzzy pooling based modified thinnet architecture for lemon fruit classification,” Journal of Intelligent & Fuzzy Systems , vol. 43, no. 5, pp. 6877–6891, 2022. [10] Siwei Chen, Dan Dai, Jian Zheng, Haoyu Kang, Dongdong Wang, Xinyu Zheng, Xiaobo Gu, Jiali Mo, and Zhuohui Luo, “Intelligent grading method for walnut kernels based on deep learning and physiological indicators,” Frontiers in Nutrition , vol. 9, pp. 1075781, 2023. [11] Xiaoyao Yang, Wenyang Zhao, Yong Wang, Wei Qi Yan, and Yanqiang Li, “Lightweight and efficient deep learning models for fruit detection in orchards,” Scientific Reports , vol. 14, no. 1, pp. 26086, 2024. [12] Vishal Meshram and Kailas Patil, “Fruitnet: Indian fruits image dataset with quality for machine learning applications,” Data in Brief , vol. 40, pp. 107686, 2022. [13] Renzo Pacheco., Paula Gonz´ alez., Luis Chuquimarca., Boris Vintimilla., and Sergio Velastin., “Fruit defect detection using cnn models with real and virtual data,” in Proceedings of the 18th International Joint Conference on Computer Vision, Imaging and Computer Graphics Theory and Applications - Volume 4: VISAPP, (VISIGRAPP 2023) .INSTICC, 2023, pp. 272–279, SciTePress. [14] Oguzhan Ulucan, Diclehan Karakaya, and Mehmet Turkan, “Meat quality assessment based on deep learning,” in 2019 Innovations in Intelligent Systems and Applications Conference (ASYU) . Ieee, 2019, pp. 1–5. [15] Ali Arshaghi, Mohsen Ashourian, and Leila Ghabeli, “Potato diseases detection and classification using deep learning methods,” Multimedia Tools and Applications , vol. 82, no. 4, pp. 5725–5742, 2023. [16] Qunmasj Vision Studio, “fmaaa307,” GitHub, 2024. [17] Yang Zou, Jongheon Jeong, Latha Pemula, Dongqing Zhang, and Onkar Dabeer, “Spot-the-difference self-supervised pre-training for anomaly detection and segmentation,” in European Conference on Computer Vision . Springer, 2022, pp. 392–408. [18] Hongyi Zhang, “mixup: Beyond empirical risk minimization,” arXiv preprint arXiv:1710.09412 , 2017. [19] Sangdoo Yun, Dongyoon Han, Seong Joon Oh, Sanghyuk Chun, Junsuk Choe, and Youngjoon Yoo, “Cutmix: Regularization strategy to train strong classifiers with localizable features,” in Proceedings of the IEEE/CVF international conference on computer vision , 2019, pp. 6023– 6032. [20] Dan Hendrycks, Norman Mu, Ekin D Cubuk, Barret Zoph, Justin Gilmer, and Balaji Lakshminarayanan, “Augmix: A simple data pro-cessing method to improve robustness and uncertainty,” arXiv preprint arXiv:1912.02781 , 2019. [21] Dan Hendrycks, Andy Zou, Mantas Mazeika, Leonard Tang, Bo Li, Dawn Song, and Jacob Steinhardt, “Pixmix: Dreamlike pictures com-prehensively improve safety measures,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 2022, pp. 16783–16792. [22] Zhenglin Huang, Xiaoan Bao, Na Zhang, Qingqi Zhang, Xiao Tu, Biao Wu, and Xi Yang, “Ipmix: Label-preserving data augmentation method for training robust classifiers,” Advances in Neural Information Processing Systems , vol. 36, pp. 63660–63673, 2023. [23] Yen-Cheng Liu, Chih-Yao Ma, Zijian He, Chia-Wen Kuo, Kan Chen, Peizhao Zhang, Bichen Wu, Zsolt Kira, and Peter Vajda, “Unbi-ased teacher for semi-supervised object detection,” arXiv preprint arXiv:2102.09480 , 2021. [24] Yuan Yao, Tianyu Yu, Ao Zhang, Chongyi Wang, Junbo Cui, Hongji Zhu, Tianchi Cai, Haoyu Li, Weilin Zhao, Zhihui He, et al., “Minicpm-v: A gpt-4v level mllm on your phone,” arXiv preprint arXiv:2408.01800 ,2024. [25] Maxime Oquab, Timoth´ ee Darcet, Th´ eo Moutakanni, Huy Vo, Marc Szafraniec, Vasil Khalidov, Pierre Fernandez, Daniel Haziza, Francisco Massa, Alaaeldin El-Nouby, et al., “Dinov2: Learning robust visual features without supervision,” arXiv preprint arXiv:2304.07193 , 2023. [26] Tianheng Cheng, Lin Song, Yixiao Ge, Wenyu Liu, Xinggang Wang, and Ying Shan, “Yolo-world: Real-time open-vocabulary object detection,” in Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 2024, pp. 16901–16911. [27] Zheng Ge, Songtao Liu, Feng Wang, Zeming Li, and Jian Sun, “Yolox: Exceeding yolo series in 2021,” arXiv preprint arXiv:2107.08430 , 2021. [28] Chengqi Lyu, Wenwei Zhang, Haian Huang, Yue Zhou, Yudong Wang, Yanyi Liu, Shilong Zhang, and Kai Chen, “Rtmdet: An empiri-cal study of designing real-time object detectors,” arXiv preprint arXiv:2212.07784 , 2022. [29] Shilong Liu, Feng Li, Hao Zhang, Xiao Yang, Xianbiao Qi, Hang Su, Jun Zhu, and Lei Zhang, “Dab-detr: Dynamic anchor boxes are better queries for detr,” in International Conference on Learning Representations .[30] Hao Zhang, Feng Li, Shilong Liu, Lei Zhang, Hang Su, Jun Zhu, Lionel Ni, and Heung-Yeung Shum, “Dino: Detr with improved denoising anchor boxes for end-to-end object detection,” in The Eleventh International Conference on Learning Representations .[31] Liunian Harold Li, Pengchuan Zhang, Haotian Zhang, Jianwei Yang, Chunyuan Li, Yiwu Zhong, Lijuan Wang, Lu Yuan, Lei Zhang, Jenq-Neng Hwang, et al., “Grounded language-image pre-training,” in 
+
+Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , 2022, pp. 10965–10975. [32] Shilong Zhang, Xinjiang Wang, Jiaqi Wang, Jiangmiao Pang, Chengqi Lyu, Wenwei Zhang, Ping Luo, and Kai Chen, “Dense distinct query for end-to-end object detection,” in Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , 2023, pp. 7329– 7338. [33] Mingxing Tan, Ruoming Pang, and Quoc V Le, “Efficientdet: Scalable and efficient object detection,” in Proceedings of the IEEE/CVF con-ference on computer vision and pattern recognition , 2020, pp. 10781– 10790. [34] Yanghao Li, Hanzi Mao, Ross Girshick, and Kaiming He, “Exploring plain vision transformer backbones for object detection,” in European conference on computer vision . Springer, 2022, pp. 280–296. [35] Z Zong, G Song, and Y Liu, “Detrs with collaborative hybrid assign-ments training. arxiv 2022,” arXiv preprint arXiv:2211.12860 , 2022. [36] Ao Wang, Hui Chen, Lihao Liu, Kai Chen, Zijia Lin, Jungong Han, et al., “Yolov10: Real-time end-to-end object detection,” Advances in Neural Information Processing Systems , vol. 37, pp. 107984–108011, 2024. [37] Ilija Radosavovic, Raj Prateek Kosaraju, Ross Girshick, Kaiming He, and Piotr Doll´ ar, “Designing network design spaces,” in Proceedings of the IEEE/CVF conference on computer vision and pattern recognition ,2020, pp. 10428–10436. Fig. 4: More sample images from FDD-48, demonstrating the diversity of food types and defect categories. APPENDIX 
+
+We provide additional sample images from FDD-48 to illustrate the diversity of food types and defect appearances in our dataset. As shown in fig. 4, the dataset covers a wide range of real-world food defect scenarios. To better understand the characteristics of each defect type, we present illustrative examples for individual defect cate-gories in fig. 5. Each example highlights the visual appearance and distinguishing features of the corresponding defect. normal 
+
+apple 
+
+apple 
+
+russeting 
+
+apple with 
+
+insect damge 
+
+apple 
+
+with scar 
+
+spoiled 
+
+apple 
+
+normal 
+
+apricot 
+
+apricot with 
+
+insect damge 
+
+cracked 
+
+apple 
+
+spoiled 
+
+apricot 
+
+normal 
+
+cherry 
+
+cracked 
+
+cherry 
+
+cherry 
+
+with scar 
+
+cherry with 
+
+insect damge 
+
+spoiled 
+
+cherry 
+
+normal 
+
+orange 
+
+cracked 
+
+orange 
+
+orange 
+
+with scar 
+
+spoiled 
+
+orange 
+
+normal 
+
+mango 
+
+cracked 
+
+mango 
+
+spoiled 
+
+mango 
+
+normal 
+
+peach 
+
+cracked 
+
+peach 
+
+peach with 
+
+insect damge 
+
+spoiled 
+
+peach 
+
+normal 
+
+lychee 
+
+cracked 
+
+lychee 
+
+spoiled 
+
+lychee 
+
+normal 
+
+banana 
+
+cracked 
+
+banana 
+
+spoiled 
+
+banana 
+
+normal 
+
+cantaloupe 
+
+spoiled 
+
+cantaloupe 
+
+normal 
+
+watermelon 
+
+cracked 
+
+watermelon 
+
+watermelon 
+
+with scar 
+
+spoiled 
+
+watermelon 
+
+normal 
+
+strawberry 
+
+strawberry 
+
+with 
+
+insect damge 
+
+spoiled 
+
+strawberry 
+
+normal 
+
+pear 
+
+pear with 
+
+insect damge 
+
+pear 
+
+with scar 
+
+apple 
+
+russeting 
+
+spoiled 
+
+pear 
+
+normal 
+
+plum 
+
+plum 
+
+with scar 
+
+spoiled 
+
+plum Fig. 5: Illustrative examples for each defect category in FDD-48, showing the visual characteristics of different food defects.
