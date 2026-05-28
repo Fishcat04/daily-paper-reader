@@ -1,0 +1,30 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.26383v1/fig-001.webp",
+      "caption": "Figure 3. Qualitative results. We evaluate three baseline methods (CLIP, DINOv2, SAM3) along with our methods — Multi-Model Fusion and Enhanced SAM3 Fusion method. The evaluation is presented given the same query object and Top-5 predictions. The analysis shows that 4 methods make at least 2 mistakes in the object ID assignment, while our SAM3 enhanced pipeline make all 5 correct predictions.",
+      "page": 5,
+      "index": 1,
+      "width": 672,
+      "height": 644
+    },
+    {
+      "url": "assets/figures/arxiv/2605.26383v1/fig-002.webp",
+      "caption": "Figure 2. Our 4-staged enhanced SAM3 method with feature fusion. The first stage incorporates background removal to get a foreground mask. The second stage uses a multi-model fusion of three embeddings (SAM3, DINOv2, CLIP). The Stage 3 uses cosine similarity with an IoU term. The Stage 4 applies K-reciprocal re-ranking to the fused similarity matrix.",
+      "page": 3,
+      "index": 2,
+      "width": 1036,
+      "height": 582
+    },
+    {
+      "url": "assets/figures/arxiv/2605.26383v1/fig-003.webp",
+      "caption": "Figure 1. Example of a video sequence from EPIC-KITCHENS dataset with annotated objects. The ID of the same object is preserved across all the frames.",
+      "page": 1,
+      "index": 3,
+      "width": 496,
+      "height": 279
+    }
+  ]
+}

@@ -1,0 +1,186 @@
+Title: Zero-Shot Object Re-Identification in Egocentric Kitchen Videos via Multi-Stage SAM3 Feature Fusion
+
+URL Source: https://arxiv.org/pdf/2605.26383v1
+
+Published Time: Wed, 27 May 2026 00:22:50 GMT
+
+Number of Pages: 6
+
+Markdown Content:
+# Zero-Shot Object Re-Identification in Egocentric Kitchen Videos via Multi-Stage SAM3 Feature Fusion 
+
+# Dmytro Klepachevskyi Alexander Wong Sirisha Rambhatla Yuhao Chen University of Waterloo Waterloo, Ontario, Canada 
+
+{dklepachevskyi, alexander.wong, sirisha.rambhatla, yuhao.chen1 }@uwaterloo.ca 
+
+# Abstract 
+
+Object re-identification (ReID) in egocentric kitchen videos is challenging due to rapid viewpoint changes, fre-quent occlusions, cluttered scenes, and large intra-class ap-pearance variations. Objects may leave and re-enter the field of view, and the large diversity of instances with lim-ited annotations makes supervised ReID difficult to scale, motivating zero-shot approaches. We study zero-shot ob-ject ReID on the EPIC-Kitchens benchmark, where the goal is to match active food and kitchen-tool instances across frames using only pre-trained visual features. We first evaluate five state-of-the-art feature extractors, including Vision-Language Models (VLMs) - CLIP, DINOv2, Dream-Sim, I-JEPA, and SAM3 - and show that zero-shot methods fail, with the best baseline achieving only 45.3% mAP. We then propose an Enhanced SAM3 ReID Pipeline, a zero-shot multi-stage method built around SAM3 segmentation as the core component. Stage 1 uses SAM3 to suppress background clutter. Stage 2 fuses embeddings from SAM3, DINOv2, and CLIP into a single L2-normalized descriptor. Stage 3 augments cosine similarity with mask-shape IoU for geometric consistency, and Stage 4 applies k-reciprocal re-ranking. The full pipeline improves performance by 7.5% mAP to 52.8%. 
+
+# 1. Introduction 
+
+Knowing which specific food item a person is handling -and being able to find it again later in the video - is a pre-requisite for a broad class of applications. Automated di-etary assessment systems must link the same apple or bowl of pasta across multiple frames to estimate portions and log nutrition [7, 13]. Physically-grounded 3D food recon-struction, requires matching the same food object across viewpoints before any volume estimation can occur. Fine-grained cooking activity recognition [5, 11] depends on knowing which ingredient is being cut, stirred, or plated at 
+
+Figure 1. Example of a video sequence from EPIC-KITCHENS dataset with annotated objects. The ID of the same object is pre-served across all the frames. 
+
+each moment - a question that is fundamentally one of ob-ject identity rather than category. Yet despite this shared de-pendency, object re-identification (ReID) in kitchen video has received almost no dedicated study. We address this gap. Given a query crop of a kitchen object - a bowl, a spatula, a tomato - the ReID task asks: can a system retrieve all other crops of the same physical instance across the video? We study this in the zero-shot setting on EPIC-Kitchens [4], the largest egocentric kitchen benchmark, where ground-truth bounding-box tracks define object identity but no identity-labelled training data is used. This can play a crucial role in robotics applications, where a camera-based robot should be able to retrieve and find objects given a query. Person ReID [14–17] and Vehicle ReID [1, 12] has been thoroughly studied, but generalizable object ReID in kitchen settings introduces a distinct set of challenges. First, objects are semantically diverse : a “cutting board” or a “handful of pasta” has no canonical orientation or colour, unlike a pedestrian. Second, objects experience 
+
+extreme partial occlusion as hands manipulate them, and backgrounds are cluttered with other food and surfaces. 
+
+> arXiv:2605.26383v1 [cs.CV] 25 May 2026
+
+Third, and most importantly for this work, while ground-truth bounding-box tracks are available for evaluation, no identity-labelled kitchen-object data is used for training -all models are used zero-shot. Recent advances in vision-language pre-training and self-supervised learning have produced powerful state-of-the-art visual encoders. CLIP [9] aligns visual and linguistic semantics, DINOv2 [8] learns instance-discriminative patch features, DreamSim [6] targets human perceptual similarity, I-JEPA [2] predicts latent representations, and SAM3 [10] extends Segment Anything to video with a powerful vision-language backbone. Each encoder captures a different facet of visual appearance, motivating ensemble strategies. In this paper we make three contributions: 1. We establish the first systematic zero-shot ReID bench-mark on EPIC-Kitchens (Figure 1), evaluating six state-of-the-art encoders under a unified protocol (§3). 2. We design and ablate a four-stage Enhanced SAM3 pipeline (Figure 2) (background removal, multi-model fusion, mask-IoU reweighting, k-reciprocal re-ranking), which achieves mAP of 0.528, which leads to an im-provement of 7.5%. 3. Guided by the ablation, we also propose a lightweight 
+
+Multi-Model Fusion baseline that achieves mAP of 0.460 - a 0.7% relative improvement over the best other single encoder baseline - using only L2-normalised fea-ture concatenation on unmodified crops (§3). Our findings have a clear practical message: a complex segmentation-based preprocessing pipeline shows signifi-cant improvements in zero-shot egocentric ReID, and di-verse feature ensembles on natural crops set up strong base-line results. 
+
+# 2. Methodology 
+
+2.1. Method Motivation 
+
+Standard multi-object trackers handle short-term occlusion well but break down across long temporal gaps, exactly the scenario that arises when a pot is moved off-screen or an ingredient is set aside and retrieved later. Closing this gap requires a retrieval-based approach: given a crop of an ob-ject at one moment in time, find all other crops of the same object in a large gallery, regardless of when or how they appear. Our work addresses this gap in a zero-shot setting, with-out any fine-tuning on kitchen data. This choice is deliber-ate: annotated identity tracks in egocentric kitchen video [5] are scarce and expensive to produce, so a practical sys-tem must generalize from large-scale pre-trained represen-tations. We systematically evaluate which state-of-the-art visual encoders transfer best to this domain, and we de-sign a post-processing pipeline that squeezes additional per-formance from these frozen features through background suppression, complementary fusion, and graph-based re-ranking. 
+
+2.2. Problem Formulation 
+
+Given a video with N ground-truth bounding-box crops 
+
+X = {xi}Ni=1 , each assigned a track identity yi ∈{1, . . . , K }, we split X into a gallery set G (75%) and a query set Q (25%) by stratified random sampling. For each query q ∈ Q we rank all gallery items g ∈ G by similarity and evaluate with mAP and Top-k metrics. All methods are 
+
+zero-shot : no identity labels are used at any stage. 
+
+2.3. Single-Model Baselines 
+
+We extract a fixed-size embedding ϕ(x) ∈ Rd from each crop using six encoders, all used off-the-shelf with no fine-tuning. The encoders span a broad design space, from language-supervised to purely self-supervised models, and from general-purpose to task-specific backbones. We begin with CLIP ViT-B/32 [9], which encodes each crop with the visual branch of a vision-language model pre-trained on 400M image-text pairs, producing a CLS-token embedding of dimension d = 512 . As a purely self-supervised alternative we evaluate DINOv2 ViT-B/14 [8], trained with knowledge distillation on a curated 142M-image corpus ( d = 768 ), and its successor DINOv3 ViT-B/16 , which extends the same recipe to a larger and more diverse pre-training set. A qualitatively different signal comes from DreamSim [6], a perceptual similarity model that combines CLIP, DINO, and OpenCLIP embeddings via a learned MLP head trained on human triplet judgements, making it sensitive to the kind of holistic appearance dif-ferences that matter to human observers. We also include 
+
+I-JEPA ViT-H [2], which learns by predicting latent patch representations from masked context regions without any pixel-level reconstruction; features are obtained by mean-pooling patch tokens ( d = 1280 ). Finally, SAM3 ViT-H [10] is the vision backbone of the Segment Anything 3 model, pre-trained on large-scale video data; we extract vi-sion features and apply global average pooling ( d = 256 ). For all encoders, gallery items are ranked by cosine similar-ity to the query embedding. 
+
+2.4. Enhanced SAM3 Pipeline 
+
+Error analysis of the single-model baselines reveals three recurring failure reasons: cluttered backgrounds that make embeddings noisy with irrelevant texture, the limited cov-erage of any individual pre-trained model, and cosine sim-ilarity scores that ignore the geometric shape of the object. No single encoder addresses all three simultaneously, which motivates a pipeline that tackles each failure reason. Build-ing on these observations, we propose a four-stage pipeline that combines background suppression, multi-model fea-ture fusion, geometry-aware scoring, and graph-based re-Figure 2. Our 4-staged enhanced SAM3 method with feature fusion. The first stage incorporates background removal to get a foreground mask. The second stage uses a multi-model fusion of three embeddings (SAM3, DINOv2, CLIP). The Stage 3 uses cosine similarity with an IoU term. The Stage 4 applies K-reciprocal re-ranking to the fused similarity matrix. 
+
+ranking. Each stage targets a distinct source of error in zero-shot kitchen ReID, and together they form a modular system whose components can be used independently, as confirmed by our ablation study (Table 2). The first stage addresses the fact that kitchen crops often contain cluttered backgrounds — counter-tops, appliances, and hands — that introduce spurious texture signals into the embedding. For each crop, we invoke the SAM3 [10] segmentor with a prompt box covering the full crop extent (normalised to [0 , 1] ) to obtain a binary foreground mask 
+
+mi ∈ { 0, 1}H×W . The background pixels are zeroed out before any feature is extracted, so the encoder focuses ex-clusively on the object of interest. In the second stage we compensate for the limited cover-age of any single pre-trained model by fusing three comple-mentary encoders. L2-normalised embeddings from SAM3 ViT-H, DINOv2 ViT-L/14, and CLIP ViT-L/14 are concate-nated along the feature dimension and re-normalised to unit length, yielding a single fused descriptor: 
+
+Φi = ℓ2
+
+ [ ℓ2(ϕSAM3  
+
+> i
+
+) ∥ ℓ2(ϕDINOv2  
+
+> i
+
+) ∥ ℓ2(ϕCLIP  
+
+> i
+
+) ]  . (1) SAM3 provides instance-level spatial detail, DINOv2 con-tributes robust semantic structure, and CLIP supplies open-vocabulary object-class information, making the three en-coders largely complementary. The third stage enriches the pairwise similarity score with a geometric signal derived from the foreground masks produced in Stage 1, using the fused descriptor Φi from Eq. 1. Pure cosine similarity treats two crops as equally similar regardless of whether their object silhouettes agree. We replace it with a weighted combination: 
+
+sij = α cos(Φ i, Φj ) + β IoU (mi, m j ), (2) where the IoU term rewards pairs whose foreground shapes overlap well and penalises matches that are visually similar in texture but geometrically inconsistent. We set α = 0 .7
+
+and β = 0 .3 throughout all experiments. The fourth and final stage applies k-reciprocal re-ranking [18] to the full pairwise similarity matrix defined by Eq. 2. Re-ranking exploits the mutual-neighbour struc-ture of the gallery: two items are up-weighted if they appear in each other’s top-k neighbour lists, which is a strong indi-cator of a true match. We use the hyperparameters k1 = 20 ,
+
+k2 = 6 , and λ = 0 .3, following standard practice in person ReID literature. 
+
+2.5. Multi-Model Fusion on Natural Crops 
+
+Motivated by the ablation, we propose another simple pipeline for results improvement: fuse complementary en-coders directly on the original, unmodified crop . Given fea-ture parts {ϕm(x)}Mm=1 from M encoders, we compute: 
+
+Φ( x) = ℓ2([ ℓ2(ϕ1(x)) ∥ · · · ∥ ℓ2(ϕM (x)) ]) , (3) where ∥ denotes concatenation and ℓ2 denotes row-wise L2 normalisation. We evaluate all subsets of {DINOv2, DreamSim, CLIP ViT-L/14 } and additionally test Average Query Expansion (AQE, [3]) with k = 10 : each query is re-placed by the mean of itself and its top-k gallery neighbours before final ranking. 
+
+# 3. Experiments 
+
+In this section, we provide both qualitative and quantita-tive results of our experiments. Qualitatively, we compare how different baseline models track an object ID in a video sequence. We provide qualitative results for 3 best base-line models (CLIP, DINOv2, SAM3) and for two proposed methods by our study — Enhanced SAM3 pipeline and a Multi-Model Fusion method. 
+
+3.1. Dataset 
+
+We evaluate our pipeline on 10 mostly overcrowded with objects video sequences from the EPIC-KITCHENS[4] dataset (Figure 1). Ground-truth bounding-box tracks from the MOT-format annotations define object identities. Crops smaller than 32 px in either dimension are discarded. A5% padding is applied around each bounding box before cropping. The 75%/25% gallery/query split is fixed for all experiments. 
+
+3.2. Metrics 
+
+For each query crop, all gallery items are ranked by cosine similarity to the query embedding. We report two comple-mentary metrics: Mean Average Precision (mAP) measures the quality of the full ranking. For a query q with R relevant items in the gallery, Average Precision is defined as: 
+
+AP( q) = 1
+
+R
+
+> N
+
+X
+
+> k=1
+
+P (k) · rel( k), (4) where N is the gallery size, P (k) is the precision at cut-off 
+
+k, and rel( k) ∈ { 0, 1} indicates whether the item ranked at position k is a true match. mAP averages AP over all Q
+
+queries: 
+
+mAP = 1
+
+Q
+
+> Q
+
+X
+
+> q=1
+
+AP( q). (5) mAP is the area under the Precision-Recall curve, reward-ing systems that place all true matches at the top of the ranked list. Unlike Top-K, mAP penalises false positives anywhere in the ranking, making it the primary metric for retrieval evaluation. Cumulative Matching Characteristic (CMC) at Top-1, Top-3, and Top-5 measures recall: the fraction of queries for which at least one true match appears within the top K
+
+retrieved results. The two metrics capture different failure modes: a sys-tem can achieve high Top-1 by consistently finding one easy match, while mAP exposes whether it retrieves all instances of an identity. We use both to provide a complete picture of retrieval performance. 
+
+3.3. Single-Model Baseline Results 
+
+Table 1 summarises all single-model baselines on 10 mostly overcrowded sequences. DreamSim achieves the best mAP (0.453) and Top-1 (85.2%). I-JEPA attains the third-highest Top-1 (81.7%) despite weaker mAP, suggesting it is good at nearest-neighbour retrieval but less precise at ranking mul-tiple positives. SAM3, having a powerful backbone, ranks second after DreamSim; its features which are optimised for segmentation work fine for instance discrimination as well. DINOv3, evaluated on ten sequences, performs poorly (mAP of 0.110), suggesting that its larger pre-training dis-tribution does not transfer well to close-range kitchen ob-jects without fine-tuning. 
+
+> Table 1. Single-model zero-shot ReID in comparison to our En-hanced SAM3 method on EPIC-Kitchens dataset.
+
+Model mAP Top-1 Top-3 Top-5 CLIP ViT-B/32 0.355 0.773 0.889 0.926 DINOv2 ViT-B/14 0.416 0.774 0.903 0.939 DINOv3 ViT-B/16 0.110 0.742 0.891 0.929 I-JEPA ViT-H 0.321 0.817 0.913 0.942 SAM3 ViT-H 0.451 0.872 0.946 0.955 
+
+DreamSim 0.453 0.852 0.942 0.954 Ours Enhanced SAM3 0.528 0.893 0.907 0.955 
+
+3.4. Enhanced SAM3 pipeline 
+
+The full pipeline (all stages enabled) achieves mAP of 0.528 (Table 1) and Top-1 of 0.893 - which gives an improvement of 7.5% of mAP metric, and 2.1% of Top-1 metric over the best single-model baseline (DreamSim). Qualitative analy-sis (Figure 3) reveals that for given queries, the developed enhanced SAM3 Feature Fusion method significantly im-proves the results, where it manages to achieve all 5 correct retrievals, whereas the other methods fail at least 2 times. 
+
+3.5. Ablation Study 
+
+Table 2 shows the full ablation of the four-stage Enhanced SAM3 pipeline (shown in Figure 2). We quantitatively con-firm that removal of the feature fusion part hurts the most Figure 3. Qualitative results. We evaluate three baseline methods (CLIP, DINOv2, SAM3) along with our methods — Multi-Model Fusion and Enhanced SAM3 Fusion method. The evaluation is presented given the same query object and Top-5 predictions. The analysis shows that 4 methods make at least 2 mistakes in the object ID assignment, while our SAM3 enhanced pipeline make all 5 correct predictions. 
+
+(5.5% drop of mAP), whereas removal of every single com-ponent hurts the performance, which proves that all 4 stages overall improve the performance.    
+
+> Table 2. Enhanced SAM3 pipeline ablation on EPIC-Kitchens dataset. Each row disables one stage; ✓= enabled.
+
+BG Fusion MaskIoU Rerank mAP Top-1 Top-3 
+
+✓ ✓ ✓ ✓ 0.528 0.893 0.907 
+
+✓ ✓ ✓ 0.501 0.842 0.863 
+
+✓ ✓ ✓ 0.473 0.827 0.849 
+
+✓ ✓ ✓ 0.511 0.884 0.897 
+
+✓ ✓ ✓ 0.498 0.835 0.862 
+
+3.6. Multi-Model Fusion Results 
+
+Table 3 reports fusion experiments on ten sequences from EPIC-Kitchens dataset. All runs use natural, unmodi-fied crops. DINOv2 +DreamSim already outperforms ev-ery single baseline encoder (mAP of 0.455). Adding CLIP provides a marginal further gain in mAP (0.458) with no significant Top-1 change. Average Query Ex-pansion (AQE, k = 10 ) improves mAP slightly (0.460 with 3-way fusion) but reduces Top-1 (0.801 vs. 0.825), as expanded queries become less discriminative in the small gallery setting. The best balanced operating point is DINOv2 +DreamSim +CLIP without AQE: mAP 0.458, Top-1 82.5%. 
+
+> Table 3. Multi-model fusion on ten sequences of EPIC-Kitchens dataset. All encoders run on original crops.
+
+Models QE mAP Top-1 Top-3 DreamSim 0.433 0.822 0.932 DINOv2 +DreamSim 0.455 0.820 0.934 DINOv2 +DreamSim +CLIP 0.458 0.825 0.936 
+
+DINOv2 +DreamSim 10 0.447 0.789 0.879 DINOv2 +DreamSim +CLIP 10 0.460 0.801 0.877 
+
+3.7. Conclusion 
+
+We presented a study of zero-shot object re-identification in egocentric kitchen videos on EPIC-Kitchens. Across six state-of-the-art encoders, DreamSim and SAM3 emerge as the strongest single-model baselines (mAP ≈0.45), while encoders with larger pre-training corpora (DINOv3) do not necessarily transfer better to close-range kitchen ob-jects. Our four-stage Enhanced SAM3 pipeline - back-ground removal, multi-model embedding fusion, mask-IoU reweighting, and k-reciprocal re-ranking - achieves mAP 0.528, a relative gain of 7.5% over the best sin-gle encoder. A lightweight Multi-Model Fusion baseline (DINOv2 +DreamSim +CLIP) reaches mAP 0.458, which runs 5x times faster in wall-clock time per each query than the SAM3 enhanced method. Ablations confirm that each stage contributes independently. These results es-tablish strong zero-shot baselines for kitchen-object ReID and highlight that background removal, complementary feature ensembling, and geometric re-ranking are bene-ficial stages for future work in egocentric instance re-trieval. 
+
+# References 
+
+[1] Ali Amiri, Aydin Kaya, and Ali Seydi Keceli. A comprehen-sive survey on deep-learning-based vehicle re-identification: Models, data sets and challenges, 2024. 1 [2] Mahmoud Assran, Quentin Duval, Ishan Misra, Piotr Bo-janowski, Pascal Vincent, Michael Rabbat, Yann LeCun, and Nicolas Ballas. Self-supervised learning from images with a joint-embedding predictive architecture. In CVPR , 2023. 2 [3] Ondrej Chum, James Philbin, Josef Sivic, Michael Isard, and Andrew Zisserman. Total recall: Automatic query expansion with a generative feature model for object retrieval. In ICCV ,2007. 4 [4] Dima Damen, Hazel Doughty, Giovanni Maria Farinella, Sanja Fidler, Antonino Furnari, Evangelos Kazakos, Da-vide Moltisanti, Jonathan Munro, Toby Perrett, Will Price, and Michael Wray. Scaling egocentric vision: The EPIC-Kitchens dataset. In ECCV , 2018. 1, 4 [5] Dima Damen, Hazel Doughty, Giovanni Maria Farinella, Antonino Furnari, Evangelos Kazakos, Jian Ma, Davide Moltisanti, Jonathan Munro, Toby Perrett, Will Price, and Michael Wray. Rescaling egocentric vision: Collection, pipeline and challenges for EPIC-KITCHENS-100. IJCV ,130(1):33–55, 2022. 1, 2 [6] Stephanie Fu, Netanel Tamir, Shobhita Sundaram, Lucy Chai, Richard Zhang, Tali Dekel, and Phillip Isola. Dream-Sim: Learning new dimensions of human visual similarity using synthetic data. In NeurIPS , 2023. 2 [7] Wenyan Jia, Yuecheng Li, Ruowei Qu, Thomas Baranowski, Lora E. Burke, Hong Zhang, Yicheng Bai, Juliet M. Man-cino, Guizhi Xu, Zhi-Hong Mao, and Mingui Sun. Auto-matic food detection in egocentric images using artificial in-telligence technology. Public Health Nutrition , 22(7):1168– 1177, 2019. 1 [8] Maxime Oquab, Timoth´ ee Darcet, Th´ eo Moutakanni, Huy V. Vo, Marc Szafraniec, Vasil Khalidov, Pierre Fernandez, Daniel Haziza, Francisco Massa, Alaaeldin El-Nouby, Mah-moud Assran, Nicolas Ballas, Wojciech Galuba, Russell Howes, Po-Yao Huang, Shang-Wen Li, Ishan Misra, Michael Rabbat, Vasu Sharma, Gabriel Synnaeve, Hu Xu, Herv´ eJ´ egou, Julien Mairal, Patrick Labatut, Armand Joulin, and Piotr Bojanowski. DINOv2: Learning robust visual features without supervision. Trans. Mach. Learn. Res. , 2024. 2 [9] Alec Radford, Jong Wook Kim, Chris Hallacy, Aditya Ramesh, Gabriel Goh, Sandhini Agarwal, Girish Sastry, Amanda Askell, Pamela Mishkin, Jack Clark, Gretchen Krueger, and Ilya Sutskever. Learning transferable visual models from natural language supervision. In Int. Conf. Mach. Learn. , 2021. 2 [10] Nikhila Ravi, Valentin Gabeur, Yuan-Ting Hu, Ronghang Hu, Chaitanya Ryali, Tengyu Ma, Haitham Khedr, Roman R¨ adle, Chloe Rolland, Laura Gustafson, Eric Mintun, Junt-ing Pan, Kalyan Vasudev Alwala, Nicolas Carion, Chao-Yuan Wu, Ross Girshick, Piotr Doll´ ar, and Christoph Feicht-enhofer. SAM 3: Segment anything in images and videos. 
+
+arXiv preprint arXiv:2511.16719 , 2025. 2, 3 [11] Marcus Rohrbach, Sikandar Amin, Mykhaylo Andriluka, and Bernt Schiele. A database for fine grained activity detec-tion of cooking activities. In CVPR , pages 1194–1201, 2012. 1[12] Fei Shen, Xiaoyu Du, Liyan Zhang, Xiangbo Shu, and Jinhui Tang. Triplet contrastive representation learning for unsuper-vised vehicle re-identification, 2023. 1 [13] Quin Thames, Arjun Karpur, Wade Norris, Fangting Xia, Liviu Panait, Tobias Weyand, and Jack Sim. Nutrition5k: To-wards automatic nutritional understanding of generic food. In CVPR , pages 8903–8911, 2021. 1 [14] Changshuo Wang, Xingyu Gao, Meiqing Wu, Siew-Kei Lam, Shuting He, and Prayag Tiwari. Looking clearer with text: A hierarchical context blending network for occluded person re-identification. IEEE Transactions on Information Forensics and Security , 20:4296–4307, 2025. 1 [15] Haoxuan Xu, Bo Li, and Guanglin Niu. Identity-aware feature decoupling learning for clothing-change person re-identification, 2025. [16] Bin Yang, Jun Chen, and Mang Ye. Shallow-deep collab-orative learning for unsupervised visible-infrared person re-identification. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pages 16870–16879, 2024. [17] Ruiheng Zhang, Zhe Cao, Yan Huang, Shuo Yang, Lixin Xu, and Min Xu. Visible-infrared person re-identification with real-world label noise. IEEE Transactions on Circuits and Systems for Video Technology , 35(5):4857–4869, 2025. 1 [18] Zhun Zhong, Liang Zheng, Donglin Cao, and Shaozi Li. Re-ranking person re-identification with k-reciprocal encoding. In CVPR , 2017. 3

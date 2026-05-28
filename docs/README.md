@@ -6,40 +6,41 @@
 </div>
 
 ## 每次日报
-- 最新运行日期：2026-05-27
-- 运行时间：2026-05-27 21:43:33 UTC
+- 最新运行日期：2026-05-28
+- 运行时间：2026-05-28 21:34:34 UTC
 - 运行状态：成功
 - 本次总论文数：6
-- 精读区：2
-- 速读区：4
+- 精读区：1
+- 速读区：5
 
 ### 今日简报（AI）
-今日深度复盘 6 篇视觉检测前沿，涵盖工业回收、航空遥感及食品缺陷等实战场景。
-满分论文推出的工业回收小目标数据集与 DisDop 开放词汇航空检测框架最值得关注。
-推荐优先查阅工业回收数据集的 YOLO 评测，为处理复杂背景下的小目标检测提供实战参考。
-- 详情：[/202605/27/README](/202605/27/README)
+- 今日共生成 6 篇推荐（精读 1 篇，速读 5 篇）
+- 精读：《Hierarchical Consistency Learning for Test-time Adaptation in Camouflage Perception》（8.0/10）
+- 速读：《Semantics-Guided Multimodal Masked Autoencoder Pretraining for 3D BEV Object Detection》（6.0/10）, 《Zero-Shot Object Re-Identification in Egocentric Kitchen Videos via Multi-Stage SAM3 Feature Fusion》（6.0/10）, 《LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding》（6.0/10）
+- 这些结果覆盖了当下较热的方向，建议先看精读区论文的关键问题与方法。
+- 详情：[/202605/28/README](/202605/28/README)
 
 ### 精读区论文标签
-1. [Small Object Detection in Industrial Recycling: A New Dataset and YOLO Performance Evaluation](/202605/27/2605.26884v1-small-object-detection-in-industrial-recycling-a-new-dataset-and-yolo-performance-evaluation)  
-   标签：评分：10.0/10、query:sod
-   evidence：在包含1万张图像和12万个实例的新数据集上进行小目标检测基准测试
-2. [DisDop: Distillation with Domain Priors for Open-Vocabulary Aerial Object Detection](/202605/27/2605.24639v1-disdop-distillation-with-domain-priors-for-open-vocabulary-aerial-object-detection)  
+1. [Hierarchical Consistency Learning for Test-time Adaptation in Camouflage Perception](/202605/28/2605.25651v1-hierarchical-consistency-learning-for-test-time-adaptation-in-camouflage-perception)  
    标签：评分：8.0/10、query:sod
-   evidence：无人机视角图像的开集词汇航空目标检测
+   evidence：用于伪装目标检测的分层表示重建和空间重建
 
 ### 速读区论文标签
-1. [FDDet: Achieving Data-Efficient Food Defect Detection Under Real-World Scenarios](/202605/27/2605.24508v1-fddet-achieving-data-efficient-food-defect-detection-under-real-world-scenarios)  
-   标签：评分：7.5/10、query:sod
-   evidence：用于缺陷检测的BBoxMixUp数据增强技术
-2. [Weakly Supervised Camouflaged Object Detection Based on the SAM Model and Mask Guidance](/202605/27/2605.25385v1-weakly-supervised-camouflaged-object-detection-based-on-the-sam-model-and-mask-guidance)  
-   标签：评分：7.0/10、query:sod
-   evidence：弱监督伪装目标检测
-3. [Sparse-LiDAR Prompting of Monocular Geometry Foundations: An Empirical Study Toward Long-Range Driving Depth](/202605/27/2605.26456v1-sparse-lidar-prompting-of-monocular-geometry-foundations-an-empirical-study-toward-long-range-driving-depth)  
-   标签：评分：7.0/10、query:sod
-   evidence：单目几何中稀疏激光雷达注入的多尺度融合
-4. [Frequency-Guided Fusion For RGB-Thermal Semantic Segmentation](/202605/27/2605.26273v1-frequency-guided-fusion-for-rgb-thermal-semantic-segmentation)  
+1. [Semantics-Guided Multimodal Masked Autoencoder Pretraining for 3D BEV Object Detection](/202605/28/2605.25262v1-semantics-guided-multimodal-masked-autoencoder-pretraining-for-3d-bev-object-detection)  
    标签：评分：6.0/10、query:sod
-   evidence：在不同抽象层级整合特征的多模态融合架构
+   evidence：用于 3D BEV 目标检测的多模态表示
+2. [Zero-Shot Object Re-Identification in Egocentric Kitchen Videos via Multi-Stage SAM3 Feature Fusion](/202605/28/2605.26383v1-zero-shot-object-re-identification-in-egocentric-kitchen-videos-via-multi-stage-sam3-feature-fusion)  
+   标签：评分：6.0/10、query:sod
+   evidence：用于目标重识别的多阶段特征融合
+3. [LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding](/202605/28/2605.27365v1-locateanything-fast-and-high-quality-vision-language-grounding-with-parallel-box-decoding)  
+   标签：评分：6.0/10、query:sod
+   evidence：具有并行框解码的统一生成式定位与检测框架
+4. [LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding](/202605/28/2605.27365v2-locateanything-fast-and-high-quality-vision-language-grounding-with-parallel-box-decoding)  
+   标签：评分：6.0/10、query:sod
+   evidence：具有并行框解码的统一生成式定位与检测框架
+5. [LV-OSD: Language-Vision-Complementary Open-Set Object Detection](/202605/28/2605.28271v1-lv-osd-language-vision-complementary-open-set-object-detection)  
+   标签：评分：6.0/10、query:sod
+   evidence：基于多模态提示的开集目标检测
 
 
 <div class="dpr-home-promo-card">

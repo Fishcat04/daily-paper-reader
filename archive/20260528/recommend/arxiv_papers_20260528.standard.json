@@ -1,0 +1,275 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-05-28T21:30:39.317428+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 1,
+    "deep_cap": 6,
+    "deep_selected": 1,
+    "quick_candidates": 5,
+    "quick_skim_target": 11,
+    "quick_selected": 5
+  },
+  "deep_dive": [
+    {
+      "id": "2605.25651v1",
+      "source": "arxiv",
+      "title": "Hierarchical Consistency Learning for Test-time Adaptation in Camouflage Perception",
+      "abstract": "Camouflaged object detection (COD) aims to localize targets that exhibit minimal perceptual differences from backgrounds through physical attributes. Existing methods, constrained by the static train-then-freeze paradigm, suffer from domain rigidity and annotation dependency, limiting their adaptability to scene variations and unseen camouflage patterns. To overcome these, we propose the hierarchical consistency learning (HCL) framework, which integrates test-time adaptation for dynamic representation recalibration. Specifically, we design the hierarchical representation reconstruction (HRR) to alleviate feature entanglement by synergizing spatial reconstruction with dual-stream frequency-domain decomposition, enhancing robustness against appearance homogenization. The pixel and spectrum inference provide structural and contextual priors. We further introduce task affinity guidance (TAG) to propagate knowledge across branches via channel-wise affinity, aligning local discriminative cues and mitigating semantic drift. To ensure semantic invariance, we formulate the prototype consistency calibration (PCC), which aggregates region features into compact prototypes and establishes prototype-feature similarity. This imposes implicit and hierarchical constraints that bridge task and representation gaps. Extensive experiments across four camouflaged and four underwater object benchmarks, under three degradation settings, demonstrate that our method consistently outperforms state-of-the-art approaches, highlighting its robustness and generalization under distribution shifts.",
+      "authors": [
+        "Mingfeng Zha",
+        "Tianyu Li",
+        "Guoqing Wang",
+        "Yunqiang Pei",
+        "Chaofan Qiao",
+        "Jiening Zhang",
+        "Yang Yang",
+        "Heng Tao Shen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-25T09:57:46+00:00",
+      "link": "https://arxiv.org/pdf/2605.25651v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "hierarchical representation reconstruction and spatial reconstruction for camouflaged object detection",
+      "llm_evidence_cn": "用于伪装目标检测的分层表示重建和空间重建",
+      "llm_evidence": "用于伪装目标检测的分层表示重建和空间重建",
+      "canonical_evidence": "用于伪装目标检测的分层表示重建和空间重建",
+      "llm_tldr_en": "A framework for camouflaged object detection using hierarchical consistency and test-time adaptation.",
+      "llm_tldr_cn": "一种利用分层一致性和测试时自适应进行伪装目标检测的框架。",
+      "llm_tldr": "一种利用分层一致性和测试时自适应进行伪装目标检测的框架。",
+      "llm_tags": [
+        "query:sod:composite"
+      ],
+      "matched_query_tag": "query:sod:composite",
+      "matched_query_text": "Papers central to 小目标检测相关论文检索, especially work that connects or combines: deep learning methods for small object detection; FPN and its variants for multi-scale object detection; oversampling and augmentation strategies for small objects; spatial and channel attention for small object feature enhancement; multi-scale feature fusion techniques in computer vision; specialized loss functions for small object localization; state of the art deep learning methods for small object detection; benchmarking small object detection on public datasets.",
+      "matched_requirement_id": "req-composite-sod",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2605.25262v1",
+      "source": "arxiv",
+      "title": "Semantics-Guided Multimodal Masked Autoencoder Pretraining for 3D BEV Object Detection",
+      "abstract": "Accurate 3D bird's-eye view (BEV) object detection is essential for autonomous driving, and depends strongly on effective multimodal representations from complementary sensors such as cameras and LiDAR. Multimodal masked autoencoders have shown strong potential for learning such representations for downstream 3D BEV object detection. However, existing methods typically apply uniform random masking to camera and LiDAR inputs, treating all regions equally, and learn representations only through masked reconstruction. We propose a semantics-guided multimodal masked autoencoder framework that introduces semantic information during pretraining through two separate components: (i) semantics-guided LiDAR voxel masking, which preserves semantically important LiDAR regions more strongly, and (ii) an auxiliary point-wise LiDAR semantic decoder branch that injects semantic guidance in addition to reconstruction. On BEVFusion 3D object detection, our semantics-guided pretraining strategy improves performance on the nuScenes mini validation set compared to the standard UniM2AE baseline: semantics-guided LiDAR voxel masking yields +1.49% mean Average Precision (mAP) and +1.66% nuScenes Detection Score (NDS), while decoder-side point semantic supervision yields +1.39% mAP and +3.22% NDS over the baseline.",
+      "authors": [
+        "Prabuddhi Wariyapperuma",
+        "Rajitha de Silva",
+        "Marc Hanheide",
+        "Thomas Bohné",
+        "Leonardo Guevara"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-24T21:24:11+00:00",
+      "link": "https://arxiv.org/pdf/2605.25262v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "multimodal representations for 3D BEV object detection",
+      "llm_evidence_cn": "用于 3D BEV 目标检测的多模态表示",
+      "llm_evidence": "用于 3D BEV 目标检测的多模态表示",
+      "canonical_evidence": "用于 3D BEV 目标检测的多模态表示",
+      "llm_tldr_en": "Introduces a semantics-guided multimodal masked autoencoder for enhanced 3D BEV object detection.",
+      "llm_tldr_cn": "引入语义引导的多模态掩码自编码器，以增强 3D BEV 目标检测。",
+      "llm_tldr": "引入语义引导的多模态掩码自编码器，以增强 3D BEV 目标检测。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.26383v1",
+      "source": "arxiv",
+      "title": "Zero-Shot Object Re-Identification in Egocentric Kitchen Videos via Multi-Stage SAM3 Feature Fusion",
+      "abstract": "Object re-identification (ReID) in egocentric kitchen videos is challenging due to rapid viewpoint changes, frequent occlusions, cluttered scenes, and large intra-class appearance variations. Objects may leave and re-enter the field of view, and the large diversity of instances with limited annotations makes supervised ReID difficult to scale, motivating zero-shot approaches. We study zero-shot object ReID on the EPIC-Kitchens benchmark, where the goal is to match active food and kitchen-tool instances across frames using only pre-trained visual features. We first evaluate five state-of-the-art feature extractors, including Vision-Language Models (VLMs) - CLIP, DINOv2, DreamSim, I-JEPA, and SAM3 - and show that zero-shot methods fail, with the best baseline achieving only 45.3% mAP. We then propose an Enhanced SAM3 ReID Pipeline, a zero-shot multi-stage method built around SAM3 segmentation as the core component. Stage 1 uses SAM3 to suppress background clutter. Stage 2 fuses embeddings from SAM3, DINOv2, and CLIP into a single L2-normalized descriptor. Stage 3 augments cosine similarity with mask-shape IoU for geometric consistency, and Stage 4 applies k-reciprocal re-ranking. The full pipeline improves performance by 7.5% mAP to 52.8%.",
+      "authors": [
+        "Dmytro Klepachevskyi",
+        "Alexander Wong",
+        "Sirisha Rambhatla",
+        "Yuhao Chen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-25T23:01:41+00:00",
+      "link": "https://arxiv.org/pdf/2605.26383v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "multi-stage feature fusion for object re-identification",
+      "llm_evidence_cn": "用于目标重识别的多阶段特征融合",
+      "llm_evidence": "用于目标重识别的多阶段特征融合",
+      "canonical_evidence": "用于目标重识别的多阶段特征融合",
+      "llm_tldr_en": "Explores zero-shot object ReID in kitchen videos using multi-stage feature fusion from various VLMs.",
+      "llm_tldr_cn": "利用多种视觉语言模型的多阶段特征融合，研究厨房视频中的零样本目标重识别。",
+      "llm_tldr": "利用多种视觉语言模型的多阶段特征融合，研究厨房视频中的零样本目标重识别。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.27365v1",
+      "source": "arxiv",
+      "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding",
+      "abstract": "Vision-language models (VLMs) commonly formulate visual grounding and detection as a coordinate-token generation problem, serializing each 2D box into multiple 1D tokens that are learned and decoded largely independently. This token-by-token decoding mismatches the coupled structure of box geometry and creates a practical inference bottleneck due to strictly sequential generation. We introduce LocateAnything, a unified generative grounding and detection framework based on Parallel Box Decoding (PBD). By decoding geometric elements such as bounding boxes and points as atomic units in a single step, LocateAnything preserves intra-box geometric coherence and unlocks substantial parallelism. We show that PBD improves both decoding throughput and localization accuracy. We further develop a scalable data engine and curate LocateAnything-Data, a large-scale dataset with more than 138 million training samples, substantially increasing data diversity for high-precision localization. Extensive evaluations show that LocateAnything advances the speed-accuracy frontier, achieving significantly higher decoding throughput while improving high-IoU localization quality across diverse benchmarks. The results highlight the complementary benefits of Parallel Box Decoding and large-scale training data in enabling efficient and precise unified visual grounding and detection.",
+      "authors": [
+        "Shihao Wang",
+        "Shilong Liu",
+        "Yuanguo Kuang",
+        "Xinyu Wei",
+        "Yangzhou Liu",
+        "Zhiqi Li",
+        "Yunze Man",
+        "Guo Chen",
+        "Andrew Tao",
+        "Guilin Liu",
+        "Jan Kautz",
+        "Lei Zhang",
+        "Zhiding Yu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG",
+        "cs.RO"
+      ],
+      "published": "2026-05-26T17:59:12+00:00",
+      "link": "https://arxiv.org/pdf/2605.27365v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "unified generative grounding and detection framework with parallel box decoding",
+      "llm_evidence_cn": "具有并行框解码的统一生成式定位与检测框架",
+      "llm_evidence": "具有并行框解码的统一生成式定位与检测框架",
+      "canonical_evidence": "具有并行框解码的统一生成式定位与检测框架",
+      "llm_tldr_en": "A fast vision-language grounding framework that improves object detection efficiency.",
+      "llm_tldr_cn": "一种快速的视觉语言定位框架，提高了目标检测的效率。",
+      "llm_tldr": "一种快速的视觉语言定位框架，提高了目标检测的效率。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.27365v2",
+      "source": "arxiv",
+      "title": "LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel Box Decoding",
+      "abstract": "Vision-language models (VLMs) commonly formulate visual grounding and detection as a coordinate-token generation problem, serializing each 2D box into multiple 1D tokens that are learned and decoded largely independently. This token-by-token decoding mismatches the coupled structure of box geometry and creates a practical inference bottleneck due to strictly sequential generation. We introduce LocateAnything, a unified generative grounding and detection framework based on Parallel Box Decoding (PBD). By decoding geometric elements such as bounding boxes and points as atomic units in a single step, LocateAnything preserves intra-box geometric coherence and unlocks substantial parallelism. We show that PBD improves both decoding throughput and localization accuracy. We further develop a scalable data engine and curate LocateAnything-Data, a large-scale dataset with more than 138 million training samples, substantially increasing data diversity for high-precision localization. Extensive evaluations show that LocateAnything advances the speed-accuracy frontier, achieving significantly higher decoding throughput while improving high-IoU localization quality across diverse benchmarks. The results highlight the complementary benefits of Parallel Box Decoding and large-scale training data in enabling efficient and precise unified visual grounding and detection.",
+      "authors": [
+        "Shihao Wang",
+        "Shilong Liu",
+        "Yuanguo Kuang",
+        "Xinyu Wei",
+        "Yangzhou Liu",
+        "Zhiqi Li",
+        "Yunze Man",
+        "Guo Chen",
+        "Andrew Tao",
+        "Guilin Liu",
+        "Jan Kautz",
+        "Lei Zhang",
+        "Zhiding Yu"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG",
+        "cs.RO"
+      ],
+      "published": "2026-05-26T17:59:12+00:00",
+      "link": "https://arxiv.org/pdf/2605.27365v2",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "Unified generative grounding and detection framework with parallel box decoding",
+      "llm_evidence_cn": "具有并行框解码的统一生成式定位与检测框架",
+      "llm_evidence": "具有并行框解码的统一生成式定位与检测框架",
+      "canonical_evidence": "具有并行框解码的统一生成式定位与检测框架",
+      "llm_tldr_en": "Introduces LocateAnything, a framework that decodes bounding boxes as atomic units to improve speed and coherence.",
+      "llm_tldr_cn": "提出LocateAnything框架，将边界框作为原子单元解码，提升了检测速度和几何一致性。",
+      "llm_tldr": "提出LocateAnything框架，将边界框作为原子单元解码，提升了检测速度和几何一致性。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.28271v1",
+      "source": "arxiv",
+      "title": "LV-OSD: Language-Vision-Complementary Open-Set Object Detection",
+      "abstract": "Object detection is an important task in computer vision, which aims to detect the objects of interest. through the given category list or query images. In this work, we propose a new problem of language-visual-complementary open-set object detection (LV-OSD), i.e., using the flexible text-based and/or image-based prompts to specify the desired object categories. This setting is more common and practical in real-world applications. For this purpose, we design a dual-branch detection framework, LVDor, which can simultaneously accept both text and image prompts. Specifically, we first build the Multi-modal Prompts (MPr) containing various text descriptions and image samples for each category. Subsequently, to bridge the semantic gap among the input image, text prompts, and image prompts, we design a Target-guided Prompt Dynamic Weighting (TPDW) module. Guided by the prior information of the target image, this module dynamically produces the text and image prompts that best align with the target semantics, achieving precise alignment and effectively reducing the discrepancy between the two modalities, thereby accommodating the LV-OSD setting. We also propose a simple Prompt Random Masking (PRM) mechanism during training to simulate the arbitrary combination of text and/or image prompts in testing. Extensive experimental results verify our problem formulation's reasonability and our method's effectiveness. Prompts and code will be released publicly.",
+      "authors": [
+        "Yupeng Zhang",
+        "Ruize Han",
+        "Wei Feng",
+        "Song Wang",
+        "Liang Wan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-27T10:17:56+00:00",
+      "link": "https://arxiv.org/pdf/2605.28271v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "open-set object detection with multi-modal prompts",
+      "llm_evidence_cn": "基于多模态提示的开集目标检测",
+      "llm_evidence": "基于多模态提示的开集目标检测",
+      "canonical_evidence": "基于多模态提示的开集目标检测",
+      "llm_tldr_en": "Introduces LVDor for open-set object detection using both text and image prompts to specify categories.",
+      "llm_tldr_cn": "引入LVDor框架，通过文本和图像提示实现更灵活的开集目标检测。",
+      "llm_tldr": "引入LVDor框架，通过文本和图像提示实现更灵活的开集目标检测。",
+      "llm_tags": [
+        "query:sod:composite"
+      ],
+      "matched_query_tag": "query:sod:composite",
+      "matched_query_text": "Papers central to 小目标检测相关论文检索, especially work that connects or combines: deep learning methods for small object detection; FPN and its variants for multi-scale object detection; oversampling and augmentation strategies for small objects; spatial and channel attention for small object feature enhancement; multi-scale feature fusion techniques in computer vision; specialized loss functions for small object localization; state of the art deep learning methods for small object detection; benchmarking small object detection on public datasets.",
+      "matched_requirement_id": "req-composite-sod",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

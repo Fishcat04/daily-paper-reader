@@ -1,0 +1,501 @@
+Title: LV-OSD: Language-Vision-Complementary Open-Set Object Detection
+
+URL Source: https://arxiv.org/pdf/2605.28271v1
+
+Published Time: Thu, 28 May 2026 01:04:03 GMT
+
+Number of Pages: 11
+
+Markdown Content:
+IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY, IN SUBMISSION 1
+
+# LV-OSD: Language-Vision-Complementary Open-Set Object Detection 
+
+Yupeng Zhang, Ruize Han, Wei Feng Member, IEEE, Song Wang Member, IEEE, Liang Wan † Member, IEEE 
+
+Abstract —Object detection is an important task in computer vision, which aims to detect the objects of interest. through the given category list or query images. In this work, we propose a new problem of language-visual-complementary open-set object detection (LV-OSD), i.e. , using the flexible text-based and/or image-based prompts to specify the desired object categories. This setting is more common and practical in real-world applications. For this purpose, we design a dual-branch detection framework, 
+
+LVDor , which can simultaneously accept both text and image prompts. Specifically, we first build the Multi-modal Prompts (MPr) containing various text descriptions and image samples for each category. Subsequently, to bridge the semantic gap among the input image, text prompts, and image prompts, we design a Target-guided Prompt Dynamic Weighting (TPDW) module. Guided by the prior information of the target image, this module dynamically produces the text and image prompts that best align with the target semantics, achieving precise alignment and effectively reducing the discrepancy between the two modalities, thereby accommodating the LV-OSD setting. We also propose a simple Prompt Random Masking (PRM) mechanism during training to simulate the arbitrary combination of text and/or image prompts in testing. Extensive experimental results verify our problem formulation’s reasonability and our method’s effec-tiveness. Prompts and code will be released publicly. 
+
+Index Terms —Language-Vision-Complementary, Open-Set, Object Detection 
+
+I. I NTRODUCTION 
+
+Object detection, as a fundamental task in computer vi-sion, has a wide range of practical applications. The object detection task aims to localize and recognize the objects of interest in a given image. The desired object categories are commonly specified by a text-based query list. For example, the classical closed-set object detection, exemplified by the YOLO [1] and Faster RCNN [2] series, is characterized by its ability to recognize only known categories present in the training dataset. Recently, open-set object detection (OSD) [3] represented by open-vocabulary object detection (OVD) [4] was proposed to not only identify known categories but also, more importantly, detect entirely new categories unseen during the training phase. OVD classifies objects by computing the similarity between category text prompts and the features of 
+
+This work was supported in part by the National Natural Science Foun-dation of China (Grant Nos. 62476196 and 62402490), and in part by the Guangdong Basic and Applied Basic Research Foundation (Grant No. 2025A1515010101). (Corresponding authors: Liang Wan.) Y. Zhang, W. Feng and L. Wan are with the College of Intelligence and Computing, Tianjin University, Tianjin 300350, China. Email: zhangyu-peng@tju.edu.cn, lwan@tju.edu.cn, wfeng@tju.edu.cn. R. Han, and S. Wang are with the Faculty of Computer Science and Artificial Intelligence, Shenzhen University of Advanced Technol-ogy, Shenzhen 518107, Guangdong, China. Email: hanruize@suat-sz.edu.cn, wangsong@suat-sz.edu.cn 4) Flexible Prompts        
+
+> Input Image
+> …
+> A photo of an apple .
+> A photo of a potato .
+> A photo of an eggplant .
+> A photo of a carrot .
+> 3) Fused Prompts 2) Image Prompts 1) Text Prompts
+
+LV -OSD         
+
+> …
+> …
+> …
+> …
+> …
+> +
+> +
+> …
+> A photo of an apple .
+> A photo of a potato .
+> A photo of a carrot .
+> +
+> A photo of an eggplant .+
+> …
+> …
+> …
+> …
+> +
+> +
+> …
+> A photo of an apple .
+> A photo of a potato .
+> A photo of a carrot .
+> …
+> …
+> …
+
+Fig. 1. Illustration of the Language-Vision-Complementary Open-Set Object Detection. Our newly proposed task formulation supports four distinct prompt modalities: 1) Text prompts, suitable for scenarios where only category names are available. 2) Image prompts, used when only representative images can be obtained for each category. 3) Fused prompts, applied when both category names and example images are accessible for all categories. 4) Flexible prompts, designed for more realistic cases where some categories provide both names and images, while others offer only one of the two. Notably, the modality 4) aligns more closely with real-world applications, where the availability of prompt modalities varies across categories, offering greater practicality and flexibility .
+
+object regions in the input image. Current mainstream OVD methods largely rely on manually crafted textual prompts (e.g. , ‘A photo of a dog’). Although these approaches have shown promising results, they still face three key limitations: First is semantic ambiguities, e.g. , confusion from homonyms (‘bat’ can refer to both the flying mammal and a baseball bat). Second, the simple text prompts often fail to effectively capture the visual details of objects, leading to the loss of critical visual information. Third, in terms of accessibility, the names of certain specific categories are challenging to obtain and accurately convey through text prompts. These limitations significantly constrain the adaptability of text-based OVD models in real-world applications. Besides, image-based query is another means to specify the desired categories; as the saying goes, ‘a picture is worth a thousand words’. As representative tasks, few-shot/one-shot object detection (based on metric learning) [5], [6], [7], [8], [9] aims to identify the open-set categories by measuring the similarity between image examples and the features of regions in the input image. The image modality provides richer and more detailed visual cues, effectively compensating for the shortcomings of the text-based category prompt. However, image prompts also have limitations. For instance, due to intra-category variation and imaging conditions, a single image  
+
+> arXiv:2605.28271v1 [cs.CV] 27 May 2026 IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY, IN SUBMISSION 2
+
+cannot fully capture a category’s rich attributes. Furthermore, like text prompts, image prompts face challenges in obtaining representative samples for some categories. As discussed above, both text and image prompts are useful yet somewhat limited in real applications. Therefore, in this work, we aim to explore the complementarity of such prompts for open-set (real-world) object detection. Few related works, for example, OV-DETR [10] and MM-OVOD [11] begin to explore incorporating images into text as queries or auxiliary prompts for OVD. However, these approaches require uniform prompt formats (whether text, images, or fused representations) for all categories during inference, which significantly increases both operational costs and complexity in practical applications. To address this issue, we propose a new setting of language-vision-complementary open-set object detection (LV-OSD). Specifically, LV-OSD enables arbitrary types of prompts combined with language-based text and vision-based images. As shown in Fig. 1, in the inference stage, LV-OSD supports the modes of 1) Text prompts, 2) Image prompts, 3) Fused text-image prompts [10], [11], and 4) Flexible text-image prompts. Especially for the new flexible text-image prompts, some categories are guided solely by text-based prompts or by image-based prompts, and the remaining categories utilize both modalities, according to the actual situation. It can be imagined that this is a more flexible and practical detection method in which, for example, some common categories can use text prompts while some rare categories can use image prompts, and the fused prompts are for the hard categories. 
+
+We develop a novel object detection framework, LVDor, which is trained jointly with dual-modality prompts. This framework aims to equip the detector with the ability to adapt to all types of prompt, as discussed above. Specifically, on the one hand, for text-modal prompts, we employ a Large Language Model (LLM) to generate multiple web-caption-like descriptions for each category (inspired by CLIP’s [12] training data) and utilize a frozen CLIP text encoder to extract embeddings of text prompts. On the other hand, for image-modal prompts, we curate diverse images from the internet for each category and extract features using a frozen CLIP image encoder to serve as image prompt embedding. For each prompt type, the individual prompts are still various, 
+
+e.g. , a category text can generate multiple descriptions using LLM, and the query image of a category also has multiple instances. Subsequently, to bridge the semantic gap between the input image and multi-modal prompts, we introduce a Target-guided Prompt Dynamic Weighting (TPDW) module. Conditioned on the input image, this module adaptively selects and reweights prompts to achieve precise semantic alignment, thereby exploiting the complementary strengths of different modalities and their flexible combinations. Importantly, TPDW goes beyond simple fusion by enforcing target-aware prompt selection that suppresses semantically inconsistent prompts within the same category, which is crucial under flexible and heterogeneous prompt availability. Finally, we propose a simple yet effective Prompt Random Masking (PRM) mecha-nism during training to simulate arbitrary combinations of text and/or image prompts encountered at test time. In summary, the main contributions of this work are:  
+
+> •
+
+We propose a novel and practical language-vision-complementary open-set object detection (LV-OSD) prob-lem, which can be applied across arbitrary prompt sce-narios, i.e. , text, image, fusion of both, and flexible text-image prompts.  
+
+> •
+
+We propose a novel object detection framework, termed LVDor, for language–vision complementary open-set ob-ject detection (LV-OSD). The framework builds a uni-fied multi-modal prompt set (MPr) by generating di-verse textual prompts with large language models and incorporating representative image examples, thereby en-hancing category-level semantic coverage. Furthermore, we introduce a Target-guided Prompt Dynamic Weight-ing (TPDW) mechanism that adaptively selects prompts based on their semantic alignment with the target image to suppress intra-category semantic noise. In addition, an efficient Prompt Random Masking (PRM) strategy is adopted during training to simulate flexible dual-modal prompt combinations, enabling robust adaptation to heterogeneous prompt scenarios.  
+
+> •
+
+Our method achieves SOTA performance on OV-LVIS and in cross-dataset evaluations on Object365, demon-strating the proposed framework’s strong robustness and generalization ability for open-set object detection under multi-modal prompts. II. R ELATED WORK 
+
+Text-prompt-based detection includes traditional closed-set detection, such as the Faster RCNN [2], where detectors recognize only the categories they were trained on. A more researched area is OVD, which detects categories not seen dur-ing training without requiring model retraining, falling under open-set detection [3]. The emergence of VLMs, such as CLIP, have advanced OVD. These models, by jointly learning image and text representations, support OVD. Some studies [13], [14], [15], [16], [17] use region-aware training methods, integrating image-text pairs into detection training to improve classification for novel categories. Other approaches [18], [19], [20], [21], [11] leverage pre-trained VLMs or generate pseudo-labels to train detectors. Additionally, methods like [22], [23], [24], [25], [26] use knowledge distillation to provide de-tectors with open-vocabulary capabilities. Furthermore, some research [27], [28], [29], [30], [31] builds open-vocabulary detectors on frozen pre-trained models to exploit the general-ization power of large-scale models. 
+
+Image-prompt-based detection primarily focuses on Few-Shot (FS) and One-Shot (OS) object detection. FSOD pre-dominantly follows two technical approaches. The first is the fine-tuning method, as demonstrated by [32], [33], [34], which adjusts network parameters using limited data from novel cat-egories to detect novel objects. While effective, these methods are unsuitable for OVD, as they necessitate retraining or fine-tuning. The second approach employs Siamese networks, as seen in [5], [6], [9], [35], [36], which process target and query images in parallel, measuring the similarity between image regions (typically bounding boxes) and few-shot queries IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY, IN SUBMISSION 3TPDW  
+
+> Novel
+> Categories
+> ……
+> Base
+> Categories Horse
+> Wheel
+> Person
+> Umbrella
+> Bench
+> Train
+> Bird
+> LLM
+> … …
+> Train Image
+> RPN
+> FPN
+> Features from Proposals
+> …
+
+Lcls -RPN & Lreg -RPN 
+
+> RoI
+> MM -Cls
+
+Lreg -RoI 
+
+> Reg
+
+Lcons    
+
+> …
+> TPDW
+> TPDW
+> Masks
+> …
+> …
+> Features from Proposals
+> Split
+> Split
+> Bench
+> Umbrella
+> Person
+> RPN
+> FPN RoI
+> …
+> Reg
+> MM -Cls
+> … …
+> …
+> … …
+> … …
+> … …
+> cossim
+> Test Image
+> … …
+> …
+> Base
+> Categories
+> Novel
+> Categories
+> …
+> IE TE
+> AP
+> TE: CLIP Text Encoder
+> IE: CLIP Image Encoder
+> AP: CLIP Attention Pooling
+> IE
+> IE
+> …
+> AP
+> Softmax
+> cossim
+> cossim
+> cossim
+> cossim
+> cossim
+> ①Mean
+> ②cossim
+> …
+> ③ Top K
+> …
+> …… ……
+> Mean
+> Weight
+> Weight
+> Weight
+> Weight
+> Mean
+> Weight
+
+Fig. 2. Overview of our method. We employ a LLM to generate category descriptions and collect representative images to construct a comprehensive set of text and image prompts. Frozen CLIP text and image encoders serve as the backbone of our framework. During training, we leverage a Target-guided Prompt Dynamic Weighting (TPDW) method to select and fuse the most semantically relevant prompts based on the input image. A Prompt Random Masking (PRM) mechanism is introduced to simulate flexible prompt combinations, enhancing the model’s adaptability to various input forms. At inference, the TPDW similarly selects and fuses the most relevant prompts from the available multi-modal prompts to guide open-set object detection. 26.1     
+
+> 23 .0
+> 25.8
+> 19.8
+> 27.4
+> 22.1
+> 26.2
+> 15.7
+> 15.0
+> 20.0
+> 25.0
+> 30.0
+> Text-Text Text-Image Image-Image Image-Text
+> APr (%) AP (%)
+
+Fig. 3. Illustration of the modality gap in OVD with different modality prompts. ‘A-B’ denotes the modality of ‘A’ for training and the modality of ‘B’ for testing. 
+
+(prompts) to detect both base and novel categories. OSOD [7], [8], a special case of FSOD, utilizes only a single image example and adopts the same methodology. However, the dual-branch architecture in FSOD lacks text prompts, thereby limiting its practicality and flexibility. 
+
+Image and Text Prompts Fusion for Object Detection. 
+
+OV-DETR [10] and MM-OVOD [11] highlight the limitations of relying solely on text prompts in OVD by incorporating image modalities as complementary cues. OV-DETR adapts the DETR framework using a frozen CLIP to extract im-age features for inference, though it only offers qualitative results. MM-OVOD also employs a frozen CLIP to extract multi-modal features and trains an offline image aggregation network to fuse multiple image examples. However, its rigid alignment between image and text prompts leads to the loss of fine-grained visual information. Both methods overlook the modality gap and the complementary strengths of image and text prompts [37]. To address this, we propose a novel LV-OSD framework. Unlike prior work, our method uses a frozen CLIP image encoder as the backbone, preserving pretrained knowledge without costly retraining. By jointly training with image and text prompts, our approach enables flexible adaptation to both modalities. III. P ROPOSED METHOD 
+
+A. Preliminaries and Framework 
+
+Problem formulation. Given a target image I ∈ R3×H×W
+
+as input to the detector, two types of outputs are typically desired: (1) Location , where the bounding box coordinates 
+
+bi ∈ R4 represent the location of the i-th predicted object. 
+
+(2) Category , where P ji ∈ C test representing the j-th category is assigned to bi, with Ctest as the set of categories during testing. Following the open-set setting, in the training phase, the categories consist solely of the set of base category Cbase ,while during testing, the vocabulary is extended to include the set of novel category names Cnovel , i.e. , Ctest = Cbase ∪ C novel 
+
+with Cbase ∩ C novel = ∅.
+
+The framework. We explore the use of a frozen VLM as the backbone for LVDor, training only the detection head to significantly reduce training complexity while avoiding the need for knowledge distillation or task-specific pretraining. We begin by designing four training–testing prompt combinations and conducting preliminary experiments:  
+
+> •
+
+training the detection head with text-modal prompts and testing with text (T-T) and image prompts (T-I);  
+
+> •
+
+training the detection head with image-modal prompts and testing with text (I-T) and image prompts (I-I). As shown in Fig. 3, the results show that mismatched prompt modalities between training and testing lead to a substantial performance drop. This phenomenon arises from the modality-gap issue discussed in [37] and can also be attributed to the asymmetric representations induced by the inherent diversity of the two prompt modalities; under the flexible-prompt set-ting, this asymmetry is further amplified and severely impairs model stability. To mitigate this issue, we retain both the text and image branches in the framework and introduce a Target-guided Prompt Dynamic Weighting (TPDW) module, which dynamically fuses the embeddings of the two modal prompts. Compared with the direct fusion strategy in [11], TPDW more effectively bridges the semantic gap between modalities, producing fused representations better aligned with the target object. The fused multi-modal prompt embeddings are then used to train a multi-modal classification (MM-Cls) head and aligned with RoI features. Although MM-Cls is a standard MLP, within our framework it can simultaneously align with both text- and image-modal prompts while main-taining consistent discriminative capability across modalities. IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY, IN SUBMISSION 4
+
+Overview. In general, as shown in the left of Fig. 2, we em-ploy frozen CLIP image and text encoders as the foundational network. First, to enrich the arbitrary multi-modal prompts for the open-set object detection, we first utilize a DeepSeek [38] to generate multiple category descriptions (text prompt) and crawl a certain number of image examples (image prompt) from the internet for each category, forming the diverse Multi-modal Prompts (MPr) for training. Subsequently, to narrow the semantic gap among the input image, text prompts, and image prompts and to effectively train the detection head, we propose the Target-guided Prompt Dynamic Weighting (TPDW) mod-ule. This module selects the top K most semantically relevant categories based on the similarity between the input image and all prompts, and then adaptively fuses the multiple prompts within each selected category according to their alignment with the image, thereby producing refined prompt represen-tations. Finally, by introducing a Prompt Random Masking (PRM) mechanism, we generate arbitrary multi-modal prompts to train the classification head to handle the uncertainty of given image and/or text prompts during testing. 
+
+B. Construction of Multi-modal Prompts (MPr) 
+
+Text-based category description generation. Recent stud-ies [29], [24] on CLIP-based OVD manually design prompt templates based on dataset characteristics, such as ‘a black-and-white photo of {} ’ or ‘a photo of {} in the rain’. However, these prompts are easy to obtain but fail to leverage the potential of VLMs, limiting generalization across datasets. Moreover, due to intra-category variability, objects in the same category may exhibit diverse visual attributes. Thus, afixed prompt for each category inevitably leads to insufficient generalization .To address these challenges, we propose a diversified text-prompt generation strategy based on LLMs. Specifically, we employ LLMs to generate N (N = 5) category-specific descriptions for each category in the dataset, written in the style of internet image captions and enriched with fine-grained attributes that distinguish visually similar categories, thereby producing more detailed and discriminative semantic represen-tations and enhancing the model’s generalization ability. To this end, we use DeepSeek to generate category descriptions and provide the following instruction template for each cate-gory: ‘Please generate feature descriptions for the following categories in the style of internet image captions, emphasizing the diversity of their visual attributes.’ During generation, we emphasize both the salient semantic characteristics of each category and the distinctiveness among the descriptions, ensuring that the five descriptions cover a wide range of representative scenarios. For example: ‘An airplane has a long, cylindrical fuselage with wings on either side and a tail at the rear’, ‘An airplane typically features a pointed nose, a cockpit at the front, and windows along the fuselage’, etc . In this way, each description not only effectively distinguishes the category from others but also captures intra-category diversity by highlighting different visual aspects such as shape and texture. Based on this strategy, we construct rich and varied category-specific text prompts that guide the model toward a more comprehensive and robust semantic understanding of each category, enabling it to better handle substantial intra-category variation in real-world detection scenarios. 
+
+Image-based category example collection. In addition to textual descriptions for text prompt, leveraging image examples serves as a natural and effective complementary strategy, particularly when category descriptions are imprecise or category names are occasionally unavailable. This way, we collect a diverse set of example images from the Internet for each category. During collection, we place particular emphasis on diversity, encompassing various factors such as lighting conditions, shooting angles, background environments, object poses, scene complexity, etc . For instance, for the ‘airplane’ category, we gather images from diverse scenarios, including daytime and nighttime, takeoff and landing, as well as close-up and distant views. Furthermore, we ensure the example images cover a range of resolutions, clarity levels, and styles (such as real photographs and artistic renderings), thereby enhancing the model’s adaptability to produce diverse visual features. Through this diversified image collection strategy, we aim to improve the model’s robustness and generalization capabilities when confronted with complex real-world scenarios. 
+
+C. Target-guided Prompt Dynamic Weighting (TPDW) 
+
+Intra-category diversity causes the collected textual de-scriptions and example images of the same category to ex-hibit substantial differences: concise textual prompts often convey diverse high-level semantics, whereas example im-ages—containing richer visual information—vary widely in viewpoint, shape, color, illumination, and other appearance factors. This modality-specific diversity creates an inherent asymmetry in their representation spaces, which in turn leads to two critical issues. First, during training, semantic incon-sistencies between prompts and target objects in the input image may induce mismatches and hinder effective learning. Second, under the Flexible Prompts evaluation setting, this asymmetry becomes further amplified, significantly degrading the accuracy of category matching. To this end, we propose the Target-guided Prompts Dynamic Weighting (TPDW) module. TPDW dynamically assigns weights to multiple text and image prompts for each category based on the semantic information of the input image, enabling their adaptive fusion. As shown on the right side of Fig. 2, TPDW in the training phase adaptively aligns prompts with the semantic characteristics of the objects in the input train image, avoiding forced alignment with prompts of the same category that are semantically irrelevant. During testing, TPDW similarly adjusts prompt weights according to the content of the test image, further improving the accuracy and robustness of feature matching. Specifically, we extract prompt embeddings for the N
+
+textual descriptions and the example images collected for each category using the frozen CLIP text and image encoders, respectively. We then extract the last-layer features from the input image feature map as the ‘reference’ for prompt adjust-ment. To reduce computational overhead , we divide the input image into four patches in the feature space, with each patch IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY, IN SUBMISSION 5
+
+independently guiding the dynamic weighting process. Taking text prompts as an example, given the feature of an image patch p, i.e. , fp, we first compute the cosine similarity between it and the average prompt embeddings of each category as       
+
+> spc=fp·¯ec
+> ∥fp∥ · ∥ ¯ec∥,(1)
+
+where ¯ec is the average prompt (of N prompts) embedding vector for category c, spc is the cosine similarity between the patch and category c. With spc for all c ∈ C , C is the set of all categories, and we roughly estimate the potential target categories within this patch. Next, we select the top 
+
+K categories with the highest similarity as candidate target categories as Ctop K = arg max K spc , c ∈ C , (2) 
+
+where Ctop K is the set of top K candidate categories. Since the CLIP image encoder is frozen, this rough estimation is highly reliable. Then, we utilize the features of the patch fp to compute the cosine similarity with the N text prompts for each of the K
+
+categories as        
+
+> wic=exp( cossim (fp,eic))
+> PNn=1 exp( cossim (fp,eic)) ,(3)
+
+where cossim means the cosine similarity, pic is the i-th prompt vector for category c, wic is the weight for the i-th prompt of category c. These similarity values are then transformed into weights via the softmax function, and the corresponding prompts are weighted accordingly. The prompt embeddings are re-assigned with these weights as     
+
+> eweight
+> c=
+> NX
+> i=1
+> wic·eic.(4)
+
+The same procedure is applied to the remaining patches. Finally, the weighted prompt results from the all patches are integrated. If a category c is weighted, i.e. , |P c| > 0, the average of the weighted prompts is taken as the final prompt for that category. For categories not re-weighted, the average of their N prompts is used as the final prompt as             
+
+> efinal
+> c=
+> (1
+> |P c|
+> P
+> p∈P ceweight
+> c(p)if |P c|>0
+> 1
+> N
+> PNi=1 eicotherwise ,(5)
+
+where Pc is the set of patches that re-weighted category c,and efinal  
+
+> c
+
+is the final prompt for category c.The same procedure is applied to the image prompts as to the text prompts. Through this approach, we dynamically adjust prompts more precisely based on the content of the input image, thereby enhancing the model’s performance in LV-OSD tasks. 
+
+D. Prompt Random Masking (PRM) Mechanism 
+
+The final step is to combine the text-based and image-based prompt branch, As discussed before, the proposed framework is required to receive the arbitrary-combined multi-modal prompts at inference, i.e. , only text or image prompts or the flexible text-image prompts. This way, during training, to simulate the arbitrary multi-modal prompts, we introduce a Prompt Random Masking mechanism. Specifically, as shown in the left of Fig. 2, we added the mask into the text prompts 
+
+PText and image prompts PImg as           
+
+> ˆPText =PText ⊙MText ,ˆPImg =PImg ⊙MImg ,(6)
+
+where ˆPtext ∈ Rd×C represents the masked text prompt embeddings, ˆPimg ∈ Rd×C denotes the masked image prompt embeddings, and Mtext , Mtext ∈ { 0, 1}C denote the mask for text and image prompts, respectively, C represents the number of categories. This mechanism randomly masks one of the two modal-ities for post-fusion. The two concurrent prompts from both modalities are added. After the normalization, the multi-modal aggregated prompt for each category is generated. This process enables the final prompt list to simulate the aforementioned scenarios under complex application environments involving uncertain multi-modal prompts. This way, we generate various combinations of flexible multi-modal prompts. 
+
+E. Framework and Details 
+
+Training stage. The total loss function includes          
+
+> Ltotal =Lreg-RPN +Lcls-RPN +Lreg-RoI +Lcons ,(7)
+
+where Lcls-RPN , Lreg-RPN and Lreg-RoI are the classical classi-fication and regression losses for detection, and Lcons is the contrastive loss for the MM-Cls head. We apply the optimized CLIP ViT-B/16 and ViT-L/14 from CLIPSelf [29] and its improved version DeCLIP [31] as our backbones, During training, we keep the backbone (image and text encoders) frozen, and only train the detection heads. Simultaneously, we interpolate the feature maps from layers [3 , 5, 7, 11] of ViT-B/16 with relative scales  14 , 18 , 116 , 132 
+
+ to the input image size. For ViT-L/14, we interpolate the feature maps from layers 
+
+[6 , 10 , 14 , 23] with relative scales  13.5 , 17 , 114 , 128 
+
+ to the input image size. We train the model for 50 epochs on the OV-LVIS. We use 16 NVIDIA 3090 GPUs, with a batch size of 10 per GPU, and we use the AdamW optimizer with a learning rate of 10 −4 and a weight decay of 0.1. During training, we utilize prompts from both modalities and the proposed random masking mechanism to train the MM-Cls head. 
+
+Testing stage. As shown in the left of Fig. 2, we collect five text prompts and five image prompts for each base and novel 
+
+category, and employ TPDW to obtain image-adaptive prompt representations for the test image. Finally, we localize objects using proposals generated by the RPN, and classify both base and novel objects by computing the cosine similarity between proposal features and the adjusted prompts from different modalities and their combinations. IV. E XPERIMENTS 
+
+A. Setup 
+
+Datasets and evaluation metrics. Our method is evaluated on the standard OVD benchmark, LVIS. LVIS comprises 100K images and 1,203 categories. The categories are divided into three groups based on the number of training images: ‘fre-quent’, ‘common’, and ‘rare’. Following ViLD [22], we treat 337 ‘rare’ categories as novel categories and train exclusively on the base categories (405 ‘frequent’ and 461 ‘common’ IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY, IN SUBMISSION 6
+
+TABLE I COMPARISON WITH SOTA METHODS ON OV-LVIS.                                                                                                                                                                                                                                                               
+
+> Method Backbone Modality Train Data AP fAPc APr AP
+> RegionCLIP RN50 ∗
+> TCC3M 34.0 27.4 17.1 28.2 RN50x4 ∗36.9 32.1 22.0 32.3 Detic RN50 ∗TLVIS-base + IN-L --24.9 32.4 OWL-ViT ViT-B/16 TO365 + VG --20.6 27.2 ViT-L/14 --31.2 34.6 RKDWTF RN50 ∗Base TLVIS-base + IN-L 26.4 19.4 12.2 20.9 RN50 ∗RKDPIS 25.5 20.9 17.3 22.1 RN50 ∗WTF 26.7 21.4 17.1 22.8 RN50 ∗WTF8x 29.1 25.0 21.1 25.9 CORA RN50x4 TLVIS-base --22.2 -CORA+ LVIS-base + IN-21K --28.1 -OADP ViT-B/32 TLVIS-all 32.0 28.4 21.9 28.7 DK-DETR RN50 TLVIS-all 40.2 32.0 22.2 33.5 YOLO-World YOLOv8-L ∗TO365 + GoldG 35.4 24.9 22.9 28.7 YOLOE YOLOv11-L ∗T36.5 35.0 29.1 35.2 MM-OVOD RN50 ∗
+> TLVIS-base --19.3 30.3 I--18.3 29.2 F--19.3 30.6 TLVIS-base + IN-L --25.8 32.7 I--23.8 31.3 F--27.3 33.1 DST-Det ViT-B/16 TLVIS-base --26.2 -SAS-Det RN50-C4 31.6 26.1 20.9 27.4 RN50x4-C4 36.8 32.4 29.1 33.5 LBP -32.4 28.8 22.2 29.1 OV-DQUO ViT-B/16 23.8 27.7 29.4 26.5 ViT-L/14 28.5 36.0 39.5 33.7 F-VLM (CLIP) RN50 T--18.6 24.2 RN50x4 --26.3 28.5 RN50x16 --30.4 32.1 RN50x64 --32.8 34.9
+> LVDor (CLIP) RN50 T27.1 26.2 22.3 25.9 I26.8 26.3 21.4 25.7 F27.3 26.6 22.8 26.2 RN50x4 T30.4 29.7 28.8 29.8 I29.9 29.5 27.9 29.4 F30.6 30.1 28.9 30.1 F-ViT (CLIPSelf) ViT-B/16 T29.1 21.8 25.3 25.2 ViT-L/14 35.6 34.6 34.9 35.1
+> LVDor (CLIPSelf) ViT-B/16 T31.4 24.6 29.6 28.1 I30.7 27.2 26.4 28.4 F31.5 26.8 29.8 29.2 ViT-L/14 T38.0 36.2 39.8 37.5 I37.5 36.3 37.2 36.9 F37.8 36.7 39.8 37.7 F-ViT (DeCLIP) ViT-B/16 T29.8 22.4 26.8 26.0 ViT-L/14 36.5 35.2 37.2 36.0
+> LVDor (DeCLIP) ViT-B/16 T31.9 25.3 30.4 28.8 I31.4 28.1 26.9 29.2 F32.3 28.2 30.7 30.2 ViT-L/14 T38.2 37.1 40.3 38.1 I37.9 36.9 38.4 37.5 F38.6 37.3 40.9 38.4
+
+Notes: IN-L denotes the inclusion of images corresponding to the 997 categories shared between ImageNet-21k-P (IN-21K) [39] and LVIS, ‘ ∗’ indicates that the backbone is not initialized with CLIP. CC3M [40], GoldG [41], VG [42], and ALIGN [43] are all publicly datasets. 
+
+categories). This benchmark is referred to as OV-LVIS. We follow previous work in reporting the average precision for OV-LVIS. we report the average precision for ‘frequent’, ‘common’, and ‘rare’ categories, denoted as AP f , AP c, and 
+
+AP r respectively. The symbol AP represents the average precision across all categories. 
+
+Comparison methods. For a fair comparison, we select sev-eral mainstream VLM-based OVD methods for testing, evalu-ation, and comparison on the OVD benchmarks. Specifically, we include the transfer learning approaches, i.e. , F-VLM [27], CLIPSelf [29], DeCLIP [31], DST-Det [30], LBP [44], OV-DQUO [45] and OWL-ViT [28], and several knowledge distillation methods, i.e. , OADP [46], RKDWTF [24], DK-DETR [25], RegionCLIP [19], pseudo-labeling method MM-OVOD [11], Detic [18], SAS-Det [47], and region-aware training method RO-ViT [15], CORA [16], YOLO-World [48] and YOLOE [49], which retrain a network from scratch using large-scale datasets. We adopt the optimized CLIP ViT-B/16 and ViT-L/14 from CLIPSelf and its improved version DeCLIP as our backbones and apply our method on top of them, using the F-ViT proposed in CLIPSelf as the baseline detection framework. In addition, we integrate our method into F-VLM as the baseline framework and further validate its effectiveness using CLIP’s RN50 and RN50×4 as backbones. 
+
+B. Main Results on OV-LVIS 
+
+Table I presents the experimental results of various methods on OV-LVIS. Since most methods rely solely on the text modality for detection, we first compare the text-based results (‘T’). As shown in the table, regardless of whether CLIP, CLIPSelf, or DeCLIP is used as the backbone, our LVDor consistently achieves the best performance. We also observe that using the image modality (‘I’) as a prompt yields strong results, further demonstrating its effectiveness in detection. Moreover, when fusing both text and image modalities (‘F’), the model attains substantially higher performance across all metrics than using either modality alone, highlighting the im-portance of multimodal fusion for open-vocabulary detection. It is worth noting that our method is trained solely on LVIS-base. Despite other methods training the detection framework on much larger datasets ( e.g. , OWL-ViT) or further pretraining the visual backbone on even broader data ( e.g. , YOLO-World, YOLOE, MM-OVOD), our model still delivers competitive performance. These results collectively demonstrate the effec-tiveness of LVDor in enhancing generalization for open-set and open-vocabulary detection. 
+
+C. Results using Flexible Multi-Modal Prompts 
+
+We validate the proposed novel task setting—flexible multi-modal prompts detection, on the OV-LVIS dataset. We provide three settings to simulate flexible multi-modal scenarios: (1) we randomly select half of the categories from both base and novel categories and provide only text-based prompts, while the other half receive image-based prompts (denoted as T/2-I/2), (2) only image for one half of the categories and ‘text + image’ for the other half (denoted as T-I/2); (3) only text for one half of the categories and the other half for both modalities (denoted as T/2-I). In this way, we construct three mixed-modal prompt scenarios. We then compare and evaluate MM-OVOD, F-VLM (CLIP), F-ViT (CLIPSelf and DeCLIP), and our proposed method LVDor (CLIP, CLIPSelf, and DeCLIP). As shown in Table II, MM-OVOD exhibits a substantial drop in overall performance, with the models trained on both datasets showing an AP reduction of approximately 6%–8%. For F-VLM (CLIP) and F-ViT (CLIPSelf and DeCLIP), we use pre-extracted image and text prompt embeddings and ob-tain the final prompt through simple average-weighted fusion. Under the most challenging prompt scenario (‘T/2-I/2’), these methods likewise display a clear degradation in performance. We attribute this decline to the lack of joint modeling of complete dual-modal prompts during training, along with the overly naive averaging strategy for fusing the two modalities, which introduces significant semantic discrepancies between them. As a result, these models struggle to adapt when any modality is missing and perform poorly when confronted with flexible and heterogeneous prompt forms. In contrast, LVDor demonstrates robustness. Under the flexi-ble prompt setting (‘T/2-I/2’), with DeCLIP ViT-B/16 and ViT-L/14, LVDor shows a 0.5% and 0.7% drop in AP , respectively, compared with the fusion results in Table I, significantly lower than the degradation of other methods. Consistent trends also appear under the other two configurations (‘T-I/2’ and ‘T/2-I’), IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY, IN SUBMISSION 7
+
+TABLE II COMPARISON OF RESULTS USING FLEXIBLE MULTI -MODAL PROMPTS ON THE OV-LVIS.                                                                                                                                                                                         
+
+> Method Backbone Modality Train Data AP fAPc APr AP
+> MM-OVOD RN50 ∗
+> T/2-I/2 LVIS-base 28.7 21.5 11.7 22.7 T-I/2 30.4 22.6 12.7 24.0 T/2-I 28.9 23.2 12.2 23.5 T/2-I/2 LVIS-base + IN-L 29.8 24.2 15.2 24.8 T-I/2 31.5 25.6 16.7 26.4 T/2-I 30.6 27.5 19.1 27.3 F-VLM (CLIP) RN50 T/2-I/2 LVIS-base 23.2 19.9 17.8 20.8 T-I/2 22.6 23.0 18.8 22.1 T/2-I 23.0 22.7 17.9 22.0 RN50×4 T/2-I/2 26.7 22.0 23.8 24.1 T-I/2 25.9 22.3 25.6 24.3 T/2-I 25.2 22.4 24.4 23.8
+> LVDor (CLIP) RN50 T/2-I/2 26.1 23.8 19.6 24.0 T-I/2 25.8 25.1 19.9 24.5 T/2-I 25.6 25.2 20.3 24.5 RN50×4 T/2-I/2 29.2 25.9 26.7 27.3 T-I/2 29.8 25.2 28.8 27.6 T/2-I 29.5 25.7 27.5 27.5 F-ViT (CLIPSelf) ViT-B/16 T/2-I/2 25.6 20.7 13.6 21.4 T-I/2 28.9 21.6 15.6 23.4 T/2-I 25.5 22.9 22.7 23.9 ViT-L/14 T/2-I/2 31.5 33.0 17.3 29.7 T-I/2 33.1 34.7 21.4 31.8 T/2-I 31.8 32.8 33.6 32.6
+> LVDor (CLIPSelf) ViT-B/16 T/2-I/2 29.9 26.2 27.1 27.8 T-I/2 30.8 25.8 29.0 28.3 T/2-I 30.2 26.2 28.4 28.1 ViT-L/14 T/2-I/2 37.2 36.4 37.5 36.9 T-I/2 37.6 36.5 38.8 37.3 T/2-I 37.4 36.1 38.4 37.0
+> LVDor (CLIPSelf) w/o PRM ViT-B/16 T/2-I/2 28.9 25.8 26.3 27.1 F-ViT (DeCLIP) ViT-B/16 T/2-I/2 25.8 21.0 15.1 21.9 T-I/2 29.0 21.8 16.2 23.7 T/2-I 26.4 23.3 23.1 24.5 ViT-L/14 T/2-I/2 32.0 33.2 18.2 30.2 T-I/2 33.7 34.8 21.6 32.1 T/2-I 32.3 33.7 33.8 33.2
+> LVDor (DeCLIP) ViT-B/16 T/2-I/2 30.2 27.1 27.3 28.3 T-I/2 31.3 26.5 29.7 28.9 T/2-I 30.7 27.2 28.9 28.9 ViT-L/14 T/2-I/2 37.6 37.1 37.9 37.4 T-I/2 38.0 37.1 38.9 37.8 T/2-I 37.7 36.3 39.1 37.3
+
+indicating that LVDor remains stable across prompt modality combinations. These results show that under complex and uncertain prompt configurations, LVDor effectively mitigates the effects of modality absence or inconsistency, exhibiting superior robustness and adaptability to multi-modal prompts. Consequently, it offers greater applicability and generalization for LV-OSD tasks. As shown in the row ‘LVDor (CLIPSelf) w/o PRM’, our experiments based on CLIPSelf ViT-B/16 systematically verify the crucial role of the Prompt Random Masking (PRM) mechanism in flexible prompt scenarios (‘T/2-I/2’). The results show that removing this mechanism leads to a noticeable per-formance drop in multi-modal tasks, indicating that the model struggles to adapt to randomly varying prompt combinations. This degradation primarily arises from the lack of simulated multi-modal prompt absence and random combinations during training, which prevents the model from effectively learn-ing cross-modal interactions and limits its ability to handle incomplete or imbalanced prompt inputs during inference. Consequently, incorporating the Random Masking Mechanism substantially enhances the model’s capacity to adapt to diverse prompt combinations, enabling more stable and generalizable performance under flexible prompt conditions. Overall, the Random Masking Mechanism proves not only effective but also essential for improving the model’s robustness under complex and non-fixed prompt configurations. 
+
+D. Ablation Study 
+
+We use F-ViT (CLIPSelf ViT-B/16) as our baseline and per-form the following ablation studies to examine the sensitivity of our components and hyperparameters. 
+
+TABLE III ABLATION STUDY OF OUR MODULES ON OV-LVIS. 
+
+ID Train Test AP f AP c AP r AP 
+
+MPr-T MPr-I TPDW MPr-T MPr-I TPDW 
+
+① 29.1 21.8 25.3 25.2 
+
+② ✓(mean) ✓(mean) 29.6 22.7 25.6 25.9 
+
+③ ✓ ✓ ✓ ✓ 30.9 24.5 26.6 27.4 
+
+④ ✓ ✓ ✓ ✓ ✓ 31.4 24.6 29.6 28.1 
+
+⑤ ✓ ✓ ✓ ✓ ✓ 30.7 27.2 26.4 28.4 
+
+⑥ ✓ ✓ ✓ ✓ ✓ ✓ 31.5 26.8 29.8 29.2 
+
+TABLE IV SENTITIVITY ANALYSIS OF THE NUMBER OF FEATURE PATCHES .
+
+# Patches Modality 1 4 9
+
+AP F 28.0 (16.75 FPS) 29.2 (13.61 FPS) 28.8 (8.33 FPS) 
+
+Component ablation. In Table III, we conduct ablation studies on our proposed multi-modal prompts (MPr), and the Target-guided Prompt Dynamic Weighting (TPDW) module. Row ① indicates the use of a standard template for training a detector based on text modality prompts (F-ViT). Row ② refers to training the detector with the mean of the textual descriptions from our proposed MPr (MPr-T), achieving accuracies of 29.6%, 22.7%, 25.6%, and 25.9% for the ‘frequent’, ‘common’, ‘rare’, and overall categories, respectively. These results represent improvements of 0.5%, 0.9%, 0.3%, and 0.7% compared to the baseline. This suggests that detailed appearance attribute descriptions (generated by MPr) can provide better transfer support for CLIP in down-stream tasks, effectively preserving its generalization ability through enriched semantic information. Row ③ demonstrates training with textual descriptions from MPr and further integrating TPDW, followed by inference using the same approach. This method further enhances the results compared to row ②, with accuracy improvements of 1.3%, 1.8%, 1.0%, and 1.5% in the ‘frequent’, ‘common’, ‘rare’, and overall categories, respectively. This is because the TPDW strategy, which dynamically adjusts prompts based on the input image, contributes to better preservation of CLIP’s semantic alignment and generalization capabilities. Rows ④ ⑤ , and ⑥ further integrate the image modality (MPr-I) during training, which is the whole framework for training of our method. Compared to raw ③, we can see the performance improvement since the use of both modalities during training allows for more detailed and flexible semantic representation. Comparing Rows ④ ⑤ and ⑥, we can see that, during testing, using the single modality of text, image, performs slightly poorly than both of them. But, all the results are acceptable, which, yet again, demonstrates that our method is robust to the input in the real applications. 
+
+Sensitivity to the number of feature patches. As shown in Table IV, we conduct a sensitivity analysis on the number of patches used to divide the full-image feature map in Sec. III-C. We set the patch numbers to 1, 4, and 9, yielding AP scores of %, %, and %, respectively. Empirically, using 4 patches proves sufficient, as increasing the number of image queries provides no additional benefit. Therefore, we adopt four image queries as the default setting throughout all experiments. 
+
+Sensitivity to top K candidate categories. As shown in Table V, we conduct a sensitivity analysis on the number of candidate categories (top K) used in Sec. III-C. We vary IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY, IN SUBMISSION 8               
+
+> TABLE V SENSITIVITY ANALYSIS OF THE TOP KCANDIDATE CATEGORIES .
+> KModality 13579
+> AP F28.0 (16.67 FPS) 28.7 (15.12 FPS) 29.2 (13.61 FPS) 29.2 (12.10 FPS) 28.9 (10.32 FPS)
+
+K across 1, 3, 5, 7, and 9, and observe that using five candidate categories strikes a favorable balance—achieving competitive AP performance while keeping computational overhead moderate. Therefore, we adopt K = 5 as the default setting in all experiments. 
+
+E. Cross-Dataset Transfer Results 
+
+Table VI presents the cross-dataset transfer results of our method from OV-LVIS to Objects365 [50]. We compare our method with Detic, MM-OVOD, F-VLM (CLIP), and F-ViT (CLIPSelf and DeCLIP), reporting the bounding box 
+
+AP metric following the Objects365 standard. Among these methods, Detic and MM-OVOD are trained on LVIS-all, and their variants further employ IN-L as additional weak super-vision, whereas the other methods use models trained only on the LVIS base categories (LVIS-base) for evaluation. All trained detectors are evaluated on the Objects365 validation set. Following the setting in MM-OVOD, we treat the least frequent 13 of categories in Objects365 as rare categories. After training on LVIS-base, we follow the method outlined in Section ‘MPr’ to generate textual descriptions for each category in the Objects365. We then gather example images from the internet for each category and encode them using a frozen CLIP encoder to serve as multi-modal prompts. It can be observed that under the text-prompt setting, our method achieves consistent and notable performance gains over F-VLM (CLIP) and F-ViT (CLIPSelf and DeCLIP). We further evaluate the model with image prompts and fused prompts, where the fusion setting delivers the best results, fully aligning with the conclusions in Table I. These findings demonstrate that our approach effectively leverages high-quality category descriptions generated by large language models, using them as text prompts to provide the detector with more fine-grained and discriminative semantic priors than those derived from fixed template-based prompts. Moreover, when incorporating the image modality and fusing it with text, the model aligns more easily with cross-dataset visual semantic patterns and structures, resulting in stronger robustness and generaliza-tion during cross-dataset transfer. Overall, combining fused prompts with our proposed framework enables the model to maintain superior detection performance in open-set scenarios while exhibiting remarkable cross-dataset transferability. V. I NFERENCE EFFICIENCY ANALYSIS 
+
+We evaluate the inference speed of all methods on a single NVIDIA 3090 GPU. F-ViT (ViT-B/16) reaches 21.18 FPS, while LVDor with dual-modal prompts achieves 13.61 FPS. Although the TPDW module introduces some computational overhead, the resulting improvement in detection performance makes this cost a reasonable and acceptable trade-off in open-set detection. To address the common lack of inference efficiency reporting in existing methods, we further benchmark                                                                                                       
+
+> TABLE VI CROSS -DATASET MAIN RESULTS ON OBJECT 365.
+> Method Backbone Modality Train Data AP rAP AP 50
+> Detic RN50 ∗TLVIS-all 9.5 13.9 19.7 LVIS-all + IN-L 12.4 15.6 22.2 MM-OVOD LVIS-all 10.1 14.8 21.0 LVIS-all + IN-L 13.1 16.6 23.1 F-VLM (CLIP) RN50 TLVIS-base -11.9 19.2 RN50×4 -14.2 22.6
+> LVDor (CLIP) RN50 T11.4 15.2 23.7 I11.0 13.7 22.4 F11.9 15.6 23.9 RN50×4 T14.8 17.9 26.7 I14.2 17.5 26.3 F15.0 18.1 26.9 F-ViT (CLIPSelf) ViT-B/16 T16.8 19.0 32.3 ViT-L/14 21.7 23.7 39.2
+> LVDor (CLIPSelf) ViT-B/16 T18.5 20.1 33.9 I16.5 19.2 32.8 F19.1 20.4 34.3 ViT-L/14 T23.1 24.9 40.9 I22.5 23.6 39.4 F23.8 25.2 41.4 F-ViT (DeCLIP) ViT-B/16 T17.6 20.2 33.1 ViT-L/14 22.3 24.5 39.8
+> LVDor (DeCLIP) ViT-B/16 T19.2 20.6 34.5 I17.1 19.6 33.0 F19.6 20.9 34.9 ViT-L/14 T23.7 25.4 41.2 I22.7 23.8 39.8 F24.3 26.1 42.0
+
+MM-OVOD [11] and OV-DQUO [45], which attain 2.09 FPS and 2.31 FPS, respectively. In comparison, LVDor strikes a far more competitive balance between accuracy and efficiency, significantly outperforming other approaches and demonstrat-ing stronger potential for practical deployment. VI. V ISUALIZATION RESULTS 
+
+As shown in Fig. 4, we present qualitative results for the open-set object detection task on the OV-LVIS dataset based on complementary language-vision prompting. The figure dis-plays three types of outputs: ground-truth annotations on the left, predictions from F-ViT (DeCLIP ViT-B/16) using text-only prompts in the center, and results from our proposed LVDor (DeCLIP ViT-B/16) with fused dual-modal prompts on the right. From the visual comparison, it is evident that LVDor exhibits markedly superior performance in both localization precision and category recognition accuracy compared with F-ViT. Our method identifies semantically relevant instances more accurately while effectively suppressing background noise and false positives, producing more reliable and se-mantically coherent detections. Notably, LVDor maintains strong performance even in fine-grained categories or complex scenes, highlighting the synergistic benefits of dual-modal prompting in enhancing visual–semantic understanding. These qualitative results further validate the robustness and strong generalization ability of our method in challenging open-set scenarios, demonstrating that fusing language and visual prompts provides richer semantic guidance and significantly improves overall open-set object detection performance. VII. E XAMPLES OF TEXTUAL DESCRIPTIONS AND IMAGE 
+
+QUERIES 
+
+As shown in Fig. 5, we use Deepseek to generate five semantically rich and fine-grained textual descriptions for each category in the OV-LVIS dataset, covering appearance IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY, IN SUBMISSION 9GT  F-ViT (DeCLIP ) GT  F-ViT (DeCLIP )LVDor (DeCLIP ) LVDor (DeCLIP )
+
+Fig. 4. Visualization of detection results. 
+
+traits, semantic attributes, and potential variations. The com-plete generation process is detailed in the subsection Text-based category description generation . Meanwhile, Fig. 6 presents diverse image examples collected for each category in the subsection Image-based category example collection ,encompassing different viewpoints, scales, shapes, and scene conditions, thereby providing more representative visual priors for multi-modal prompting. VIII. C ONCLUSION 
+
+In this work, we have proposed a novel approach to open-set object detection based on language-vision complementary prompts. By constructing the Multi-modal Prompts (MPr) that integrate both text and image prompts, our method overcomes the limitations of traditional single-modality approaches, sig-nificantly enhancing the model’s flexibility. The introduction of the Target-guided Prompts Dynamic Weighting (TPDW) method further strengthens the model’s ability to dynami-cally select the optimal prompts based on specific scenarios. Through extensive experiments on OV-LVIS and Object365, we validate the effectiveness of our approach, achieving SOTA performance. Our work provides a more flexible and practical solution for object detection tasks in real-world applications. IX. L IMITATIONS AND FUTURE DIRECTIONS 
+
+Although LVDor shows strong performance and flexibility under the LV-OSD setting, it still has inherent limitations. These mainly arise from its reliance on CLIP, whose repre-sentational capacity is bounded by the underlying backbone. To balance generalization and training efficiency, we use a frozen vision–language backbone; however, this may limit further gains under severe domain shifts and still falls short of real-time inference. Future work will explore lightweight, zero-shot–oriented designs for LVDor and extend the proposed language–vision complementary paradigm to broader open-set and dense perception tasks. Airplane: 
+
+An airplane  is a large vehicle with long wings and a streamlined body. 
+
+An airplane  has a large body with wings extending outward and engines mounted on the sides. 
+
+An airplane  is a streamlined vehicle with a fuselage, wings, and visible tail section. 
+
+Airplane  features large wings, a long fuselage, and a propeller or jet engines on its sides. 
+
+An airplane  is a large, aerodynamic structure with a pointed nose, wings, and a tail. 
+
+Alligator: 
+
+An alligator  is a large reptile with rough, scaly skin and a long, powerful tail. 
+
+An alligator  has a long, scaly body with a broad, flat snout and sharp teeth. 
+
+Alligator  features a thick, muscular tail and large, webbed feet. 
+
+An alligator  is a reptile with a rough, greenish -brown skin and a long body. 
+
+Alligator  has a massive jaw with numerous sharp teeth and a long, powerful body. 
+
+Butterfly: 
+
+A butterfly  has two pairs of large, delicate wings and a slender body. 
+
+A butterfly  has large, colorful wings with intricate patterns and often flutters in the air. 
+
+A butterfly  has delicate wings, often with symmetrical patterns and a slender body. 
+
+A butterfly 's wings are covered in tiny scales that create their bright colors. 
+
+A butterfly 's wings are thin and flexible, allowing it to glide gracefully in the air. 
+
+Dagger: 
+
+A dagger  is a short, pointed blade with a sharp edge and a small handle. 
+
+A dagger  is a short, pointed weapon with a double -edged blade, used for stabbing. 
+
+A dagger  has a sharp, pointed blade with a handle, often used in close combat. 
+
+A dagger  is a small weapon with a pointed blade, typically with a hilt for grip. 
+
+A dagger  features a pointed, narrow blade, with a short length and a grip for holding. 
+
+Dress: 
+
+A dress  is a one -piece garment with a fitted top and a flowing skirt. 
+
+A dress  is a one -piece garment, typically worn by women, with a fitted top and flowing skirt. 
+
+A dress  has a fitted bodice, often with a skirt that falls to the knees or floor. 
+
+A dress  is a formal or casual outfit with a fitted top and a loose or tight skirt. 
+
+A dress  features a one -piece design, usually with a sleeveless or short -sleeved top. 
+
+Fig. 5. Category descriptions of the OV-LVIS dataset. 
+
+REFERENCES [1] Joseph Redmon, Santosh Divvala, Ross Girshick, and Ali Farhadi. You only look once: Unified, real-time object detection. In Proceedings of the IEEE conference on computer vision and pattern recognition , pages 779–788, 2016. IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY, IN SUBMISSION 10 Airplane 
+
+> Ambulance
+> Artichoke
+> Avocado
+> Armchair
+> Flamingo
+> Horse buggy
+> Kite
+
+Fig. 6. Image examples for each category of the OV-LVIS dataset. [2] Shaoqing Ren, Kaiming He, Ross Girshick, and Jian Sun. Faster r-cnn: Towards real-time object detection with region proposal networks. IEEE transactions on pattern analysis and machine intelligence , 39(6):1137– 1149, 2016. [3] Jiyang Zheng, Weihao Li, Jie Hong, Lars Petersson, and Nick Barnes. Towards open-set object detection and discovery. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition ,pages 3961–3970, 2022. [4] Alireza Zareian, Kevin Dela Rosa, Derek Hao Hu, and Shih-Fu Chang. Open-vocabulary object detection using captions. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition ,pages 14393–14402, 2021. [5] Xinyu Jiang, Zhengjia Li, Maoqing Tian, Jianbo Liu, Shuai Yi, and Duoqian Miao. Few-shot object detection via improved classification features. In Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision , pages 5386–5395, 2023. [6] Zichen Wang, Bo Yang, Haonan Yue, and Zhenghao Ma. Fine-grained prototypes distillation for few-shot object detection. In Proceedings of the AAAI conference on artificial intelligence , pages 5859–5866, 2024. [7] Hanqing Yang, Sijia Cai, Hualian Sheng, Bing Deng, Jianqiang Huang, Xian-Sheng Hua, Yong Tang, and Yu Zhang. Balanced and hierarchical relation learning for one-shot object detection. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition ,pages 7591–7600, 2022. [8] Wenwen Zhang, Yun Hu, Hangguan Shan, and Eryun Liu. Exploring base-class suppression with prior guidance for bias-free one-shot object detection. In Proceedings of the AAAI Conference on Artificial Intelli-gence , pages 7314–7322, 2024. [9] Binyi Su, Hua Zhang, Jingzhi Li, and Zhong Zhou. Toward generalized few-shot open-set object detection. IEEE Transactions on Image Processing , 33:1389–1402, 2024. [10] Yuhang Zang, Wei Li, Kaiyang Zhou, Chen Huang, and Chen Change Loy. Open-vocabulary detr with conditional matching. In European Conference on Computer Vision , pages 106–122. Springer, 2022. [11] Prannay Kaul, Weidi Xie, and Andrew Zisserman. Multi-modal classi-fiers for open-vocabulary object detection. In International Conference on Machine Learning , pages 15946–15969, 2023. [12] Alec Radford, Jong Wook Kim, Chris Hallacy, Aditya Ramesh, Gabriel Goh, Sandhini Agarwal, Girish Sastry, Amanda Askell, Pamela Mishkin, Jack Clark, et al. Learning transferable visual models from natural language supervision. In International conference on machine learning ,pages 8748–8763, 2021. [13] Dahun Kim, Anelia Angelova, and Weicheng Kuo. Contrastive feature masking open-vocabulary vision transformer. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pages 15602– 15612, 2023. [14] Dahun Kim, Anelia Angelova, and Weicheng Kuo. Detection-oriented image-text pretraining for open-vocabulary detection. arXiv preprint arXiv:2310.00161 , 2023. [15] Dahun Kim, Anelia Angelova, and Weicheng Kuo. Region-aware pre-training for open-vocabulary object detection with vision transformers. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 11144–11154, 2023. [16] Xiaoshi Wu, Feng Zhu, Rui Zhao, and Hongsheng Li. Cora: Adapting clip for open-vocabulary detection with region prompting and anchor pre-matching. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 7031–7040, 2023. [17] Hwanjun Song and Jihwan Bang. Prompt-guided transformers for end-to-end open-vocabulary object detection. arXiv preprint arXiv:2303.14386 , 2023. [18] Xingyi Zhou, Rohit Girdhar, Armand Joulin, Philipp Kr¨ ahenb¨ uhl, and Ishan Misra. Detecting twenty-thousand classes using image-level supervision. In European Conference on Computer Vision , pages 350– 368, 2022. [19] Yiwu Zhong, Jianwei Yang, Pengchuan Zhang, Chunyuan Li, Noel Codella, Liunian Harold Li, Luowei Zhou, Xiyang Dai, Lu Yuan, Yin Li, et al. Regionclip: Region-based language-image pretraining. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 16793–16803, 2022. [20] Joonhyun Jeong, Geondo Park, Jayeon Yoo, Hyungsik Jung, and Heesu Kim. Proxydet: Synthesizing proxy novel classes via classwise mixup for open-vocabulary object detection. In Proceedings of the AAAI Conference on Artificial Intelligence , volume 38, pages 2462–2470, 2024. [21] Chuofan Ma, Yi Jiang, Xin Wen, Zehuan Yuan, and Xiaojuan Qi. Codet: Co-occurrence guided region-word alignment for open-vocabulary object detection. Advances in neural information processing systems , 36, 2024. [22] Xiuye Gu, Tsung-Yi Lin, Weicheng Kuo, and Yin Cui. Open-vocabulary object detection via vision and language knowledge distillation. arXiv preprint arXiv:2104.13921 , 2021. [23] Chau Pham, Truong Vu, and Khoi Nguyen. Lp-ovod: Open-vocabulary object detection by linear probing. In Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision , pages 779–788, 2024. [24] Hanoona Bangalath, Muhammad Maaz, Muhammad Uzair Khattak, Salman H Khan, and Fahad Shahbaz Khan. Bridging the gap between object and image-level representations for open-vocabulary detection. 
+
+Advances in Neural Information Processing Systems , 35:33781–33794, 2022. [25] Liangqi Li, Jiaxu Miao, Dahu Shi, Wenming Tan, Ye Ren, Yi Yang, and Shiliang Pu. Distilling detr with visual-linguistic knowledge for open-vocabulary object detection. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pages 6501–6510, 2023. [26] Yu Du, Fangyun Wei, Zihe Zhang, Miaojing Shi, Yue Gao, and Guoqi Li. Learning to prompt for open-vocabulary object detection with vision-language model. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 14084–14093, 2022. [27] Weicheng Kuo, Yin Cui, Xiuye Gu, AJ Piergiovanni, and Anelia Angelova. F-vlm: Open-vocabulary object detection upon frozen vision and language models. arXiv preprint arXiv:2209.15639 , 2022. [28] M Minderer, A Gritsenko, A Stone, M Neumann, D Weissenborn, A Dosovitskiy, A Mahendran, A Arnab, M Dehghani, Z Shen, et al. Simple open-vocabulary object detection with vision transformers. arxiv 2022. arXiv preprint arXiv:2205.06230 , 2, 2022. [29] Size Wu, Wenwei Zhang, Lumin Xu, Sheng Jin, Xiangtai Li, Wentao Liu, and Chen Change Loy. Clipself: Vision transformer distills itself for open-vocabulary dense prediction. arXiv preprint arXiv:2310.01403 ,2023. [30] Shilin Xu, Xiangtai Li, Size Wu, Wenwei Zhang, Yunhai Tong, and Chen Change Loy. Dst-det: Open-vocabulary object detection via dynamic self-training. IEEE Transactions on Circuits and Systems for Video Technology , 2024. [31] Junjie Wang, Bin Chen, Yulin Li, Bin Kang, Yichi Chen, and Zhuotao Tian. Declip: Decoupled learning for open-vocabulary dense percep-tion. In Proceedings of the Computer Vision and Pattern Recognition Conference , pages 14824–14834, 2025. [32] Feng Liu, Xiaosong Zhang, Zhiliang Peng, Zonghao Guo, Fang Wan, Xiangyang Ji, and Qixiang Ye. Integrally migrating pre-trained trans-former encoder-decoders for visual object detection. In Proceedings of the IEEE/CVF international conference on computer vision , pages 6825–6834, 2023. IEEE TRANSACTIONS ON CIRCUITS AND SYSTEMS FOR VIDEO TECHNOLOGY, IN SUBMISSION 11 
+
+[33] Yanjie Wang, Xu Zou, Luxin Yan, Sheng Zhong, and Jiahuan Zhou. Snida: Unlocking few-shot object detection with non-linear semantic decoupling augmentation. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 12544–12553, 2024. [34] Xiaowei Zhao, Xianglong Liu, Yuqing Ma, Shihao Bai, Yifan Shen, Zeyu Hao, and Aishan Liu. Temporal speciation network for few-shot object detection. IEEE Transactions on Multimedia , 25:8267–8278, 2023. [35] Yue Lu, Xingyu Chen, Zhengxing Wu, Min Tan, and Junzhi Yu. Binary similarity few-shot object detection with modeling of hard negative samples. IEEE Transactions on Multimedia , 26:4805–4818, 2024. [36] Tung-I Chen, Yueh-Cheng Liu, Hung-Ting Su, Yu-Cheng Chang, Yu-Hsiang Lin, Jia-Fong Yeh, Wen-Chin Chen, and Winston H. Hsu. Dual-awareness attention for few-shot object detection. IEEE Transactions on Multimedia , 25:291–301, 2023. [37] Victor Weixin Liang, Yuhui Zhang, Yongchan Kwon, Serena Yeung, and James Y Zou. Mind the gap: Understanding the modality gap in multi-modal contrastive representation learning. Advances in Neural Information Processing Systems , 35:17612–17625, 2022. [38] Daya Guo, Dejian Yang, Haowei Zhang, Junxiao Song, Ruoyu Zhang, Runxin Xu, Qihao Zhu, Shirong Ma, Peiyi Wang, Xiao Bi, et al. Deepseek-r1: Incentivizing reasoning capability in llms via reinforce-ment learning. arXiv preprint arXiv:2501.12948 , 2025. [39] Tal Ridnik, Emanuel Ben-Baruch, Asaf Noy, and Lihi Zelnik-Manor. Imagenet-21k pretraining for the masses. arXiv preprint arXiv:2104.10972 , 2021. [40] Piyush Sharma, Nan Ding, Sebastian Goodman, and Radu Soricut. Conceptual captions: A cleaned, hypernymed, image alt-text dataset for automatic image captioning. In Proceedings of the 56th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers) , pages 2556–2565, 2018. [41] Aishwarya Kamath, Mannat Singh, Yann LeCun, Gabriel Synnaeve, Ishan Misra, and Nicolas Carion. Mdetr-modulated detection for end-to-end multi-modal understanding. In Proceedings of the IEEE/CVF international conference on computer vision , pages 1780–1790, 2021. [42] Ranjay Krishna, Yuke Zhu, Oliver Groth, Justin Johnson, Kenji Hata, Joshua Kravitz, Stephanie Chen, Yannis Kalantidis, Li-Jia Li, David A Shamma, et al. Visual genome: Connecting language and vision using crowdsourced dense image annotations. International journal of computer vision , 123:32–73, 2017. [43] Chao Jia, Yinfei Yang, Ye Xia, Yi-Ting Chen, Zarana Parekh, Hieu Pham, Quoc Le, Yun-Hsuan Sung, Zhen Li, and Tom Duerig. Scaling up visual and vision-language representation learning with noisy text supervision. In International conference on machine learning , pages 4904–4916, 2021. [44] Jiaming Li, Jiacheng Zhang, Jichang Li, Ge Li, Si Liu, Liang Lin, and Guanbin Li. Learning background prompts to discover implicit knowledge for open vocabulary object detection. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition ,pages 16678–16687, 2024. [45] Junjie Wang, Bin Chen, Bin Kang, Yulin Li, Weizhi Xian, Yichi Chen, and Yong Xu. Ov-dquo: Open-vocabulary detr with denoising text query training and open-world unknown objects supervision. In Proceedings of the AAAI Conference on Artificial Intelligence , volume 39, pages 7762–7770, 2025. [46] Luting Wang, Yi Liu, Penghui Du, Zihan Ding, Yue Liao, Qiaosong Qi, Biaolong Chen, and Si Liu. Object-aware distillation pyramid for open-vocabulary object detection. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 11186– 11196, 2023. [47] Shiyu Zhao, Samuel Schulter, Long Zhao, Zhixing Zhang, Yumin Suh, Manmohan Chandraker, Dimitris N Metaxas, et al. Taming self-training for open-vocabulary object detection. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 13938– 13947, 2024. [48] Tianheng Cheng, Lin Song, Yixiao Ge, Wenyu Liu, Xinggang Wang, and Ying Shan. Yolo-world: Real-time open-vocabulary object detection. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 16901–16911, 2024. [49] Ao Wang, Lihao Liu, Hui Chen, Zijia Lin, Jungong Han, and Guiguang Ding. Yoloe: Real-time seeing anything. arXiv preprint arXiv:2503.07465 , 2025. [50] Shuai Shao, Zeming Li, Tianyuan Zhang, Chao Peng, Gang Yu, Xiangyu Zhang, Jing Li, and Jian Sun. Objects365: A large-scale, high-quality dataset for object detection. In Proceedings of the IEEE/CVF international conference on computer vision , pages 8430–8439, 2019.
