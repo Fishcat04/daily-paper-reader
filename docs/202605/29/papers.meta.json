@@ -1,0 +1,24 @@
+{
+  "label": "2026-05-29",
+  "date": "2026-05-29",
+  "generated_at": "2026-05-29T21:52:39",
+  "count": 1,
+  "papers": [
+    {
+      "paper_id": "202605/29/2605.25651v1-hierarchical-consistency-learning-for-test-time-adaptation-in-camouflage-perception",
+      "section": "quick",
+      "title_en": "Hierarchical Consistency Learning for Test-time Adaptation in Camouflage Perception",
+      "authors": "Mingfeng Zha, Tianyu Li, Guoqing Wang, Yunqiang Pei, Chaofan Qiao, Jiening Zhang, Yang Yang, Heng Tao Shen",
+      "date": "2026-05-25",
+      "pdf": "https://arxiv.org/pdf/2605.25651v1",
+      "score": "7.5",
+      "evidence": "定位与背景感知差异极小的目标",
+      "tldr": "针对伪装目标检测在面对场景变化和未知模式时存在的领域僵化和标注依赖问题，本文提出了一种层级一致性学习（HCL）框架。该框架引入测试时自适应（TTA）进行动态表征校准，通过层级表征重构、任务亲和力引导和原型一致性校准等核心模块，有效增强了模型对外观同质化的鲁棒性。实验证明该方法在多个伪装及水下目标检测基准上均达到了领先水平。",
+      "tags": "query:sod",
+      "abstract_en": "Camouflaged object detection (COD) aims to localize targets that exhibit minimal perceptual differences from backgrounds through physical attributes. Existing methods, constrained by the static train-then-freeze paradigm, suffer from domain rigidity and annotation dependency, limiting their adaptability to scene variations and unseen camouflage patterns. To overcome these, we propose the hierarchical consistency learning (HCL) framework, which integrates test-time adaptation for dynamic representation recalibration. Specifically, we design the hierarchical representation reconstruction (HRR) to alleviate feature entanglement by synergizing spatial reconstruction with dual-stream frequency-domain decomposition, enhancing robustness against appearance homogenization. The pixel and spectrum inference provide structural and contextual priors. We further introduce task affinity guidance (TAG) to propagate knowledge across branches via channel-wise affinity, aligning local discriminative cues and mitigating semantic drift. To ensure semantic invariance, we formulate the prototype consistency calibration (PCC), which aggregates region features into compact prototypes and establishes prototype-feature similarity. This imposes implicit and hierarchical constraints that bridge task and representation gaps. Extensive experiments across four camouflaged and four underwater object benchmarks, under three degradation settings, demonstrate that our method consistently outperforms state-of-the-art approaches, highlighting its robustness and generalization under distribution shifts.",
+      "source": "arxiv",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "errors": []
+}

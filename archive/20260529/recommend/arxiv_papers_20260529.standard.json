@@ -1,0 +1,59 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-05-29T21:51:53.004633+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 0,
+    "deep_cap": 6,
+    "deep_selected": 0,
+    "quick_candidates": 1,
+    "quick_skim_target": 11,
+    "quick_selected": 1
+  },
+  "deep_dive": [],
+  "quick_skim": [
+    {
+      "id": "2605.25651v1",
+      "source": "arxiv",
+      "title": "Hierarchical Consistency Learning for Test-time Adaptation in Camouflage Perception",
+      "abstract": "Camouflaged object detection (COD) aims to localize targets that exhibit minimal perceptual differences from backgrounds through physical attributes. Existing methods, constrained by the static train-then-freeze paradigm, suffer from domain rigidity and annotation dependency, limiting their adaptability to scene variations and unseen camouflage patterns. To overcome these, we propose the hierarchical consistency learning (HCL) framework, which integrates test-time adaptation for dynamic representation recalibration. Specifically, we design the hierarchical representation reconstruction (HRR) to alleviate feature entanglement by synergizing spatial reconstruction with dual-stream frequency-domain decomposition, enhancing robustness against appearance homogenization. The pixel and spectrum inference provide structural and contextual priors. We further introduce task affinity guidance (TAG) to propagate knowledge across branches via channel-wise affinity, aligning local discriminative cues and mitigating semantic drift. To ensure semantic invariance, we formulate the prototype consistency calibration (PCC), which aggregates region features into compact prototypes and establishes prototype-feature similarity. This imposes implicit and hierarchical constraints that bridge task and representation gaps. Extensive experiments across four camouflaged and four underwater object benchmarks, under three degradation settings, demonstrate that our method consistently outperforms state-of-the-art approaches, highlighting its robustness and generalization under distribution shifts.",
+      "authors": [
+        "Mingfeng Zha",
+        "Tianyu Li",
+        "Guoqing Wang",
+        "Yunqiang Pei",
+        "Chaofan Qiao",
+        "Jiening Zhang",
+        "Yang Yang",
+        "Heng Tao Shen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-25T09:57:46+00:00",
+      "link": "https://arxiv.org/pdf/2605.25651v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.5,
+      "llm_evidence_en": "localizing targets with minimal perceptual differences from backgrounds",
+      "llm_evidence_cn": "定位与背景感知差异极小的目标",
+      "llm_evidence": "定位与背景感知差异极小的目标",
+      "canonical_evidence": "定位与背景感知差异极小的目标",
+      "llm_tldr_en": "Proposes hierarchical consistency learning for camouflaged object detection to improve localization.",
+      "llm_tldr_cn": "提出层次一致性学习用于伪装目标检测，以提高定位精度。",
+      "llm_tldr": "提出层次一致性学习用于伪装目标检测，以提高定位精度。",
+      "llm_tags": [
+        "query:sod:composite"
+      ],
+      "matched_query_tag": "query:sod:composite",
+      "matched_query_text": "Papers central to 小目标检测相关论文检索, especially work that connects or combines: deep learning methods for small object detection; FPN and its variants for multi-scale object detection; oversampling and augmentation strategies for small objects; spatial and channel attention for small object feature enhancement; multi-scale feature fusion techniques in computer vision; specialized loss functions for small object localization; state of the art deep learning methods for small object detection; benchmarking small object detection on public datasets.",
+      "matched_requirement_id": "req-composite-sod",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    }
+  ]
+}
