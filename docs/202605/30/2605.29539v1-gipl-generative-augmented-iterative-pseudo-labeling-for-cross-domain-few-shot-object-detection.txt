@@ -1,0 +1,252 @@
+Title: GiPL: Generative augmented iterative Pseudo-Labeling for Cross-Domain Few-Shot Object Detection
+
+URL Source: https://arxiv.org/pdf/2605.29539v1
+
+Published Time: Fri, 29 May 2026 01:00:00 GMT
+
+Number of Pages: 9
+
+Markdown Content:
+# GiPL: Generative augmented iterative Pseudo-Labeling for Cross-Domain Few-Shot Object Detection 
+
+## Jiacong Liu, Shu Luo, Yikai Qin, Yaze Zhao, Yongwei Jiang, Yixiong Zou *
+
+## Huazhong University of Science and Technology 
+
+{jiongcongliu, luoshu hust, yikaiq, zyaz, jiangyongwei, yixiongz }@hust.edu.cn 
+
+## Abstract 
+
+Vision-language foundation models have shown promising zero-shot generalization for Cross-Domain Few-Shot Object Detection (CD-FSOD). However, they face two critical challenges in fine-tuning: insufficient support set utilization due to sparse single-instance annotations, and severe overfitting under extremely limited target-domain samples. To address these issues, this paper pro-poses GiPL, an efficient two-branch training frame-work. In the first branch, we design an iterative pseudo-label self-training paradigm, which per-forms zero-shot inference on the support set to gen-erate reliable pseudo-annotations, fuses them with ground-truth labels, and iteratively optimizes the model to fully exploit support set data. In the sec-ond branch, we introduce generative data augmen-tation pipeline using large vision-language models, which synthesizes domain-aligned, multi-object an-notated images to enrich training samples and sup-press overfitting. Extensive experiments on three challenging CD-FSOD datasets (RUOD, CARPK, CarDD) under 1/5/10-shot settings demonstrate that GiPL consistently outperforms state-of-the-art methods with significant performance gains. Code is available at CDiscover. 
+
+## 1. Introduction 
+
+In recent years, vision-language foundation mod-els (e.g., GroundingDINO [14], LAE-DINO [15]) have made breakthroughs. Via large-scale mul-
+
+> *Corresponding author.
+
+timodal pre-training, they perform well in cross-domain zero-shot and few-shot object detection, providing a new technical path for CD-FSOD [5], and can detect unknown-domain objects to a certain extent due to pre-trained vision-language align-ment. However, adapting these models to new domains with extremely limited labeled samples remains a serious challenge, and CD-FSOD has two urgent core problems to solve. The first is the contradiction between support set annota-tion limitations and dense object detection. CD-FSOD support sets usually use instance-level an-notation—only one instance is annotated per im-age even with multiple same-category objects. This causes “correct detection penalization” during fine-tuning: extra correct annotations are judged as false predictions due to single-instance ground truth, restricting performance improvement. The sec-ond is overfitting from data scarcity. Pre-trained vision-language models can only fine-tune on a small number of target-domain support set samples in CD-FSOD. This pre-training-fine-tuning sample imbalance easily leads to overfitting, loss of gener-alization ability, and even post-fine-tuning perfor-mance lower than zero-shot detection in some cat-egories, becoming a key bottleneck for CD-FSOD. To address these two problems and unlock the potential of vision-language models in CD-FSOD, this paper proposes an efficient, dataset-adaptive two-branch training paradigm. Rather than apply-ing a rigid pipeline, we selectively deploy differ-ent branches tailored to the specific characteristics and primary challenges of each target dataset. For datasets suffering primarily from sparse, single-instance annotations (e.g., dense object scenarios), 
+
+> arXiv:2605.29539v1 [cs.CV] 28 May 2026
+
+we adopt the first branch: an iterative pseudo-label self-training paradigm. This branch fine-tunes the pre-trained model, generates reliable pseudo-labels via zero-shot inference on the support set, fuses them with original annotations for further train-ing, and iterates to maximize support set utiliza-tion. Conversely, for datasets where the core bot-tleneck is severe overfitting due to extreme data scarcity and domain shift, we select the second branch: a generative data augmentation pipeline. Using large language models (i.e., Qwen) and ref-erencing support set images, it generates domain-consistent, multi-object annotated images. These images make up for single-instance annotation defi-ciencies, enrich training samples, suit low-shot set-tings, and suppress overfitting. Comprehensive experiments on three CD-FSOD datasets show the method achieves average perfor-mance gains of 7.63%, 9.97% and 10.03% un-der 1-shot, 5-shot and 10-shot settings, outperform-ing baselines and mainstream methods. Our team achieved a score of 192.7929 and ranked second in the 2nd Cross-Domain Few-Shot Object Detection Challenge [17]. The main contributions are as follows: • We propose a dataset-adaptive two-branch CD-FSOD training framework that selectively ad-dresses support set single-instance annotation limitations or data scarcity based on specific dataset characteristics, improving overall detec-tion performance. • We design a pseudo-label-based self-training paradigm, which maximizes support set value through “fine-tuning — zero-shot inference — pseudo-label generation — fusion training” iter-ation, enhancing multi-object recognition and lo-calization ability. • We propose a generative data augmentation pipeline, using multimodal large language mod-els to generate multi-object, domain-aligned an-notated images, alleviating data scarcity-induced overfitting. • Extensive experiments on three CD-FSOD benchmarks demonstrate our method achieves state-of-the-art results, validating its effective-ness and generalization. 
+
+## 2. Related work 
+
+2.1. General Object Detection 
+
+General object detection has advanced from tra-ditional two-stage and one-stage paradigms to transformer-based detectors. Two-stage methods like Faster R-CNN [20] generate candidate pro-posals followed by region-wise classification and box regression, while one-stage detectors such as the YOLO series [18, 19] directly predict objects densely with higher efficiency. DETR [1] refor-mulates detection as set prediction, with variants like Deformable DETR [30] and DINO [28] im-proving convergence and accuracy. Open-set/open-vocabulary detection extends closed-set settings, with OVR-CNN [27], ViLD [8], GLIP [12], and GroundingDINO [14] enhancing generalization to unseen categories, laying a foundation for few-shot and cross-domain detection. 
+
+2.2. Few-Shot Object Detection 
+
+Few-shot object detection (FSOD) extends few-shot learning [4, 29, 31–33] to instance-level detec-tion, requiring novel category recognition and pre-cise localization with limited annotations. Harder than few-shot classification, it tackles foreground-background separation, localization, scale varia-tion, and class imbalance under data scarcity. Early methods build on Faster R-CNN [20], including Feature Reweighting [10], Meta R-CNN [26], and TFA [22]. Subsequent works like FSCE [21] and support-query interaction approaches [2] improve adaptation, while recent advances leverage large-scale pretraining and vision-language models for better generalization to novel classes. 
+
+2.3. Cross-Domain Few-Shot Object Detec-tion 
+
+Cross-domain few-shot object detection (CD-FSOD)[13] adapts source-domain pretrained detec-tors to target domains with few labels, facing do-main shift and data scarcity. Existing methods include cross-domain alignment approaches like FAFR-CNN, PICA, and DAPN [5]; transfer strate-gies such as AcroFOD, SDAFL, and FUM [6, 7]; and integrated frameworks like MoF-SOD, Distill-Branch 1 Branch 2      
+
+> peseudo labels
+> [Car ]
+> ×n×n
+
+GLIP        
+
+> Pre-trained
+> Grounding
+> DINO
+> Swin-B [Turtle ]
+> Qwen-
+> image-
+> 2.0-pro
+> [Prompt ]
+> Raw Photo Generated
+> Photo
+> (a) (b)
+
+Figure 1. Overview of the proposed GiPL-Grounding framework. Our method addresses the CDFSOD challenge through a dual-branch domain-adaptive strategy. Branch 1: Iterative Self-training with Pseudo-labeling (Left). For CARPK, we employ a cyclic “inference-annotation-training” pipeline. A pre-trained detector generates initial pseudo-labels on the target support set, which are then used as supervisory signals to fine-tune the model, progressively cor-recting localization inaccuracies and alleviating unreasonable background penalties. Branch 2: LVLM-based Gener-ative Data Augmentation (Right). We leverage the multimodal generation capabilities of Qwen to synthesize domain-aligned, semantically consistent training samples. By integrating these two branches, our framework effectively enriches the feature distribution and improves adaptation across diverse target domains. 
+
+CDFSOD, and CD-ViTO [5, 11, 25]. Despite progress, these methods focus on transfer and representation adaptation, neglecting how domain shift disrupts attention and foreground-background discrimination, leaving room for target-aware lo-calization enhancement. 
+
+## 3. Method 
+
+3.1. Problem Setup 
+
+The Cross-Domain Few-Shot Object Detection (CD-FSOD) task adapts a detector from source do-main DS (distribution PS ) to target domain DT
+
+(distribution PT̸ = PS ), where each novel class in CT has few labeled instances. We use the N-way K-shot protocol: support set SN ×K ⊂
+
+DT provides K labeled examples per novel class, and query set Q is for evaluation. Adopting the open-source setting from the 2nd Cross-Domain Few-Shot Object Detection Challenge [17], we di-rectly fine-tune a pretrained detector (e.g., Ground-ingDINO [14]) on S and evaluate on Q, instead of pretraining on DS .
+
+3.2. Revisiting GLIP and GroundingDINO 
+
+GLIP [12] and GroundingDINO [14] are land-mark open-set/multimodal detection models, fo-cusing on vision-language fusion to enable cross-domain and few-shot detection. Let visual fea-ture V ∈ RH×W ×C (H, W: image dimensions; C: visual feature dimension) and text feature T ∈
+
+RL×D (L: text length; D: text feature dimension); their core is V-T alignment. GLIP reformulates detection as phrase grounding, achieving alignment via contrastive training with fusion loss Lalign =
+
+CE (sim (V, T), y ) (sim (·): similarity function; y: matching label). Pre-trained on image-text pairs, it enables arbitrary category detection via text queries but suffers from inter-category interference due to its one-stage architecture and random category name concatenation. GroundingDINO optimizes GLIP by fusing Transformer-based DINO with grounded pre-training. It uses a dual-encoder-single-decoder ar-chitecture, with fusion mechanisms in feature ex-traction, query initialization, and decoding, and strengthens alignment via the CrossAttn (V, T)
+
+module. Clause-level text representation and atten-tion masking reduce inter-category interference and improve accuracy. 
+
+3.3. Method Overview 
+
+This paper proposes a novel two-branch training framework (GiPL, Fig. 1), which integrates it-erative self-training, pseudo-label generation and large-model data augmentation to address core is-sues in cross-domain few-shot detection. The first branch adopts iterative self-training: slightly fine-tuning the pre-trained model first, then in-ferring on target domain support set samples to generate initial pseudo-labels (bounding boxes and category annotations), and further fine-tuning the model with these pseudo-labels. Cyclic iteration of this process corrects pseudo-label accuracy to form positive feedback, guiding the model to learn target domain features, alleviating unreasonable penal-ties in dense detection, and improving multi-object adaptability and detection accuracy. The second branch uses data augmentation to mitigate overfit-ting from scarce labeled support set data: leverag-ing LVLMs’ multimodal generation capability, it generates numerous domain-aligned, multi-object annotated images based on a small number of la-beled samples. These samples ensure target domain semantic consistency, enrich training diversity, and help the model learn comprehensive features to re-duce overfitting. It should be noted that different branch training is adopted for different datasets. 
+
+3.4. Pseudo-Label Iterative Self-Training 
+
+In the CD-FSOD task, only a very small number of bounding box annotations are usually available for each category. This limitation often results in some target objects in the images not being annotated in the initial stage, leading to problems such as low data utilization and sparse annotations. To fully tap the potential value of existing data, make up for the lack of supervision signals and effectively improve the model’s cross-domain adaptability, we adopt a pseudo-label iterative self-training strategy. As shown in Algorithm 1, the iterative self-training process is carried out in an orderly man-ner according to the following steps, forming a closed-loop iteration of “fine-tuning — inference — optimization — retraining”: First, we take the limited original labeled data in the support set as the supervision signal to initially fine-tune the pre-trained model, enabling it to initially adapt to the target domain features. Then, we use the ini-tially fine-tuned model to perform inference on all samples in the support set, generate pseudo-labels for unlabeled targets, and set a high confidence threshold to retain reliable pseudo-labels while fil-tering out low-confidence and inaccurate annota-tions. Next, we perform strict post-processing steps such as Non-Maximum Suppression (NMS) on the 
+
+Algorithm 1 Iterative Pseudo-Labeling for Object Detection 
+
+Require: Few-shot annotations Df s , target train-ing images I, detector M, number of rounds 
+
+T , score threshold τs, NMS threshold τn
+
+Ensure: Pseudo-augmented annotations D(T ) 
+
+> 1:
+
+D(0) ← D f s  
+
+> 2:
+
+for t = 1 to T do  
+
+> 3:
+
+Fine-tune M on D(t−1)  
+
+> 4:
+
+Run M on I to obtain predictions P(t) 
+
+> 5:
+
+Filter out predictions with scores lower than τs 
+
+> 6:
+
+Apply class-wise NMS with threshold τn 
+
+> 7:
+
+Convert the remaining boxes into COCO-style pseudo annotations  
+
+> 8:
+
+Merge them with the original few-shot an-notations: 
+
+D(t) ← D f s ∪ P (t) 
+
+> pseudo
+> 9:
+
+end for  
+
+> 10:
+
+return D(T )
+
+generated pseudo-labels to optimize the accuracy of the pseudo-annotations and eliminate redundant or conflicting labels. Subsequently, we fuse the original real annotations with the optimized high-confidence pseudo-labels to construct an enhanced training set with more comprehensive annotations and larger data volume. Finally, we use this en-hanced training set to retrain the initially fine-tuned model, further strengthening the model’s ability to learn target domain features. The above process is executed repeatedly in it-erations: the model after each round of retraining is used to generate more accurate pseudo-labels, and the optimized pseudo-labels provide more suf-ficient and reliable supervision signals for the next round of training, forming a positive iterative cycle of “inference — annotation — training”. Through this iterative self-training strategy, the model can gradually learn the feature distribution of the tar-get domain, effectively alleviate the unreasonable penalty problem in dense object detection, signifi-cantly improve the adaptability to multi-object sce-Raw   
+
+> Photo
+> Qwen-
+> image-2.0-pro
+> Based on the input image,
+> generate [ class ] objects.
+> Please provide the bounding
+> boxes ......
+> Bounding
+> Boxes Files
+> Generated
+> Photo
+
+Figure 2. Generative data augmentation via Qwen-image-2.0-pro. As illustrated, given a single support im-age, the LVLM generates diverse counterparts by sim-ulating various environmental conditions while strictly preserving the object’s category and structural integrity. 
+
+narios, and enhance the robustness and generaliza-tion ability of the model in cross-domain few-shot detection tasks. 
+
+3.5. Generative Augmentation with Qwen 
+
+To mitigate the severe data scarcity and overfit-ting risks in cross-domain few-shot object detec-tion (CD-FSOD), we adopt a generative data aug-mentation pipeline based on large vision-language models, together with standard detection augmen-tations [16] to enrich the limited support set and improve cross-domain generalization. For Datasets 1 and 3, as shown in Fig. 2, we em-ploy the Qwen-Image-2.0-pro model to synthesize semantically consistent and domain-aligned train-ing samples. Given each support image, the model generates new images that preserve the target do-main’s style, background, and object characteristics while creating valid visual variations. This genera-tive augmentation effectively expands the samples without introducing domain shift, alleviating the la-bel insufficiency in 1/5/10-shot settings. 
+
+Prompt 
+
+Based on the input image, generate [class] objects. Please provide the bounding boxes required for object detection based on the positions of the generated objects, and save them to a txt file with each object and its corresponding box on a single line. The generation process is guided by textual prompts that enforce category consistency and do-main fidelity. The prompt used for controlled gen-eration is shown in the above. 
+
+## 4. Experiments 
+
+4.1. Experimental Setup 
+
+Datasets. We evaluate our GiPL framework on three diverse target domains that represent signif-icant domain shifts from common detection bench-marks: • RUOD: An underwater object detection dataset characterized by low contrast, color distortion, and varying turbidity. • CARPK: A drone-based parking lot dataset fea-turing high-density vehicle instances. It often suffers from sparse labeling (only one instance labeled per image) in few-shot settings. • CarDD: A specialized dataset for car damage detection (e.g., dents, scratches), requiring high-precision localization of fine-grained semantic features. 
+
+Evaluation Protocol. Following the official chal-lenge protocol, we conduct experiments under 1-shot, 5-shot, and 10-shot settings. Performance is measured using Mean Average Precision (mAP) at an IoU threshold of 0.5. 
+
+4.2. Implementation Details 
+
+Model Architectures. We adopt a domain-adaptive architecture selection strategy to align model inductive biases with target domain at-tributes. For the dense multi-object scenarios in CARPK [9], we utilize GLIP-L [12] with a Swin-L backbone. For the specialized domains of RUOD [3] and CarDD [23], we employ Grounding DINO [14] with a Swin-B backbone, which pro-vides superior localization for fine-grained damage and underwater objects. 
+
+Training Configurations. The training protocols are tailored to the specific challenges of each do-main. To address the pervasive issue of missing annotations in CARPK’s few-shot support set, we integrate an iterative pseudo-labeling workflow, as illustrated in Algorithm 1, which enables the de-Table 1. Performance (mAP@0.5) comparison on three target datasets under 1/5/10-shot settings. GiPL-Grounding (Ours) consistently outperforms the baseline models. The ”Avg.” column represents the mean perfor-mance across all three domains.                                    
+
+> Method Shot RUOD CARPK CarDD Avg.
+> GroundingDINO 1-shot 31.5 49.0 34.2 38.2
+> Ours (GiPL) 1-shot 34.6 63.3 39.7 45.9
+> GLIP 5-shot 35.8 42.0 43.8 40.5
+> Ours (GiPL) 5-shot 41.1 63.0 47.4 50.5
+> GroundingDINO 10-shot 34.6 40.0 47.0 40.5
+> Ours (GiPL) 10-shot 42.1 61.3 48.3 50.6
+
+tector to learn from previously unlabeled vehicle instances. We fine-tune the model for 200 epochs with a learning rate of 5 × 10 −5 and a batch size of 2, employing an iterative self-training paradigm to refine the model’s perception of dense vehicle clus-ters. In contrast, for the low-resource domains of RUOD and CarDD, we train for 50 epochs with a batch size of 4 on a single NVIDIA A6000 GPU. To mitigate the distribution shift and extreme data scarcity in these domains, we utilize Qwen-image-2.0-pro [24] to synthesize semantically consistent variations of the support set (see Fig. 2). This gen-erative augmentation effectively expands the train-ing feature space, providing the model with diverse visual contexts. 
+
+Inference Configurations. During inference, the detector is applied in a standard single-model set-ting without test-time augmentation. Since the task is object detection, non-maximum suppression (NMS) is used to remove highly overlapped predic-tions and retain the most confident bounding boxes. We follow the default inference pipeline of the cor-responding detector framework for prediction fil-tering and box selection. 
+
+4.3. Main Results 
+
+As shown in Table 1, our GiPL-Grounding achieves a final aggregate score of 192.79 , demonstrating strong generalization across diverse domains. 
+
+Effectiveness on CARPK. In the CARPK dataset, our method achieves a remarkable 63.3 mAP in the 1-shot setting, a +14.3 point improve-ment over the baseline. This surge is attributed to our iterative pseudo-labeling pipeline, which suc-cessfully recovers unlabeled vehicle instances, pre-venting the model from erroneously treating valid targets as background. 
+
+Robustness in RUOD and CarDD. For under-water (RUOD) and damage (CarDD) detection, the domain gap is significant. By leveraging Qwen-based generative augmentation, our model learns invariant features despite the low-visibility con-ditions of RUOD and the subtle visual cues of CarDD. Specifically, for RUOD, our 10-shot per-formance reaches 42.1 mAP, showing that the syn-thesis of diverse underwater environments signifi-cantly mitigates data scarcity. 
+
+4.4. Ablation study 
+
+Table 2 shows that our Qwen-based generative aug-mentation consistently boosts performance under all few-shot settings, effectively alleviating data scarcity and domain shift. Table 3 illustrates that vanilla fine-tuning suffers from performance degradation caused by sparse annotations, while our pseudo-labeling framework significantly improves detection accuracy on the dense CARPK dataset. 
+
+Table 2. The 1/5/10-shot ablation study of Ground-ingDINO on the RUOD and CarDD datasets.                               
+
+> Method RUOD CarDD Avg 1-shot  Zero-shot 31.5 12.0 21.75 + ETS [16] 30.8 34.2 32.50 + Augmentation (Ours) 34.6 39.7 37.15
+> 5-shot  Zero-shot 31.5 12.0 21.75 + ETS [16] 35.8 43.8 39.80 + Augmentation (Ours) 41.1 47.4 44.25
+> 10-shot  Zero-shot 31.5 12.0 21.75 + ETS [16] 34.6 47.0 40.80 + Augmentation (Ours) 42.1 48.3 45.20
+
+4.5. Pseudo-Label Threshold Analysis 
+
+We study the influence of the pseudo-label confi-dence threshold on detection performance. As il-lustrated in Fig. 3, the performance reaches its peak when the threshold is set to 0.6 and drops on both sides. A small threshold retains more predicted boxes, but also introduces more low-quality pseudo labels, which may contaminate the training set and harm adaptation. On the other hand, an overly large Table 3. The 1/5/10-shot ablation study of GLIP on the CARPK dataset.           
+
+> Method CARPK 1-shot  Zero-shot 50.7 + fine-tuned 49.4 + Pseudo-Label (Ours) 63.3
+> 5-shot  Zero-shot 50.7 + fine-tuned 42.5 + Pseudo-Label (Ours) 63.0
+> 10-shot  Zero-shot 50.7 + fine-tuned 40.9 + Pseudo-Label (Ours) 61.3
+
+Figure 3. Effect of the pseudo-label confidence thresh-old. The performance first increases and then decreases as the threshold becomes larger. A small threshold in-troduces more low-quality pseudo labels, while a large threshold retains too few pseudo boxes for effective train-ing. The best performance is achieved at the threshold of 0.6. 
+
+threshold keeps only a limited number of highly confident boxes, reducing the amount of effective supervision brought by pseudo labeling. These re-sults indicate that a proper threshold is critical for balancing pseudo-label quality and quantity, and 0.6 achieves the best trade-off in our setting. 
+
+4.6. Qualitative Visualization Analysis 
+
+We further provide qualitative comparisons in Fig. 4. The first row shows the original input im-ages, the second row presents the predictions of the baseline, and the third row shows the results of our GiPL. Compared with the baseline, GiPL pro-duces more accurate and complete detections under challenging underwater scenes. Specifically, the baseline tends to suffer from missed detections, in-accurate localization, and scattered predictions on Original 
+
+> Baseline
+> Ours
+
+Figure 4. Qualitative comparison of detection results in the underwater target domain. The first row shows the original images, the second row presents the predictions of the baseline, and the third row shows the results of GiPL. Compared with the baseline, GiPL produces more accurate localization, fewer missed detections, and less background interference, demonstrating stronger robust-ness under challenging cross-domain scenarios. 
+
+background regions. In contrast, our method is able to focus more effectively on the true object re-gions, leading to tighter bounding boxes and fewer distracting responses. This advantage is espe-cially evident in complex cases with blurry appear-ance, cluttered background, or severe domain shift, where GiPL achieves more reliable foreground lo-calization and better object awareness. These vi-sual results further verify the effectiveness of GiPL in improving target-domain detection quality. 
+
+## 5. Conclusion 
+
+This work addresses the core bottlenecks of sparse annotation utilization and data scarcity induced overfitting in cross-domain few-shot object detec-tion. We propose GiPL, a two-branch framework that combines iterative pseudo-label self-training and text-guided generative data augmentation. The pseudo-label module fully exploits support set in-formation, while the generative module provides domain-consistent multi-object samples to mitigate overfitting. Experiments on three cross-domain datasets show that our method significantly im-proves performance under 1/5/10-shot settings and achieves state-of-the-art results in CD-FSOD. In the future, we will extend GiPL to more com-plex cross-modal and cross-task detection scenar-ios, and explore lightweight generative augmenta-tion for efficient adaptation. Acknowledgments 
+
+This work is supported by the National Natural Sci-ence Foundation of China under grants 62206102; the National Key Research and Development Pro-gram of China under grant 2024YFC3307900; the National Natural Science Foundation of China under grants 62436003, 62376103 and 62302184; Major Science and Technology Project of Hubei Province under grant 2025BAB011 and 2024BAA008; Hubei Science and Technology Tal-ent Service Project under grant 2024DJC078; and Ant Group through CCF-Ant Research Fund. The computation is completed in the HPC Platform of Huazhong University of Science and Technology. 
+
+## References 
+
+[1] Nicolas Carion, Francisco Massa, Gabriel Syn-naeve, Nicolas Usunier, Alexander Kirillov, and Sergey Zagoruyko. End-to-end object detection with transformers. In European conference on com-puter vision , pages 213–229. Springer, 2020. 2 [2] Qi Fan, Wei Zhuo, Chi-Keung Tang, and Yu-Wing Tai. Few-shot object detection with attention-rpn and multi-relation detector. In Proceedings of the IEEE/CVF conference on computer vision and pat-tern recognition , pages 4013–4022, 2020. 2 [3] Chenping Fu, Risheng Liu, Xin Fan, Puyang Chen, Hao Fu, Wanqi Yuan, Ming Zhu, and Zhongxuan Luo. Rethinking general underwater object detec-tion: Datasets, challenges, and solutions. Neuro-computing , 517:243–256, 2023. 5 [4] Yuqian Fu, Yu Xie, Yanwei Fu, and Yu-Gang Jiang. Styleadv: Meta style adversarial training for cross-domain few-shot learning. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 24575–24584, 2023. 2 [5] Yuqian Fu, Yu Wang, Yixuan Pan, Lian Huai, Xingyu Qiu, Zeyu Shangguan, Tong Liu, Yanwei Fu, Luc Van Gool, and Xingqun Jiang. Cross-domain few-shot object detection via enhanced open-set object detector. In European Confer-ence on Computer Vision , pages 247–264. Springer, 2024. 1, 2, 3 [6] Yipeng Gao, Lingxiao Yang, Yunmu Huang, Song Xie, Shiyong Li, and Wei-Shi Zheng. Acrofod: An adaptive method for cross-domain few-shot object detection. In European Conference on Computer Vision , pages 673–690. Springer, 2022. 2 [7] Yipeng Gao, Kun-Yu Lin, Junkai Yan, Yaowei Wang, and Wei-Shi Zheng. Asyfod: An asym-metric adaptation paradigm for few-shot domain adaptive object detection. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 3261–3271, 2023. 2 [8] Xiuye Gu, Tsung-Yi Lin, Weicheng Kuo, and Yin Cui. Open-vocabulary object detection via vision and language knowledge distillation. arXiv preprint arXiv:2104.13921 , 2021. 2 [9] Meng-Ru Hsieh, Yen-Liang Lin, and Winston H. Hsu. Drone-based object counting by spatially reg-ularized regional proposal network. In IEEE In-ternational Conference on Computer Vision, ICCV 2017, Venice, Italy, October 22-29, 2017 , pages 4165–4173. IEEE Computer Society, 2017. 5 [10] Bingyi Kang, Zhuang Liu, Xin Wang, Fisher Yu, Jiashi Feng, and Trevor Darrell. Few-shot object detection via feature reweighting. In Proceedings of the IEEE/CVF international conference on com-puter vision , pages 8420–8429, 2019. 2 [11] Kibok Lee, Hao Yang, Satyaki Chakraborty, Zhaowei Cai, Gurumurthy Swaminathan, Avinash Ravichandran, and Onkar Dabeer. Rethinking few-shot object detection on a multi-domain bench-mark. In European Conference on Computer Vi-sion , pages 366–382. Springer, 2022. 3 [12] Liunian Harold Li, Pengchuan Zhang, Haotian Zhang, Jianwei Yang, Chunyuan Li, Yiwu Zhong, Lijuan Wang, Lu Yuan, Lei Zhang, Jenq-Neng Hwang, et al. Grounded language-image pre-training. In Proceedings of the IEEE/CVF confer-ence on computer vision and pattern recognition ,pages 10965–10975, 2022. 2, 3, 5 [13] Yu Li, Xingyu Qiu, Yuqian Fu, Jie Chen, Tianwen Qian, Xu Zheng, Danda Pani Paudel, Yanwei Fu, Xuanjing Huang, Luc Van Gool, et al. Domain-rag: Retrieval-guided compositional image gener-ation for cross-domain few-shot object detection. 
+
+arXiv preprint arXiv:2506.05872 , 2025. 2 [14] Shilong Liu, Zhaoyang Zeng, Tianhe Ren, Feng Li, Hao Zhang, Jie Yang, Qing Jiang, Chunyuan Li, Jianwei Yang, Hang Su, et al. Grounding dino: Marrying dino with grounded pre-training for open-set object detection. In European conference on computer vision , pages 38–55. Springer, 2024. 1, 2, 3, 5 [15] Jiancheng Pan, Yanxing Liu, Yuqian Fu, Muyuan Ma, Jiahao Li, Danda Pani Paudel, Luc Van Gool, and Xiaomeng Huang. Locate anything on earth: Advancing open-vocabulary object detection for remote sensing community. In Thirty-Ninth AAAI Conference on Artificial Intelligence, Thirty-Seventh Conference on Innovative Applications of Artificial Intelligence, Fifteenth Symposium on Ed-ucational Advances in Artificial Intelligence, AAAI 2025, Philadelphia, PA, USA, February 25 - March 4, 2025 , pages 6281–6289. AAAI Press, 2025. 1 [16] Jiancheng Pan, Yanxing Liu, Xiao He, Long Peng, Jiahao Li, Yuze Sun, and Xiaomeng Huang. En-hance then search: An augmentation-search strat-egy with foundation models for cross-domain few-shot object detection. In CVPRW , 2025. 5, 6 [17] Xingyu Qiu, Yuqian Fu, Geng Jiawei, Bin Ren, Jiancheng Pan, Yanwei Fu, Radu Timofte, et al. Ntire 2026 challenge on cross-domain few-shot ob-ject detection: methods and results. In CVPRW ,2026. 2, 3 [18] Joseph Redmon and Ali Farhadi. Yolov3: An incremental improvement. arXiv preprint arXiv:1804.02767 , 2018. 2 [19] Joseph Redmon, Santosh Divvala, Ross Girshick, and Ali Farhadi. You only look once: Unified, real-time object detection. In Proceedings of the IEEE conference on computer vision and pattern recog-nition , pages 779–788, 2016. 2 [20] Shaoqing Ren, Kaiming He, Ross Girshick, and Jian Sun. Faster r-cnn: Towards real-time object detection with region proposal networks. Advances in neural information processing systems , 28, 2015. 2[21] Bo Sun, Banghuai Li, Shengcai Cai, Ye Yuan, and Chi Zhang. Fsce: Few-shot object detection via contrastive proposal encoding. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 7352–7362, 2021. 2 [22] Xin Wang, Thomas E Huang, Trevor Darrell, Joseph E Gonzalez, and Fisher Yu. Frustratingly simple few-shot object detection. arXiv preprint arXiv:2003.06957 , 2020. 2 [23] Xinkuang Wang, Wenjing Li, and Zhongcheng Wu. Cardd: A new dataset for vision-based car damage detection. IEEE Trans. Intell. Transp. Syst. , 24(7): 7202–7214, 2023. 5 [24] Chenfei Wu, Jiahao Li, Jingren Zhou, Junyang Lin, Kaiyuan Gao, Kun Yan, Shengming Yin, Shuai Bai, Xiao Xu, Yilei Chen, Yuxiang Chen, Zecheng Tang, Zekai Zhang, Zhengyi Wang, An Yang, Bowen Yu, Chen Cheng, Dayiheng Liu, Deqing Li, Hang Zhang, Hao Meng, Hu Wei, Jingyuan Ni, Kai Chen, Kuan Cao, Liang Peng, Lin Qu, Ming-gang Wu, Peng Wang, Shuting Yu, Tingkun Wen, Wensen Feng, Xiaoxiao Xu, Yi Wang, Yichang Zhang, Yongqiang Zhu, Yujia Wu, Yuxuan Cai, and Zenan Liu. Qwen-image technical report. arXiv preprint arXiv:2508.02324 , 2025. 6 [25] Wuti Xiong. Cd-fsod: A benchmark for cross-domain few-shot object detection. In ICASSP 2023-2023 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP) , pages 1– 5. IEEE, 2023. 3 [26] Xiaopeng Yan, Ziliang Chen, Anni Xu, Xiaoxi Wang, Xiaodan Liang, and Liang Lin. Meta r-cnn: Towards general solver for instance-level low-shot learning. In Proceedings of the IEEE/CVF interna-tional conference on computer vision , pages 9577– 9586, 2019. 2 [27] Alireza Zareian, Kevin Dela Rosa, Derek Hao Hu, and Shih-Fu Chang. Open-vocabulary object de-tection using captions. In Proceedings of the IEEE/CVF conference on computer vision and pat-tern recognition , pages 14393–14402, 2021. 2 [28] Hao Zhang, Feng Li, Shilong Liu, Lei Zhang, Hang Su, Jun Zhu, Lionel M Ni, and Heung-Yeung Shum. Dino: Detr with improved denoising an-chor boxes for end-to-end object detection. arXiv preprint arXiv:2203.03605 , 2022. 2 [29] Yaze Zhao, Yixiong Zou, Yuhua Li, and Ruixuan Li. Interpretable cross-domain few-shot learning with rectified target-domain local alignment. arXiv preprint arXiv:2603.17655 , 2026. 2 [30] Xizhou Zhu, Weijie Su, Lewei Lu, Bin Li, Xiao-gang Wang, and Jifeng Dai. Deformable detr: De-formable transformers for end-to-end object detec-tion. arXiv preprint arXiv:2010.04159 , 2020. 2 [31] Yixiong Zou, Yicong Liu, Yiman Hu, Yuhua Li, and Ruixuan Li. Flatten long-range loss landscapes for cross-domain few-shot learning. In CVPR 2024 ,pages 23575–23584. IEEE, 2024. 2 [32] Yixiong Zou, Ran Ma, Yuhua Li, and Ruixuan Li. Attention temperature matters in vit-based cross-domain few-shot learning. In NeurIPS 2024 , 2024. [33] Yixiong Zou, Shuai Yi, Yuhua Li, and Ruixuan Li. A closer look at the CLS token for cross-domain few-shot learning. In NeurIPS 2024 , 2024. 2

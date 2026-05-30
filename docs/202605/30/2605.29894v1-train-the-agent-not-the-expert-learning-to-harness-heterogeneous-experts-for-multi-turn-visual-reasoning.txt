@@ -1,0 +1,388 @@
+Title: Train the Agent, Not the Expert: Learning to Harness Heterogeneous Experts for Multi-Turn Visual Reasoning
+
+URL Source: https://arxiv.org/pdf/2605.29894v1
+
+Published Time: Fri, 29 May 2026 01:37:52 GMT
+
+Number of Pages: 12
+
+Markdown Content:
+# Train the Agent, Not the Expert: Learning to Harness Heterogeneous Experts for Multi-Turn Visual Reasoning 
+
+Yaowu Fan 1 Tao Han 2 Dazhao Du 2 Andy J. Ma 1 Jia Wan 3
+
+> 1
+
+Sun Yat-sen University 2HKUST 3Harbin Institute of Technology 
+
+{fywyukee,hantao10200,dudazhao16,jiawan1998}@gmail.com, majh8@mail.sysu.edu.cn 
+
+Abstract 
+
+Recent progress in computer vision has produced a wide range of powerful special-ized models for detection, segmentation, counting, and other visual tasks. However, these models are usually optimized for isolated task formulations, making it difficult to directly support general-purpose visual intelligence, especially when a task re-quires complex language understanding and dense small-object perception. In this paper, we propose VisHarness , a trainable visual agent that decouples high-level perception, reasoning, and decision-making from low-level task execution. Instead of training a model to solve a specific visual task, VisHarness learns to harness a set of carefully designed heterogeneous visual experts. This paradigm preserves the general intelligence of the agent while fully leveraging the precision advan-tages of specialized visual models in concrete visual tasks. With only lightweight training, VisHarness learns a generalizable visual expert-harnessing policy and can solve common fundamental vision tasks under various complex conditions through multi-turn interactions with visual expert models. To enable efficient on-policy reinforcement learning training in a live environment, we introduce dynamic visual memory archiving, which mitigates the rapidly accumulating visual-token overhead caused by multi-turn interactions with visual expert models. Experiments on four representative benchmarks covering reasoning segmentation, generalized referring segmentation, dense small-object detection, and referring counting demonstrate that VisHarness substantially outperforms existing general-purpose models and achieves competitive or superior performance compared with task-specific models. 
+
+1 Introduction 
+
+The past decade has witnessed rapid advances in computer vision. Powerful specialized models have emerged across multiple subfields, such as object detection [ 23 ], semantic segmentation [ 12 ], and object counting [ 36 ], achieving substantial progress on their respective tasks. The continuous im-provement of these task-specific capabilities has driven computer vision beyond traditional perception tasks toward more open and complex visual understanding scenarios. Despite their impressive performance, these specialized visual models are still typically designed as isolated task solvers. Each model has a fixed input-output format and primarily serves a specific type of visual task. For example, detection and segmentation models [ 4, 12 , 22 , 40 ] excel at object localization and pixel-level mask generation, but often lack the ability to understand complex language instructions. Counting models [ 8, 27 ] are effective for estimating dense object distributions, but struggle to support instance-level reasoning. Visual grounding models [ 5 , 19 , 31 ] can interpret complex language descriptions, yet they often have limited capability when dealing with dense small objects. As a result, when users pose complex visual requests, a single model is often insufficient 
+
+> Preprint.
+> arXiv:2605.29894v1 [cs.CV] 28 May 2026
+
+The Expert-training Era  The Agent-training Era   
+
+> Segment Net Detect Net Count Net
+
+VisHarness             
+
+> Perception, Reasoning and Decision-Making
+> Visual Experts for Execution
+> Task Data Task Data Task Data
+> Det Loss Seg Loss Count Loss
+> Task-specific Training
+> Duplicate Effort •High Cost •Limited Generalization Complementary Strengths • Scalable • Strong Generalization
+
+…
+
+… 
+
+> (a) (b)
+
+Figure 1: From expert training to expert harnessing. (a): Traditional computer vision methods train a separate specialist for each visual sub-task. (b): VisHarness learns one harnessing policy over a set of heterogeneous experts and thus can solve complex visual tasks through multi-turn interaction. to solve the entire problem (see Fig. 1(a)). Visual tasks in real-world scenarios usually require the composition of multiple capabilities, such as first understanding the textual instruction, then localizing the target, segmenting the target region, and finally verifying or further reasoning based on intermediate results. In recent years, multimodal large language models (MLLMs) [ 11 , 21 ] have demonstrated strong vision-language understanding and reasoning capabilities, offering new possibilities for building general-purpose visual intelligence. However, MLLMs themselves are not always well suited for precise low-level visual execution, such as pixel-level segmentation, dense object detection, or accu-rate counting. Achieving reliable performance on these tasks often requires dedicated architectural modifications and careful design, as well as large-scale and high-quality training data to ensure strong performance on downstream visual tasks [ 9, 13 , 26 , 28 ]. On the other hand, although integrating MLLMs with external visual models can further extend their capabilities, existing methods typically rely on manually designed prompts [ 34 ] or single-turn decision-making [ 38 ]. As a result, they struggle to self-correct based on intermediate visual results in complex tasks and have difficulty to effectively select and coordinate among different visual tools. To address the above issues, we propose VisHarness , a trainable high-level agent for harnessing visual experts. Built upon a carefully designed set of heterogeneous visual expert models, VisHarness can learn a generalizable visual expert-harnessing policy from only a small amount of data, enabling it to solve various common fundamental vision tasks. The core design principle of VisHarness is to decouple the perception, reasoning, and decision-making abilities of a high-level agent from the execution of low-level vision tasks. Specifically, the agent learns general perception, reasoning, and decision-making abilities, while delegating the execution of specific vision tasks to specialized visual models. This design preserves the general intelligence of the agent while fully leveraging the precision advantages of specialized visual models in concrete visual tasks. (see Fig. 1(b)) In contrast, existing methods [ 26 , 28 ] usually modify the original architecture of MLLMs and train them with large-scale data into specialized models that can only handle a particular type of vision task. Based on this design principle, VisHarness can naturally support a variety of fundamental vision tasks, including Generalized Referring Expression Segmentation (GRES), Reasoning Segmentation, and referring expression detection and counting for dense small objects. Through multi-turn interactions with visual experts, VisHarness can further handle complex visual tasks that are difficult for a single visual expert model to solve. At each turn, VisHarness first perceives the current image and text content, then reasons to make a decision. After a specific visual expert model returns the execution result in visualized and textual form, VisHarness can continue reasoning based on this feedback and decide in the next turn whether to refine the previous result or invoke a new visual expert model, until the task is completed. To enable VisHarness to learn a generalizable visual expert-harnessing policy, we train it with on-policy reinforcement learning in a live environment where visual expert models are deployed. However, during multi-turn interactions with visual experts, visual feedback continuously accumu-2lates. This introduces substantial memory and context overhead, making RL training difficult to conduct. To this end, we further introduce a dynamic visual memory archiving mechanism. At each reasoning step of VisHarness, this mechanism dynamically archives outdated visual memories, while only the visual results produced by the most recent visual expert is retained. This mechanism preserves necessary historical information while substantially reducing the context overhead intro-duced by historical visual memory, enabling on-policy reinforcement learning to efficiently sample trajectories. Since dynamic visual memory archiving causes the historical memory to change at each turn, we decompose the multi-turn Markov decision process into multiple single-turn Markov decision processes to maintain consistency between training and inference during the stage of RL training. In summary, our main contributions are as follows: • We introduce VisHarness, a trainable visual agent that decouples high-level visual perception, reasoning, and decision-making from low-level visual task execution. It requires only a small amount of training data to learn a generalizable harnessing policy over a carefully designed set of heterogeneous visual experts and can solve various fundamental vision tasks under complex conditions through multi-turn reasoning. • We propose a dynamic visual memory archiving mechanism which substantially reduces the visual overhead in multi-turn interactions while preserving the coherence of historical memory. This enables efficient on-policy reinforcement learning training of VisHarness in the live environment, allowing it to autonomously explore effective and generalizable policies under the guidance of trajectory-level rewards, while reducing ineffective or redundant visual tool invocations. • Experimental results on four benchmarks covering Generalized Referring Expression Segmentation (GRES), Reasoning Segmentation, and referring expression detection and counting for dense small objects show that VisHarness outperforms general-purpose models and achieves comparable or even better performance than specialized models. Further analysis demonstrates that online reinforcement learning effectively reduces redundant visual tool invocations. 
+
+2 Related Work 
+
+2.1 MLLM-Based Task-Specific Visual Models 
+
+Recent works have adapted MLLMs into specialized visual models. LISA [ 13 ] introduces a special 
+
+<SEG> token for reasoning segmentation from complex implicit queries. InstructSeg [ 33 ] develops an end-to-end MLLM-based pipeline for instructed segmentation in images and videos. LLaVASeg [ 38 ]uses chain-of-thought prompting to infer target attributes and guide a downstream segmentation model. Text4Seg [ 14 ] casts segmentation as text generation by representing masks with textual semantic descriptors. Rex-Omni [ 9] adapts MLLMs to object detection with special coordinate tokens. Despite their effectiveness, these methods usually modify the original MLLM architecture and require large amounts of task-specific data, making the resulting models specialized for particular tasks. In contrast, VisHarness learns a generalizable policy for harnessing visual experts, enabling flexible application across diverse vision tasks. 
+
+2.2 Tool-integrated Reasoning in LLM 
+
+Tool-integrated reasoning alleviates the limitations of LLMs in precise computation and access to up-to-date information by invoking external tools such as code interpreters, calculators, and browsers during inference. ToolRL [ 20 ] investigates reward design for RL-based tool selection and application, demonstrating the importance of fine-grained feedback for stable tool-use training. OTC-PO [ 29 ] introduces a tool-aware RL objective that penalizes excessive tool calls while preserving task accuracy. Beyond text-based tool use, recent works have begun to study tool-integrated agents with visual inputs. OPENTHINKIMG [ 25 ] studies tool-augmented visual question answering and uses RL to train MLLMs to adaptively invoke external vision tools during image-based reasoning. LLaVA-Plus [ 16 ] augments multimodal assistants with a repository of vision and vision-language tools for diverse multimodal tasks. Different from these works that mainly use external tools to assist multimodal reasoning or question answering, VisHarness focuses on learning a generalizable policy to adaptively harness heterogeneous visual experts for diverse fundamental vision tasks under challenging conditions. 3Prompt  
+
+> Detect/Segment/Count person
+> dragon dancing
+
+Dynamic Visual Memory Archiving 
+
+Agent  Reasoning 
+
+> Round 1
+> <think>…The scene is too crowded. Direct detection may miss many people. I should split the image into smaller patches first….</think>
+> <tool_call>{"name": "SplitImageIntoPatches", "arguments": {"patch_configs": {"img_0": 400}}}</tool_call>
+
+Environment   
+
+> Round 2
+> <think>Now I can see the 12 patches clearly. Let me analyze which patches
+> contain dragon dancers… Let me apply SuperResolution ...</think>
+> <tool_call> {"name": "SuperResolution", "arguments": {"images":
+> ["img_0_r1_c2", "img_0_r1_c3",..., "img_0_r3_c2"]}} </tool_call>
+> Round 1
+> <tool_response> ……<tool_response>
+> Selected
+> Expert Name
+> Controller
+> Expert Worker Pool
+> Selected Worker
+> Selected Image
+
+…
+
+> Multi-model Results
+> +
+> Cache
+
+…   
+
+> Final Results
+> …
+> Worker n
+> Worker 1
+> Expert 1
+> Worker 2
+> …
+> …
+> Round 2
+> <think>…</think> <tool_call>…</tool_call>
+> <tool_response>…The super-resolution results of all the patches have been obtained and stored…<tool_response>
+> Will be replaced with text placeholder at next round
+> Round 3
+> <tool_response> ……<tool_response>
+> Will be replaced with text placeholder at next round
+
+…  
+
+> Worker n
+> Worker 1
+> Expert 2
+> Worker 2
+> …
+> Worker n
+> Worker 1
+> Expert 3
+> Worker 2
+> …
+> Heterogeneous Visual
+> Expert Suite
+
+Figure 2: Overview of VisHarness. VisHarness solves complex fundamental vision tasks through multi-turn interactions. At each turn, it selects an action based on the current memory. When a visual expert is invoked, the environment parses the expert name and arguments, and a controller dispatches the request to the least-loaded worker among multiple expert instances for parallel execution. After receiving the visualized and textual feedback, VisHarness dynamically archives outdated visual memory and includes current feedback into its memory and proceeds to the next turn. 
+
+3 VisHarness as a Visual Tool Harness 
+
+3.1 Multi-Turn Visual Expert Harnessing 
+
+We propose VisHarness, a general-purpose visual agent that decouples high-level visual perception, reasoning, and decision-making from low-level visual task execution and effectively solves various complex visual tasks through multi-turn interactions. As shown in Fig. 2, for an input image-text pair 
+
+(Ii, T i), the text Ti specifies the target objects in the image Ii for detection, segmentation, or counting using simple (class name) or complex phrases (includes descriptions of complex attributes, such as relative spatial relationships, object material, and pose or state). Moreover, VisHarness naturally supports visual tasks where phrase understanding requires complex reasoning [13]. VisHarness performs multi-turn reasoning based on both the image and text, and finally produces the results (Bj , M j )ˆnj=1 , where Bj denotes the bounding box of each target object and Mj denotes the corresponding mask. At the t-th turn, VisHarness πθ predicts an action at = ( ωt, ϕ t) ∼ πθ (at | M t)
+
+based on current memory Mt, where ωt ∈ Ω denotes the selected visual expert from the expert set 
+
+Ω, and ϕt ∈ Φτt denotes the corresponding invocation parameters of expert ωt. The environment then parses the action at and executes the selected expert ωt with parameters ϕt, producing expert feedback ot = ( vt, r t) ∼ E (ot|ωt, ϕ t), where vt denotes the visual output and rt denotes the textual output. Then, the memory is updated by archiving previous visual feedback and incorporating the current action and its corresponding feedback as Mt+1 = U(A(Mt), a t, o t), where A(·) denotes the visual archival function and U(·) is the memory update function. By archiving accumulated visual feedback, A(·) effectively reduces the context overhead introduced by long-horizon multi-turn interactions. This process can be naturally formulated as a Markov decision process (MDP), where 
+
+Mt serves as the state, at = ( ωt, ϕ t) serves as the action, and Mt+1 is the next state. Note that, to process multiple image-text pairs in parallel, each visual expert model is instantiated as multiple workers in the environment. When VisHarness requests to invoke a specific expert, a controller selects the worker with the lowest current load among all workers of that expert to execute the visual task. 
+
+3.2 Heterogeneous Visual Expert Suite 
+
+A sufficiently general and well-generalized visual expert suite is an important foundation for enabling VisHarness to handle diverse and complex visual tasks. In our design, each expert corresponds to a 4PhraseToBoxMask  PointToBoxMask 
+
+> “bird”
+> Detect and Segment objects of
+> one category described by a
+> simple noun phrase.
+
+1     
+
+> Strengths Limitations
+> •Fast and efficient
+> •Directly outputs bounding boxes and masks
+> •Only support for simple noun phrase
+> •Can not handle complex expression
+
+2 PhraseToPoint      
+
+> Locate the center points of objects based on complex phrase with rich semantics.
+> Strengths Limitations
+> •Can handle complex attributes and relations
+> •Support diverse referring expressions
+> •Slow output with dense objects
+> •Outputs center points only, without masks or bounding boxes
+
+3  
+
+> a catcher squat down and a guy throwing the ball
+> Convert given center points into bounding boxes and masks.
+> Strengths
+> •Bridges points to bounding boxes and masks
+> Limitations
+> •A points may correspond to multiple candidate masks, causing ambiguity.
+
+4 SplitImageIntoPatches 
+
+> Partition the image into patches to better handle small or dense objects and scale variations.
+
+5 SuperResolution 
+
+> Partition the image into multiple patches to better handle small or dense objects and scale variations.
+
+6 MergeBoxMask 
+
+> Merge patch-level boxes
+> and masks, suppress
+> cross-patch duplicates,
+> and map them back to the original image.
+
+…Figure 3: The Heterogeneous Visual Expert Suite consists of six visual experts, including three fundamental visual models for executing specific vision tasks and three auxiliary visual tools for extending the capabilities of these models. Each visual expert plays a distinct role, while different experts can complement each other to jointly solve complex visual tasks that are difficult for any single expert to accomplish. key atomic visual operation. These experts have their own strengths and limitations, but under the unified coordination of VisHarness, they can complement one another and leverage their respective advantages, thereby solving complex visual tasks that would be difficult for any single expert to accomplish independently. As shown in Fig. 3, our expert suite consists of six experts, including three visual expert models and three auxiliary operation tools. The visual expert models are responsible for executing specific visual tasks, such as returning object bounding boxes, masks, or center points, while the auxiliary visual tools extend the capability range of these expert models to some extent. For example, in extremely dense scenes or scenarios with large scale variations, general-purpose visual expert models often struggle to handle the input directly. In such cases, “SplitImageIntoPatch” divides regions with different densities and scales into multiple patches, allowing VisHarness to select suitable visual expert models according to the object density and scale within each patch. Furthermore, the “SuperResolution” expert can enhance the resolution of a specific patch, thereby reducing the risk of missed detections by visual expert models. Finally, the “MergeBoxMask” tool leverages the overlapping partitioning strategy of “SplitImageIntoPatch” to remove duplicate detections of the same object across different patches, producing complete and consistent final results. 
+
+4 Learning to Harness Visual Experts 
+
+VisHarness is trained in two stages. First, we perform supervised fine-tuning (SFT) for cold start, enabling the model to acquire the basic ability to generate visual tool-calling formats. For on-policy reinforcement learning training, we use Group Relative Policy Optimization (GRPO) [ 6 ] to train VisHarness in a live system equipped with visual expert models to further enhance the VisHarness’s generalization ability. Please refer to the supplementary material for the details of SFT. 
+
+4.1 GRPO with Dynamic Visual Memory Archiving 
+
+GRPO requires sampling multiple trajectories for each input and optimizes the policy model by comparing their relative advantages within the same group. However, in VisHarness, multi-turn interactions with visual models cause the returned visualized results to continuously accumulate in an uncontrollable manner, leading to substantial token overhead. To address this issue, we introduce 
+
+Dynamic Visual Memory Archiving during GRPO rollout. The key idea is to preserve only the most recent visual feedback, while dynamically archiving previous visual feedback into compact textual placeholders. In this way, VisHarness can still access the semantic history of previous visual results, while avoiding the continuous accumulation of visual tokens. Specifically, given a training sample (I, T, y ), where y denotes the ground-truth visual annotation associated with (I, T ), we use the old policy model πθold to sample a group of G trajectories: 
+
+{τi}Gi=1 ∼ πθold (· | I, T ), (1) 5where the i-th trajectory is denoted as τi = {(ait, o it)}Ti
+
+> t=1
+
+. Here, ait denotes the action generated by the policy at step t, and oit denotes the corresponding observation returned by the selected visual expert model. The action ait is sampled conditioned on the current memory Mit, i.e. ait ∼ πθold 
+
+ ait | M it
+
+.The memory is updated dynamically during rollout. Let A(·) denote the visual memory archiving function and let U(·) denote the memory update function. Thus, Mit is computed as 
+
+Mit = U  A(Mit−1), a it−1, o it−1
+
+ . (2) Concretely, before adding the latest observation, the archiving function A archives the visualized result from previous observations into a textual format. The update function U then appends the latest observation ot = ( vt, r t) to the memory. Therefore, when predicting ait, the policy is conditioned on the latest visual results in oit−1, while earlier visual feedback is retained only as compact textual archives. Similarly, when predicting ait+1 , the latest visual condition becomes oit.This dynamic memory design introduces an important training issue. If the whole trajectory τi
+
+is directly used as a single training sequence, the resulting training context may contain multiple historical visual results simultaneously, which is inconsistent with the rollout-time memory state defined in Eq. (2) . During rollout, each action is generated under a step-specific memory, where only the most recent visual results are available as visual input. Directly optimizing on the complete trajectory would therefore create a mismatch between training and inference. To avoid this inconsistency, we decompose each trajectory into step-wise training samples. For each action ait, we construct an independent training instance conditioned on the exact memory state Mit
+
+used during rollout: 
+
+Dstep =   Mit, a it
+
+ | i = 1 , . . . , G, t = 1 , . . . , T i . (3) This ensures that the policy is optimized under the same visual memory as that used for rollout, thereby maintaining consistency between GRPO training and inference. For each trajectory τi, we compute the trajectory-level reward as ri = R(ˆ yi, y i). The group-relative advantage for the i-th trajectory is then computed as 
+
+ˆAi = ri − mean  {rj }Gj=1 
+
+
+
+std  {rj }Gj=1 
+
+ , (4) Since the final reward evaluates the overall correctness of the complete trajectory, all step-wise actions from the same trajectory share the same trajectory-level advantage ˆAi.Finally, the policy model is optimized over the step-wise samples using the GRPO objective:                
+
+> LGRPO =−1
+> PGi=1 TiGX
+> i=1
+> TiX
+> t=1
+> h
+> min
+> 
+> ρi,t (θ) ˆAi,clip( ρi,t (θ),1−ε, 1 + ε) ˆAi
+> 
+> −βD KL (πθ∥πref )
+> i
+> ,(5)
+
+where 
+
+ρi,t (θ) = πθ (ait | M it)
+
+πθold (ait | M it) , (6) 
+
+ε is the clipping coefficient, β controls the strength of the KL regularization, and πref denotes the reference policy. By optimizing each action under its corresponding memory state with the trajectory-level reward, the proposed training strategy enables efficient GRPO training for multi-turn visual expert interaction while preserving consistency with the inference-time behavior of VisHarness. 
+
+4.2 Terminal Visual Rewards 
+
+For image-text pairs whose visual ground truth is provided as point annotations, we design a soft reward function based on the relative counting error. For image-text pairs whose visual ground truth is provided as bounding boxes or masks, we adopt an IoU-based soft reward function. Specifically, we define the unified soft reward as 
+
+r =
+
+
+
+8 IoU(ˆ z, z ⋆) − 3, if the visual GT is bounding boxes or masks ,
+
+max 
+
+
+
+−3, 5 − 8 |ˆn − n⋆|
+
+n⋆
+
+
+
+, if the visual GT is point annotations , (7) where z⋆ denotes the ground-truth bounding box or mask, and ˆz denotes the corresponding prediction. 
+
+n⋆ and ˆn denote the ground-truth count and the predicted count, respectively, with n⋆ > 0.6Table 1: Generalized Referring Expression Segmentation on gRefCOCO. Bold : best.                                                                                  
+
+> Method Training Data Ratio Validation Set Test Set A Test Set B Avg. gIoU cIoU gIoU cIoU gIoU cIoU
+> Traditional Specialized Segmentation Models
+> LTS [10] 100% 52.70 52.30 62.64 61.87 50.42 49.96 54.98 VLT [7] 100% 52.00 52.51 63.20 62.19 50.88 50.52 55.21 CRIS [32] 100% 56.27 55.34 63.42 63.82 51.79 51.04 56.95 ReLA [15] 100% 63.60 62.42 70.03 69.26 61.02 59.88 64.40 LAVT [39] 100% 58.40 57.64 65.90 65.32 55.83 55.04 59.70
+> Specialized Segmentation Models Based on MLLM
+> LISA(FT) [13] 100% 61.63 61.76 66.27 68.50 58.84 60.63 62.90 GSVA(FT) [35] 100% 66.47 63.29 71.08 69.93 62.23 60.47 65.60
+> VisHarness-SFT 0.7% 55.14 58.34 69.19 69.29 61.72 60.25 62.32 VisHarness 0.7% 56.80 60.60 70.04 70.23 62.44 61.35 63.58
+
+5 Experiments 
+
+5.1 Evaluation Setup Benchmarks. We evaluate VisHarness on four benchmarks spanning segmentation, detection, and counting, where the tasks further involve visual grounding conditioned on complex referring phrases, as well as dense- and small-object detection and counting. Specifically, gRefCOCO [ 15 ]evaluates generalized referring expression segmentation under single-object, multi-object, and no-object queries. ReasonSeg [ 13 ] evaluates reasoning segmentation. Dense200 [ 9] evaluates dense small-object detection, while REC-8K [ 5 ] evaluates referring-expression counting for dense objects described by complex phrases. Dense200 is held out from all SFT and GRPO training data, and thus measures the cross-domain transfer ability of the learned visual expert-harnessing policy. Please refer to the supplementary material for implementation details and evaluation metrics. 
+
+5.2 Comparison with State-of-the-Arts Methods 5.2.1 Generalized Referring Expression Segmentation 
+
+The GRES task requires the model to segment specific targets in an image according to a given sentence. The target referred to by the sentence may be absent from the image, or may correspond to one or multiple object instances. Table 1 presents the comparison results between our method and other methods specifically designed for GRES on the gRefCOCO dataset. These GRES-specific methods typically train the backbone and mask decoder using the full gRefCOCO training set. MLLM-based specialized methods further rely on additional datasets from other segmentation tasks, such as the RefCOCO series. In contrast, VisHarness is trained with only about 0.7% of the gRefCOCO training set, yet achieves results comparable to or even better than those specialized models. This indicates that our method can learn a generalizable policy from only a small amount of data, rather than relying on large-scale task-specific training data. 
+
+5.2.2 Reasoning Segmentation Table 2: Comparison with state-of-the-art reason-ing segmentation methods on ReasonSeg. Method Val Test Avg. gIoU cIoU gIoU cIoU LISA [13] 53.6 52.3 48.7 48.8 50.9 SegLLM [30] 57.2 54.3 52.4 48.4 53.1 Seg-Zero [18] 61.6 52.6 58.2 52.4 56.2 Text4Seg++ [14] 59.1 49.5 57.1 52.1 54.5 SAM3-Agent [4] 62.2 – 63.0 –VisHarness-SFT 69.9 62.0 71.0 66.6 67.4 VisHarness 72.4 62.4 73.2 67.0 68.6 
+
+In reasoning segmentation [ 13 ], the text does not explicitly specify the object to be segmented in the image. Instead, the model needs to first infer the target object from the implicit textual de-scription. The “perception–reasoning–decision– execution” capability of VisHarness naturally supports this task paradigm: the VLM first in-fers the target object from the given text and then passes it as an argument to the visual ex-pert model for execution. As shown in Table 2, VisHarness significantly outperforms other state-7of-the-art models specifically designed for reasoning segmentation. In particular, VisHarness clearly outperforms SAM3-Agent [ 4 ], which simply combines an MLLM with SAM3. This demonstrates that our method can dynamically select appropriate visual expert models under different scenarios, fully leveraging the strengths of different experts to achieve a more effective combination of capabilities. 
+
+5.2.3 Dense and Tiny Object Detection 
+
+Table 3 presents the dense small-object detection results on the Dense200 dataset. We compare against the open-set detector GroundingDINO [ 17 ], general-purpose MLLMs, specialist detection models, and a prompted tool-use baseline that calls the same visual tool without a learned policy. Notably, our training data does not include any images from the Dense200 dataset, yet VisHarness still achieves the best performance and even clearly outperforms proprietary models. This demonstrates that the policy learned from other datasets can generalize well to datasets beyond the training set. Among vanilla MLLMs, SEED1.5-VL achieves 76.9 but collapses at the tighter IoU threshold (F1@0.95: 5.3), revealing that coarse spatial outputs cannot satisfy strict localization requirements. The comparison with Qwen3-VL-8B using the same visual experts under the same prompt shows that an untrained MLLM cannot correctly select and invoke appropriate visual expert models. After GRPO training, VisHarness further improves to 85.5 F1@0.5, confirming that RL training provides gains beyond SFT alone. Table 3: Comparison with MLLMs and pro-prietary models on the dense-object detection dataset Dense200. Type Method F1@IoU 0.5 F1@IoU 0.95 mIoU Open-set Grounding DINO-Swin-T [17] 36.9 19.7 33.1 MLLM DeepSeek-VL2-Tiny 2.2 0.3 1.5 OVIS2.5-9B 14.0 0.0 5.1 OVIS2.5-2B 17.9 0.0 6.7 MiMo-VL-7B 29.7 0.4 15.9 Qwen2.5-VL-3B 0.8 0.1 0.5 Qwen2.5-VL-7B 1.1 0.1 0.6 DeepSeek-VL2-Small 16.0 3.9 12.7 SEED1.5-VL 76.9 5.3 53.2 Specialist Rex-Omni-SFT [9] 60.2 10.6 46.4 Rex-Omni [9] 78.4 10.3 58.3 Agent Qwen3-VL-8B (w/ tools) 16.5 1.5 12.9 VisHarness-SFT (Qwen3-VL-8B) 83.3 14.5 67.9 VisHarness (Qwen3-VL-8B) 85.5 14.7 69.3 
+
+Table 4: Comparison with specialized methods and general-purpose MLLMs on the REC-8K dataset. Method Val set Test set MAE ↓ RMSE ↓ MAE ↓ RMSE ↓                                                
+
+> Mean 14.28 27.75 13.75 25.91 ZSC (ResNet-50) [37] 14.84 31.30 14.93 29.72 ZSC (Swin-T) [37] 12.96 26.74 13.00 29.07 TFOC [24] 16.08 31.61 17.27 32.68 CounTX [1] 11.88 27.04 11.84 25.62 CountGD [2] 9.51 22.91 11.33 30.87 GDino [17] 9.03 21.98 8.88 21.95 GroundingREC [5] 6.80 18.13 6.50 19.79 Qwen3-VL-8B [3] 31.8 142.5 35.7 152.3 Qwen3.5-9B [21] 27.4 103.5 28.9 97.8 VisHarness-SFT 9.89 28.16 9.92 27.10 VisHarness 9.31 23.16 9.86 24.70
+
+5.2.4 Referring Expression Counting 
+
+Table 4 shows the comparison results of our method with specialized counting methods and general-purpose MLLMs on the REC-8K dataset. It can be observed that our method performs slightly worse than the latest specialized counting method, but outperforms other specialized methods and general-purpose models. Nevertheless, our method is a general framework that can not only perform counting tasks but also handle pixel-level vision tasks guided by complex language. 
+
+5.3 In-Depth Analysis 5.3.1 Visual Tools Usage Distribution Analysis 
+
+Fig. 4 shows the distribution of visual expert invocations, providing an intuitive view of differ-ent models’ tool-selection preferences. Figs. 4(a) and 4(b) compare Qwen3-VL-8B and VisHar-ness on Dense200. VisHarness substantially increases the use of SplitImageIntoPatches and 
+
+SuperResolution , which is reasonable because Dense200 focuses on dense small-object detection, where these tools help address scale variation and small-object challenges. This also helps explain VisHarness’s superior performance on this dataset. Fig. 4(c) and 4(d) compare VisHarness-SFT and VisHarness on gRefCOCO. After GRPO training, VisHarness markedly reduces the use of 
+
+SplitImageIntoPatches and SuperResolution . Since gRefCOCO images are from COCO and typically contain fewer, larger objects, dense small-object handling is less necessary. This indicates that SFT alone tends to mechanically imitate tool-use patterns with limited generalization, whereas online GRPO training enables VisHarness to reduce unnecessary or inappropriate tool invocations. 8PhraseToBoxMask  PhraseToPoint  PointToBoxMask  SplitImageIntoPatches  SuperResolution 
+
+Visual Expert Usage Distribution of Qwen3-VL-8B on Dense200 
+
+(a) 
+
+Visual Expert Usage Distribution of VisHarness on Dense200 
+
+(b) 
+
+Visual Expert Usage Distribution of VisHarness-SFT on gRefCOCO 
+
+(c) 
+
+Visual Expert Usage Distribution of VisHarness on gRefCOCO 
+
+(d) Figure 4: Distribution of visual expert calling by different model variants across different datasets. 
+
+5.3.2 Qualitative Analysis 
+
+As shown in Fig. 5, we select one GRES task and one dense small-object detection/counting task to intuitively illustrate the multi-turn reasoning and visual expert invocation process of VisHarness. In the GRES task, the target objects in the image are relatively large, so VisHarness can obtain the result with only a few interaction turns. However, since a point in PointToBoxMask may correspond to multiple candidate masks, such ambiguity can lead to incorrect results. VisHarness can identify and correct this error, thereby producing the correct final result. In the second example, the target objects are small, so VisHarness splits the original image into patches to alleviate the challenges caused by scale variation and dense small objects. These examples demonstrate the superiority of VisHarness: it can adaptively select different visual expert-harnessing strategies for different data and correct errors through multi-turn interactions to eventually complete the task. I need the pixel-wise mask for the object(s) described as 'left elephant'. 
+
+> <think>… includes spatial information…</think>
+> <tool_call>… PhraseToPoint …</tool_call>
+> <tool_response> For the phrase…
+> The visualization results. …</tool_response>
+> <think>The PhraseToPoint correctly…</think> <tool_call>… PointToBoxMask ..</tool_call>
+> <think> covers both…This is incorrect …</think> <tool_call>… PointToBoxMask …</tool_call>
+> <think>…produced a much better result!</think> <tool_call>…MergeBoxMask…</tool_call>
+> <tool_response>… The PointToBoxMask tool has returne …</tool_response>
+> <tool_response>The PointToBoxMask tool has returned.…</tool_response>
+
+Generalized Referring Expression Segmentation 
+
+> What is the total count of person dragon dancing?
+
+Referring Expression Detection/Counting 
+
+> <think>The objects are relatively small…</think> <tool_call>SplitImageIntoPatches </tool_call>
+> <tool_response>The image img_0 has been
+> divided into 12 patches. …</tool_response>
+> <think>…I've successfully applied…</think> <tool_call>…PhraseToPoint…</tool_call>
+
+…
+
+…
+
+> <think> Now I need to merge these …</think> <tool_call>…MergeBoxMask…</tool_call>
+> Only useful patches are selected by VisHarness
+> <tool_response> The PointToBoxMask tool has returned…</tool_response>
+> <tool_response> The MergeBoxMask tool has merged …</tool_response>
+> <think> The MergeBoxMask tool has…</think>
+> < answer >…total count is 53…</ answer >
+> Self-correct, retry with the same expert, but with refined parameters!
+
+…
+
+Figure 5: Multi-turn interaction visualization on two representative image-text pairs. 
+
+6 Conclusion 
+
+In this paper, we present VisHarness , a trainable visual agent that learns to harness heterogeneous visual experts for complex fundamental vision tasks. Instead of adapting an MLLM to solve a single visual task, VisHarness decouples high-level perception, reasoning, and decision-making from low-level visual execution, allowing the agent to preserve general vision-language reasoning ability while leveraging the precision of specialized visual models. Through multi-turn interactions with visual experts, VisHarness can adaptively select, coordinate, and refine expert outputs to solve visual tasks involving complex language understanding and dense small-object perception. The dynamic visual memory archiving mechanism enables efficient reinforcement learning in a live environment with deployed visual experts, further improving the learning of generalizable policies. Quantitative experiments show that VisHarness achieves comparable or superior performance to specialized models across tasks. Qualitative analysis further demonstrates that online reinforcement learning optimizes VisHarness’s expert harnessing policy and reduces ineffective invocations. 9References 
+
+[1] Niki Amini-Naieni, Kiana Amini-Naieni, Tengda Han, and Andrew Zisserman. Open-world text-specified object counting. arXiv preprint arXiv:2306.01851 , 2023. [2] Niki Amini-Naieni, Tengda Han, and Andrew Zisserman. Countgd: Multi-modal open-world counting. Advances in Neural Information Processing Systems , 37:48810–48837, 2024. [3] Shuai Bai et al. Qwen3-vl technical report. arXiv preprint arXiv:2511.21631 , 2025. [4] Nicolas Carion, Laura Gustafson, Yuan-Ting Hu, Shoubhik Debnath, Ronghang Hu, Didac Suris, Chaitanya Ryali, Kalyan Vasudev Alwala, Haitham Khedr, Andrew Huang, et al. Sam 3: Segment anything with concepts. In The Fourteenth International Conference on Learning Representations , 2026. [5] Siyang Dai, Jun Liu, and Ngai-Man Cheung. Referring expression counting. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 16985–16995. IEEE, 2024. [6] DeepSeek-AI. Deepseek-r1: Incentivizing reasoning capability in llms via reinforcement learning. arXiv preprint arXiv:2501.12948 , 2025. [7] Henghui Ding, Chang Liu, Suchen Wang, and Xudong Jiang. Vision-language transformer and query generation for referring segmentation. In Proceedings of the IEEE/CVF international conference on computer vision , pages 16321–16330, 2021. [8] Yaowu Fan, Jia Wan, Tao Han, Antoni B. Chan, and Andy J. Ma. Video individual counting for moving drones. In Proceedings of the IEEE/CVF International Conference on Computer Vision ,pages 12284–12293, 2025. [9] Qing Jiang, Junan Huo, Xingyu Chen, Yuda Xiong, Zhaoyang Zeng, Yihao Chen, Tianhe Ren, Junzhi Yu, and Lei Zhang. Detect anything via next point prediction. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , 2026. [10] Ya Jing, Tao Kong, Wei Wang, Liang Wang, Lei Li, and Tieniu Tan. Locate then segment: A strong pipeline for referring image segmentation. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 9858–9867, 2021. [11] Kimi Team. Kimi K2.5: Visual agentic intelligence. arXiv preprint arXiv:2602.02276 , 2026. [12] Alexander Kirillov, Eric Mintun, Nikhila Ravi, Hanzi Mao, Chloe Rolland, Laura Gustafson, Tete Xiao, Spencer Whitehead, Alexander C. Berg, Wan-Yen Lo, Piotr Dollar, and Ross Girshick. Segment anything. In Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) , pages 4015–4026, October 2023. [13] Xin Lai, Zhuotao Tian, Yukang Chen, Yanwei Li, Yuhui Yuan, Shu Liu, and Jiaya Jia. Lisa: Reasoning segmentation via large language model. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 9579–9589, 2024. [14] Mengcheng Lan, Chaofeng Chen, Jiaxing Xu, Zongrui Li, Yiping Ke, Xudong Jiang, Yingchen Yu, Yunqing Zhao, and Song Bai. Text4seg++: Advancing image segmentation via generative language modeling. IEEE Transactions on Pattern Analysis and Machine Intelligence , pages 1–16, 2026. [15] Chang Liu, Henghui Ding, and Xudong Jiang. Gres: Generalized referring expression segmenta-tion. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition ,pages 23592–23601. IEEE, 2023. [16] Shilong Liu, Hao Cheng, Haotian Liu, Hao Zhang, Feng Li, Tianhe Ren, Xueyan Zou, Jianwei Yang, Hang Su, Jun Zhu, et al. Llava-plus: Learning to use tools for creating multimodal agents. In European conference on computer vision , pages 126–142. Springer, 2024. 10 [17] Shilong Liu, Zhaoyang Zeng, Tianhe Ren, Feng Li, Hao Zhang, Jie Yang, Qing Jiang, Chunyuan Li, Jianwei Yang, Hang Su, et al. Grounding dino: Marrying dino with grounded pre-training for open-set object detection. In European conference on computer vision , pages 38–55. Springer, 2024. [18] Yuqi Liu, Bohao Peng, Zhisheng Zhong, Zihao Yue, Fanbin Lu, Bei Yu, and Jiaya Jia. Seg-zero: Reasoning-chain guided segmentation via cognitive reinforcement. arXiv preprint arXiv:2503.06520 , 2025. [19] Zhuoyan Luo, Yinghao Wu, Tianheng Cheng, Yong Liu, Yicheng Xiao, Hongfa Wang, Xiao-Ping Zhang, and Yujiu Yang. Cohd: A counting-aware hierarchical decoding framework for generalized referring expression segmentation. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pages 22685–22694, 2025. [20] Cheng Qian, Emre Can Acikgoz, Qi He, Hongru Wang, Xiusi Chen, Dilek Hakkani-Tür, Gokhan Tur, and Heng Ji. Toolrl: Reward is all tool learning needs. arXiv preprint arXiv:2504.13958 ,2025. [21] Qwen Team. Qwen3.5: Towards native multimodal agents, February 2026. [22] Nikhila Ravi, Valentin Gabeur, Yuan-Ting Hu, Ronghang Hu, Chaitanya Ryali, Tengyu Ma, Haitham Khedr, Roman Rädle, Chloe Rolland, Laura Gustafson, et al. Sam 2: Segment anything in images and videos. arXiv preprint arXiv:2408.00714 , 2024. [23] Ranjan Sapkota, Rahul Harsha Cheppally, Ajay Sharda, and Manoj Karkee. Yolo26: key architectural enhancements and performance benchmarking for real-time object detection. arXiv preprint arXiv:2509.25164 , 2025. [24] Zenglin Shi, Ying Sun, and Mengmi Zhang. Training-free object counting with prompts. In 
+
+Proceedings of the IEEE/CVF winter conference on applications of computer vision , pages 323–331, 2024. [25] Zhaochen Su, Linjie Li, Mingyang Song, Yunzhuo Hao, Zhengyuan Yang, Jun Zhang, Guanjie Chen, Jiawei Gu, Juntao Li, Xiaoye Qu, et al. Openthinkimg: Learning to think with images via visual tool reinforcement learning. arXiv preprint arXiv:2505.08617 , 2025. [26] Hao Tang, Chenwei Xie, Haiyang Wang, Xiaoyi Bao, Tingyu Weng, Pandeng Li, Yun Zheng, and Liwei Wang. Ufo: A unified approach to fine-grained visual perception via open-ended language interface. arXiv preprint arXiv:2503.01342 , 2025. [27] Jia Wan, Ziquan Liu, and Antoni B Chan. A generalized loss function for crowd counting and localization. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 1974–1983, 2021. [28] Haiyang Wang, Hao Tang, Li Jiang, Shaoshuai Shi, Muhammad Ferjad Naeem, Hongsheng Li, Bernt Schiele, and Liwei Wang. Git: Towards generalist vision transformer through universal language interface. In Computer Vision – ECCV 2024 , pages 55–73. Springer Nature Switzerland, 2025. [29] Hongru Wang, Cheng Qian, Wanjun Zhong, Xiusi Chen, Jiahao Qiu, Shijue Huang, Bowen Jin, Mengdi Wang, Kam-Fai Wong, and Heng Ji. Acting less is reasoning more! teaching model to act efficiently. arXiv preprint arXiv:2504.14870 , 2025. [30] X. Wang, S. Zhang, S. Li, K. Li, K. Kallidromitis, Y. Kato, K. Kozuka, and T. Darrell. Segllm: Multi-round reasoning segmentation with large language models. In The Thirteenth Interna-tional Conference on Learning Representations , 2025. [31] Yabing Wang, Zhuotao Tian, Zheng Qin, Sanping Zhou, and Le Wang. Refdetector: A simple yet effective matching-based method for referring expression comprehension. In Proceedings of the AAAI Conference on Artificial Intelligence , volume 39, pages 8033–8041, 2025. [32] Zhaoqing Wang, Yu Lu, Qiang Li, Xunqiang Tao, Yandong Guo, Mingming Gong, and Tongliang Liu. Cris: Clip-driven referring image segmentation. In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition , pages 11686–11695, 2022. 11 [33] Cong Wei, Yujie Zhong, Haoxian Tan, Yingsen Zeng, Yong Liu, Hongfa Wang, and Yujiu Yang. Instructseg: Unifying instructed visual segmentation with multi-modal large language models. In Proceedings of the IEEE/CVF International Conference on Computer Vision , pages 20193–20203, 2025. [34] Yixuan Wu, Yizhou Wang, Shixiang Tang, Wenhao Wu, Tong He, Wanli Ouyang, Philip Torr, and Jian Wu. Dettoolchain: A new prompting paradigm to unleash detection ability of mllm. In 
+
+European Conference on Computer Vision , pages 164–182. Springer, 2024. [35] Zhuofan Xia, Dongchen Han, Yizeng Han, Xuran Pan, Shiji Song, and Gao Huang. Gsva: Generalized segmentation via multimodal large language models. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition , pages 3858–3869, 2024. [36] Jingyi Xu, Hieu Le, Vu Nguyen, Viresh Ranjan, and Dimitris Samaras. Zero-shot object counting. In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) , pages 15548–15557, June 2023. [37] Jingyi Xu, Hieu Le, and Dimitris Samaras. Zero-shot object counting with language-vision models. arXiv preprint arXiv:2309.13097 , 2023. [38] Yuqi Yang, Peng-Tao Jiang, Jing Wang, Hao Zhang, Kai Zhao, Jinwei Chen, and Bo Li. Empowering segmentation ability to multi-modal large language models. arXiv preprint arXiv:2403.14141 , 2024. [39] Zhao Yang, Jiaqi Wang, Xubing Ye, Yansong Tang, Kai Chen, Hengshuang Zhao, and Philip HS Torr. Language-aware vision transformer for referring segmentation. IEEE Transactions on Pattern Analysis and Machine Intelligence , 47(7):5238–5255, 2024. [40] Xizhou Zhu, Weijie Su, Lewei Lu, Bin Li, Xiaogang Wang, and Jifeng Dai. Deformable detr: Deformable transformers for end-to-end object detection. arXiv preprint arXiv:2010.04159 ,2020. 12

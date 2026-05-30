@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.25293v1/fig-001.webp",
+      "caption": "TABLE I: Notation Summary for Lkp",
+      "page": 6,
+      "index": 1,
+      "width": 374,
+      "height": 415
+    },
+    {
+      "url": "assets/figures/arxiv/2605.25293v1/fig-002.webp",
+      "caption": "TABLE V: Block-wise synaptic operation energy comparison: SNN vs. equivalent CNN. Energy estimated using 45 nm technology constants (EAC = 0.9 pJ, EMAC = 4.6 pJ) at T = 13 timesteps and input resolution 320 × 320. FR = mean firing rate; Sp. = sparsity (1− FR); CNN/SNN = energy ratio (higher is better for SNN).",
+      "page": 11,
+      "index": 2,
+      "width": 1006,
+      "height": 515
+    },
+    {
+      "url": "assets/figures/arxiv/2605.25293v1/fig-003.webp",
+      "caption": "TABLE III: Car Detection Average Precision (AP) on KITTI Validation Set",
+      "page": 10,
+      "index": 3,
+      "width": 533,
+      "height": 244
+    },
+    {
+      "url": "assets/figures/arxiv/2605.25293v1/fig-004.webp",
+      "caption": "Fig. 4: Spike activity over time for 5 time steps and spike rate for the keypoint detection head: Each plane shows the binary spike pattern at a single timestep (t = 0 through t = 4), followed by the temporal mean firing rate (avg) and the bird’s-eye-view LiDAR input (BEV). Cyan spots on the BEV highlight spatial regions with elevated average spike activity.",
+      "page": 13,
+      "index": 4,
+      "width": 529,
+      "height": 311
+    },
+    {
+      "url": "assets/figures/arxiv/2605.25293v1/fig-005.webp",
+      "caption": "Fig. 5: Mean firing rate of the proposed SNN across training epochs: The network learns progressively sparser spike representations.",
+      "page": 13,
+      "index": 5,
+      "width": 496,
+      "height": 366
+    },
+    {
+      "url": "assets/figures/arxiv/2605.25293v1/fig-006.webp",
+      "caption": "TABLE II: Notation Summary for Lbox",
+      "page": 8,
+      "index": 6,
+      "width": 496,
+      "height": 402
+    },
+    {
+      "url": "assets/figures/arxiv/2605.25293v1/fig-007.webp",
+      "caption": "Fig. 3: Qualitative comparison of 3D object detection on the KITTI validation set across three diverse scenes: Green boxes denote network predictions. The left column demonstrates the continuous vmem readout, while the right column demonstrates the fully binary spike readout. Red circles highlight characteristic failure modes induced by purely binary spike inference, including false negatives on distant, sparse objects (top and middle rows) and orientation misalignment (bottom row).",
+      "page": 9,
+      "index": 7,
+      "width": 1012,
+      "height": 1249
+    }
+  ]
+}

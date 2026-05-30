@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.28157v1/fig-001.webp",
+      "caption": "Table 2 Performance comparison of static IoU thresholds and PPO-based adaptive distillation",
+      "page": 21,
+      "index": 1,
+      "width": 860,
+      "height": 461
+    }
+  ]
+}

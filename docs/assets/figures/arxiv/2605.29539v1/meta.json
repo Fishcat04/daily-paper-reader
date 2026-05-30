@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.29539v1/fig-001.webp",
+      "caption": "Figure 1. Overview of the proposed GiPL-Grounding framework. Our method addresses the CDFSOD challenge through a dual-branch domain-adaptive strategy. Branch 1: Iterative Self-training with Pseudo-labeling (Left). For CARPK, we employ a cyclic “inference-annotation-training” pipeline. A pre-trained detector generates initial pseudolabels on the target support set, which are then used as supervisory signals to fine-tune the model, progressively correcting localization inaccuracies and alleviating unreasonable background penalties. Branch 2: LVLM-based Generative Data Augmentation (Right). We leverage the multimodal generation capabilities of Qwen to synthesize domainaligned, semantically consistent training samples. By integrating these two branches, our framework effectively enriches the feature distribution and improves adaptation across diverse target domains.",
+      "page": 3,
+      "index": 1,
+      "width": 898,
+      "height": 196
+    }
+  ]
+}

@@ -1,0 +1,460 @@
+{
+  "mode": "standard",
+  "generated_at": "2026-05-30T19:56:19.110785+00:00",
+  "stats": {
+    "mode": "standard",
+    "tag_count": 1,
+    "deep_divecandidates": 2,
+    "deep_cap": 6,
+    "deep_selected": 2,
+    "quick_candidates": 9,
+    "quick_skim_target": 11,
+    "quick_selected": 9
+  },
+  "deep_dive": [
+    {
+      "id": "2605.28157v1",
+      "source": "arxiv",
+      "title": "Intra-YOLO: A Small Object Detection Model for Caries and Molar-Incisor Hypomineralization in Intraoral Photography Based on Transfer Learning with Reinforcement Learning",
+      "abstract": "This study developed a computer-aided diagnosis (CAD) system for detecting caries and molar-incisor hypomineralization (MIH) in intraoral photographs. These lesions share similar appearances, making clinical differentiation challenging, especially given their small size and variability in imaging conditions.",
+      "authors": [
+        "Po-Lun Chwang",
+        "Po-Yu Chang",
+        "Wen-Liang Lin",
+        "Tung-Sheng Wu",
+        "Min-Ching Wang",
+        "Yun-Chien Cheng"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-27T08:41:10+00:00",
+      "link": "https://arxiv.org/pdf/2605.28157v1",
+      "tags": [
+        "keyword:SOD"
+      ],
+      "llm_score": 9.0,
+      "llm_evidence_en": "Small object detection model for caries and MIH in intraoral photography",
+      "llm_evidence_cn": "针对口腔摄影中龋齿和MIH的小目标检测模型",
+      "llm_evidence": "针对口腔摄影中龋齿和MIH的小目标检测模型",
+      "canonical_evidence": "针对口腔摄影中龋齿和MIH的小目标检测模型",
+      "llm_tldr_en": "Develops Intra-YOLO for detecting small dental lesions using transfer and reinforcement learning.",
+      "llm_tldr_cn": "开发了Intra-YOLO模型，利用迁移学习和强化学习检测口腔中的微小病变。",
+      "llm_tldr": "开发了Intra-YOLO模型，利用迁移学习和强化学习检测口腔中的微小病变。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch"
+    },
+    {
+      "id": "2605.27129v1",
+      "source": "arxiv",
+      "title": "YOLO26-RipeLoc Lite: A lightweight architecture for tomato ripeness detection and picking point localization in greenhouse robotic harvesting",
+      "abstract": "In greenhouse tomato production, automated harvesting requires accurate detection of ripe tomatoes, ripeness classification, and precise picking-point localization for robotic end-effectors. This paper proposes YOLO26-RipeLoc Lite, a lightweight deep learning architecture based on YOLO26 for simultaneous detection, ripeness classification, and center-point localization of greenhouse tomatoes. The model introduces three modifications: (1) a Lightweight Feature Pyramid Network (LFPN) with depthwise separable convolutions for efficient multi-scale fusion, (2) a Ripeness-Aware Attention Module (RAAM) with dual pooling and a learnable ripeness bias vector for enhanced color-texture discrimination, and (3) a Compact Detection Head (CDH) with shared convolutions and an integrated center-point regression branch for direct grasp planning. The model is evaluated on a custom dataset of 1,500 images with 6,227 instances (3,566 ripe, 2,661 unripe) from the SILAL greenhouse, Abu Dhabi, UAE. YOLO26-RipeLoc Lite achieves mAP@0.5 of 92.9% (95.2% ripe, 90.6% unripe) with the highest precision (95.2%) among all evaluated architectures using only 2.38M parameters. Post-training BatchNorm pruning at 30% reduces parameters to ~1.8M with negligible accuracy loss. Ablation studies confirm that greenhouse-aware HSV augmentation provides the largest improvement (+2.02 pp mAP@50), backbone freezing achieves peak precision (93.8%), and 3-phase progressive unfreezing yields the best localization quality (mAP@50:95 of 64.6%). Comparisons with YOLOv8n/s, YOLO11n/s, YOLO12n/s, and YOLO26s confirm superior accuracy-efficiency: 2.9 pp higher precision than YOLO12n with 7.0% fewer parameters and integrated center-point localization for robotic end-effector guidance.",
+      "authors": [
+        "Rajmeet Singh",
+        "Manveen Kaur",
+        "Shahpour Alirezaee",
+        "Irfan Hussain"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.RO"
+      ],
+      "published": "2026-05-26T15:00:24+00:00",
+      "link": "https://arxiv.org/pdf/2605.27129v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 8.0,
+      "llm_evidence_en": "Lightweight Feature Pyramid Network (LFPN) for efficient multi-scale fusion",
+      "llm_evidence_cn": "用于高效多尺度融合的轻量级特征金字塔网络 (LFPN)",
+      "llm_evidence": "用于高效多尺度融合的轻量级特征金字塔网络 (LFPN)",
+      "canonical_evidence": "用于高效多尺度融合的轻量级特征金字塔网络 (LFPN)",
+      "llm_tldr_en": "Proposes YOLO26-RipeLoc Lite with a lightweight FPN and attention for tomato detection and localization.",
+      "llm_tldr_cn": "提出YOLO26-RipeLoc Lite，采用轻量级FPN和注意力机制进行番茄检测与定位。",
+      "llm_tldr": "提出YOLO26-RipeLoc Lite，采用轻量级FPN和注意力机制进行番茄检测与定位。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "FPN and its variants for multi-scale object detection",
+      "matched_requirement_id": "req-2",
+      "selection_source": "fresh_fetch"
+    }
+  ],
+  "quick_skim": [
+    {
+      "id": "2605.25293v1",
+      "source": "arxiv",
+      "title": "Neuromorphic LiDAR-based Bird's Eye View Object Detection using Energy-efficient Spiking Neural Networks",
+      "abstract": "Autonomous driving perception demands accurate and efficient processing of three-dimensional sensor data under strict power constraints. Traditional convolutional neural networks achieve strong detection accuracy but are computationally intensive, limiting their suitability for deployment on resource-constrained neuromorphic platforms. Spiking neural networks offer a compelling alternative through event-driven sparse computation, yet their application to complex real-world perception tasks such as three-dimensional object detection remains limited. In this work, we propose an end-to-end spiking encoder-decoder network for object detection in bird's eye view representations of LiDAR point clouds, trained using surrogate gradient backpropagation. We train two variants: a membrane potential variant that reads continuous neuron state at the output stage for maximum accuracy, achieving $92.05$/$87.04$/$86.51$ AP at $\\mathrm{IoU}\\!=\\!0.5$ (Easy/Moderate/Hard), and, a fully binary spiking variant that operates exclusively on spike trains at every layer for direct neuromorphic deployment. We evaluate four input spike encoding strategies and demonstrate that allowing the network to learn spike representations directly from data outperforms hand-crafted Poisson, latency, and z-axis encoding schemes on the KITTI benchmark, where sequential frames are unavailable and the BEV input is presented repeatedly across timesteps as a proxy for temporal streaming. A block-wise energy analysis demonstrates a $3.33\\times$ reduction in synaptic operation energy over an equivalent CNN under conservative loop-based operation. Together, these results demonstrate the viability of spiking neural networks for accurate and energy-efficient neuromorphic perception in autonomous driving.",
+      "authors": [
+        "Sambit Mohapatra",
+        "Senthil Yogamani",
+        "Heinrich Gotzig",
+        "Patrick Mader"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.RO"
+      ],
+      "published": "2026-05-24T23:13:34+00:00",
+      "link": "https://arxiv.org/pdf/2605.25293v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "object detection in bird's eye view representations of LiDAR point clouds",
+      "llm_evidence_cn": "LiDAR点云鸟瞰图表示中的物体检测",
+      "llm_evidence": "LiDAR点云鸟瞰图表示中的物体检测",
+      "canonical_evidence": "LiDAR点云鸟瞰图表示中的物体检测",
+      "llm_tldr_en": "Proposes an energy-efficient spiking neural network for 3D object detection in LiDAR bird's eye view.",
+      "llm_tldr_cn": "提出一种高能效脉冲神经网络，用于LiDAR鸟瞰图中的3D物体检测。",
+      "llm_tldr": "提出一种高能效脉冲神经网络，用于LiDAR鸟瞰图中的3D物体检测。",
+      "llm_tags": [
+        "query:sod:composite"
+      ],
+      "matched_query_tag": "query:sod:composite",
+      "matched_query_text": "Papers central to 小目标检测相关论文检索, especially work that connects or combines: deep learning methods for small object detection; FPN and its variants for multi-scale object detection; oversampling and augmentation strategies for small objects; spatial and channel attention for small object feature enhancement; multi-scale feature fusion techniques in computer vision; specialized loss functions for small object localization; state of the art deep learning methods for small object detection; benchmarking small object detection on public datasets.",
+      "matched_requirement_id": "req-composite-sod",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.25651v1",
+      "source": "arxiv",
+      "title": "Hierarchical Consistency Learning for Test-time Adaptation in Camouflage Perception",
+      "abstract": "Camouflaged object detection (COD) aims to localize targets that exhibit minimal perceptual differences from backgrounds through physical attributes. Existing methods, constrained by the static train-then-freeze paradigm, suffer from domain rigidity and annotation dependency, limiting their adaptability to scene variations and unseen camouflage patterns. To overcome these, we propose the hierarchical consistency learning (HCL) framework, which integrates test-time adaptation for dynamic representation recalibration. Specifically, we design the hierarchical representation reconstruction (HRR) to alleviate feature entanglement by synergizing spatial reconstruction with dual-stream frequency-domain decomposition, enhancing robustness against appearance homogenization. The pixel and spectrum inference provide structural and contextual priors. We further introduce task affinity guidance (TAG) to propagate knowledge across branches via channel-wise affinity, aligning local discriminative cues and mitigating semantic drift. To ensure semantic invariance, we formulate the prototype consistency calibration (PCC), which aggregates region features into compact prototypes and establishes prototype-feature similarity. This imposes implicit and hierarchical constraints that bridge task and representation gaps. Extensive experiments across four camouflaged and four underwater object benchmarks, under three degradation settings, demonstrate that our method consistently outperforms state-of-the-art approaches, highlighting its robustness and generalization under distribution shifts.",
+      "authors": [
+        "Mingfeng Zha",
+        "Tianyu Li",
+        "Guoqing Wang",
+        "Yunqiang Pei",
+        "Chaofan Qiao",
+        "Jiening Zhang",
+        "Yang Yang",
+        "Heng Tao Shen"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-25T09:57:46+00:00",
+      "link": "https://arxiv.org/pdf/2605.25651v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.5,
+      "llm_evidence_en": "hierarchical representation reconstruction for camouflaged object detection",
+      "llm_evidence_cn": "用于伪装目标检测的分层表示重建",
+      "llm_evidence": "用于伪装目标检测的分层表示重建",
+      "canonical_evidence": "用于伪装目标检测的分层表示重建",
+      "llm_tldr_en": "Proposes a hierarchical consistency learning framework for adapting camouflaged object detection to new scenes.",
+      "llm_tldr_cn": "提出一种分层一致性学习框架，用于使伪装目标检测适应新场景。",
+      "llm_tldr": "提出一种分层一致性学习框架，用于使伪装目标检测适应新场景。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.29894v1",
+      "source": "arxiv",
+      "title": "Train the Agent, Not the Expert: Learning to Harness Heterogeneous Experts for Multi-Turn Visual Reasoning",
+      "abstract": "Recent progress in computer vision has produced a wide range of powerful specialized models for detection, segmentation, counting, and other visual tasks. However, these models are usually optimized for isolated task formulations, making it difficult to directly support general-purpose visual intelligence, especially when a task requires complex language understanding and dense small-object perception. In this paper, we propose VisHarness, a trainable visual agent that decouples high-level perception, reasoning, and decision-making from low-level task execution. Instead of training a model to solve a specific visual task, VisHarness learns to harness a set of carefully designed heterogeneous visual experts. This paradigm preserves the general intelligence of the agent while fully leveraging the precision advantages of specialized visual models in concrete visual tasks. With only lightweight training, VisHarness learns a generalizable visual expert-harnessing policy and can solve common fundamental vision tasks under various complex conditions through multi-turn interactions with visual expert models. To enable efficient on-policy reinforcement learning training in a live environment, we introduce dynamic visual memory archiving, which mitigates the rapidly accumulating visual-token overhead caused by multi-turn interactions with visual expert models. Experiments on four representative benchmarks covering reasoning segmentation, generalized referring segmentation, dense small-object detection, and referring counting demonstrate that VisHarness substantially outperforms existing general-purpose models and achieves competitive or superior performance compared with task-specific models.",
+      "authors": [
+        "Yaowu Fan",
+        "Tao Han",
+        "Dazhao Du",
+        "Andy J. Ma",
+        "Jia Wan"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-28T13:18:10+00:00",
+      "link": "https://arxiv.org/pdf/2605.29894v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "Supports tasks requiring dense small-object perception through heterogeneous experts",
+      "llm_evidence_cn": "通过异构专家支持需要密集小目标感知的任务",
+      "llm_evidence": "通过异构专家支持需要密集小目标感知的任务",
+      "canonical_evidence": "通过异构专家支持需要密集小目标感知的任务",
+      "llm_tldr_en": "Proposes VisHarness, a visual agent that harnesses specialized experts for complex reasoning and small-object tasks.",
+      "llm_tldr_cn": "提出VisHarness视觉代理，通过调用专门的异构专家来处理复杂推理和密集小目标感知。",
+      "llm_tldr": "提出VisHarness视觉代理，通过调用专门的异构专家来处理复杂推理和密集小目标感知。",
+      "llm_tags": [
+        "query:sod:composite"
+      ],
+      "matched_query_tag": "query:sod:composite",
+      "matched_query_text": "Papers central to 小目标检测相关论文检索, especially work that connects or combines: deep learning methods for small object detection; FPN and its variants for multi-scale object detection; oversampling and augmentation strategies for small objects; spatial and channel attention for small object feature enhancement; multi-scale feature fusion techniques in computer vision; specialized loss functions for small object localization; state of the art deep learning methods for small object detection; benchmarking small object detection on public datasets.",
+      "matched_requirement_id": "req-composite-sod",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.29539v1",
+      "source": "arxiv",
+      "title": "GiPL: Generative augmented iterative Pseudo-Labeling for Cross-Domain Few-Shot Object Detection",
+      "abstract": "Vision-language foundation models have shown promising zero-shot generalization for Cross-Domain Few-Shot Object Detection (CD-FSOD). However, they face two critical challenges in fine-tuning: insufficient support set utilization due to sparse single-instance annotations, and severe overfitting under extremely limited target-domain samples. To address these issues, this paper proposes GiPL, an efficient two-branch training framework.In the first branch, we design an iterative pseudo-label self-training paradigm, which performs zero-shot inference on the support set to generate reliable pseudo-annotations, fuses them with ground-truth labels, and iteratively optimizes the model to fully exploit support set data. In the second branch, we introduce generative data augmentation pipeline using large vision-language models, which synthesizes domain-aligned, multi-object annotated images to enrich training samples and suppress overfitting. Extensive experiments on three challenging CD-FSOD datasets (RUOD, CARPK, CarDD) under 1/5/10-shot settings demonstrate that GiPL consistently outperforms state-of-the-art methods with significant performance gains.Code is available at \\href{https://github.com/z-yaz/CDiscover}{CDiscover}.",
+      "authors": [
+        "Jiacong Liu",
+        "Shu Luo",
+        "Yikai Qin",
+        "Yaze Zhao",
+        "Yongwei Jiang",
+        "Yixiong Zou"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI"
+      ],
+      "published": "2026-05-28T07:53:40+00:00",
+      "link": "https://arxiv.org/pdf/2605.29539v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.5,
+      "llm_evidence_en": "Generative augmentation and iterative pseudo-labeling for few-shot detection",
+      "llm_evidence_cn": "用于少样本检测的生成式增强与迭代伪标签",
+      "llm_evidence": "用于少样本检测的生成式增强与迭代伪标签",
+      "canonical_evidence": "用于少样本检测的生成式增强与迭代伪标签",
+      "llm_tldr_en": "Introduces GiPL for cross-domain few-shot object detection using generative data augmentation.",
+      "llm_tldr_cn": "提出GiPL框架，通过生成式数据增强解决跨域少样本目标检测问题。",
+      "llm_tldr": "提出GiPL框架，通过生成式数据增强解决跨域少样本目标检测问题。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "oversampling and augmentation strategies for small objects",
+      "matched_requirement_id": "req-3",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.29954v1",
+      "source": "arxiv",
+      "title": "SwInception -- Local Attention Meets Convolutions",
+      "abstract": "Sparse vision transformers have gained popularity as efficient encoders for medical volumetric segmentation, with Swin emerging as a prominent choice. Swin uses local attention to reduce complexity and yields excellent performance for many tasks but still tends to overfit on small datasets. To mitigate this weakness, we propose a novel architecture that further enhances Swin's inductive bias by introducing Inception blocks in the feed-forward layers. The introduction of these multi-branch convolutions enables more direct reasoning over local, multi-scale features within the transformer block. We have also modified the decoder layers in order to capture finer details using fewer parameters. We demonstrate a performance improvement on eleven different medical datasets through extensive experimentation. We specifically showcase advancements over the previous state-of-the-art backbones on benchmark challenges like the Medical Segmentation Decathlon and Beyond the Cranial Vault. By showing that the existing inductive bias in Swin can be further improved, our work presents a promising avenue for enhancing the capabilities of sparse vision transformers for both medical and natural image segmentation tasks. Code and pre-trained weights can be accessed at https://github.com/Eiphodos/SwInception.",
+      "authors": [
+        "David Hagerman",
+        "Roman Naeem",
+        "Jakob Lindqvist",
+        "Carl Lindström",
+        "Fredrik Kahl",
+        "Lennart Svensson"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-28T14:00:05+00:00",
+      "link": "https://arxiv.org/pdf/2605.29954v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 7.0,
+      "llm_evidence_en": "reasoning over local, multi-scale features within transformer blocks",
+      "llm_evidence_cn": "在Transformer块内对局部多尺度特征进行推理",
+      "llm_evidence": "在Transformer块内对局部多尺度特征进行推理",
+      "canonical_evidence": "在Transformer块内对局部多尺度特征进行推理",
+      "llm_tldr_en": "Combines Swin attention with Inception blocks to capture multi-scale features and reduce overfitting.",
+      "llm_tldr_cn": "结合Swin注意力和Inception模块，捕获多尺度特征并减少在小数据集上的过拟合。",
+      "llm_tldr": "结合Swin注意力和Inception模块，捕获多尺度特征并减少在小数据集上的过拟合。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "multi-scale feature fusion techniques in computer vision",
+      "matched_requirement_id": "req-5",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "7"
+    },
+    {
+      "id": "2605.24533v1",
+      "source": "arxiv",
+      "title": "Learnable Shape Prototypes with Occlusion-Geometry-Guided Injection for Amodal Instance Segmentation",
+      "abstract": "Amodal instance segmentation aims to predict the complete object mask including occluded regions that lack pixel-level observations and must be inferred with the aid of shape priors. Existing methods acquire shape priors through fixed-capacity encoding spaces or expensive generative models, and inject them uniformly across all spatial positions without adapting to the varying prior demand between visible and occluded regions. In this paper, we propose a gated reliability-adaptive shape prior framework, which introduces a shape prior memory module that combines learnable prototypes via cross-attention to produce instance-adaptive shape priors through weighted prototype combination rather than generation. A spatial adaptive reliability gate then employs the signed distance field of the visible mask to modulate injection intensity at each position according to its occlusion depth, preserving reliable features in visible regions while directing shape compensation toward occluded areas. Experiments on two mainstream amodal instance segmentation benchmarks demonstrate that the proposed method outperforms existing approaches under multiple evaluation settings, improving the mean intersection-over-union over occluded regions by over 11 percentage points on one of the two benchmarks under the standard setting, while using approximately one-third of the total parameters. Linear probing analysis further reveals that the visible-mask cross-attention module implicitly encodes occlusion geometry into visual token representations, explaining the effectiveness of the proposed module decomposition.",
+      "authors": [
+        "Fufan Zhang",
+        "Jingxiang Wang",
+        "Xiangjie Ye"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV"
+      ],
+      "published": "2026-05-23T11:53:49+00:00",
+      "link": "https://arxiv.org/pdf/2605.24533v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "amodal instance segmentation for predicting complete object masks including occluded regions",
+      "llm_evidence_cn": "非全貌实例分割，用于预测包括遮挡区域在内的完整物体掩码",
+      "llm_evidence": "非全貌实例分割，用于预测包括遮挡区域在内的完整物体掩码",
+      "canonical_evidence": "非全貌实例分割，用于预测包括遮挡区域在内的完整物体掩码",
+      "llm_tldr_en": "Proposes a shape prior framework for amodal instance segmentation to infer occluded object regions.",
+      "llm_tldr_cn": "提出一种形状先验框架，用于非全貌实例分割以推断被遮挡的物体区域。",
+      "llm_tldr": "提出一种形状先验框架，用于非全貌实例分割以推断被遮挡的物体区域。",
+      "llm_tags": [
+        "query:sod:composite"
+      ],
+      "matched_query_tag": "query:sod:composite",
+      "matched_query_text": "Papers central to 小目标检测相关论文检索, especially work that connects or combines: deep learning methods for small object detection; FPN and its variants for multi-scale object detection; oversampling and augmentation strategies for small objects; spatial and channel attention for small object feature enhancement; multi-scale feature fusion techniques in computer vision; specialized loss functions for small object localization; state of the art deep learning methods for small object detection; benchmarking small object detection on public datasets.",
+      "matched_requirement_id": "req-composite-sod",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.27178v1",
+      "source": "arxiv",
+      "title": "FoundObj: Self-supervised Foundation Models as Rewards for Label-free 3D Object Segmentation",
+      "abstract": "We address the challenging task of 3D object segmentation in complex scene point clouds without relying on any scene-level human annotations during training. Existing methods are typically constrained to identifying simple objects, primarily due to insufficient object priors in the learning process. In this paper, we present FoundObj, a novel framework featuring a superpoint-based object discovery agent that incrementally merges suitable neighboring superpoints, guided by our innovative semantic and geometric reward modules. These modules synergistically leverage semantic and geometric priors from self-supervised 2D/3D foundation models, providing complementary feedback to the object discovery agent and enabling robust identification of multi-class objects through reinforcement learning. Extensive experiments on diverse benchmarks demonstrate that our approach consistently outperforms existing baselines. Notably, our method exhibits strong generalization in zero-shot and long-tail scenarios, underscoring its potential for scalable, label-free 3D object segmentation.",
+      "authors": [
+        "Zihui Zhang",
+        "Zhixuan Sun",
+        "Yafei Yang",
+        "Jinxi Li",
+        "Jiahao Chen",
+        "Bo Yang"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.LG",
+        "cs.RO"
+      ],
+      "published": "2026-05-26T15:32:32+00:00",
+      "link": "https://arxiv.org/pdf/2605.27178v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "3D object segmentation and discovery in complex scene point clouds",
+      "llm_evidence_cn": "复杂场景点云中的3D物体分割与发现",
+      "llm_evidence": "复杂场景点云中的3D物体分割与发现",
+      "canonical_evidence": "复杂场景点云中的3D物体分割与发现",
+      "llm_tldr_en": "Presents FoundObj, a framework for label-free 3D object segmentation using self-supervised foundation models.",
+      "llm_tldr_cn": "提出FoundObj框架，利用自监督基础模型进行无标签3D物体分割。",
+      "llm_tldr": "提出FoundObj框架，利用自监督基础模型进行无标签3D物体分割。",
+      "llm_tags": [
+        "query:sod:composite"
+      ],
+      "matched_query_tag": "query:sod:composite",
+      "matched_query_text": "Papers central to 小目标检测相关论文检索, especially work that connects or combines: deep learning methods for small object detection; FPN and its variants for multi-scale object detection; oversampling and augmentation strategies for small objects; spatial and channel attention for small object feature enhancement; multi-scale feature fusion techniques in computer vision; specialized loss functions for small object localization; state of the art deep learning methods for small object detection; benchmarking small object detection on public datasets.",
+      "matched_requirement_id": "req-composite-sod",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "2605.30126v1",
+      "source": "arxiv",
+      "title": "PARCEL: Pool-Anchored Resampling with Conditioned Elastic Queries for Efficient Vision-Language Understanding",
+      "abstract": "Large Vision-Language Models (LVLMs) map visual inputs into dense token sequences, imposing a quadratic computational bottleneck for inference. Elastic visual-token compression addresses this by training a single model that can run at multiple visual-token budgets. However, existing approaches struggle under aggressive compression. Spatial-only compression, as in nested pooling, behaves as an imperfect low-pass filter and induces spectral aliasing that obscures fine-grained detail. Query-only compression, as in nested query resampling, replaces explicit grid-aligned tokens with non-local summaries and substantially degrades spatial grounding. To resolve this representational conflict, we introduce PARCEL (Pool-Anchored Resampling with Conditioned Elastic Queries for Efficient Vision-Language Understanding), a visual tokenization architecture that dynamically partitions the labor of feature extraction. PARCEL establishes spatial pool tokens as low-frequency layout anchors and conditions elastic query tokens on these anchors through Pool-Conditioned Query Resampling. This encourages query tokens to focus on complementary visual features rather than redundant spatial mapping. Extensive evaluations across 27 benchmarks show that PARCEL improves the performance-efficiency Pareto frontier, consistently outperforming existing matryoshka baselines across visual-token budgets while preserving the \"train once, deploy anywhere\" paradigm.",
+      "authors": [
+        "Selim Kuzucu",
+        "Alessio Tonioni",
+        "Vasile Lup",
+        "Bernt Schiele",
+        "Federico Tombari",
+        "Muhammad Ferjad Naeem"
+      ],
+      "primary_category": "cs.CV",
+      "categories": [
+        "cs.CV",
+        "cs.AI",
+        "cs.CL",
+        "cs.LG"
+      ],
+      "published": "2026-05-28T15:57:31+00:00",
+      "link": "https://arxiv.org/pdf/2605.30126v1",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "visual-token compression preserving fine-grained detail and spatial grounding",
+      "llm_evidence_cn": "保留细粒度细节和空间定位的视觉标记压缩",
+      "llm_evidence": "保留细粒度细节和空间定位的视觉标记压缩",
+      "canonical_evidence": "保留细粒度细节和空间定位的视觉标记压缩",
+      "llm_tldr_en": "Introduces PARCEL for efficient vision-language understanding by balancing compression and detail.",
+      "llm_tldr_cn": "引入PARCEL，通过平衡压缩与细节实现高效的视觉语言理解。",
+      "llm_tldr": "引入PARCEL，通过平衡压缩与细节实现高效的视觉语言理解。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "spatial and channel attention for small object feature enhancement",
+      "matched_requirement_id": "req-4",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    },
+    {
+      "id": "biorxiv-10-64898-2026-05-24-727056-v1",
+      "source": "biorxiv",
+      "title": "A scutum-focused deep learning pipeline for species-level identification of Aedes aegypti and Aedes albopictus from citizen-science images",
+      "abstract": "BackgroundMosquito-borne diseases transmitted by Aedes aegypti and Aedes albopictus -- including dengue, Zika, chikungunya, and yellow fever -- depend critically on rapid and accurate vector identification. Although deep learning has achieved high accuracy on curated laboratory images, performance degrades substantially when applied to community-submitted photographs that vary widely in quality, framing, and background. We sought to develop a robust pipeline for distinguishing these two morphologically similar vectors from real-world citizen-science images.\n\nMethodsWe compiled 2,112 mosquito images from the Global Mosquito Observation Database (GMOD) and assembled a multi-stage pipeline comprising: (i) a binary classifier to screen for mosquito presence; (ii) a YOLO-based object detector to localize specimens; (iii) an image-quality assessment module evaluating brightness, sharpness (Laplacian variance), contrast, and bounding-box ratio; (iv) Segment Anything Model (SAM) segmentation to isolate specimens from background clutter; and (v) a YOLO classifier trained on binary segmentation masks. To target the diagnostic characters used in conventional morphological taxonomy, we refined the pipeline to focus detection on the thoracic scutum -- the region bearing the lyre-shaped pale-scale pattern of Ae. aegypti and the median white stripe of Ae. albopictus.\n\nResultsBaseline YOLO classification on raw images achieved 30.95% accuracy for Ae. aegypti and 78.4% for Ae. albopictus, reflecting strong class imbalance and background noise. Augmentation alone provided only modest gains. The presence/absence classifier reached 90.52% accuracy, and the object detector localized mosquitoes with near-perfect precision. Whole-body SAM-mask classification improved overall accuracy to 68.21%. Refining the pipeline to scutum-focused classification yielded preliminary accuracies of 87.5% and 83.3% for Ae. albopictus and Ae. aegypti, respectively.\n\nConclusionsCommunity-sourced mosquito images, despite substantial noise and inconsistency, can support automated species-level vector surveillance when paired with a domain-informed, multi-stage deep-learning pipeline. Aligning machine attention with the morphological characters used by entomologists -- via scutum-focused detection -- delivers meaningful accuracy gains. This framework supports scalable citizen-science vector monitoring and lays the groundwork for integrating high-fidelity three-dimensional reference libraries to further strengthen real-world classifier performance.",
+      "authors": [
+        "Kruthiventi, N.",
+        "Hannum, A.",
+        "Megahed, A.",
+        "Chellappan, S.",
+        "Carney, R.",
+        "Kuusisto, F.",
+        "Uelmen, J. A."
+      ],
+      "primary_category": "bioinformatics",
+      "categories": [
+        "bioinformatics"
+      ],
+      "published": "2026-05-27T00:00:00+00:00",
+      "link": "https://www.biorxiv.org/content/10.64898/2026.05.24.727056v1.full.pdf",
+      "tags": [
+        "keyword:SOD",
+        "query:SOD"
+      ],
+      "llm_score": 6.0,
+      "llm_evidence_en": "deep learning pipeline for species-level identification from images",
+      "llm_evidence_cn": "用于图像物种识别的深度学习流水线",
+      "llm_evidence": "用于图像物种识别的深度学习流水线",
+      "canonical_evidence": "用于图像物种识别的深度学习流水线",
+      "llm_tldr_en": "Develops a robust deep learning pipeline for mosquito identification from real-world citizen-science images.",
+      "llm_tldr_cn": "开发了一种鲁棒的深度学习流水线，用于从现实世界的公民科学图像中识别蚊子。",
+      "llm_tldr": "开发了一种鲁棒的深度学习流水线，用于从现实世界的公民科学图像中识别蚊子。",
+      "llm_tags": [
+        "query:sod"
+      ],
+      "matched_query_tag": "query:sod",
+      "matched_query_text": "deep learning methods for small object detection",
+      "matched_requirement_id": "req-1",
+      "selection_source": "fresh_fetch",
+      "quick_tier": "6"
+    }
+  ]
+}

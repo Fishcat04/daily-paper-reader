@@ -1,0 +1,102 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.27129v1/fig-001.webp",
+      "caption": "Figure 2: Overall architecture of YOLO26-RipeLoc Lite. The model consists of a modified YOLO26 nano backbone (left, red dashed), a BN-based channel pruning pipeline (top-right, green dashed), and a detection head with center-point localization output (bottom-right, blue dashed). The backbone uses narrow channels (width_multiple=0.25) reducing parameters from 9.47M to 2.58M. Post-training BN pruning removes 30% of redundant channels, yielding ∼1.5M effective parameters. The CPL module extracts sub-pixel center coordinates (cx, cy) from ripe-class detections for robotic end-effector motion.",
+      "page": 6,
+      "index": 1,
+      "width": 832,
+      "height": 1000
+    },
+    {
+      "url": "assets/figures/arxiv/2605.27129v1/fig-002.webp",
+      "caption": "Figure 8: Qualitative detection and center-point localization results on the test set (48 images, confidence threshold 0.40). Red boxes with crosshair markers: ripe tomato detections with center-point coordinates (cx, cy). Green boxes: unripe detections. (a) Harvested vine with mixed ripeness. (b) Dense truss. (c) Natural lighting with canopy shadow. (d) Mixed-ripeness cluster. (e) Partial stem occlusion. (f) Dark-red mature fruit. (g) Maximum-density truss (7 ripe). (h) Hand occlusion. (i) Breaker-stage fruit.",
+      "page": 15,
+      "index": 2,
+      "width": 786,
+      "height": 1075
+    },
+    {
+      "url": "assets/figures/arxiv/2605.27129v1/fig-003.webp",
+      "caption": "Figure 6: Detection performance analysis. (a) Precision-recall curves: per-class AP@50 of 0.906 (unripe) and 0.952 (ripe), with overall mAP@50 = 0.929. (b) Normalized confusion matrix: 82% correct classification for both classes with minimal cross-class confusion (6% unripe→ripe, 9% ripe→unripe). Background false positives are predominantly classified as unripe (76%) rather than ripe (24%), minimizing false harvesting triggers.",
+      "page": 14,
+      "index": 3,
+      "width": 932,
+      "height": 463
+    },
+    {
+      "url": "assets/figures/arxiv/2605.27129v1/fig-004.webp",
+      "caption": "Figure 7: Training convergence curves. Top row: training losses (box, classification, DFL). Bottom row: validation losses and detection metrics (mAP@50, mAP@50:95). Blue: raw values; orange dashed: smoothed trend. All losses converge monotonically, and mAP@50 plateaus at ≈90% by epoch 20, confirming training stability without overfitting.",
+      "page": 14,
+      "index": 4,
+      "width": 932,
+      "height": 467
+    },
+    {
+      "url": "assets/figures/arxiv/2605.27129v1/fig-005.webp",
+      "caption": "Figure 10: Future scope: Hardware platform (Husky mobile robot + UR5 robotic arm with harvesting setup).",
+      "page": 18,
+      "index": 5,
+      "width": 394,
+      "height": 475
+    },
+    {
+      "url": "assets/figures/arxiv/2605.27129v1/fig-006.webp",
+      "caption": "Figure 3: Detailed structure of the Lightweight Feature Pyramid Network (LFPN). Standard convolutions are replaced with depthwise separable convolutions, and Ghost modules are integrated at fusion nodes.",
+      "page": 8,
+      "index": 6,
+      "width": 832,
+      "height": 815
+    },
+    {
+      "url": "assets/figures/arxiv/2605.27129v1/fig-007.webp",
+      "caption": "Figure 9: Distribution of Euclidean center-point localization errors across 126 ripe tomato detections on the test set. The dashed red line indicates the median error (3.21 pixels). 79.4% of detections fall within the 5-pixel threshold (green shaded region), corresponding to <3.9 mm physical error at 500 mm working distance.",
+      "page": 17,
+      "index": 7,
+      "width": 976,
+      "height": 611
+    },
+    {
+      "url": "assets/figures/arxiv/2605.27129v1/fig-008.webp",
+      "caption": "Figure 5: Grouped bar chart of the component-wise ablation study. Each configuration (B0–B5) is evaluated across four metrics. B1 (+HSV augmentation) achieves the highest mAP@50 (92.8%) and recall (90.3%), B2 (+frozen backbone) attains the highest precision (93.8%) at the cost of reduced recall (81.3%), and B4 (+3-phase training) produces the most balanced precision–recall trade-off with the highest mAP@50:95 (64.6%).",
+      "page": 12,
+      "index": 8,
+      "width": 979,
+      "height": 463
+    },
+    {
+      "url": "assets/figures/arxiv/2605.27129v1/fig-009.webp",
+      "caption": "Table 4: Comparative evaluation against state-of-the-art YOLO variants on the greenhouse tomato validation set. All models are trained with identical hyperparameters and augmentation pipeline. Best result per metric is indicated in bold.",
+      "page": 12,
+      "index": 9,
+      "width": 722,
+      "height": 246
+    },
+    {
+      "url": "assets/figures/arxiv/2605.27129v1/fig-010.webp",
+      "caption": "Figure 4: Architecture of the Ripeness-Aware Attention Module (RAAM). The module consists of GAP and GMP branches that enhance color–texture feature discrimination.",
+      "page": 9,
+      "index": 10,
+      "width": 736,
+      "height": 811
+    },
+    {
+      "url": "assets/figures/arxiv/2605.27129v1/fig-011.webp",
+      "caption": "Table 2: Model training parameters.",
+      "page": 9,
+      "index": 11,
+      "width": 427,
+      "height": 322
+    },
+    {
+      "url": "assets/figures/arxiv/2605.27129v1/fig-012.webp",
+      "caption": "Figure 1: Data acquisition setup and sample images. (a) Custom designed 3D-printed data capturing device equipped with an RGB camera, integrated LCD screen for real-time preview, trigger button for sequential image capture, and USB port for data transfer. (b) Data collection process at the greenhouse tomato farm showing handheld operation along tomato crop rows. (c) Representative sample images captured under varying illumination conditions, including artificial overhead lighting (top-left), natural side lighting (top-right), shaded canopy conditions (middle), and dense cluster scenarios with leaf occlusion (bottom).",
+      "page": 5,
+      "index": 12,
+      "width": 932,
+      "height": 486
+    }
+  ]
+}

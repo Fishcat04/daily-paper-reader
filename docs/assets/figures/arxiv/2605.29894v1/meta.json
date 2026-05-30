@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "extractor": "pdffigures2",
+  "figures": [
+    {
+      "url": "assets/figures/arxiv/2605.29894v1/fig-001.webp",
+      "caption": "Figure 1: From expert training to expert harnessing. (a): Traditional computer vision methods train a separate specialist for each visual sub-task. (b): VisHarness learns one harnessing policy over a set of heterogeneous experts and thus can solve complex visual tasks through multi-turn interaction.",
+      "page": 2,
+      "index": 1,
+      "width": 815,
+      "height": 362
+    },
+    {
+      "url": "assets/figures/arxiv/2605.29894v1/fig-002.webp",
+      "caption": "Table 1: Generalized Referring Expression Segmentation on gRefCOCO. Bold: best.",
+      "page": 7,
+      "index": 2,
+      "width": 777,
+      "height": 394
+    },
+    {
+      "url": "assets/figures/arxiv/2605.29894v1/fig-003.webp",
+      "caption": "Figure 2: Overview of VisHarness. VisHarness solves complex fundamental vision tasks through multi-turn interactions. At each turn, it selects an action based on the current memory. When a visual expert is invoked, the environment parses the expert name and arguments, and a controller dispatches the request to the least-loaded worker among multiple expert instances for parallel execution. After receiving the visualized and textual feedback, VisHarness dynamically archives outdated visual memory and includes current feedback into its memory and proceeds to the next turn.",
+      "page": 4,
+      "index": 3,
+      "width": 777,
+      "height": 397
+    },
+    {
+      "url": "assets/figures/arxiv/2605.29894v1/fig-004.webp",
+      "caption": "Figure 4: Distribution of visual expert calling by different model variants across different datasets.",
+      "page": 9,
+      "index": 4,
+      "width": 824,
+      "height": 219
+    },
+    {
+      "url": "assets/figures/arxiv/2605.29894v1/fig-005.webp",
+      "caption": "Figure 5: Multi-turn interaction visualization on two representative image-text pairs.",
+      "page": 9,
+      "index": 5,
+      "width": 816,
+      "height": 411
+    },
+    {
+      "url": "assets/figures/arxiv/2605.29894v1/fig-006.webp",
+      "caption": "Figure 3: The Heterogeneous Visual Expert Suite consists of six visual experts, including three fundamental visual models for executing specific vision tasks and three auxiliary visual tools for extending the capabilities of these models. Each visual expert plays a distinct role, while different experts can complement each other to jointly solve complex visual tasks that are difficult for any single expert to accomplish.",
+      "page": 5,
+      "index": 6,
+      "width": 824,
+      "height": 312
+    }
+  ]
+}
